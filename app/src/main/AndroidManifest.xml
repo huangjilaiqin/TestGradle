@@ -20,6 +20,10 @@
             android:name=".MySubActivity"
             android:label="@string/title_activity_my_sub" >
         </activity>
+        <activity
+            android:name=".MySub2Activity"
+            android:label="@string/title_activity_my_sub2" >
+        </activity>
     </application>
 
 </manifest>

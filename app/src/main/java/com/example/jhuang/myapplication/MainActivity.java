@@ -19,6 +19,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         Log.e(TAG, "onCreate");
         Button bLogin = (Button)findViewById(R.id.bLogin);
         Button bRegister = (Button)findViewById(R.id.bRegister);
@@ -46,6 +47,8 @@ public class MainActivity extends Activity {
                 Log.i(TAG, "register");
                 Log.i(TAG, tUsername.getText().toString().trim());
                 Log.i(TAG, tPassword.getText().toString().trim());
+                Intent intent = new Intent(MainActivity.this, MySub2Activity.class);
+                startActivity(intent);
             }
         });
     }

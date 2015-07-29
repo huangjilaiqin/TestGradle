@@ -24,7 +24,6 @@ public class MySubActivity extends Activity {
         //double db = intent.getDoubleExtra("db");
         Log.i(TAG, username);
         Log.i(TAG, passwd);
-        Log.i(TAG, "哈哈哈");
 
         final EditText et = (EditText)findViewById(R.id.editText);
         final TextView tv = (TextView)findViewById(R.id.textView);
