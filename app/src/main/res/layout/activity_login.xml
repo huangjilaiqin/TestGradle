@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_marginTop="30dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:weightSum="1">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@mipmap/ic_launcher"
+        android:layout_marginBottom="20dp"/>
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:stretchColumns="1">
+
+        <TableRow>
+            <TextView
+                android:layout_height="wrap_content"
+                android:text="用户名:"
+                android:textSize="18sp"
+                android:id="@+id/lUsername" />
+            <EditText
+                android:layout_height="wrap_content"
+                android:hint="邮箱"
+                android:id="@+id/tUsername" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:layout_height="wrap_content"
+                android:text="密    码:"
+                android:textSize="18sp"
+                android:id="@+id/lPassword" />
+            <EditText
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:id="@+id/tPassword" />
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="10dp">
+            <Button
+                android:layout_height="wrap_content"
+                android:text="登录"
+                android:layout_span="2"
+                android:id="@+id/bLogin" />
+        </TableRow>
+
+    </TableLayout>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="注册"
+        android:id="@+id/bRegister"
+        android:layout_gravity="center_horizontal" />
+
+</LinearLayout>
