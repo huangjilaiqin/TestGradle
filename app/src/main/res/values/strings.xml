@@ -10,6 +10,7 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_chat">ChatActivity</string>
     <string name="title_activity_example">ExampleActivity</string>
+    <string name="chat_text_size">17sp</string>
     <string name="head_image_width">43dp</string>
     <string name="head_image_height">43dp</string>
 
