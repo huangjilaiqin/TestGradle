@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,6 +20,7 @@ import java.util.List;
 public class ChatActivity extends Activity {
 
     private List<Message> messageList = new ArrayList<Message>();
+    private final static String TAG = "ChatActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,8 @@ public class ChatActivity extends Activity {
         final ImageView ivContentType = (ImageView) findViewById(R.id.content_type);
         final EditText etContent = (EditText) findViewById(R.id.content);
         ImageView ivSend = (ImageView) findViewById(R.id.send);
+
+        ivContentType.setTag(R.drawable.tn);
 
         //一进来就显示最新的聊天消息
         chatAdapter.notifyDataSetChanged();
@@ -79,16 +82,31 @@ public class ChatActivity extends Activity {
         ivContentType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int resourceId = ivContentType.getId();
-                Log.d("ChatActivity", ""+resourceId+","+R.drawable.tn);
+                ImageView iv = (ImageView)v;
+                int resourceId = (int)iv.getTag();
+                Log.d("ChatActivity", ""+resourceId+","+R.drawable.tn+","+R.drawable.tl);
+                //tn 为语音图片
+                InputMethodManager imm =  (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
                 if(resourceId == R.drawable.tn) {
                     Log.d("ChatActivity", "change to tn");
                     //ivContentType.setImageDrawable(getResources().getDrawable(R.drawable.tl));
-                    ivContentType.invalidate();;
-                    ivContentType.setImageResource(R.drawable.tl);
+                    //ivContentType.invalidate();;
+                    Log.d(TAG, "change to tl");
+                    //ivContentType.setImageResource(R.drawable.tl);
+                    iv.setImageResource(R.drawable.tl);
+                    iv.setTag(R.drawable.tl);
+                    if(imm != null){
+                        imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(),0);
+                    }
                 }else{
-                    ivContentType.setImageDrawable(getResources().getDrawable(R.drawable.tn));
+                    //ivContentType.setImageDrawable(getResources().getDrawable(R.drawable.tn));
                     //ivContentType.setImageResource(R.drawable.tn);
+                    Log.d(TAG, "change to tl");
+                    iv.setImageResource(R.drawable.tn);
+                    iv.setTag(R.drawable.tn);
+                    if(imm != null){
+                        imm.showSoftInput(getWindow().getDecorView(), InputMethodManager.SHOW_IMPLICIT);
+                    }
                 }
             }
         });
