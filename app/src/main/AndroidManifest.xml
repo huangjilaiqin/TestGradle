@@ -38,6 +38,10 @@
             android:label="@string/title_activity_chat" >
         </activity>
         <activity
+            android:name=".StoreFileActivity"
+            android:label="@string/title_activity_store_file" >
+        </activity>
+        <activity
             android:name=".ExampleActivity"
             android:label="@string/title_activity_example" >
         </activity>
