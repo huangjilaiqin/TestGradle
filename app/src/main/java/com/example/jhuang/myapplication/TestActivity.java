@@ -24,17 +24,11 @@ public class TestActivity extends Activity implements View.OnClickListener {
         storeFile.setOnClickListener(this);
         Button bSharePre= (Button)findViewById(R.id.sharePreferencesActivity);
         bSharePre.setOnClickListener(this);
+        Button bChangeText = (Button)findViewById(R.id.handlerActivity);
+        bChangeText.setOnClickListener(this);
+        Button bService = (Button) findViewById(R.id.firstServiceActivity);
+        bService.setOnClickListener(this);
 
-        /*
-        Button chat = (Button)findViewById(R.id.chatActivity);
-        chat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(TestActivity.this, ChatActivity.class);
-                startActivity(intent);
-            }
-        });
-        */
     }
 
     @Override
@@ -53,6 +47,14 @@ public class TestActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.sharePreferencesActivity:
                 intent = new Intent(TestActivity.this, SharePreferencesActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.handlerActivity:
+                intent = new Intent(TestActivity.this, HandlerActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.firstServiceActivity:
+                intent = new Intent(TestActivity.this, FirstServiceActivity.class);
                 startActivity(intent);
                 break;
             default:

@@ -23,4 +23,14 @@
         android:layout_height="wrap_content"
         android:text="SharePreferences"
         />
+    <Button
+        android:id="@+id/handlerActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="handler"/>
+    <Button
+        android:id="@+id/firstServiceActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="service"/>
 </LinearLayout>

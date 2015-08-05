@@ -49,6 +49,21 @@
             android:name=".SharePreferencesActivity"
             android:label="@string/title_activity_share_preferences" >
         </activity>
+        <activity
+            android:name=".HandlerActivity"
+            android:label="@string/title_activity_handler" >
+        </activity>
+
+        <service
+            android:name=".FirstService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <activity
+            android:name=".FirstServiceActivity"
+            android:label="@string/title_activity_first_service" >
+        </activity>
     </application>
 
 </manifest>

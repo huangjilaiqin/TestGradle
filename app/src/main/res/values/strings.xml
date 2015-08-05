@@ -15,5 +15,7 @@
     <string name="head_image_width">43dp</string>
     <string name="head_image_height">43dp</string>
     <string name="title_activity_share_preferences">SharePreferencesActivity</string>
+    <string name="title_activity_handler">HandlerActivity</string>
+    <string name="title_activity_first_service">FirstServiceActivity</string>
 
 </resources>
