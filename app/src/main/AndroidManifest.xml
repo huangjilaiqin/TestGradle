@@ -34,8 +34,8 @@
         </activity>
         <activity
             android:name=".ChatActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:label="@string/title_activity_chat" >
+            android:label="@string/title_activity_chat"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name=".StoreFileActivity"
@@ -44,6 +44,10 @@
         <activity
             android:name=".ExampleActivity"
             android:label="@string/title_activity_example" >
+        </activity>
+        <activity
+            android:name=".SharePreferencesActivity"
+            android:label="@string/title_activity_share_preferences" >
         </activity>
     </application>
 

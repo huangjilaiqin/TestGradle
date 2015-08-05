@@ -2,6 +2,7 @@ package com.example.jhuang.myapplication;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.util.Log;
@@ -21,6 +22,8 @@ public class TestActivity extends Activity implements View.OnClickListener {
         chat.setOnClickListener(this);
         Button storeFile = (Button)findViewById(R.id.storeFileActivity);
         storeFile.setOnClickListener(this);
+        Button bSharePre= (Button)findViewById(R.id.sharePreferencesActivity);
+        bSharePre.setOnClickListener(this);
 
         /*
         Button chat = (Button)findViewById(R.id.chatActivity);
@@ -46,6 +49,10 @@ public class TestActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.storeFileActivity:
                 intent = new Intent(TestActivity.this, StoreFileActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.sharePreferencesActivity:
+                intent = new Intent(TestActivity.this, SharePreferencesActivity.class);
                 startActivity(intent);
                 break;
             default:
