@@ -17,5 +17,6 @@
     <string name="title_activity_share_preferences">SharePreferencesActivity</string>
     <string name="title_activity_handler">HandlerActivity</string>
     <string name="title_activity_first_service">FirstServiceActivity</string>
+    <string name="title_activity_socket_io">SocketIOActivity</string>
 
 </resources>

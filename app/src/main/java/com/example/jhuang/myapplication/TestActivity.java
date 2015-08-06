@@ -28,6 +28,8 @@ public class TestActivity extends Activity implements View.OnClickListener {
         bChangeText.setOnClickListener(this);
         Button bService = (Button) findViewById(R.id.firstServiceActivity);
         bService.setOnClickListener(this);
+        Button bSocketIO = (Button)findViewById(R.id.socketIOActivity);
+        bSocketIO.setOnClickListener(this);
 
     }
 
@@ -55,6 +57,10 @@ public class TestActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.firstServiceActivity:
                 intent = new Intent(TestActivity.this, FirstServiceActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.socketIOActivity:
+                intent = new Intent(TestActivity.this, SocketIOActivity.class);
                 startActivity(intent);
                 break;
             default:
