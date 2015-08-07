@@ -21,6 +21,7 @@ public class SocketIOActivity extends Activity implements View.OnClickListener{
     private String onlineHost = "http://ws.qqshidao2.com";
     private String scoreHost = "http://14.215.100.100";
     private String scoreHost2 = "http://wsn.500.com";
+    private String myhost = "http://123.59.40.113";
     final private static String TAG = "SocketIOActivity";
     private Emitter.Listener onConnect = new Emitter.Listener() {
 		@Override
@@ -74,7 +75,7 @@ public class SocketIOActivity extends Activity implements View.OnClickListener{
             options.forceNew = true;
             options.reconnectionAttempts=2;
             //options.upgrade = true;
-            mSocket = IO.socket(onlineHost, options);
+            mSocket = IO.socket(myhost, options);
             //mSocket = IO.socket(yuHost, options);
             mSocket.on(Socket.EVENT_CONNECT, onConnect);
             mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
