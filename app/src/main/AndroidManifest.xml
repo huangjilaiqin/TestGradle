@@ -70,6 +70,10 @@
             android:name=".SocketIOActivity"
             android:label="@string/title_activity_socket_io" >
         </activity>
+        <activity
+            android:name=".SubThreadActivity"
+            android:label="@string/title_activity_sub_thread" >
+        </activity>
     </application>
 
 </manifest>

@@ -38,4 +38,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="socketIO"/>
+    <Button
+        android:id="@+id/subThreadActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="subThread"/>
 </LinearLayout>
