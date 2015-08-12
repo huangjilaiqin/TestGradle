@@ -1,6 +1,7 @@
 package com.example.jhuang.myapplication;
 
 import android.app.Activity;
+import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,26 +16,61 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.os.Handler;
+
+import com.lessask.chat.Chat;
+import com.lessask.chat.ChatMessage;
+
+import java.util.logging.LogRecord;
 
 
 public class ChatActivity extends Activity {
 
-    private List<Message> messageList = new ArrayList<Message>();
+    private static final int HANDLER_MESSAGE = 0;
+
     private final static String TAG = "ChatActivity";
+    private ListView chatListView;
+    private ChatAdapter chatAdapter;
+    private ArrayList<ChatMessage> messageArrayList = new ArrayList<>();
+
+    private Chat chat = Chat.getInstance();
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case ChatMessage.TYPE_RECEIVED_TEXT:
+                    chatAdapter.notifyDataSetChanged();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        initChatItemList();
-        final ChatAdapter chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_item, messageList);
-        ListView chatListView = (ListView) findViewById(R.id.chat_view);
+        chat.setDataChangeListener(new Chat.DataChangeListener() {
+            @Override
+            public void message(String data) {
+                handler.sendEmptyMessage(ChatMessage.TYPE_RECEIVED_TEXT);
+            }
+        });
+
+        chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_item, messageArrayList);
+        chatListView = (ListView) findViewById(R.id.chat_view);
         chatListView.setAdapter(chatAdapter);
         final LayoutInflater layoutInflater = LayoutInflater.from(this);
         final ListView lvChatView = (ListView) findViewById(R.id.chat_view);
+        //消息类型
         final ImageView ivContentType = (ImageView) findViewById(R.id.content_type);
+        //输入框
         final EditText etContent = (EditText) findViewById(R.id.content);
+        //发送
         ImageView ivSend = (ImageView) findViewById(R.id.send);
 
         ivContentType.setTag(R.drawable.tn);
@@ -124,15 +160,4 @@ public class ChatActivity extends Activity {
 
     }
 
-    private void initChatItemList(){
-        for(int i=0;i<1000;i++){
-            Message item;
-            if(i%2 == 0) {
-                item = new Message(Message.TYPE_RECEIVED_TEXT, "聊点什么" + i, R.mipmap.ic_launcher);
-            }else{
-                item = new Message(Message.TYPE_SEND_TEXT, "随便聊点什么都可以啊" + i, R.mipmap.ic_launcher);
-            }
-            messageList.add(item);
-        }
-    }
 }

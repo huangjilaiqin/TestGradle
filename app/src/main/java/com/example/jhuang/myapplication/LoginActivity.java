@@ -1,22 +1,83 @@
 package com.example.jhuang.myapplication;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Bundle;
+import android.os.*;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.lessask.chat.Chat;
+import com.model.Login;
+import com.model.LoginResponse;
 
 
 public class LoginActivity extends Activity {
     private static final String TAG="ActivityDemo";
+    private Chat chat = Chat.getInstance();
+    private Gson gson = new Gson();
+    private ProgressDialog loginDialog;
+
+    private final int HANDLER_LOGING_ERROR = 0;
+    private final int HANDLER_LOGING_SUCCESS = 1;
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            MyApplication app = (MyApplication)getApplication();
+            switch (msg.what){
+                case HANDLER_LOGING_ERROR:
+                    loginDialog.cancel();
+                    LoginResponse loginResponse = (LoginResponse)msg.obj;
+                    //Toast.makeText(LoginActivity.this, loginResponse.getErrno(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, ""+loginResponse.getErrno());
+                    break;
+                case HANDLER_LOGING_SUCCESS:
+                    Log.d(TAG,"login success userid:"+app.getUserid());
+                    //去掉转圈圈
+                    loginDialog.cancel();
+                    //跳转到首页
+                    Intent intent = new Intent(LoginActivity.this, TestActivity.class);
+
+                    startActivity(intent);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        chat.setLoginListener(new Chat.LoginListener() {
+            @Override
+            public void login(String data) {
+                LoginResponse loginResponse = gson.fromJson(data, LoginResponse.class);
+                if (loginResponse.getErrno() != 0 || loginResponse.getError().length() != 0) {
+                    Message msg = new Message();
+                    msg.what = HANDLER_LOGING_ERROR;
+                    msg.obj = loginResponse;
+                    handler.sendMessage(msg);
+                    return;
+                }else {
+                    MyApplication app = (MyApplication) getApplication();
+                    app.setUserid(loginResponse.getUserid());
+                    handler.sendEmptyMessage(HANDLER_LOGING_SUCCESS);
+                }
+
+
+
+        }
+    });
 
         Log.e(TAG, "onCreate");
         Button bLogin = (Button)findViewById(R.id.bLogin);
@@ -27,15 +88,22 @@ public class LoginActivity extends Activity {
         bLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "login");
                 String username = tUsername.getText().toString().trim();
                 String passwd = tPassword.getText().toString().trim();
-                Log.i(TAG, username);
-                Log.i(TAG, passwd);
+                chat.emit("login", gson.toJson(new Login(0, username, passwd)));
+                chat.emit("message", "message from android");
+                //转圈圈
+                loginDialog = new ProgressDialog(LoginActivity.this, ProgressDialog.STYLE_SPINNER);
+                loginDialog.setTitle("登录中...");
+                loginDialog.setCancelable(false);
+                loginDialog.show();
+
+                /*
                 Intent intent = new Intent(LoginActivity.this, TestActivity.class);
                 intent.putExtra("username", username);
                 intent.putExtra("passwd", passwd);
                 startActivity(intent);
+                */
             }
         });
         bRegister.setOnClickListener(new View.OnClickListener() {
@@ -86,4 +154,5 @@ public class LoginActivity extends Activity {
             Log.i(TAG, data.getStringExtra("passwd"));
         }
     }
+
 }

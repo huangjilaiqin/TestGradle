@@ -10,16 +10,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.lessask.chat.ChatMessage;
+
 import java.util.List;
 
 /**
  * Created by JHuang on 2015/8/1.
  */
 
-public class ChatAdapter extends ArrayAdapter<Message>{
+public class ChatAdapter extends ArrayAdapter<ChatMessage>{
     private static String TAG = "ChatAdapter";
     private int resourceId;
-    public ChatAdapter(Context context, int textViewResourceId, List<Message> objects){
+    public ChatAdapter(Context context, int textViewResourceId, List<ChatMessage> objects){
         super(context, textViewResourceId, objects);
         resourceId = textViewResourceId;
     }
@@ -28,9 +30,9 @@ public class ChatAdapter extends ArrayAdapter<Message>{
     //这里不能简单的缓冲,因为好几种消息类型用不一样的布局的
     //通过View的setTag来缓冲对象
     public View getView(int position, View convertView, ViewGroup parent){
-        Message itemData = getItem(position);
+        ChatMessage itemData = getItem(position);
         View itemView;
-        int msgType = itemData.getMsgType();
+        int msgType = itemData.getType();
         ViewHolder viewHolder;
         if(convertView!=null){
             itemView = convertView;
@@ -49,16 +51,16 @@ public class ChatAdapter extends ArrayAdapter<Message>{
         }
 
         switch (msgType){
-            case Message.TYPE_RECEIVED_TEXT:
+            case ChatMessage.TYPE_RECEIVED_TEXT:
                 viewHolder.leftLayout.setVisibility(View.VISIBLE);
                 viewHolder.rightLayout.setVisibility(View.GONE);
-                viewHolder.leftHeadImg.setImageResource(itemData.getHeadImgId());
+                viewHolder.leftHeadImg.setImageResource(R.mipmap.ic_launcher);
                 viewHolder.leftMsg.setText(itemData.getContent());
                 break;
-            case Message.TYPE_SEND_TEXT:
+            case ChatMessage.TYPE_SEND_TEXT:
                 viewHolder.rightLayout.setVisibility(View.VISIBLE);
                 viewHolder.leftLayout.setVisibility(View.GONE);
-                viewHolder.rightHeadImg.setImageResource(itemData.getHeadImgId());
+                viewHolder.rightHeadImg.setImageResource(R.mipmap.ic_launcher);
                 viewHolder.rightMsg.setText(itemData.getContent());
                 break;
             default:
