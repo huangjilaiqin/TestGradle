@@ -4,10 +4,13 @@ package com.model;
  * Created by huangji on 2015/8/12.
  */
 public class ResponseError {
-    private String error = "";
-    private int errno = 0;
+    private String error;
+    private int errno;
 
-    public ResponseError(){}
+    public ResponseError(){
+        errno = 0;
+        error = "";
+    }
     public ResponseError(int errno, String error){
         this.errno = errno;
         this.error = error;

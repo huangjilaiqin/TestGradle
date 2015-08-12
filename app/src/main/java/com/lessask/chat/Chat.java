@@ -33,7 +33,7 @@ public class Chat {
     private Chat(){
         try {
             IO.Options options = new IO.Options();
-            options.transports = new String[]{"websocket", "polling"};
+            //options.transports = new String[]{"websocket", "polling"};
             mSocket = IO.socket(chathost, options);
             mSocket.on(Socket.EVENT_CONNECT, onConnect);
             mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
@@ -104,6 +104,7 @@ public class Chat {
     private Emitter.Listener onMessage = new Emitter.Listener(){
         @Override
         public void call(Object... args) {
+            //to do 响应message要有两套机制,一个是message回应, 一个是好友发过来的message
             //修改用户的信息列表
             //Type type = new TypeToken<Map<String, String>>(){}.getType();
             //Map<String, String> map = gson.fromJson(args[0].toString(), type);

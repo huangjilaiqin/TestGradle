@@ -18,7 +18,7 @@ import com.model.LoginResponse;
 
 
 public class LoginActivity extends Activity {
-    private static final String TAG="ActivityDemo";
+    private static final String TAG= LoginActivity.class.getName();
     private Chat chat = Chat.getInstance();
     private Gson gson = new Gson();
     private ProgressDialog loginDialog;
@@ -26,17 +26,21 @@ public class LoginActivity extends Activity {
     private final int HANDLER_LOGING_ERROR = 0;
     private final int HANDLER_LOGING_SUCCESS = 1;
 
+    private final int LOGIN_MAIL = 1;
+    private final int LOGIN_WEIXIN = 2;
+
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Log.d(TAG, "login handler:"+msg.what);
             MyApplication app = (MyApplication)getApplication();
             switch (msg.what){
                 case HANDLER_LOGING_ERROR:
-                    loginDialog.cancel();
                     LoginResponse loginResponse = (LoginResponse)msg.obj;
-                    //Toast.makeText(LoginActivity.this, loginResponse.getErrno(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, ""+loginResponse.getErrno());
+                    Log.e(TAG, "login errno:"+loginResponse.getErrno()+", error:"+loginResponse.getError());
+                    loginDialog.cancel();
+                    Toast.makeText(LoginActivity.this, "login errno:"+loginResponse.getErrno()+", error:"+loginResponse.getError(), Toast.LENGTH_SHORT).show();
                     break;
                 case HANDLER_LOGING_SUCCESS:
                     Log.d(TAG,"login success userid:"+app.getUserid());
@@ -62,7 +66,8 @@ public class LoginActivity extends Activity {
             @Override
             public void login(String data) {
                 LoginResponse loginResponse = gson.fromJson(data, LoginResponse.class);
-                if (loginResponse.getErrno() != 0 || loginResponse.getError().length() != 0) {
+                Log.d(TAG, ""+loginResponse.getErrno()+", "+loginResponse.getError());
+                if (loginResponse.getErrno() != 0 || loginResponse.getError()!=null && loginResponse.getError().length() != 0) {
                     Message msg = new Message();
                     msg.what = HANDLER_LOGING_ERROR;
                     msg.obj = loginResponse;
@@ -90,12 +95,12 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 String username = tUsername.getText().toString().trim();
                 String passwd = tPassword.getText().toString().trim();
-                chat.emit("login", gson.toJson(new Login(0, username, passwd)));
-                chat.emit("message", "message from android");
+                chat.emit("login", gson.toJson(new Login(LOGIN_MAIL , username, passwd)));
+                //chat.emit("message", "message from android");
                 //转圈圈
                 loginDialog = new ProgressDialog(LoginActivity.this, ProgressDialog.STYLE_SPINNER);
                 loginDialog.setTitle("登录中...");
-                loginDialog.setCancelable(false);
+                //loginDialog.setCancelable(false);
                 loginDialog.show();
 
                 /*

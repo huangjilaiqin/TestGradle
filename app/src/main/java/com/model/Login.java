@@ -3,18 +3,12 @@ package com.model;
 /**
  * Created by huangji on 2015/8/12.
  */
-public class Login extends ResponseError{
+public class Login {
     private int type;
     private String mail;
     private String passwd;
 
     public Login(int type, String mail, String passwd){
-        this.type = type;
-        this.mail= mail;
-        this.passwd = passwd;
-    }
-    public Login(int type, String mail, String passwd, int errno, String error){
-        super(errno, error);
         this.type = type;
         this.mail= mail;
         this.passwd = passwd;
