@@ -115,7 +115,7 @@ public class Chat {
             //String id = map.get("id");
             ChatMessage message = gson.fromJson(args[0].toString(), ChatMessage.class);
             ArrayList mList = chatContext.getChatContent(message.getFriendid());
-            mList.add(message);
+            //mList.add(message);
             Iterator ite = mList.iterator();
             while (ite.hasNext()){
                 ChatMessage msg = (ChatMessage)ite.next();
@@ -123,7 +123,7 @@ public class Chat {
             }
 
             //通知当前聊天activity
-            dataChangeListener.message(args[0].toString());
+            dataChangeListener.message(message);
             //通知消息列表更新
         }
     };
@@ -156,7 +156,7 @@ public class Chat {
         this.dataChangeListener = dataChangeListener;
     }
     public interface DataChangeListener{
-        void message(String data);
+        void message(ChatMessage msg);
         void messageResponse(ChatMessageResponse response);
     }
     public interface LoginListener{

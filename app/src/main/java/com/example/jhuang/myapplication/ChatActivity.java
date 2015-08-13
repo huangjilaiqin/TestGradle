@@ -36,19 +36,27 @@ public class ChatActivity extends Activity {
     private ArrayList<ChatMessage> messageArrayList;
 
     private ListView lvChatView;
+    private EditText etContent;
 
     private Chat chat = Chat.getInstance();
+    private ChatContext chatContext = ChatContext.getInstance();
     private Gson gson = new Gson();
     private MyApplication app;
     private int userId;
 
-    private Handler handler = new Handler() { @Override
+    private Handler handler = new Handler() {
+        @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Log.d(TAG, "onMessage handler");
             switch (msg.what){
-                case ChatMessage.TYPE_RECEIVED_TEXT:
+                case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
+                    ChatMessage chatMessage = (ChatMessage)msg.obj;
+                    ArrayList mList = chatContext.getChatContent(2);
+                    mList.add(chatMessage);
+
                     chatAdapter.notifyDataSetChanged();
-                    lvChatView.setSelection(chatAdapter.getCount());
+                    //lvChatView.setSelection(chatAdapter.getCount()-1);
                     Log.d(TAG, "onMessage notifyDataSetChanged");
                     break;
                 case HANDLER_MESSAGE_RESP:
@@ -70,8 +78,11 @@ public class ChatActivity extends Activity {
 
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
-            public void message(String data) {
-                handler.sendEmptyMessage(ChatMessage.TYPE_RECEIVED_TEXT);
+            public void message(ChatMessage chatMessage) {
+                Message msg = new Message();
+                msg.what = ChatMessage.VIEW_TYPE_RECEIVED_TEXT;
+                msg.obj = chatMessage;
+                handler.sendMessage(msg);
             }
 
             @Override
@@ -83,7 +94,7 @@ public class ChatActivity extends Activity {
             }
         });
         messageArrayList = ChatContext.getInstance().getChatContent(2);
-        chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_item, messageArrayList);
+        chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_other, messageArrayList);
         chatListView = (ListView) findViewById(R.id.chat_view);
         chatListView.setAdapter(chatAdapter);
         final LayoutInflater layoutInflater = LayoutInflater.from(this);
@@ -91,7 +102,7 @@ public class ChatActivity extends Activity {
         //消息类型
         final ImageView ivContentType = (ImageView) findViewById(R.id.content_type);
         //输入框
-        final EditText etContent = (EditText) findViewById(R.id.content);
+        etContent = (EditText) findViewById(R.id.content);
         //发送
         ImageView ivSend = (ImageView) findViewById(R.id.send);
 
@@ -99,7 +110,7 @@ public class ChatActivity extends Activity {
 
         //一进来就显示最新的聊天消息
         chatAdapter.notifyDataSetChanged();
-        lvChatView.setSelection(chatAdapter.getCount());
+        //lvChatView.setSelection(chatAdapter.getCount()-1);
 
         ivSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,7 +121,8 @@ public class ChatActivity extends Activity {
                     return;
                 }
 
-                View itemView = layoutInflater.inflate(R.layout.chat_item, null);
+                /*
+                View itemView = layoutInflater.inflate(R.layout.chat_other, null);
                 LinearLayout leftLayout = (LinearLayout) itemView.findViewById(R.id.layout_other_msg);
                 LinearLayout rightLayout = (LinearLayout) itemView.findViewById(R.id.layout_my_msg);
                 //ImageView leftHeadImg = (ImageView) itemView.findViewById(R.id.other_head_img);
@@ -124,14 +136,19 @@ public class ChatActivity extends Activity {
                 rightMsg.setText(content);
 
                 lvChatView.addFooterView(itemView);
+                */
+                ArrayList mList = chatContext.getChatContent(2);
+                ChatMessage msg = new ChatMessage(userId, 2, ChatMessage.MSG_TYPE_TEXT, content, null, 112, ChatMessage.VIEW_TYPE_SEND_TEXT);
+                mList.add(msg);
+
                 etContent.setText("");
                 chatAdapter.notifyDataSetChanged();
-                lvChatView.setSelection(chatAdapter.getCount());
+                //lvChatView.setSelection(chatAdapter.getCount());
 
                 //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
                 Log.d(TAG, "userid:"+userId);
-                Log.d(TAG, "gson:"+gson.toJson(new ChatMessage(userId, 2, ChatMessage.MSG_TYPE_TEXT, content, null, 112)));
-                chat.emit("message", gson.toJson(new ChatMessage(userId, 2, ChatMessage.MSG_TYPE_TEXT, content, null, 112)));
+                Log.d(TAG, "gson:"+gson.toJson(msg));
+                chat.emit("message", gson.toJson(msg));
 
             }
         });
@@ -139,7 +156,7 @@ public class ChatActivity extends Activity {
             @Override
             public void onClick(View v) {
                 chatAdapter.notifyDataSetChanged();
-                lvChatView.setSelection(chatAdapter.getCount());
+                //lvChatView.setSelection(chatAdapter.getCount());
             }
         });
         ivContentType.setOnClickListener(new View.OnClickListener() {
