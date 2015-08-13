@@ -1,8 +1,8 @@
 package com.example.jhuang.myapplication;
 
 import android.app.Activity;
-import android.app.Application;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,33 +15,44 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
+
 import android.os.Handler;
 
+import com.google.gson.Gson;
 import com.lessask.chat.Chat;
-import com.lessask.chat.ChatMessage;
-
-import java.util.logging.LogRecord;
+import com.lessask.chat.ChatContext;
+import com.model.ChatMessage;
+import com.model.ChatMessageResponse;
 
 
 public class ChatActivity extends Activity {
 
     private static final int HANDLER_MESSAGE = 0;
+    private static final int HANDLER_MESSAGE_RESP = 1;
 
     private final static String TAG = "ChatActivity";
     private ListView chatListView;
-    private ChatAdapter chatAdapter;
-    private ArrayList<ChatMessage> messageArrayList = new ArrayList<>();
+    private static ChatAdapter chatAdapter;
+    private ArrayList<ChatMessage> messageArrayList;
+
+    private ListView lvChatView;
 
     private Chat chat = Chat.getInstance();
+    private Gson gson = new Gson();
+    private MyApplication app;
+    private int userId;
 
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(android.os.Message msg) {
+    private Handler handler = new Handler() { @Override
+        public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what){
                 case ChatMessage.TYPE_RECEIVED_TEXT:
                     chatAdapter.notifyDataSetChanged();
+                    lvChatView.setSelection(chatAdapter.getCount());
+                    Log.d(TAG, "onMessage notifyDataSetChanged");
+                    break;
+                case HANDLER_MESSAGE_RESP:
+                    //根据消息响应的状态改变界面
                     break;
                 default:
                     break;
@@ -54,18 +65,29 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        app  = (MyApplication)getApplication();
+        userId = app.getUserid();
+
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
             public void message(String data) {
                 handler.sendEmptyMessage(ChatMessage.TYPE_RECEIVED_TEXT);
             }
-        });
 
+            @Override
+            public void messageResponse(ChatMessageResponse response) {
+                Message msg = new Message();
+                msg.what = HANDLER_MESSAGE_RESP;
+                msg.obj = response;
+                handler.sendMessage(msg);
+            }
+        });
+        messageArrayList = ChatContext.getInstance().getChatContent(2);
         chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_item, messageArrayList);
         chatListView = (ListView) findViewById(R.id.chat_view);
         chatListView.setAdapter(chatAdapter);
         final LayoutInflater layoutInflater = LayoutInflater.from(this);
-        final ListView lvChatView = (ListView) findViewById(R.id.chat_view);
+        lvChatView = (ListView) findViewById(R.id.chat_view);
         //消息类型
         final ImageView ivContentType = (ImageView) findViewById(R.id.content_type);
         //输入框
@@ -105,6 +127,11 @@ public class ChatActivity extends Activity {
                 etContent.setText("");
                 chatAdapter.notifyDataSetChanged();
                 lvChatView.setSelection(chatAdapter.getCount());
+
+                //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
+                Log.d(TAG, "userid:"+userId);
+                Log.d(TAG, "gson:"+gson.toJson(new ChatMessage(userId, 2, ChatMessage.MSG_TYPE_TEXT, content, null, 112)));
+                chat.emit("message", gson.toJson(new ChatMessage(userId, 2, ChatMessage.MSG_TYPE_TEXT, content, null, 112)));
 
             }
         });

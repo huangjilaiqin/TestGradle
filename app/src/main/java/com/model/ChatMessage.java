@@ -2,7 +2,7 @@ package com.model;
 /**
  * Created by JHuang on 2015/8/1.
  */
-public class Message {
+public class ChatMessage {
     public static final int TYPE_RECEIVED_TEXT = 0;
     public static final int TYPE_RECEIVED_SOUND = 1;
     public static final int TYPE_RECEIVED_IMAGE = 2;
@@ -10,12 +10,36 @@ public class Message {
     public static final int TYPE_SEND_SOUND = 4;
     public static final int TYPE_SEND_IMAGE = 5;
 
+    public static final int MSG_TYPE_TEXT = 0;
+    public static final int MSG_TYPE_IMG = 1;
+    public static final int MSG_TYPE_FILE = 2;
+    public static final int MSG_TYPE_VOICE = 3;
+    public static final int MSG_TYPE_VIDEO = 4;
+
     private int userid;
     private int friendid;
     private int type;
     private String content;
+    private String time;
     //每条消息的序号
-    private String seq;
+    private int seq;
+
+    public ChatMessage(int userid, int friendid, int type, String content, String time, int seq) {
+        this.friendid = friendid;
+        this.type = type;
+        this.userid = userid;
+        this.content = content;
+        this.time = time;
+        this.seq = seq;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
 
     public int getUserid() {
         return userid;
@@ -49,11 +73,11 @@ public class Message {
         this.content = content;
     }
 
-    public String getSeq() {
+    public int getSeq() {
         return seq;
     }
 
-    public void setSeq(String seq) {
+    public void setSeq(int seq) {
         this.seq = seq;
     }
 }

@@ -7,13 +7,12 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.model.ChatMessage;
+import com.model.ChatMessageResponse;
 
-import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.Iterator;
 
 /**
  * Created by huangji on 2015/8/11.
@@ -21,8 +20,10 @@ import java.util.Map;
 
 public class Chat {
     final private static String TAG = Chat.class.getName();
-    //private String chathost = "http://ws.o-topcy.com";
-    private String chathost = "http://123.59.40.113:5002";
+    private String chathost = "http://ws.o-topcy.com";
+    //private String chathost = "http://ws.otopcy.com";
+    //private String chathost = "http://123.59.40.113:5002";
+    //private String chathost = "http://ws.qqshidao2.com";
     private Socket mSocket;
     private ChatContext chatContext;
     private Gson gson;
@@ -33,7 +34,7 @@ public class Chat {
     private Chat(){
         try {
             IO.Options options = new IO.Options();
-            //options.transports = new String[]{"websocket", "polling"};
+            options.transports = new String[]{"websocket", "polling"};
             mSocket = IO.socket(chathost, options);
             mSocket.on(Socket.EVENT_CONNECT, onConnect);
             mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
@@ -42,8 +43,10 @@ public class Chat {
             mSocket.on(Socket.EVENT_RECONNECT, onReconnect);
             mSocket.on(Socket.EVENT_ERROR, onError);
             mSocket.on("message", onMessage);
+            mSocket.on("messageResp", onMessageResp);
             mSocket.on("login", onLogin);
             mSocket.connect();
+            Log.e(TAG, "connect");
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -61,7 +64,7 @@ public class Chat {
     private Emitter.Listener onConnect = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {// 监控回调
-            Log.d(TAG, "onConnect");
+            Log.e(TAG, "onConnect");
 		}
 	};
     private Emitter.Listener onConnectError = new Emitter.Listener() {
@@ -70,26 +73,26 @@ public class Chat {
             String error= "";
             for(int i=0;i<args.length;i++)
                 error+=args[i]+", ";
-            Log.d(TAG, "onConnectError:"+error);
+            Log.e(TAG, "onConnectError:" + error);
 		}
 	};
     private Emitter.Listener onDisconnect = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {// 监控回调
-            Log.d(TAG, "onDisconnect");
+            Log.e(TAG, "onDisconnect");
 		}
 	};
     private Emitter.Listener onTimeout = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {// 监控回调
-            Log.d(TAG, "onTimeout:"+ args[0]);
+            Log.e(TAG, "onTimeout:" + args[0]);
 		}
 	};
     private Emitter.Listener onReconnect = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {// 监控回调
-            Log.d(TAG, "onReconnect");
-            Log.d(TAG, "args length:"+args.length);
+            Log.e(TAG, "onReconnect");
+            Log.e(TAG, "args length:" + args.length);
 		}
 	};
     private Emitter.Listener onError = new Emitter.Listener() {
@@ -98,12 +101,13 @@ public class Chat {
             String error= "";
             for(int i=0;i<args.length;i++)
                 error+=args[i]+", ";
-            Log.d(TAG, "onError:"+error);
+            Log.e(TAG, "onError:" + error);
 		}
 	};
     private Emitter.Listener onMessage = new Emitter.Listener(){
         @Override
         public void call(Object... args) {
+            Log.e(TAG, "onMessage:" + args[0].toString());
             //to do 响应message要有两套机制,一个是message回应, 一个是好友发过来的message
             //修改用户的信息列表
             //Type type = new TypeToken<Map<String, String>>(){}.getType();
@@ -112,10 +116,23 @@ public class Chat {
             ChatMessage message = gson.fromJson(args[0].toString(), ChatMessage.class);
             ArrayList mList = chatContext.getChatContent(message.getFriendid());
             mList.add(message);
+            Iterator ite = mList.iterator();
+            while (ite.hasNext()){
+                ChatMessage msg = (ChatMessage)ite.next();
+                Log.e(TAG, msg.getContent());
+            }
 
             //通知当前聊天activity
-            dataChangeListener.message(args.toString());
+            dataChangeListener.message(args[0].toString());
             //通知消息列表更新
+        }
+    };
+    private Emitter.Listener onMessageResp = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.e(TAG, "onMessageResp:" + args[0].toString());
+            ChatMessageResponse response = gson.fromJson(args[0].toString(), ChatMessageResponse.class);
+            dataChangeListener.messageResponse(response);
         }
     };
     private Emitter.Listener onLogin = new Emitter.Listener(){
@@ -127,7 +144,7 @@ public class Chat {
 
 
     public void emit(String event, Object... args){
-        Log.d(TAG, event+":"+args[0].toString());
+        Log.e(TAG, event + ":" + args[0].toString());
         mSocket.emit(event, args);
     }
     public void emit(String event, Object[] args, Ack ask){
@@ -140,6 +157,7 @@ public class Chat {
     }
     public interface DataChangeListener{
         void message(String data);
+        void messageResponse(ChatMessageResponse response);
     }
     public interface LoginListener{
         void login(String data);

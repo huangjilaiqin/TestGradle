@@ -1,7 +1,6 @@
 package com.example.jhuang.myapplication;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.lessask.chat.ChatMessage;
+import com.model.ChatMessage;
 
 import java.util.List;
 
