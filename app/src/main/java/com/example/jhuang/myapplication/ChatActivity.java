@@ -49,6 +49,7 @@ public class ChatActivity extends Activity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Log.d(TAG, "onMessage handler");
+
             switch (msg.what){
                 case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
                     ChatMessage chatMessage = (ChatMessage)msg.obj;

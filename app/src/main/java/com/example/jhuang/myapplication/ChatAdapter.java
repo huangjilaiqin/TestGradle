@@ -100,7 +100,10 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
             case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
                 otherViewHolder.msg.setText(itemData.getContent());
                 //itemData.getFriendid() 根据好友id在本地存储图片
+                //设置静态资源
                 otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
+                //设置动态加载的资源
+                //otherViewHolder.headImg.setImageDrawable();
                 break;
             case ChatMessage.VIEW_TYPE_SEND_TEXT:
                 meViewHolder.msg.setText(itemData.getContent());
