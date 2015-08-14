@@ -43,4 +43,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="subThread"/>
+    <Button
+        android:id="@+id/headImageActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="获取图片"/>
 </LinearLayout>

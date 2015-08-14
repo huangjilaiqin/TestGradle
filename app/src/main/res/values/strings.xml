@@ -19,5 +19,6 @@
     <string name="title_activity_first_service">FirstServiceActivity</string>
     <string name="title_activity_socket_io">SocketIOActivity</string>
     <string name="title_activity_sub_thread">SubThreadActivity</string>
+    <string name="title_activity_head_img">HeadImgActivity</string>
 
 </resources>

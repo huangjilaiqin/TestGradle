@@ -95,6 +95,10 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 String username = tUsername.getText().toString().trim();
                 String passwd = tPassword.getText().toString().trim();
+                if(username.length()==0 || passwd.length()==0){
+                    username = "1577594730@qq.com";
+                    passwd = "19910725";
+                }
                 chat.emit("login", gson.toJson(new Login(LOGIN_MAIL , username, passwd)));
                 //chat.emit("message", "message from android");
                 //转圈圈

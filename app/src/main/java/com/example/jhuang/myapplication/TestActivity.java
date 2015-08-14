@@ -32,6 +32,8 @@ public class TestActivity extends Activity implements View.OnClickListener {
         bSocketIO.setOnClickListener(this);
         Button bSubThread = (Button)findViewById(R.id.subThreadActivity);
         bSubThread.setOnClickListener(this);
+        Button bGetImg = (Button)findViewById(R.id.headImageActivity);
+        bGetImg.setOnClickListener(this);
     }
 
     @Override
@@ -66,7 +68,10 @@ public class TestActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.subThreadActivity:
                 intent = new Intent(TestActivity.this, SubThreadActivity.class);
-                Log.d(TAG, "subThreadActivity");
+                startActivity(intent);
+                break;
+            case R.id.headImageActivity:
+                intent = new Intent(TestActivity.this, HeadImgActivity.class);
                 startActivity(intent);
                 break;
             default:
