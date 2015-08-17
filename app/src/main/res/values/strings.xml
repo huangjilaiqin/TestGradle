@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">lessAsk</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -20,5 +20,6 @@
     <string name="title_activity_socket_io">SocketIOActivity</string>
     <string name="title_activity_sub_thread">SubThreadActivity</string>
     <string name="title_activity_head_img">HeadImgActivity</string>
+    <string name="title_activity_friends">FriendsActivity</string>
 
 </resources>

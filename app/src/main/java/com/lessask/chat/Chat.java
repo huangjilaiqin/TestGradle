@@ -1,5 +1,6 @@
 package com.lessask.chat;
 
+import android.app.Application;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -7,12 +8,18 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
-import com.model.ChatMessage;
-import com.model.ChatMessageResponse;
+import com.google.gson.reflect.TypeToken;
+import com.lessask.MyApplication;
+import com.lessask.model.ChatMessage;
+import com.lessask.model.ChatMessageResponse;
+import com.lessask.model.User;
 
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by huangji on 2015/8/11.
@@ -26,10 +33,13 @@ public class Chat {
     //private String chathost = "http://ws.qqshidao2.com";
     private Socket mSocket;
     private ChatContext chatContext;
+    private MyApplication application;
     private Gson gson;
     //更新不一样的activity应该有多个listener
     private DataChangeListener dataChangeListener;
     private LoginListener loginListener;
+    private RegisterListener registerListener;
+    private FriendsListener friendsListener;
 
     private Chat(){
         try {
@@ -45,6 +55,8 @@ public class Chat {
             mSocket.on("message", onMessage);
             mSocket.on("messageResp", onMessageResp);
             mSocket.on("login", onLogin);
+            mSocket.on("register", onRegister);
+            mSocket.on("friendsInfo", onFriends);
             mSocket.connect();
             Log.e(TAG, "connect");
 
@@ -60,6 +72,10 @@ public class Chat {
     }
     private static class LazyHolder {
         private static final Chat INSTANCE = new Chat();
+    }
+
+    public void setApplication(Application application){
+        this.application = (MyApplication)application;
     }
     private Emitter.Listener onConnect = new Emitter.Listener() {
 		@Override
@@ -141,6 +157,36 @@ public class Chat {
             loginListener.login(args[0].toString());
         }
     };
+    private Emitter.Listener onRegister = new Emitter.Listener(){
+        @Override
+        public void call(Object... args) {
+            registerListener.register(args[0].toString());
+        }
+    };
+    private Emitter.Listener onFriends = new Emitter.Listener(){
+
+        @Override
+        public void call(Object... args) {
+            //这里应该处理数据,应为可能出现界面还没加载，协议已经返回的情况
+            String data = args[0].toString();
+            Log.e(TAG, "onFriends"+data);
+
+            Type type = new TypeToken<ArrayList<User>>(){}.getType();
+            ArrayList<User> originFriends = gson.fromJson(data, type);
+            Map<Integer, User> friends = new HashMap<>();
+            Iterator ite = originFriends.iterator();
+            while (ite.hasNext()){
+                User user = (User)ite.next();
+                friends.put(user.getUseid(), user);
+                Log.e(TAG, ""+user);
+            }
+            application.setFriends(originFriends);
+            application.setFriendsinMap(friends);
+            if(friendsListener!=null) {
+                friendsListener.friendsInfo(args[0].toString());
+            }
+        }
+    };
 
 
     public void emit(String event, Object... args){
@@ -164,6 +210,19 @@ public class Chat {
     }
     public void setLoginListener(LoginListener listener){
         loginListener = listener;
+    }
+    public interface RegisterListener{
+        void register(String data);
+    }
+    public void setRegisterListener(RegisterListener listener){
+        this.registerListener = listener;
+    }
+    public interface FriendsListener{
+        void friendsInfo(String data);
+    }
+
+    public void setFriendsListener(FriendsListener friendsListener) {
+        this.friendsListener = friendsListener;
     }
 }
 
