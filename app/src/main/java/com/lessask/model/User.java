@@ -4,13 +4,13 @@ package com.lessask.model;
  * Created by JHuang on 2015/8/16.
  */
 public class User {
-    private int useid;
+    private int userid;
     private String mail;
     private String nickname;
     private int status;
 
-    public User(int useid, String mail, String nickname, int status) {
-        this.useid = useid;
+    public User(int userid, String mail, String nickname, int status) {
+        this.userid = userid;
         this.mail = mail;
         this.nickname = nickname;
         this.status = status;
@@ -18,15 +18,15 @@ public class User {
 
     @Override
     public String toString() {
-        return "userid:"+useid+", mail:"+mail+", nickname:"+nickname+", status:"+status;
+        return "userid:"+userid+", mail:"+mail+", nickname:"+nickname+", status:"+status;
     }
 
-    public int getUseid() {
-        return useid;
+    public int getUserid() {
+        return userid;
     }
 
-    public void setUseid(int useid) {
-        this.useid = useid;
+    public void setUserid(int userid) {
+        this.userid = userid;
     }
 
     public String getMail() {

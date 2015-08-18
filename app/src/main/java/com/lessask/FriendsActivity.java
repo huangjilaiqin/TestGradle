@@ -1,12 +1,17 @@
 package com.lessask;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
+import com.lessask.model.User;
 
 public class FriendsActivity extends Activity {
 
@@ -16,7 +21,7 @@ public class FriendsActivity extends Activity {
     private static final String TAG = FriendsActivity.class.getName();
 
     private ListView lvFriends;
-    private SimpleAdapter adapter;
+    private FriendsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,11 +30,24 @@ public class FriendsActivity extends Activity {
         application = (MyApplication)getApplicationContext();
 
         lvFriends = (ListView)findViewById(R.id.friends);
-        adapter = new SimpleAdapter(FriendsActivity.this, application.getFriends(), android.R.layout.simple_expandable_list_item_1);
+        adapter = new FriendsAdapter(FriendsActivity.this, application.getFriends());
+        lvFriends.setAdapter(adapter);
+
+        lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(FriendsActivity.this, ChatActivity.class);
+                User user = (User)parent.getAdapter().getItem(position);
+                intent.putExtra("friendId", user.getUserid());
+                Log.e(TAG, "friend_item click, userid:" + user.getUserid());
+                startActivity(intent);
+            }
+        });
 
         chat.setFriendsListener(new Chat.FriendsListener() {
             @Override
             public void friendsInfo(String data) {
+                Log.e(TAG, "activity响应friendsInfo");
 
             }
         });

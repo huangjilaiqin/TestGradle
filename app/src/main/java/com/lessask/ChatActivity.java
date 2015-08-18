@@ -1,6 +1,7 @@
 package com.lessask;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -41,6 +42,8 @@ public class ChatActivity extends Activity {
     private Gson gson = new Gson();
     private MyApplication app;
     private int userId;
+    private int friendId;
+    private int seq;
 
     private Handler handler = new Handler() {
         @Override
@@ -71,9 +74,12 @@ public class ChatActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        Intent intent = getIntent();
 
         app  = (MyApplication)getApplication();
         userId = app.getUserid();
+        friendId = intent.getIntExtra("friendId", -1);
+        seq = 0;
 
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
@@ -121,7 +127,7 @@ public class ChatActivity extends Activity {
                 }
 
                 ArrayList mList = chatContext.getChatContent(2);
-                ChatMessage msg = new ChatMessage(userId, 2, ChatMessage.MSG_TYPE_TEXT, content, null, 112, ChatMessage.VIEW_TYPE_SEND_TEXT);
+                ChatMessage msg = new ChatMessage(userId, friendId, ChatMessage.MSG_TYPE_TEXT, content, null, seq, ChatMessage.VIEW_TYPE_SEND_TEXT);
                 mList.add(msg);
 
                 etContent.setText("");

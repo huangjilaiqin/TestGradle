@@ -27,9 +27,9 @@ import java.util.Map;
 
 public class Chat {
     final private static String TAG = Chat.class.getName();
-    private String chathost = "http://ws.o-topcy.com";
+    //private String chathost = "http://ws.o-topcy.com";
     //private String chathost = "http://ws.otopcy.com";
-    //private String chathost = "http://123.59.40.113:5002";
+    private String chathost = "http://123.59.40.113:5002";
     //private String chathost = "http://ws.qqshidao2.com";
     private Socket mSocket;
     private ChatContext chatContext;
@@ -173,11 +173,11 @@ public class Chat {
 
             Type type = new TypeToken<ArrayList<User>>(){}.getType();
             ArrayList<User> originFriends = gson.fromJson(data, type);
-            Map<Integer, User> friends = new HashMap<>();
+            HashMap<Integer, User> friends = new HashMap<>();
             Iterator ite = originFriends.iterator();
             while (ite.hasNext()){
                 User user = (User)ite.next();
-                friends.put(user.getUseid(), user);
+                friends.put(user.getUserid(), user);
                 Log.e(TAG, ""+user);
             }
             application.setFriends(originFriends);

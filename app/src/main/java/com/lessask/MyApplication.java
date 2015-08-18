@@ -5,6 +5,8 @@ import android.content.Intent;
 
 import com.lessask.model.User;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,26 +15,26 @@ import java.util.Map;
  */
 public class MyApplication extends Application{
     private int userid;
-    private Map<Integer, User> friendsinMap;
-    private List<User> friends;
+    private HashMap<Integer, User> friendsinMap;
+    private ArrayList<User> friends;
     @Override
     public void onCreate() {
         super.onCreate();
     }
 
-    public List<User> getFriends() {
+    public ArrayList<User> getFriends() {
         return friends;
     }
 
-    public void setFriends(List<User> friends) {
+    public void setFriends(ArrayList<User> friends) {
         this.friends = friends;
     }
 
-    public Map<Integer, User> getFriendsinMap() {
+    public HashMap<Integer, User> getFriendsinMap() {
         return friendsinMap;
     }
 
-    public void setFriendsinMap(Map<Integer, User> friends) {
+    public void setFriendsinMap(HashMap<Integer, User> friends) {
         this.friendsinMap = friends;
     }
 
