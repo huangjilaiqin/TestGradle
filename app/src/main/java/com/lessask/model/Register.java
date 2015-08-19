@@ -7,11 +7,21 @@ public class Register {
     private int type;
     private String mail;
     private String passwd;
+    private String headImg;
 
-    public Register(int type, String mail, String passwd){
+    public Register(int type, String mail, String passwd, String headImg){
         this.type = type;
         this.mail= mail;
         this.passwd = passwd;
+        this.headImg = headImg;
+    }
+
+    public String getHeadImg() {
+        return headImg;
+    }
+
+    public void setHeadImg(String headImg) {
+        this.headImg = headImg;
     }
 
     public int getType() {

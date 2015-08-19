@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:id="@+id/my_msg_layout"
+    >
 
-    <LinearLayout
-        android:id="@+id/my_msg_layout"
+    <TextView
+        android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:textSize="17sp"
         android:layout_marginTop="6dp"
-        >
-        <TextView
-            android:id="@+id/content"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textSize="17sp"
-            android:background="@drawable/sv"
-            android:layout_weight="1"
-            android:layout_marginLeft="55dp"
-            />
-        <ImageView
-            android:id="@+id/head_img"
-            android:layout_width="43dp"
-            android:layout_height="43dp"
-            android:layout_gravity="top"
-            android:layout_marginRight="6dp"
-            android:src="@mipmap/ic_launcher"
-            />
-    </LinearLayout>
-</LinearLayout>
+        android:background="@drawable/sv"
+        android:layout_marginLeft="55dp"
+        android:layout_toLeftOf="@id/head_img"
+        />
+    <ImageView
+        android:id="@+id/head_img"
+        android:layout_width="43dp"
+        android:layout_height="43dp"
+        android:layout_gravity="top"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="6dp"
+        android:src="@mipmap/ic_launcher"
+        />
+</RelativeLayout>

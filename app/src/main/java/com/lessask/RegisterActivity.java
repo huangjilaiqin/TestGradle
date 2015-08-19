@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +25,11 @@ import com.lessask.chat.Chat;
 import com.lessask.model.Register;
 import com.lessask.model.RegisterResponse;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 
 public class RegisterActivity extends Activity {
@@ -41,6 +46,7 @@ public class RegisterActivity extends Activity {
     private EditText etConfirmPasswd;
     private Button bRegister;
     private Uri headImgUri;
+    private String headImgContent;
     private static final String TAG = RegisterActivity.class.getName();
     private int outputX = 180;
     private int outputY = 180;
@@ -106,6 +112,7 @@ public class RegisterActivity extends Activity {
         etPasswd = (EditText)findViewById(R.id.passwd);
         etConfirmPasswd = (EditText)findViewById(R.id.confirm_passwd);
         bRegister = (Button)findViewById(R.id.register);
+        headImgContent = "";
 
         bRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,8 +131,31 @@ public class RegisterActivity extends Activity {
                     etConfirmPasswd.setText("");
                     return;
                 }
+                //读取头像
+                File headImgFile = new File(headImgUri.getPath());
+                if(headImgFile.exists()){
+                    BufferedInputStream in = null;
+                    try{
+                        in = new BufferedInputStream(new FileInputStream(headImgFile));
+                        byte[] imgByte = new byte[(int)headImgFile.length()];
+                        in.read(imgByte, 0, imgByte.length);
+                        headImgContent = Base64.encodeToString(imgByte, Base64.DEFAULT);
+                    }catch (FileNotFoundException e){
+
+                    }catch (IOException e){
+
+                    }finally {
+                        try{
+                            if(in != null)
+                                in.close();
+                        }catch (IOException e){
+
+                        }
+                    }
+                }
+
                 //发起注册请求
-                Register register = new Register(LOGIN_MAIL, mail, passwd);
+                Register register = new Register(LOGIN_MAIL, mail, passwd, headImgContent);
                 chat.emit("register", gson.toJson(register));
                 registerDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
                 registerDialog.setTitle("注册中...");

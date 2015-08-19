@@ -43,6 +43,13 @@ public class FriendsAdapter extends BaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = LayoutInflater.from(context).inflate(R.layout.friend_item, null);
         ImageView ivHead = (ImageView)convertView.findViewById(R.id.head_img);
+        /*
+        File appDir = getApplicationContext().getExternalFilesDir("headImg");
+        File imageFile = new File(appDir, "myheadImg.jpg");
+        headImgUri = Uri.fromFile(imageFile);//获取文件的Uri
+        bmp = decodeUriAsBitmap(headImgUri, null);
+        ivHeadImg.setImageBitmap(bmp);
+        */
         ivHead.setImageResource(R.mipmap.ic_launcher);
         TextView tvName = (TextView)convertView.findViewById(R.id.name);
         User user = (User)getItem(position);
