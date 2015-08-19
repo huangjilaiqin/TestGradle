@@ -13,16 +13,20 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
+import com.lessask.chat.GlobalInfos;
 import com.lessask.model.Login;
 import com.lessask.model.LoginResponse;
+import com.lessask.model.User;
 
 
 public class LoginActivity extends Activity {
     private static final String TAG= LoginActivity.class.getName();
     private Chat chat = Chat.getInstance();
     private Gson gson = new Gson();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private ProgressDialog loginDialog;
 
+    private int userid;
     private String username;
     private String passwd;
 
@@ -37,7 +41,6 @@ public class LoginActivity extends Activity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Log.d(TAG, "login handler:"+msg.what);
-            MyApplication app = (MyApplication)getApplication();
             switch (msg.what){
                 case HANDLER_LOGING_ERROR:
                     LoginResponse loginResponse = (LoginResponse)msg.obj;
@@ -46,7 +49,7 @@ public class LoginActivity extends Activity {
                     Toast.makeText(LoginActivity.this, "login errno:"+loginResponse.getErrno()+", error:"+loginResponse.getError(), Toast.LENGTH_SHORT).show();
                     break;
                 case HANDLER_LOGING_SUCCESS:
-                    Log.d(TAG,"login success userid:"+app.getUserid());
+                    Log.d(TAG,"login success userid:"+globalInfos.getUserid());
                     //去掉转圈圈
                     loginDialog.cancel();
                     //跳转到首页
@@ -79,8 +82,10 @@ public class LoginActivity extends Activity {
                     handler.sendMessage(msg);
                     return;
                 }else {
-                    MyApplication app = (MyApplication) getApplication();
-                    app.setUserid(loginResponse.getUserid());
+                    userid =loginResponse.getUserid();
+                    globalInfos.setUserid(userid);
+                    //to do 服务器端返回 昵称,客户端发生 状态(在线)
+                    globalInfos.setUser(userid, new User(userid, username, null, 1, null));
                     handler.sendEmptyMessage(HANDLER_LOGING_SUCCESS);
                 }
             }

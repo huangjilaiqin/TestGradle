@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created by huangji on 2015/8/11.
@@ -32,7 +31,7 @@ public class Chat {
     private String chathost = "http://123.59.40.113:5002";
     //private String chathost = "http://ws.qqshidao2.com";
     private Socket mSocket;
-    private ChatContext chatContext;
+    private GlobalInfos globalInfos;
     private MyApplication application;
     private Gson gson;
     //更新不一样的activity应该有多个listener
@@ -63,7 +62,7 @@ public class Chat {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        chatContext = ChatContext.getInstance();
+        globalInfos = GlobalInfos.getInstance();
         gson = new Gson();
     }
 
@@ -130,7 +129,7 @@ public class Chat {
             //Map<String, String> map = gson.fromJson(args[0].toString(), type);
             //String id = map.get("id");
             ChatMessage message = gson.fromJson(args[0].toString(), ChatMessage.class);
-            ArrayList mList = chatContext.getChatContent(message.getFriendid());
+            ArrayList mList = globalInfos.getChatContent(message.getFriendid());
             //mList.add(message);
             Iterator ite = mList.iterator();
             while (ite.hasNext()){

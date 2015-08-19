@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
+import com.lessask.chat.GlobalInfos;
 import com.lessask.model.Register;
 import com.lessask.model.RegisterResponse;
 
@@ -36,7 +37,7 @@ public class RegisterActivity extends Activity {
 
     private Chat chat = Chat.getInstance();
     private Gson gson = new Gson();
-    private MyApplication app = (MyApplication)getApplication();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
 
     private ImageView ivHeadImg;
     private EditText etMail;
@@ -64,7 +65,6 @@ public class RegisterActivity extends Activity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Log.d(TAG, "register handler:"+msg.what);
-            MyApplication app = (MyApplication)getApplication();
             switch (msg.what){
                 case HANDLER_REGISTER_ERROR:
                     RegisterResponse registerResponse = (RegisterResponse)msg.obj;
@@ -73,7 +73,14 @@ public class RegisterActivity extends Activity {
                     Toast.makeText(RegisterActivity.this, "register errno:"+registerResponse.getErrno()+", error:"+registerResponse.getError(), Toast.LENGTH_LONG).show();
                     break;
                 case HANDLER_REGISTER_SUCCESS:
-                    Log.d(TAG,"register success userid:"+app.getUserid());
+                    Log.d(TAG,"register success userid:"+globalInfos.getUserid());
+                    File appDir = getApplicationContext().getExternalFilesDir("headImg");
+                    String fileName = "myheadImg.jpg";
+                    File oldImgFile = new File(appDir, fileName);
+                    File newImgFile = new File(appDir, globalInfos.getUserid()+".jpg");
+                    if(oldImgFile.exists()) {
+                        oldImgFile.renameTo(newImgFile);
+                    }
                     //去掉转圈圈
                     registerDialog.cancel();
                     Toast.makeText(RegisterActivity.this, "注册成功, 跳转登录...", Toast.LENGTH_LONG).show();
@@ -167,7 +174,6 @@ public class RegisterActivity extends Activity {
             @Override
             public void onClick(View v) {
                  File appDir = getApplicationContext().getExternalFilesDir("headImg");
-                 //File appDir = getApplicationContext().getFilesDir();
                  String fileName = "myheadImg.jpg";
                  File imageFile = new File(appDir, fileName);
                  Log.e(TAG, imageFile.getAbsolutePath());
@@ -219,8 +225,7 @@ public class RegisterActivity extends Activity {
                     handler.sendMessage(msg);
                     return;
                 }else {
-                    MyApplication app = (MyApplication) getApplication();
-                    app.setUserid(registerResponse.getUserid());
+                    globalInfos.setUserid(registerResponse.getUserid());
                     handler.sendEmptyMessage(HANDLER_REGISTER_SUCCESS);
                 }
             }

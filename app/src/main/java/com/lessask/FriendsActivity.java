@@ -11,13 +11,14 @@ import android.widget.SimpleAdapter;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
+import com.lessask.chat.GlobalInfos;
 import com.lessask.model.User;
 
 public class FriendsActivity extends Activity {
 
     private Chat chat = Chat.getInstance();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
-    private MyApplication application;
     private static final String TAG = FriendsActivity.class.getName();
 
     private ListView lvFriends;
@@ -27,10 +28,9 @@ public class FriendsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
-        application = (MyApplication)getApplicationContext();
 
         lvFriends = (ListView)findViewById(R.id.friends);
-        adapter = new FriendsAdapter(FriendsActivity.this, application.getFriends());
+        adapter = new FriendsAdapter(FriendsActivity.this, globalInfos.getFriends());
         lvFriends.setAdapter(adapter);
 
         lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {

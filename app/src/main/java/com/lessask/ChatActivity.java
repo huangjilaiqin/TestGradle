@@ -19,7 +19,7 @@ import android.os.Handler;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
-import com.lessask.chat.ChatContext;
+import com.lessask.chat.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 
@@ -38,9 +38,8 @@ public class ChatActivity extends Activity {
     private EditText etContent;
 
     private Chat chat = Chat.getInstance();
-    private ChatContext chatContext = ChatContext.getInstance();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
-    private MyApplication app;
     private int userId;
     private int friendId;
     private int seq;
@@ -54,7 +53,7 @@ public class ChatActivity extends Activity {
             switch (msg.what){
                 case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
                     ChatMessage chatMessage = (ChatMessage)msg.obj;
-                    ArrayList mList = chatContext.getChatContent(2);
+                    ArrayList mList = globalInfos.getChatContent(2);
                     mList.add(chatMessage);
 
                     chatAdapter.notifyDataSetChanged();
@@ -76,8 +75,7 @@ public class ChatActivity extends Activity {
         setContentView(R.layout.activity_chat);
         Intent intent = getIntent();
 
-        app  = (MyApplication)getApplication();
-        userId = app.getUserid();
+        userId = globalInfos.getUserid();
         friendId = intent.getIntExtra("friendId", -1);
         seq = 0;
 
@@ -98,7 +96,7 @@ public class ChatActivity extends Activity {
                 handler.sendMessage(msg);
             }
         });
-        messageArrayList = ChatContext.getInstance().getChatContent(2);
+        messageArrayList = GlobalInfos.getInstance().getChatContent(2);
         chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_other, messageArrayList);
         chatListView = (ListView) findViewById(R.id.chat_view);
         chatListView.setAdapter(chatAdapter);
@@ -126,7 +124,7 @@ public class ChatActivity extends Activity {
                     return;
                 }
 
-                ArrayList mList = chatContext.getChatContent(2);
+                ArrayList mList = globalInfos.getChatContent(2);
                 ChatMessage msg = new ChatMessage(userId, friendId, ChatMessage.MSG_TYPE_TEXT, content, null, seq, ChatMessage.VIEW_TYPE_SEND_TEXT);
                 mList.add(msg);
 
