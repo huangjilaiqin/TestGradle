@@ -3,6 +3,8 @@ package com.lessask;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,6 +16,8 @@ import com.lessask.chat.Chat;
 import com.lessask.chat.GlobalInfos;
 import com.lessask.model.User;
 
+import java.util.ArrayList;
+
 public class FriendsActivity extends Activity {
 
     private Chat chat = Chat.getInstance();
@@ -24,14 +28,24 @@ public class FriendsActivity extends Activity {
     private ListView lvFriends;
     private FriendsAdapter adapter;
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
 
         lvFriends = (ListView)findViewById(R.id.friends);
-        adapter = new FriendsAdapter(FriendsActivity.this, globalInfos.getFriends());
-        lvFriends.setAdapter(adapter);
+        ArrayList friends = globalInfos.getFriends();
+        if(friends!=null) {
+            adapter = new FriendsAdapter(FriendsActivity.this, friends);
+            lvFriends.setAdapter(adapter);
+        }
 
         lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -48,7 +62,13 @@ public class FriendsActivity extends Activity {
             @Override
             public void friendsInfo(String data) {
                 Log.e(TAG, "activity响应friendsInfo");
-
+                //处理 friendsActivity 界面先于onfriends协议返回,导致界面没有数据的情况
+                /*
+                Message msg = new Message();
+                msg.what = ChatMessage.VIEW_TYPE_RECEIVED_TEXT;
+                msg.obj = chatMessage;
+                handler.sendMessage(msg);
+                */
             }
         });
     }

@@ -32,7 +32,6 @@ public class Chat {
     //private String chathost = "http://ws.qqshidao2.com";
     private Socket mSocket;
     private GlobalInfos globalInfos;
-    private MyApplication application;
     private Gson gson;
     //更新不一样的activity应该有多个listener
     private DataChangeListener dataChangeListener;
@@ -73,9 +72,6 @@ public class Chat {
         private static final Chat INSTANCE = new Chat();
     }
 
-    public void setApplication(Application application){
-        this.application = (MyApplication)application;
-    }
     private Emitter.Listener onConnect = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {// 监控回调
@@ -179,8 +175,8 @@ public class Chat {
                 friends.put(user.getUserid(), user);
                 Log.e(TAG, ""+user);
             }
-            application.setFriends(originFriends);
-            application.setFriendsinMap(friends);
+            globalInfos.setFriends(originFriends);
+            globalInfos.setFriendsinMap(friends);
             if(friendsListener!=null) {
                 friendsListener.friendsInfo(args[0].toString());
             }
