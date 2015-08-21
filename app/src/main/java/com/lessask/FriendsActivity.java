@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
@@ -24,6 +23,7 @@ public class FriendsActivity extends Activity {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private static final String TAG = FriendsActivity.class.getName();
+    private static final int ON_FRIENDS = 0;
 
     private ListView lvFriends;
     private FriendsAdapter adapter;
@@ -32,6 +32,17 @@ public class FriendsActivity extends Activity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            switch (msg.what){
+                case ON_FRIENDS:
+                    ArrayList friends = globalInfos.getFriends();
+                    adapter = new FriendsAdapter(FriendsActivity.this, friends);
+                    lvFriends.setAdapter(adapter);
+                    lvFriends.deferNotifyDataSetChanged();
+                    Log.e(TAG, "onfriend notifyDataChange");
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
@@ -39,13 +50,15 @@ public class FriendsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
+        Log.e(TAG, "oncreate");
 
         lvFriends = (ListView)findViewById(R.id.friends);
         ArrayList friends = globalInfos.getFriends();
-        if(friends!=null) {
-            adapter = new FriendsAdapter(FriendsActivity.this, friends);
-            lvFriends.setAdapter(adapter);
+        if(friends==null){
+            Log.e(TAG, "friends is null");
         }
+        adapter = new FriendsAdapter(FriendsActivity.this, friends);
+        lvFriends.setAdapter(adapter);
 
         lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -63,12 +76,9 @@ public class FriendsActivity extends Activity {
             public void friendsInfo(String data) {
                 Log.e(TAG, "activity响应friendsInfo");
                 //处理 friendsActivity 界面先于onfriends协议返回,导致界面没有数据的情况
-                /*
                 Message msg = new Message();
-                msg.what = ChatMessage.VIEW_TYPE_RECEIVED_TEXT;
-                msg.obj = chatMessage;
+                msg.what = ON_FRIENDS;
                 handler.sendMessage(msg);
-                */
             }
         });
     }

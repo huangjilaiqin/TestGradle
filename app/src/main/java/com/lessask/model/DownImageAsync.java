@@ -52,6 +52,8 @@ public class DownImageAsync extends AsyncTask<String, Void, Bitmap>{
     protected void onPostExecute(Bitmap bitmap) {
         if(bitmap!=null) {
             imageView.setImageBitmap(bitmap);
+            //将bitmap存储在user中
+            Log.e(TAG, "async set headImg:"+url);
         }
     }
 }

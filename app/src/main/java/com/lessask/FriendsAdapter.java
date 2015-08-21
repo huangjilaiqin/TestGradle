@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,8 @@ import java.util.ArrayList;
  */
 public class FriendsAdapter extends BaseAdapter{
 
+    private static final String TAG = FriendsAdapter.class.getName();
+
     private Context context;
     private ArrayList<User> originFriends;
     private File headImgDir;
@@ -37,6 +40,9 @@ public class FriendsAdapter extends BaseAdapter{
     }
     @Override
     public int getCount() {
+        if(originFriends==null){
+            return 0;
+        }
         return originFriends.size();
     }
 
