@@ -86,6 +86,10 @@
             android:name=".FriendsActivity"
             android:label="@string/title_activity_friends" >
         </activity>
+        <activity
+            android:name=".FragmentTestActivity"
+            android:label="@string/title_activity_fragment" >
+        </activity>
     </application>
 
 </manifest>

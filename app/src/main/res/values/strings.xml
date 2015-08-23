@@ -21,5 +21,6 @@
     <string name="title_activity_sub_thread">SubThreadActivity</string>
     <string name="title_activity_head_img">HeadImgActivity</string>
     <string name="title_activity_friends">FriendsActivity</string>
+    <string name="title_activity_fragment">FragmentActivity</string>
 
 </resources>

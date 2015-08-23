@@ -42,6 +42,8 @@ public class RegisterActivity extends Activity {
     private ImageView ivHeadImg;
     private EditText etMail;
     private String mail;
+    private EditText etNickname;
+    private String nickname;
     private EditText etPasswd;
     private String passwd;
     private EditText etConfirmPasswd;
@@ -116,6 +118,7 @@ public class RegisterActivity extends Activity {
 
         ivHeadImg = (ImageView)findViewById(R.id.head_img);
         etMail = (EditText)findViewById(R.id.mail);
+        etNickname = (EditText)findViewById(R.id.nickname);
         etPasswd = (EditText)findViewById(R.id.passwd);
         etConfirmPasswd = (EditText)findViewById(R.id.confirm_passwd);
         bRegister = (Button)findViewById(R.id.register);
@@ -125,10 +128,11 @@ public class RegisterActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mail = etMail.getText().toString().trim();
+                nickname = etNickname.getText().toString().trim();
                 passwd = etPasswd.getText().toString().trim();
                 String confirmPasswd = etConfirmPasswd.getText().toString().trim();
 
-                if(mail==null || passwd==null || confirmPasswd==null){
+                if(mail==null || passwd==null || confirmPasswd==null || nickname==null){
                     Toast.makeText(getApplicationContext(), "请填写完整信息", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -162,7 +166,7 @@ public class RegisterActivity extends Activity {
                 }
 
                 //发起注册请求
-                Register register = new Register(LOGIN_MAIL, mail, passwd, headImgContent);
+                Register register = new Register(LOGIN_MAIL, mail, nickname, passwd, headImgContent);
                 chat.emit("register", gson.toJson(register));
                 registerDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
                 registerDialog.setTitle("注册中...");

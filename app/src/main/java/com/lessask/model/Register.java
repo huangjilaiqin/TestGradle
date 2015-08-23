@@ -6,14 +6,24 @@ package com.lessask.model;
 public class Register {
     private int type;
     private String mail;
+    private String nickname;
     private String passwd;
     private String headImg;
 
-    public Register(int type, String mail, String passwd, String headImg){
+    public Register(int type, String mail, String nickname, String passwd, String headImg){
         this.type = type;
         this.mail= mail;
+        this.nickname = nickname;
         this.passwd = passwd;
         this.headImg = headImg;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getHeadImg() {

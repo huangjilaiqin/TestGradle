@@ -54,7 +54,8 @@ public class LoginActivity extends Activity {
                     loginDialog.cancel();
                     //跳转到首页
                     //Intent intent = new Intent(LoginActivity.this, TestActivity.class);
-                    Intent intent = new Intent(LoginActivity.this, FriendsActivity.class);
+                    //Intent intent = new Intent(LoginActivity.this, FriendsActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, FragmentTestActivity.class);
 
                     startActivity(intent);
                     break;
@@ -110,8 +111,13 @@ public class LoginActivity extends Activity {
                 username = tUsername.getText().toString().trim();
                 passwd = tPassword.getText().toString().trim();
                 if(username.length()==0 || passwd.length()==0){
+                    /*
                     username = "1577594730@qq.com";
                     passwd = "19910725";
+                    //*/
+                    username = "136437945@qq.com";
+                    passwd = "19910725";
+                    //*/
                 }
                 chat.emit("login", gson.toJson(new Login(LOGIN_MAIL , username, passwd)));
                 //chat.emit("message", "message from android");
