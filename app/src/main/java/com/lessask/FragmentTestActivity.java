@@ -30,7 +30,7 @@ public class FragmentTestActivity extends FragmentActivity {
         for(int i = 0; i < count; i++) {
             //为每一个Tab按钮设置图标、文字和内容
             TabHost.TabSpec tabSpec = mTabHost.newTabSpec(mTextviewArray[i]).setIndicator(getTabItemView(i));
-            //将Tab按钮添加进Tab选项卡中
+            //将Tab按钮添加进Tab选项卡中,每个标签与fragment关联起来
             mTabHost.addTab(tabSpec, fragmentArray[i], null);
             //设置Tab按钮的背景
             //mTabHost.getTabWidget().getChildAt(i).setBackgroundResource(R.drawable.selector_tab_background);
