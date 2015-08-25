@@ -38,6 +38,7 @@ public class Chat {
     private LoginListener loginListener;
     private RegisterListener registerListener;
     private FriendsListener friendsListener;
+    private ChangeUserInfoListener changeUserInfoListener;
 
     private Chat(){
         try {
@@ -218,6 +219,12 @@ public class Chat {
 
     public void setFriendsListener(FriendsListener friendsListener) {
         this.friendsListener = friendsListener;
+    }
+    public interface ChangeUserInfoListener{
+        void changeUserInfo(String data);
+    }
+    public void setChangeUserInfo(ChangeUserInfoListener listener){
+        this.changeUserInfoListener = listener;
     }
 }
 

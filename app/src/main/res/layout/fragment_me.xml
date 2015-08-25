@@ -1,10 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
+    <ImageView
+        android:id="@+id/head_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="fragment me"/>
+        android:layout_gravity="center"
+        android:src="@mipmap/ic_launcher"
+        android:layout_marginBottom="20dp"/>
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:stretchColumns="1">
+
+        <TableRow>
+            <TextView
+                android:layout_height="wrap_content"
+                android:text="用户名:"
+                android:textSize="18sp" />
+            <TextView
+                android:layout_height="wrap_content"
+                android:hint="邮箱"
+                android:id="@+id/mail" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:layout_height="wrap_content"
+                android:text="昵称:"
+                android:textSize="18sp" />
+            <EditText
+                android:layout_height="wrap_content"
+                android:hint="汉字/英文"
+                android:id="@+id/nickname" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:layout_height="wrap_content"
+                android:text="旧密码:"
+                android:textSize="18sp" />
+            <EditText
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:id="@+id/passwd" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:layout_height="wrap_content"
+                android:text="新密码:"
+                android:textSize="18sp" />
+            <EditText
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:id="@+id/confirm_passwd" />
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="10dp">
+            <Button
+                android:layout_height="wrap_content"
+                android:text="保存"
+                android:layout_span="2"
+                android:id="@+id/save" />
+        </TableRow>
+
+    </TableLayout>
 
 </LinearLayout>

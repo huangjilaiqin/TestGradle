@@ -1,5 +1,7 @@
 package com.lessask.chat;
 
+import android.util.Log;
+
 import com.lessask.model.User;
 
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.HashMap;
  * Created by huangji on 2015/8/12.
  */
 public class GlobalInfos {
+
+    private final static String TAG = GlobalInfos.class.getName();
 
     private int userid;
     private User user;
@@ -30,7 +34,11 @@ public class GlobalInfos {
     }
 
     public void setUser(int userid, User user){
+        Log.e(TAG, "globalInfos set user");
         this.user = user;
+    }
+    public User getUser(){
+        return this.user;
     }
 
     //好友消息用好友id, 群消息用群id

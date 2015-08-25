@@ -3,6 +3,7 @@ package com.lessask;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.*;
 import android.os.Message;
 import android.util.Log;
@@ -85,7 +86,9 @@ public class LoginActivity extends Activity {
                     userid =loginResponse.getUserid();
                     globalInfos.setUserid(userid);
                     //to do 服务器端返回 昵称,客户端发生 状态(在线)
-                    globalInfos.setUser(userid, new User(userid, username, null, 1, null));
+                    //获取头像
+                    Bitmap headimg = null;
+                    globalInfos.setUser(userid, new User(userid, loginResponse.getMail(), loginResponse.getNickname(), loginResponse.getStatus(), headimg));
                     handler.sendEmptyMessage(HANDLER_LOGING_SUCCESS);
                 }
             }

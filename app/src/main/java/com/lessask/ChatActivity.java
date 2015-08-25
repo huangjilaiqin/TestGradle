@@ -32,7 +32,6 @@ public class ChatActivity extends Activity {
     private final static String TAG = "ChatActivity";
     private ListView chatListView;
     private static ChatAdapter chatAdapter;
-    private ArrayList<ChatMessage> messageArrayList;
 
     private ListView lvChatView;
     private EditText etContent;
@@ -44,6 +43,8 @@ public class ChatActivity extends Activity {
     private int friendId;
     private int seq;
 
+    private ArrayList<ChatMessage> messageList;
+
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -53,8 +54,7 @@ public class ChatActivity extends Activity {
             switch (msg.what){
                 case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
                     ChatMessage chatMessage = (ChatMessage)msg.obj;
-                    ArrayList mList = globalInfos.getChatContent(2);
-                    mList.add(chatMessage);
+                    messageList.add(chatMessage);
 
                     chatAdapter.notifyDataSetChanged();
                     //lvChatView.setSelection(chatAdapter.getCount()-1);
@@ -79,6 +79,8 @@ public class ChatActivity extends Activity {
         friendId = intent.getIntExtra("friendId", -1);
         seq = 0;
 
+        messageList = globalInfos.getChatContent(friendId);
+
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
             public void message(ChatMessage chatMessage) {
@@ -96,8 +98,8 @@ public class ChatActivity extends Activity {
                 handler.sendMessage(msg);
             }
         });
-        messageArrayList = GlobalInfos.getInstance().getChatContent(2);
-        chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_other, messageArrayList);
+        //获取好友聊天内容
+        chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_other, messageList);
         chatListView = (ListView) findViewById(R.id.chat_view);
         chatListView.setAdapter(chatAdapter);
         final LayoutInflater layoutInflater = LayoutInflater.from(this);
@@ -124,9 +126,8 @@ public class ChatActivity extends Activity {
                     return;
                 }
 
-                ArrayList mList = globalInfos.getChatContent(2);
                 ChatMessage msg = new ChatMessage(userId, friendId, ChatMessage.MSG_TYPE_TEXT, content, null, seq, ChatMessage.VIEW_TYPE_SEND_TEXT);
-                mList.add(msg);
+                messageList.add(msg);
 
                 etContent.setText("");
                 chatAdapter.notifyDataSetChanged();
