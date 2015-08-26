@@ -28,7 +28,7 @@ public class FragmentFriends extends Fragment{
     private Chat chat = Chat.getInstance();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
-    private static final String TAG = FriendsActivity.class.getName();
+    private static final String TAG = FragmentFriends.class.getName();
     private static final int ON_FRIENDS = 0;
 
     private ListView lvFriends;

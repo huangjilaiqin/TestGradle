@@ -6,7 +6,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -14,7 +13,6 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,13 +32,8 @@ import com.lessask.model.RegisterResponse;
 import com.lessask.model.User;
 import com.lessask.model.UserInfo;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * Created by JHuang on 2015/8/23.
@@ -66,7 +59,7 @@ public class FragmentMe extends Fragment{
 
     private Bitmap headImgBitmap;
     private String headImgContent;
-    private static final String TAG = RegisterActivity.class.getName();
+    private static final String TAG = FragmentMe.class.getName();
     private int outputX = 180;
     private int outputY = 180;
     private View view;
@@ -92,7 +85,7 @@ public class FragmentMe extends Fragment{
                     RegisterResponse nothingResponse = (RegisterResponse)msg.obj;
                     Log.e(TAG, "changeuserinfo errno:"+nothingResponse.getErrno()+", error:"+nothingResponse.getError());
                     changeuserinfoDialog.cancel();
-                    Toast.makeText(getActivity().getApplicationContext(), "changeuserinfo errno:" + nothingResponse.getErrno() + ", error:" + nothingResponse.getError(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "changeuserinfo errno:" + nothingResponse.getErrno() + ", error:" + nothingResponse.getError(), Toast.LENGTH_LONG).show();
                     break;
                 case HANDLER_CHANGEUSERINFO_SUCCESS :
                     //to do 保存用户信息成功, 将头像信息写到本地文件中
@@ -106,10 +99,15 @@ public class FragmentMe extends Fragment{
 
                         }
                     }
-
+                    Log.e(TAG, "handle success");
                     //去掉转圈圈
-                    changeuserinfoDialog.cancel();
-                    Toast.makeText(getActivity(), "修改信息成功", Toast.LENGTH_LONG).show();
+                    if(changeuserinfoDialog==null){
+                        Toast.makeText(getActivity(), "null", Toast.LENGTH_LONG).show();
+                    }else {
+                        changeuserinfoDialog.dismiss();
+                        Toast.makeText(getActivity(), "修改信息成功", Toast.LENGTH_LONG).show();
+                    }
+
                     break;
                 default:
                     break;
@@ -117,25 +115,13 @@ public class FragmentMe extends Fragment{
         }
     };
 
-    private Bitmap decodeUriAsBitmap(Uri uri, BitmapFactory.Options options){
-      Bitmap bitmap = null;
-      try {
-          Log.e(TAG, "bitmap:"+uri);
-          //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-          bitmap = BitmapFactory.decodeFile(uri.getPath(), options);
-      } catch (Exception e) {
-          e.printStackTrace();
-          return null;
-      }
-      return bitmap;
-    }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         userId = globalInfos.getUserid();
         user = globalInfos.getUser();
         changeHeadImg = false;
+        Log.e(TAG,"onActivityCreated");
 
         File headImgDir = globalInfos.getHeadImgDir();
         File imageFile = new File(headImgDir, userId+".jpg");
@@ -198,11 +184,15 @@ public class FragmentMe extends Fragment{
                 }
                 //修改用户信息
 
-                chat.emit("changeUserInfo", gson.toJson(userInfo));
                 changeuserinfoDialog = new ProgressDialog(getActivity(), ProgressDialog.STYLE_SPINNER);
                 changeuserinfoDialog.setTitle("保存中...");
                 //changeuserinfoDialog.setCancelable(false);
                 changeuserinfoDialog.show();
+                Log.e(TAG, "init changeuserinfoDialog");
+                chat.emit("changeUserInfo", gson.toJson(userInfo));
+                if(changeuserinfoDialog==null){
+                    Toast.makeText(getActivity(), "null ag", Toast.LENGTH_LONG).show();
+                }
             }
         });
         ivHeadImg.setOnClickListener(new View.OnClickListener() {
@@ -264,6 +254,7 @@ public class FragmentMe extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_me, null);
+        Log.e(TAG,"onCreateView");
         return view;
     }
 
@@ -274,7 +265,7 @@ public class FragmentMe extends Fragment{
                 case 100:
                     //bmp = intent.getParcelableExtra("data");
                     Log.e(TAG, "从相册选取");
-                    headImgBitmap = decodeUriAsBitmap(headImgUriTmp, null);
+                    headImgBitmap = Utils.decodeUriAsBitmap(headImgUriTmp);
                     ivHeadImg.setImageBitmap(headImgBitmap);
                     break;
                 case 101:
@@ -294,5 +285,16 @@ public class FragmentMe extends Fragment{
             }
             changeHeadImg = true;
         }
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.e(TAG, "onDestroyView");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy");
     }
 }
