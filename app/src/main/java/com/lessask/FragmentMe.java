@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
 import com.lessask.chat.GlobalInfos;
+import com.lessask.model.DownImageAsync;
 import com.lessask.model.NothingResponse;
 import com.lessask.model.RegisterResponse;
 import com.lessask.model.User;
@@ -58,13 +59,17 @@ public class FragmentMe extends Fragment{
     private String passwd;
     private EditText etConfirmPasswd;
     private Button bSave;
+
     private Uri headImgUri;
     private Uri headImgUriTmp;
+    private boolean changeHeadImg;
+
     private Bitmap headImgBitmap;
     private String headImgContent;
     private static final String TAG = RegisterActivity.class.getName();
     private int outputX = 180;
     private int outputY = 180;
+    private View view;
 
     private int userId;
     private User user;
@@ -104,13 +109,7 @@ public class FragmentMe extends Fragment{
 
                     //去掉转圈圈
                     changeuserinfoDialog.cancel();
-                    Toast.makeText(getActivity().getApplicationContext(), "注册成功, 跳转登录...", Toast.LENGTH_LONG).show();
-                    //跳转到首页
-                    Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
-                    intent.putExtra("mail", mail);
-                    intent.putExtra("passwd", passwd);
-
-                    startActivity(intent);
+                    Toast.makeText(getActivity(), "修改信息成功", Toast.LENGTH_LONG).show();
                     break;
                 default:
                     break;
@@ -130,35 +129,43 @@ public class FragmentMe extends Fragment{
       }
       return bitmap;
     }
-    @Nullable
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_me, null);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         userId = globalInfos.getUserid();
         user = globalInfos.getUser();
+        changeHeadImg = false;
 
-        File appDir = getActivity().getApplicationContext().getExternalFilesDir("headImg");
-        String fileName = userId+".jpg";
-        File imageFile = new File(appDir, fileName);
+        File headImgDir = globalInfos.getHeadImgDir();
+        File imageFile = new File(headImgDir, userId+".jpg");
         Log.e(TAG, imageFile.getAbsolutePath());
         headImgUri = Uri.fromFile(imageFile);//获取文件的Uri
 
-        appDir = getActivity().getApplicationContext().getExternalFilesDir("tmp");
-        fileName = userId+".jpg";
-        imageFile = new File(appDir, fileName);
+        File appDir = getActivity().getApplicationContext().getExternalFilesDir("tmp");
+        File imageFileTmp = new File(appDir, userId+".jpg");
         headImgUriTmp = Uri.fromFile(imageFile);//获取文件的Uri
 
         ivHeadImg = (ImageView)view.findViewById(R.id.head_img);
-        Bitmap bitmap = user.getHeadImg();
-        if(bitmap != null){
-            ivHeadImg.setImageBitmap(bitmap);
+        //获取用户原来的头像
+        if(imageFile.exists()){
+            Bitmap bmp = Utils.decodeUriAsBitmap(headImgUri);
+            ivHeadImg.setImageBitmap(bmp);
+        }else {
+            //设置默认头像
+            ivHeadImg.setImageResource(R.mipmap.ic_launcher);
+            //异步网络请求
+            new DownImageAsync(globalInfos.getHeadImgHost()+user.getUserid()+".jpg",ivHeadImg).execute();
         }
+
         etMail = (TextView)view.findViewById(R.id.mail);
         etMail.setText(user.getMail());
         etNickname = (EditText)view.findViewById(R.id.nickname);
         etNickname.setText(user.getNickname());
         etPasswd = (EditText)view.findViewById(R.id.passwd);
+        etPasswd.setText(user.getPasswd());
         etConfirmPasswd = (EditText)view.findViewById(R.id.confirm_passwd);
+        etConfirmPasswd.setText(user.getPasswd());
         bSave = (Button)view.findViewById(R.id.save);
         headImgContent = "";
 
@@ -180,32 +187,17 @@ public class FragmentMe extends Fragment{
                     etConfirmPasswd.setText("");
                     return;
                 }
+                UserInfo userInfo;
                 //读取头像
-                File headImgFile = new File(headImgUri.getPath());
-                if(headImgFile.exists()){
-                    BufferedInputStream in = null;
-                    try{
-                        in = new BufferedInputStream(new FileInputStream(headImgFile));
-                        byte[] imgByte = new byte[(int)headImgFile.length()];
-                        in.read(imgByte, 0, imgByte.length);
-                        headImgContent = Base64.encodeToString(imgByte, Base64.DEFAULT);
-                    }catch (FileNotFoundException e){
-
-                    }catch (IOException e){
-
-                    }finally {
-                        try{
-                            if(in != null)
-                                in.close();
-                        }catch (IOException e){
-
-                        }
-                    }
+                if(changeHeadImg){
+                    headImgContent = Utils.decodeUriAsBase64(headImgUriTmp);
+                    String headImgName = userId+".jpg";
+                    userInfo = new UserInfo(userId, mail, passwd, nickname, headImgName, headImgContent);
+                }else {
+                    userInfo = new UserInfo(userId, mail, passwd, nickname);
                 }
-
                 //修改用户信息
-                String headImgName = userId+".jpg";
-                UserInfo userInfo = new UserInfo(userId, mail, passwd, nickname, headImgName, headImgContent);
+
                 chat.emit("changeUserInfo", gson.toJson(userInfo));
                 changeuserinfoDialog = new ProgressDialog(getActivity(), ProgressDialog.STYLE_SPINNER);
                 changeuserinfoDialog.setTitle("保存中...");
@@ -250,7 +242,7 @@ public class FragmentMe extends Fragment{
             }
         });
 
-        chat.setChangeUserInfo(new Chat.ChangeUserInfoListener() {
+        chat.setChangeUserInfoListener(new Chat.ChangeUserInfoListener() {
             @Override
             public void changeUserInfo(String data) {
                 Log.e(TAG, "changeUserInfo:" + data);
@@ -267,6 +259,11 @@ public class FragmentMe extends Fragment{
                 }
             }
         });
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_me, null);
         return view;
     }
 
@@ -295,6 +292,7 @@ public class FragmentMe extends Fragment{
                 default:
                     break;
             }
+            changeHeadImg = true;
         }
     }
 }

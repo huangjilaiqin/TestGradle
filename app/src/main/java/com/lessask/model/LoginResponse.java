@@ -10,9 +10,10 @@ public class LoginResponse extends ResponseError{
     private String nickname;
     private String headimg;
     private int status;
+    private String passwd;
 
 
-    public LoginResponse(int errno, String error, int userid, String mail, String phone, String nickname, String headimg, int status) {
+    public LoginResponse(int errno, String error, int userid, String mail, String phone, String nickname, String headimg, int status, String passwd) {
         super(errno, error);
         this.userid = userid;
         this.mail = mail;
@@ -20,6 +21,15 @@ public class LoginResponse extends ResponseError{
         this.nickname = nickname;
         this.headimg = headimg;
         this.status = status;
+        this.passwd = passwd;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
     }
 
     public String getPhone() {

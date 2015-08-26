@@ -87,13 +87,14 @@ public class FriendsAdapter extends BaseAdapter{
         }
 
         //先从内内存中找, 再从文件中找, 再服务器加载
-        Bitmap bmp = user.getHeadImg();
+        //Bitmap bmp = user.getHeadImg();
+        Bitmap bmp = null;
         if(bmp == null){
             File imageFile = new File(headImgDir, user.getUserid()+".jpg");
             if(imageFile.exists()) {
                 Uri headImgUri = Uri.fromFile(imageFile);//获取文件的Uri
                 bmp = decodeUriAsBitmap(headImgUri);
-                user.setHeadImg(bmp);
+                //user.setHeadImg(bmp);
                 ivHead.setImageBitmap(bmp);
             }else {
                 //设置默认图像

@@ -56,6 +56,7 @@ public class Chat {
             mSocket.on("login", onLogin);
             mSocket.on("register", onRegister);
             mSocket.on("friendsInfo", onFriends);
+            mSocket.on("changeUserInfo", onChangeUserInfo);
             mSocket.connect();
             Log.e(TAG, "connect");
 
@@ -159,6 +160,13 @@ public class Chat {
             registerListener.register(args[0].toString());
         }
     };
+
+    private Emitter.Listener onChangeUserInfo = new Emitter.Listener(){
+        @Override
+        public void call(Object... args) {
+            changeUserInfoListener.changeUserInfo(args[0].toString());
+        }
+    };
     private Emitter.Listener onFriends = new Emitter.Listener(){
 
         @Override
@@ -223,7 +231,7 @@ public class Chat {
     public interface ChangeUserInfoListener{
         void changeUserInfo(String data);
     }
-    public void setChangeUserInfo(ChangeUserInfoListener listener){
+    public void setChangeUserInfoListener(ChangeUserInfoListener listener){
         this.changeUserInfoListener = listener;
     }
 }

@@ -19,6 +19,8 @@ import com.lessask.model.Login;
 import com.lessask.model.LoginResponse;
 import com.lessask.model.User;
 
+import java.io.File;
+
 
 public class LoginActivity extends Activity {
     private static final String TAG= LoginActivity.class.getName();
@@ -71,6 +73,11 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        File headImgDir = getApplicationContext().getExternalFilesDir("headImg");
+        globalInfos.setHeadImgDir(headImgDir);
+
+        globalInfos.setHeadImgHost("http://123.59.40.113/myimg/");
+
         chat.setLoginListener(new Chat.LoginListener() {
             @Override
             public void login(String data) {
@@ -86,9 +93,7 @@ public class LoginActivity extends Activity {
                     userid =loginResponse.getUserid();
                     globalInfos.setUserid(userid);
                     //to do 服务器端返回 昵称,客户端发生 状态(在线)
-                    //获取头像
-                    Bitmap headimg = null;
-                    globalInfos.setUser(userid, new User(userid, loginResponse.getMail(), loginResponse.getNickname(), loginResponse.getStatus(), headimg));
+                    globalInfos.setUser(userid, new User(userid, loginResponse.getMail(), loginResponse.getNickname(), loginResponse.getStatus(), loginResponse.getPasswd()));
                     handler.sendEmptyMessage(HANDLER_LOGING_SUCCESS);
                 }
             }

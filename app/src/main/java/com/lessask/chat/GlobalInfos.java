@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.lessask.model.User;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -23,6 +24,9 @@ public class GlobalInfos {
     //好友列表
     private ArrayList<User> friends;
 
+    private File headImgDir;
+    private String headImgHost;
+
     private GlobalInfos(){
         chatContents = new HashMap<>();
     }
@@ -31,6 +35,22 @@ public class GlobalInfos {
     }
     private static class LazyHolder {
         private static final GlobalInfos INSTANCE = new GlobalInfos();
+    }
+
+    public String getHeadImgHost() {
+        return headImgHost;
+    }
+
+    public void setHeadImgHost(String headImgHost) {
+        this.headImgHost = headImgHost;
+    }
+
+    public File getHeadImgDir() {
+        return headImgDir;
+    }
+
+    public void setHeadImgDir(File headImgDir) {
+        this.headImgDir = headImgDir;
     }
 
     public void setUser(int userid, User user){

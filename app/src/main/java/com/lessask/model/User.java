@@ -2,6 +2,8 @@ package com.lessask.model;
 
 import android.graphics.Bitmap;
 
+import java.io.File;
+
 /**
  * Created by JHuang on 2015/8/16.
  */
@@ -10,20 +12,23 @@ public class User {
     private String mail;
     private String nickname;
     private int status;
-    private Bitmap headImg;
+    private String passwd;
+    private File headImg;
 
-    public User(int userid, String mail, String nickname, int status) {
+    public User(int userid, String mail, String nickname, int status, String passwd) {
         this.userid = userid;
         this.mail = mail;
         this.nickname = nickname;
         this.status = status;
+        this.passwd = passwd;
         this.headImg = null;
     }
-    public User(int userid, String mail, String nickname, int status, Bitmap headImg) {
+    public User(int userid, String mail, String nickname, int status, String passwd, File headImg) {
         this.userid = userid;
         this.mail = mail;
         this.nickname = nickname;
         this.status = status;
+        this.passwd = passwd;
         this.headImg = headImg;
     }
 
@@ -32,11 +37,19 @@ public class User {
         return "userid:"+userid+", mail:"+mail+", nickname:"+nickname+", status:"+status;
     }
 
-    public Bitmap getHeadImg() {
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
+    }
+
+    public File getHeadImg() {
         return headImg;
     }
 
-    public void setHeadImg(Bitmap headImg) {
+    public void setHeadImg(File headImg) {
         this.headImg = headImg;
     }
 
