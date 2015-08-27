@@ -18,6 +18,7 @@ public class ChatMessage {
     public static final int MSG_TYPE_VOICE = 3;
     public static final int MSG_TYPE_VIDEO = 4;
 
+    private int id;
     private int userid;
     private int friendid;
     private int type;
@@ -36,6 +37,22 @@ public class ChatMessage {
         this.time = time;
         this.seq = seq;
         this.viewType = viewType;
+    }
+    public ChatMessage(int id,int userid, int friendid, int type, String content, String time) {
+        this.id = id;
+        this.friendid = friendid;
+        this.type = type;
+        this.userid = userid;
+        this.content = content;
+        this.time = time;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTime() {

@@ -11,15 +11,26 @@
       android:layout_height="0dp"
       android:layout_weight="1" />
 
-    <android.support.v4.app.FragmentTabHost
-        android:id="@+id/tabhost"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <FrameLayout
-            android:id="@+id/tabcontent"
+    <RadioGroup
+        android:id="@+id/main_navigation_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <RadioButton
+            android:id="@+id/friends"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"/>
-    </android.support.v4.app.FragmentTabHost>
+            android:button="@null"
+            android:background="@mipmap/ic_launcher"
+            android:text="好友"/>
+        <RadioButton
+            android:id="@+id/me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:background="@mipmap/ic_launcher"
+            android:text="我"/>
+    </RadioGroup>
 
 </LinearLayout>

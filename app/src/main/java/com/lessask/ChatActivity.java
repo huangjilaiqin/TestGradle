@@ -28,6 +28,7 @@ public class ChatActivity extends Activity {
 
     private static final int HANDLER_MESSAGE = 0;
     private static final int HANDLER_MESSAGE_RESP = 1;
+    private static final int HANDLER_HISTORY = 2;
 
     private final static String TAG = "ChatActivity";
     private ListView chatListView;
@@ -63,6 +64,10 @@ public class ChatActivity extends Activity {
                 case HANDLER_MESSAGE_RESP:
                     //根据消息响应的状态改变界面
                     break;
+                case HANDLER_HISTORY:
+                    chatAdapter.notifyDataSetChanged();
+                    Log.d(TAG, "onHistory notifyDataSetChanged");
+                    break;
                 default:
                     break;
             }
@@ -95,6 +100,14 @@ public class ChatActivity extends Activity {
                 Message msg = new Message();
                 msg.what = HANDLER_MESSAGE_RESP;
                 msg.obj = response;
+                handler.sendMessage(msg);
+            }
+        });
+        chat.setHistoryListener(new Chat.HistoryListener() {
+            @Override
+            public void history() {
+                Message msg = new Message();
+                msg.what = HANDLER_MESSAGE_RESP;
                 handler.sendMessage(msg);
             }
         });

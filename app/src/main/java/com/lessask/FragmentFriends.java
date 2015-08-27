@@ -1,6 +1,7 @@
 package com.lessask;
 
 //import android.app.Fragment;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -33,6 +34,7 @@ public class FragmentFriends extends Fragment{
 
     private ListView lvFriends;
     private FriendsAdapter adapter;
+    private View rootView;
 
     private Handler handler = new Handler() {
         @Override
@@ -41,7 +43,8 @@ public class FragmentFriends extends Fragment{
             switch (msg.what){
                 case ON_FRIENDS:
                     ArrayList friends = globalInfos.getFriends();
-                    adapter = new FriendsAdapter(getActivity().getApplicationContext(), friends);
+                    //adapter = new FriendsAdapter(getActivity().getApplicationContext(), friends);
+                    adapter = new FriendsAdapter(getActivity(), friends);
                     lvFriends.setAdapter(adapter);
                     lvFriends.deferNotifyDataSetChanged();
                     Log.e(TAG, "onfriend notifyDataChange");
@@ -54,46 +57,107 @@ public class FragmentFriends extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_friends, container, false);
+        Log.e(TAG, "onCreateView");
+        if(rootView==null){
+            Log.e(TAG, "rootView is null");
+            rootView = inflater.inflate(R.layout.fragment_friends, container, false);
+            lvFriends = (ListView)rootView.findViewById(R.id.friends);
 
-        lvFriends = (ListView)view.findViewById(R.id.friends);
+            ArrayList friends = globalInfos.getFriends();
+            if(friends==null){
+                Log.e(TAG, "friends is null");
+            }
+            adapter = new FriendsAdapter(getActivity().getApplicationContext(), friends);
+            lvFriends.setAdapter(adapter);
 
-        ArrayList friends = globalInfos.getFriends();
-        if(friends==null){
-            Log.e(TAG, "friends is null");
+            lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(getActivity().getApplicationContext(), ChatActivity.class);
+                    User user = (User)parent.getAdapter().getItem(position);
+                    intent.putExtra("friendId", user.getUserid());
+                    Log.e(TAG, "friend_item click, userid:" + user.getUserid());
+                    startActivity(intent);
+                }
+            });
+
+            chat.setFriendsListener(new Chat.FriendsListener() {
+                @Override
+                public void friendsInfo(String data) {
+                    Log.e(TAG, "activity响应friendsInfo");
+                    //处理 friendsActivity 界面先于onfriends协议返回,导致界面没有数据的情况
+                    Message msg = new Message();
+                    msg.what = ON_FRIENDS;
+                    handler.sendMessage(msg);
+                }
+            });
+        }else {
+            ViewGroup parent = (ViewGroup) rootView.getParent();
+            if (null != parent) {
+                parent.removeView(rootView);
+            }
         }
-        adapter = new FriendsAdapter(getActivity().getApplicationContext(), friends);
-        lvFriends.setAdapter(adapter);
 
-        lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity().getApplicationContext(), ChatActivity.class);
-                User user = (User)parent.getAdapter().getItem(position);
-                intent.putExtra("friendId", user.getUserid());
-                Log.e(TAG, "friend_item click, userid:" + user.getUserid());
-                startActivity(intent);
-            }
-        });
-
-        chat.setFriendsListener(new Chat.FriendsListener() {
-            @Override
-            public void friendsInfo(String data) {
-                Log.e(TAG, "activity响应friendsInfo");
-                //处理 friendsActivity 界面先于onfriends协议返回,导致界面没有数据的情况
-                Message msg = new Message();
-                msg.what = ON_FRIENDS;
-                handler.sendMessage(msg);
-            }
-        });
-        return view;
+        return rootView;
     }
 
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.e(TAG, "onAttach");
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_friends);
         Log.e(TAG, "oncreate");
-
     }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.e(TAG, "onActivityCreated");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.e(TAG, "onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.e(TAG, "onStop");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.e(TAG, "onDestroyView");
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy");
+    }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.e(TAG, "onDetach");
+    }
+
+
 }

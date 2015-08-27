@@ -103,8 +103,10 @@ public class FragmentMe extends Fragment{
                     //去掉转圈圈
                     if(changeuserinfoDialog==null){
                         Toast.makeText(getActivity(), "null", Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "changeuserinfoDialog is null");
                     }else {
                         changeuserinfoDialog.dismiss();
+                        Log.e(TAG, "changeuserinfoDialog is ok"+changeuserinfoDialog);
                         Toast.makeText(getActivity(), "修改信息成功", Toast.LENGTH_LONG).show();
                     }
 
@@ -114,146 +116,164 @@ public class FragmentMe extends Fragment{
             }
         }
     };
-
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.e(TAG, "onAttach");
+    }
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_friends);
         userId = globalInfos.getUserid();
         user = globalInfos.getUser();
         changeHeadImg = false;
+        Log.e(TAG, "oncreate");
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         Log.e(TAG,"onActivityCreated");
 
-        File headImgDir = globalInfos.getHeadImgDir();
-        File imageFile = new File(headImgDir, userId+".jpg");
-        Log.e(TAG, imageFile.getAbsolutePath());
-        headImgUri = Uri.fromFile(imageFile);//获取文件的Uri
 
-        File appDir = getActivity().getApplicationContext().getExternalFilesDir("tmp");
-        File imageFileTmp = new File(appDir, userId+".jpg");
-        headImgUriTmp = Uri.fromFile(imageFile);//获取文件的Uri
-
-        ivHeadImg = (ImageView)view.findViewById(R.id.head_img);
-        //获取用户原来的头像
-        if(imageFile.exists()){
-            Bitmap bmp = Utils.decodeUriAsBitmap(headImgUri);
-            ivHeadImg.setImageBitmap(bmp);
-        }else {
-            //设置默认头像
-            ivHeadImg.setImageResource(R.mipmap.ic_launcher);
-            //异步网络请求
-            new DownImageAsync(globalInfos.getHeadImgHost()+user.getUserid()+".jpg",ivHeadImg).execute();
-        }
-
-        etMail = (TextView)view.findViewById(R.id.mail);
-        etMail.setText(user.getMail());
-        etNickname = (EditText)view.findViewById(R.id.nickname);
-        etNickname.setText(user.getNickname());
-        etPasswd = (EditText)view.findViewById(R.id.passwd);
-        etPasswd.setText(user.getPasswd());
-        etConfirmPasswd = (EditText)view.findViewById(R.id.confirm_passwd);
-        etConfirmPasswd.setText(user.getPasswd());
-        bSave = (Button)view.findViewById(R.id.save);
-        headImgContent = "";
-
-        bSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mail = etMail.getText().toString().trim();
-                nickname = etNickname.getText().toString().trim();
-                passwd = etPasswd.getText().toString().trim();
-                String confirmPasswd = etConfirmPasswd.getText().toString().trim();
-
-                if(mail==null || passwd==null || confirmPasswd==null || nickname==null){
-                    Toast.makeText(getActivity().getApplicationContext(), "请填写完整信息", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(!passwd.equals(confirmPasswd)){
-                    Toast.makeText(getActivity().getApplicationContext(), "密码不一致", Toast.LENGTH_SHORT).show();
-                    etPasswd.setText("");
-                    etConfirmPasswd.setText("");
-                    return;
-                }
-                UserInfo userInfo;
-                //读取头像
-                if(changeHeadImg){
-                    headImgContent = Utils.decodeUriAsBase64(headImgUriTmp);
-                    String headImgName = userId+".jpg";
-                    userInfo = new UserInfo(userId, mail, passwd, nickname, headImgName, headImgContent);
-                }else {
-                    userInfo = new UserInfo(userId, mail, passwd, nickname);
-                }
-                //修改用户信息
-
-                changeuserinfoDialog = new ProgressDialog(getActivity(), ProgressDialog.STYLE_SPINNER);
-                changeuserinfoDialog.setTitle("保存中...");
-                //changeuserinfoDialog.setCancelable(false);
-                changeuserinfoDialog.show();
-                Log.e(TAG, "init changeuserinfoDialog");
-                chat.emit("changeUserInfo", gson.toJson(userInfo));
-                if(changeuserinfoDialog==null){
-                    Toast.makeText(getActivity(), "null ag", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        ivHeadImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                AlertDialog dialog = null;
-                if (dialog == null) {
-                    dialog = new AlertDialog.Builder(getActivity()).setItems(new String[]{"相机", "相册"}, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == 0) {
-                                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                //不能同时设置输出到文件中 和 从data中返回
-                                //intent.putExtra(MediaStore.EXTRA_OUTPUT, headImgUriTmp);
-                                intent.putExtra("return-data", true);
-                                startActivityForResult(intent, 101);
-                            } else {
-                                Intent intent = new Intent(Intent.ACTION_PICK, null);
-                                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                                intent.putExtra("output", headImgUriTmp);
-                                intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-                                intent.putExtra("crop", "true");
-                                intent.putExtra("aspectX", 1);// 裁剪框比例
-                                intent.putExtra("aspectY", 1);
-                                intent.putExtra("outputX", outputX);// 输出图片大小
-                                intent.putExtra("outputY", outputY);
-                                //intent.putExtra("return-data", true);
-                                startActivityForResult(intent, 100);
-                            }
-                        }
-                    }).create();
-                }
-                if (!dialog.isShowing()) {
-                    dialog.show();
-                }
-            }
-        });
-
-        chat.setChangeUserInfoListener(new Chat.ChangeUserInfoListener() {
-            @Override
-            public void changeUserInfo(String data) {
-                Log.e(TAG, "changeUserInfo:" + data);
-                NothingResponse nothingResponse = gson.fromJson(data, NothingResponse.class);
-                Log.d(TAG, "" + nothingResponse.getErrno() + ", " + nothingResponse.getError());
-                if (nothingResponse.getErrno() != 0 || nothingResponse.getError() != null && nothingResponse.getError().length() != 0) {
-                    Message msg = new Message();
-                    msg.what = HANDLER_CHANGEUSERINFO_ERROR;
-                    msg.obj = nothingResponse;
-                    handler.sendMessage(msg);
-                    return;
-                } else {
-                    handler.sendEmptyMessage(HANDLER_CHANGEUSERINFO_SUCCESS);
-                }
-            }
-        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_me, null);
+        if(view == null){
+            Log.e(TAG,"rootView is null");
+            view = inflater.inflate(R.layout.fragment_me, null);
+            File headImgDir = globalInfos.getHeadImgDir();
+            File imageFile = new File(headImgDir, userId+".jpg");
+            Log.e(TAG, imageFile.getAbsolutePath());
+            headImgUri = Uri.fromFile(imageFile);//获取文件的Uri
+
+            File appDir = getActivity().getApplicationContext().getExternalFilesDir("tmp");
+            File imageFileTmp = new File(appDir, userId+".jpg");
+            headImgUriTmp = Uri.fromFile(imageFile);//获取文件的Uri
+
+            ivHeadImg = (ImageView)view.findViewById(R.id.head_img);
+            //获取用户原来的头像
+            if(imageFile.exists()){
+                Bitmap bmp = Utils.decodeUriAsBitmap(headImgUri);
+                ivHeadImg.setImageBitmap(bmp);
+            }else {
+                //设置默认头像
+                ivHeadImg.setImageResource(R.mipmap.ic_launcher);
+                //异步网络请求
+                new DownImageAsync(globalInfos.getHeadImgHost()+user.getUserid()+".jpg",ivHeadImg).execute();
+            }
+
+            etMail = (TextView)view.findViewById(R.id.mail);
+            etMail.setText(user.getMail());
+            etNickname = (EditText)view.findViewById(R.id.nickname);
+            etNickname.setText(user.getNickname());
+            etPasswd = (EditText)view.findViewById(R.id.passwd);
+            etPasswd.setText(user.getPasswd());
+            etConfirmPasswd = (EditText)view.findViewById(R.id.confirm_passwd);
+            etConfirmPasswd.setText(user.getPasswd());
+            bSave = (Button)view.findViewById(R.id.save);
+            headImgContent = "";
+
+            changeuserinfoDialog = new ProgressDialog(getActivity(), ProgressDialog.STYLE_SPINNER);
+            Log.e(TAG, "changeuserinfoDialog new:"+changeuserinfoDialog);
+            bSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mail = etMail.getText().toString().trim();
+                    nickname = etNickname.getText().toString().trim();
+                    passwd = etPasswd.getText().toString().trim();
+                    String confirmPasswd = etConfirmPasswd.getText().toString().trim();
+
+                    if(mail==null || passwd==null || confirmPasswd==null || nickname==null){
+                        Toast.makeText(getActivity().getApplicationContext(), "请填写完整信息", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if(!passwd.equals(confirmPasswd)){
+                        Toast.makeText(getActivity().getApplicationContext(), "密码不一致", Toast.LENGTH_SHORT).show();
+                        etPasswd.setText("");
+                        etConfirmPasswd.setText("");
+                        return;
+                    }
+                    UserInfo userInfo;
+                    //读取头像
+                    if(changeHeadImg){
+                        headImgContent = Utils.decodeUriAsBase64(headImgUriTmp);
+                        String headImgName = userId+".jpg";
+                        userInfo = new UserInfo(userId, mail, passwd, nickname, headImgName, headImgContent);
+                    }else {
+                        userInfo = new UserInfo(userId, mail, passwd, nickname);
+                    }
+                    //修改用户信息
+
+                    //changeuserinfoDialog = new ProgressDialog(getActivity(), ProgressDialog.STYLE_SPINNER);
+                    Log.e(TAG, "changeuserinfoDialog click:"+changeuserinfoDialog);
+                    changeuserinfoDialog.setTitle("保存中...");
+                    //changeuserinfoDialog.setCancelable(false);
+                    changeuserinfoDialog.show();
+                    Log.e(TAG, "init changeuserinfoDialog");
+                    chat.emit("changeUserInfo", gson.toJson(userInfo));
+                    if(changeuserinfoDialog==null){
+                        Toast.makeText(getActivity(), "null ag", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+            ivHeadImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    AlertDialog dialog = null;
+                    if (dialog == null) {
+                        dialog = new AlertDialog.Builder(getActivity()).setItems(new String[]{"相机", "相册"}, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == 0) {
+                                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                    //不能同时设置输出到文件中 和 从data中返回
+                                    //intent.putExtra(MediaStore.EXTRA_OUTPUT, headImgUriTmp);
+                                    intent.putExtra("return-data", true);
+                                    startActivityForResult(intent, 101);
+                                } else {
+                                    Intent intent = new Intent(Intent.ACTION_PICK, null);
+                                    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                                    intent.putExtra("output", headImgUriTmp);
+                                    intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                                    intent.putExtra("crop", "true");
+                                    intent.putExtra("aspectX", 1);// 裁剪框比例
+                                    intent.putExtra("aspectY", 1);
+                                    intent.putExtra("outputX", outputX);// 输出图片大小
+                                    intent.putExtra("outputY", outputY);
+                                    //intent.putExtra("return-data", true);
+                                    startActivityForResult(intent, 100);
+                                }
+                            }
+                        }).create();
+                    }
+                    if (!dialog.isShowing()) {
+                        dialog.show();
+                    }
+                }
+            });
+
+            chat.setChangeUserInfoListener(new Chat.ChangeUserInfoListener() {
+                @Override
+                public void changeUserInfo(String data) {
+                    Log.e(TAG, "changeUserInfo:" + data);
+                    NothingResponse nothingResponse = gson.fromJson(data, NothingResponse.class);
+                    Log.d(TAG, "" + nothingResponse.getErrno() + ", " + nothingResponse.getError());
+                    if (nothingResponse.getErrno() != 0 || nothingResponse.getError() != null && nothingResponse.getError().length() != 0) {
+                        Message msg = new Message();
+                        msg.what = HANDLER_CHANGEUSERINFO_ERROR;
+                        msg.obj = nothingResponse;
+                        handler.sendMessage(msg);
+                        return;
+                    } else {
+                        handler.sendEmptyMessage(HANDLER_CHANGEUSERINFO_SUCCESS);
+                    }
+                }
+            });
+        }
         Log.e(TAG,"onCreateView");
         return view;
     }
@@ -286,15 +306,62 @@ public class FragmentMe extends Fragment{
             changeHeadImg = true;
         }
     }
+
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.e(TAG, "onStart");
+        if(changeuserinfoDialog==null){
+            Log.e(TAG, "changeuserinfoDialog is null in start");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume");
+        if(changeuserinfoDialog==null){
+            Log.e(TAG, "changeuserinfoDialog is null in resume");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause");
+        if(changeuserinfoDialog==null){
+            Log.e(TAG, "changeuserinfoDialog is null in pause");
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.e(TAG, "onStop");
+        if(changeuserinfoDialog==null){
+            Log.e(TAG, "changeuserinfoDialog is null in stop");
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((ViewGroup)view.getParent()).removeView(view);
         Log.e(TAG, "onDestroyView");
+        if(changeuserinfoDialog==null){
+            Log.e(TAG, "changeuserinfoDialog is null in destroyview");
+        }
     }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "onDestroy");
+    }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.e(TAG, "onDetach");
     }
 }

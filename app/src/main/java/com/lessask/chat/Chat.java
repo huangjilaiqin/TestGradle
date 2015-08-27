@@ -39,6 +39,7 @@ public class Chat {
     private RegisterListener registerListener;
     private FriendsListener friendsListener;
     private ChangeUserInfoListener changeUserInfoListener;
+    private HistoryListener historyListener;
 
     private Chat(){
         try {
@@ -57,6 +58,7 @@ public class Chat {
             mSocket.on("register", onRegister);
             mSocket.on("friendsInfo", onFriends);
             mSocket.on("changeUserInfo", onChangeUserInfo);
+            mSocket.on("history", onHistory);
             mSocket.connect();
             Log.e(TAG, "connect");
 
@@ -167,6 +169,24 @@ public class Chat {
             changeUserInfoListener.changeUserInfo(args[0].toString());
         }
     };
+    private Emitter.Listener onHistory = new Emitter.Listener(){
+        @Override
+        public void call(Object... args) {
+            ArrayList<ChatMessage> messages = gson.fromJson(args[0].toString(), new TypeToken<ArrayList<ArrayList<ChatMessage>>>() {}.getType());
+            if(messages.size()>0){
+                ArrayList mList = globalInfos.getChatContent(messages.get(0).getFriendid());
+                Iterator ite = messages.iterator();
+                while(ite.hasNext()){
+                    ChatMessage msg = (ChatMessage)ite.next();
+                    mList.add(0, msg);
+                    Log.e(TAG, "history:"+msg.getContent());
+                }
+            }
+
+            //通知消息列表更新
+            historyListener.history();
+        }
+    };
     private Emitter.Listener onFriends = new Emitter.Listener(){
 
         @Override
@@ -233,6 +253,12 @@ public class Chat {
     }
     public void setChangeUserInfoListener(ChangeUserInfoListener listener){
         this.changeUserInfoListener = listener;
+    }
+    public interface HistoryListener{
+        void history();
+    }
+    public void setHistoryListener(HistoryListener listener){
+        this.historyListener = listener;
     }
 }
 
