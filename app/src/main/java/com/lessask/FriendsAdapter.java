@@ -36,6 +36,7 @@ public class FriendsAdapter extends BaseAdapter{
     public FriendsAdapter(Context context, ArrayList data){
         this.context = context;
         originFriends = data;
+        //to do 这里有时出现NullException
         headImgDir = context.getExternalFilesDir("headImg");
     }
     @Override

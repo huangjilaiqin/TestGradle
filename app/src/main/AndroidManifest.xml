@@ -90,6 +90,10 @@
             android:name=".FragmentTestActivity"
             android:label="@string/title_activity_fragment" >
         </activity>
+        <activity
+            android:name=".test.SwipeRefreshLayoutTest"
+            android:label="@string/title_activity_swipe_refresh_layout_test" >
+        </activity>
     </application>
 
 </manifest>

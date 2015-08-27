@@ -57,12 +57,18 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
         //获取数据对应的视图对象
         if(convertView!=null){
             switch (type){
-                case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
-                    otherViewHolder = (OtherViewHolder)convertView.getTag();
-                    break;
-                case ChatMessage.VIEW_TYPE_SEND_TEXT:
-                    meViewHolder = (MeViewHolder)convertView.getTag();
-                    break;
+                case ChatMessage.VIEW_TYPE_RECEIVED:
+                    switch (itemData.getType()){
+                        case ChatMessage.MSG_TYPE_TEXT:
+                            otherViewHolder = (OtherViewHolder)convertView.getTag();
+                            break;
+                    }
+                case ChatMessage.VIEW_TYPE_SEND:
+                    switch (itemData.getType()) {
+                        case ChatMessage.MSG_TYPE_TEXT:
+                            meViewHolder = (MeViewHolder) convertView.getTag();
+                            break;
+                    }
                 case ChatMessage.VIEW_TYPE_TIME:
                     timeViewHolder = (TimeViewHolder)convertView.getTag();
                     break;
@@ -71,20 +77,26 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
             }
         }else{
             switch (type){
-                case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_other, null);
-                    otherViewHolder = new OtherViewHolder();
-                    convertView.setTag(otherViewHolder);
-                    otherViewHolder.headImg = (ImageView)convertView.findViewById(R.id.head_img);
-                    otherViewHolder.msg = (TextView)convertView.findViewById(R.id.content);
-                    break;
-                case ChatMessage.VIEW_TYPE_SEND_TEXT:
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_me, null);
-                    meViewHolder = new MeViewHolder();
-                    convertView.setTag(meViewHolder);
-                    meViewHolder.headImg = (ImageView)convertView.findViewById(R.id.head_img);
-                    meViewHolder.msg = (TextView)convertView.findViewById(R.id.content);
-                    break;
+                case ChatMessage.VIEW_TYPE_RECEIVED:
+                    switch (itemData.getType()){
+                        case ChatMessage.MSG_TYPE_TEXT:
+                            convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_other, null);
+                            otherViewHolder = new OtherViewHolder();
+                            convertView.setTag(otherViewHolder);
+                            otherViewHolder.headImg = (ImageView)convertView.findViewById(R.id.head_img);
+                            otherViewHolder.msg = (TextView)convertView.findViewById(R.id.content);
+                            break;
+                    }
+                case ChatMessage.VIEW_TYPE_SEND:
+                    switch (itemData.getType()) {
+                        case ChatMessage.MSG_TYPE_TEXT:
+                            convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_me, null);
+                            meViewHolder = new MeViewHolder();
+                            convertView.setTag(meViewHolder);
+                            meViewHolder.headImg = (ImageView) convertView.findViewById(R.id.head_img);
+                            meViewHolder.msg = (TextView) convertView.findViewById(R.id.content);
+                            break;
+                    }
                 case ChatMessage.VIEW_TYPE_TIME:
                     convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_time, null);
                     timeViewHolder = new TimeViewHolder();
@@ -97,18 +109,24 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
         }
         //将数据设置到视图中
         switch (type){
-            case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
-                otherViewHolder.msg.setText(itemData.getContent());
-                //itemData.getFriendid() 根据好友id在本地存储图片
-                //设置静态资源
-                otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
-                //设置动态加载的资源
-                //otherViewHolder.headImg.setImageDrawable();
-                break;
-            case ChatMessage.VIEW_TYPE_SEND_TEXT:
-                meViewHolder.msg.setText(itemData.getContent());
-                meViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
-                break;
+            case ChatMessage.VIEW_TYPE_RECEIVED:
+                switch (itemData.getType()){
+                    case ChatMessage.MSG_TYPE_TEXT:
+                        otherViewHolder.msg.setText(itemData.getContent());
+                        //itemData.getFriendid() 根据好友id在本地存储图片
+                        //设置静态资源
+                        otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
+                        //设置动态加载的资源
+                        //otherViewHolder.headImg.setImageDrawable();
+                        break;
+                }
+            case ChatMessage.VIEW_TYPE_SEND:
+                switch (itemData.getType()) {
+                    case ChatMessage.MSG_TYPE_TEXT:
+                        meViewHolder.msg.setText(itemData.getContent());
+                        meViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
+                        break;
+                }
             case ChatMessage.VIEW_TYPE_TIME:
                 break;
             default:

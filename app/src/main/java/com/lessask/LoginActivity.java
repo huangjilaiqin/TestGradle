@@ -18,6 +18,7 @@ import com.lessask.chat.GlobalInfos;
 import com.lessask.model.Login;
 import com.lessask.model.LoginResponse;
 import com.lessask.model.User;
+import com.lessask.test.SwipeRefreshLayoutTest;
 
 import java.io.File;
 
@@ -102,6 +103,7 @@ public class LoginActivity extends Activity {
         Log.e(TAG, "onCreate");
         Button bLogin = (Button)findViewById(R.id.bLogin);
         Button bRegister = (Button)findViewById(R.id.bRegister);
+        Button bTest = (Button)findViewById(R.id.bTest);
         final EditText tUsername = (EditText)findViewById(R.id.tUsername);
         final EditText tPassword = (EditText)findViewById(R.id.tPassword);
 
@@ -112,6 +114,14 @@ public class LoginActivity extends Activity {
             tUsername.setText(username);
             tPassword.setText(passwd);
         }
+
+        bTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, SwipeRefreshLayoutTest.class);
+                startActivity(intent);
+            }
+        });
 
         bLogin.setOnClickListener(new View.OnClickListener() {
             @Override

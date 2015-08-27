@@ -1,5 +1,6 @@
 package com.lessask.chat;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.lessask.model.User;
@@ -7,6 +8,7 @@ import com.lessask.model.User;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.zip.Inflater;
 
 /**
  * Created by huangji on 2015/8/12.
@@ -19,6 +21,8 @@ public class GlobalInfos {
     private User user;
     //聊天信息
     private HashMap<Integer, ArrayList> chatContents;
+    //历史记录id
+    private HashMap<Integer, Integer> historyIds;
     //好友哈希表
     private HashMap<Integer, User> friendsinMap;
     //好友列表
@@ -28,6 +32,7 @@ public class GlobalInfos {
     private String headImgHost;
 
     private GlobalInfos(){
+        historyIds = new HashMap<>();
         chatContents = new HashMap<>();
     }
     public static final GlobalInfos getInstance(){
@@ -35,6 +40,17 @@ public class GlobalInfos {
     }
     private static class LazyHolder {
         private static final GlobalInfos INSTANCE = new GlobalInfos();
+    }
+
+    public int getHistoryIds(int userId) {
+        if(historyIds.get(userId)==null){
+            historyIds.put(userId, -1);
+        }
+        return historyIds.get(userId);
+    }
+
+    public void setHistoryIds(int userId, int historyId) {
+        historyIds.put(userId, historyId);
     }
 
     public String getHeadImgHost() {

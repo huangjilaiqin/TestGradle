@@ -5,16 +5,23 @@
     android:orientation="vertical"
     tools:context="lessask.ChatActivity">
 
-    <ListView
-        android:transcriptMode="alwaysScroll"
-        android:id="@+id/chat_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="@android:color/transparent"
-        android:background="@color/gray"
-        >
-    </ListView>
+    <android.support.v4.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swipe">
+        <ListView
+            android:transcriptMode="alwaysScroll"
+            android:id="@+id/chat_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@android:color/transparent"
+            android:background="@color/gray"
+            >
+        </ListView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

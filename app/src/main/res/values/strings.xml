@@ -22,5 +22,6 @@
     <string name="title_activity_head_img">HeadImgActivity</string>
     <string name="title_activity_friends">FriendsActivity</string>
     <string name="title_activity_fragment">FragmentActivity</string>
+    <string name="title_activity_swipe_refresh_layout_test">SwipeRefreshLayoutTest</string>
 
 </resources>

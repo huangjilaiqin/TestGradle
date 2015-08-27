@@ -12,6 +12,8 @@ import com.google.gson.reflect.TypeToken;
 import com.lessask.MyApplication;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
+import com.lessask.model.HistoryResponse;
+import com.lessask.model.ResponseError;
 import com.lessask.model.User;
 
 import java.lang.reflect.Type;
@@ -129,16 +131,22 @@ public class Chat {
             //Map<String, String> map = gson.fromJson(args[0].toString(), type);
             //String id = map.get("id");
             ChatMessage message = gson.fromJson(args[0].toString(), ChatMessage.class);
+            message.setViewType(ChatMessage.VIEW_TYPE_RECEIVED);
             ArrayList mList = globalInfos.getChatContent(message.getFriendid());
-            //mList.add(message);
+            mList.add(message);
+            if(globalInfos.getHistoryIds(message.getFriendid())==-1){
+                globalInfos.setHistoryIds(message.getFriendid(), message.getId());
+            }
+            /*
             Iterator ite = mList.iterator();
             while (ite.hasNext()){
                 ChatMessage msg = (ChatMessage)ite.next();
                 Log.e(TAG, msg.getContent());
             }
+            */
 
             //通知当前聊天activity
-            dataChangeListener.message(message);
+            dataChangeListener.message(message.getFriendid(), message.getType());
             //通知消息列表更新
         }
     };
@@ -148,6 +156,9 @@ public class Chat {
             Log.e(TAG, "onMessageResp:" + args[0].toString());
             ChatMessageResponse response = gson.fromJson(args[0].toString(), ChatMessageResponse.class);
             dataChangeListener.messageResponse(response);
+            if(globalInfos.getHistoryIds(response.getFriendid())==-1){
+                globalInfos.setHistoryIds(response.getFriendid(), response.getId());
+            }
         }
     };
     private Emitter.Listener onLogin = new Emitter.Listener(){
@@ -172,19 +183,31 @@ public class Chat {
     private Emitter.Listener onHistory = new Emitter.Listener(){
         @Override
         public void call(Object... args) {
-            ArrayList<ChatMessage> messages = gson.fromJson(args[0].toString(), new TypeToken<ArrayList<ArrayList<ChatMessage>>>() {}.getType());
-            if(messages.size()>0){
-                ArrayList mList = globalInfos.getChatContent(messages.get(0).getFriendid());
-                Iterator ite = messages.iterator();
-                while(ite.hasNext()){
-                    ChatMessage msg = (ChatMessage)ite.next();
-                    mList.add(0, msg);
-                    Log.e(TAG, "history:"+msg.getContent());
+            Log.e(TAG, "onHistory"+args[0].toString());
+            HistoryResponse historyResponse= gson.fromJson(args[0].toString(), HistoryResponse.class);
+            if (historyResponse.getErrno() != 0 || historyResponse.getError()!=null && historyResponse.getError().length() != 0) {
+                historyListener.history(historyResponse,historyResponse.getFriendid(),0);
+            }else {
+                ArrayList<ChatMessage> messages = historyResponse.getMessages();
+                if(messages.size()>0){
+                    ArrayList mList = globalInfos.getChatContent(messages.get(0).getFriendid());
+                    Iterator ite = messages.iterator();
+                    int myId = globalInfos.getUserid();
+                    while(ite.hasNext()){
+                        ChatMessage msg = (ChatMessage)ite.next();
+                        if(msg.getUserid()==myId){
+                            msg.setViewType(ChatMessage.VIEW_TYPE_SEND);
+                        }else {
+                            msg.setViewType(ChatMessage.VIEW_TYPE_RECEIVED);
+                        }
+                        mList.add(0, msg);
+                        Log.e(TAG, "history:"+msg.getContent());
+                    }
+                    ChatMessage message = messages.get(0);
+                    globalInfos.setHistoryIds(message.getFriendid(), message.getId());
                 }
+                historyListener.history(null, historyResponse.getFriendid(), messages.size());
             }
-
-            //通知消息列表更新
-            historyListener.history();
         }
     };
     private Emitter.Listener onFriends = new Emitter.Listener(){
@@ -226,7 +249,7 @@ public class Chat {
         this.dataChangeListener = dataChangeListener;
     }
     public interface DataChangeListener{
-        void message(ChatMessage msg);
+        void message(int friendId, int type);
         void messageResponse(ChatMessageResponse response);
     }
     public interface LoginListener{
@@ -255,7 +278,7 @@ public class Chat {
         this.changeUserInfoListener = listener;
     }
     public interface HistoryListener{
-        void history();
+        void history(ResponseError error, int friendid, int messageSize);
     }
     public void setHistoryListener(HistoryListener listener){
         this.historyListener = listener;

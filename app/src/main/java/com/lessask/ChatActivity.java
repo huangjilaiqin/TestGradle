@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -22,19 +24,22 @@ import com.lessask.chat.Chat;
 import com.lessask.chat.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
+import com.lessask.model.History;
+import com.lessask.model.ResponseError;
 
 
 public class ChatActivity extends Activity {
 
     private static final int HANDLER_MESSAGE = 0;
     private static final int HANDLER_MESSAGE_RESP = 1;
-    private static final int HANDLER_HISTORY = 2;
+    private static final int HANDLER_HISTORY_SUCCESS = 2;
+    private static final int HANDLER_HISTORY_ERROR = 3;
 
     private final static String TAG = "ChatActivity";
     private ListView chatListView;
     private static ChatAdapter chatAdapter;
+    private SwipeRefreshLayout swipeView;
 
-    private ListView lvChatView;
     private EditText etContent;
 
     private Chat chat = Chat.getInstance();
@@ -53,20 +58,33 @@ public class ChatActivity extends Activity {
             Log.d(TAG, "onMessage handler");
 
             switch (msg.what){
-                case ChatMessage.VIEW_TYPE_RECEIVED_TEXT:
-                    ChatMessage chatMessage = (ChatMessage)msg.obj;
-                    messageList.add(chatMessage);
-
-                    chatAdapter.notifyDataSetChanged();
-                    //lvChatView.setSelection(chatAdapter.getCount()-1);
-                    Log.d(TAG, "onMessage notifyDataSetChanged");
+                case ChatMessage.VIEW_TYPE_RECEIVED:
+                    if(msg.arg1 == friendId){
+                        chatAdapter.notifyDataSetChanged();
+                    }else {
+                        //对数据做一个标红
+                    }
                     break;
                 case HANDLER_MESSAGE_RESP:
                     //根据消息响应的状态改变界面
+                    ChatMessageResponse response = (ChatMessageResponse)msg.obj;
+
                     break;
-                case HANDLER_HISTORY:
-                    chatAdapter.notifyDataSetChanged();
+                case HANDLER_HISTORY_SUCCESS:
+                    if(msg.arg1>0){
+                        chatAdapter.notifyDataSetChanged();
+
+                    }else {
+                        Toast.makeText(ChatActivity.this, "没有更多数据", Toast.LENGTH_SHORT).show();
+                    }
                     Log.d(TAG, "onHistory notifyDataSetChanged");
+                    swipeView.setRefreshing(false);
+                    break;
+                case HANDLER_HISTORY_ERROR:
+                    ResponseError error = (ResponseError)msg.obj;
+                    Toast.makeText(ChatActivity.this, "errno:"+error.getErrno()+",msg:"+error.getError(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onHistory error");
+                    swipeView.setRefreshing(false);
                     break;
                 default:
                     break;
@@ -79,6 +97,7 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Intent intent = getIntent();
+        swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
         userId = globalInfos.getUserid();
         friendId = intent.getIntExtra("friendId", -1);
@@ -88,10 +107,11 @@ public class ChatActivity extends Activity {
 
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
-            public void message(ChatMessage chatMessage) {
+            public void message(int friendId, int type) {
                 Message msg = new Message();
-                msg.what = ChatMessage.VIEW_TYPE_RECEIVED_TEXT;
-                msg.obj = chatMessage;
+                msg.what = ChatMessage.VIEW_TYPE_RECEIVED;
+                msg.arg1 = friendId;
+                msg.arg2 = type;
                 handler.sendMessage(msg);
             }
 
@@ -105,10 +125,18 @@ public class ChatActivity extends Activity {
         });
         chat.setHistoryListener(new Chat.HistoryListener() {
             @Override
-            public void history() {
-                Message msg = new Message();
-                msg.what = HANDLER_MESSAGE_RESP;
-                handler.sendMessage(msg);
+            public void history(ResponseError error, int mFriendid, int messageSize) {
+                if(error!=null){
+
+                }else {
+                    if(mFriendid == friendId){
+                        Message msg = new Message();
+                        msg.arg1 = messageSize;
+                        msg.what = HANDLER_HISTORY_SUCCESS;
+                        handler.sendMessage(msg);
+                    }
+
+                }
             }
         });
         //获取好友聊天内容
@@ -116,7 +144,6 @@ public class ChatActivity extends Activity {
         chatListView = (ListView) findViewById(R.id.chat_view);
         chatListView.setAdapter(chatAdapter);
         final LayoutInflater layoutInflater = LayoutInflater.from(this);
-        lvChatView = (ListView) findViewById(R.id.chat_view);
         //消息类型
         final ImageView ivContentType = (ImageView) findViewById(R.id.content_type);
         //输入框
@@ -128,7 +155,6 @@ public class ChatActivity extends Activity {
 
         //一进来就显示最新的聊天消息
         chatAdapter.notifyDataSetChanged();
-        //lvChatView.setSelection(chatAdapter.getCount()-1);
 
         ivSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,12 +165,11 @@ public class ChatActivity extends Activity {
                     return;
                 }
 
-                ChatMessage msg = new ChatMessage(userId, friendId, ChatMessage.MSG_TYPE_TEXT, content, null, seq, ChatMessage.VIEW_TYPE_SEND_TEXT);
+                ChatMessage msg = new ChatMessage(userId, friendId, ChatMessage.MSG_TYPE_TEXT, content, null, seq, ChatMessage.VIEW_TYPE_SEND);
                 messageList.add(msg);
 
                 etContent.setText("");
                 chatAdapter.notifyDataSetChanged();
-                //lvChatView.setSelection(chatAdapter.getCount());
 
                 //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
                 Log.d(TAG, "userid:"+userId);
@@ -157,7 +182,6 @@ public class ChatActivity extends Activity {
             @Override
             public void onClick(View v) {
                 chatAdapter.notifyDataSetChanged();
-                //lvChatView.setSelection(chatAdapter.getCount());
             }
         });
         ivContentType.setOnClickListener(new View.OnClickListener() {
@@ -197,11 +221,35 @@ public class ChatActivity extends Activity {
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus){
                      chatAdapter.notifyDataSetChanged();
-                     lvChatView.setSelection(chatAdapter.getCount());
                 }
             }
         });
         */
+        swipeView.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
+        swipeView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeView.setRefreshing(true);
+                //请求历史数据
+                History history = new History(userId, friendId, globalInfos.getHistoryIds(friendId));
+                chat.emit("history", gson.toJson(history));
+            }
+        });
+
+        chatListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem == 0)
+                    swipeView.setEnabled(true);
+                else
+                    swipeView.setEnabled(false);
+            }
+        });
 
     }
 

@@ -4,13 +4,9 @@ package com.lessask.model;
  */
 public class ChatMessage {
     //用于判断显示使用的view类型
-    public static final int VIEW_TYPE_RECEIVED_TEXT = 0;
-    public static final int VIEW_TYPE_SEND_TEXT = 1;
+    public static final int VIEW_TYPE_RECEIVED= 0;
+    public static final int VIEW_TYPE_SEND= 1;
     public static final int VIEW_TYPE_TIME = 2;
-    public static final int VIEW_TYPE_RECEIVED_SOUND = 1;
-    public static final int VIEW_TYPE_RECEIVED_IMAGE = 2;
-    public static final int VIEW_TYPE_SEND_SOUND = 4;
-    public static final int VIEW_TYPE_SEND_IMAGE = 5;
 
     public static final int MSG_TYPE_TEXT = 0;
     public static final int MSG_TYPE_IMG = 1;
