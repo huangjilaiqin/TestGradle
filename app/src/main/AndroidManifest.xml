@@ -94,6 +94,10 @@
             android:name=".test.SwipeRefreshLayoutTest"
             android:label="@string/title_activity_swipe_refresh_layout_test" >
         </activity>
+        <activity
+            android:name=".test.TestSocket"
+            android:label="@string/title_activity_test_socket" >
+        </activity>
     </application>
 
 </manifest>

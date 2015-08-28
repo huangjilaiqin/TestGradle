@@ -49,26 +49,29 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
         //获取数据对象
         ChatMessage itemData = getItem(position);
         //获取数据类型对象
-        int type = getItemViewType(position);
+        int viewType = getItemViewType(position);
+        int msgType = itemData.getType();
         MeViewHolder meViewHolder = null;
         OtherViewHolder otherViewHolder = null;
         TimeViewHolder timeViewHolder = null;
 
         //获取数据对应的视图对象
         if(convertView!=null){
-            switch (type){
+            switch (viewType){
                 case ChatMessage.VIEW_TYPE_RECEIVED:
-                    switch (itemData.getType()){
+                    switch (msgType){
                         case ChatMessage.MSG_TYPE_TEXT:
                             otherViewHolder = (OtherViewHolder)convertView.getTag();
                             break;
                     }
+                    break;
                 case ChatMessage.VIEW_TYPE_SEND:
-                    switch (itemData.getType()) {
+                    switch (msgType) {
                         case ChatMessage.MSG_TYPE_TEXT:
                             meViewHolder = (MeViewHolder) convertView.getTag();
                             break;
                     }
+                    break;
                 case ChatMessage.VIEW_TYPE_TIME:
                     timeViewHolder = (TimeViewHolder)convertView.getTag();
                     break;
@@ -76,9 +79,9 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                     break;
             }
         }else{
-            switch (type){
+            switch (viewType){
                 case ChatMessage.VIEW_TYPE_RECEIVED:
-                    switch (itemData.getType()){
+                    switch (msgType){
                         case ChatMessage.MSG_TYPE_TEXT:
                             convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_other, null);
                             otherViewHolder = new OtherViewHolder();
@@ -87,8 +90,9 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                             otherViewHolder.msg = (TextView)convertView.findViewById(R.id.content);
                             break;
                     }
+                    break;
                 case ChatMessage.VIEW_TYPE_SEND:
-                    switch (itemData.getType()) {
+                    switch (msgType) {
                         case ChatMessage.MSG_TYPE_TEXT:
                             convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_me, null);
                             meViewHolder = new MeViewHolder();
@@ -97,6 +101,7 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                             meViewHolder.msg = (TextView) convertView.findViewById(R.id.content);
                             break;
                     }
+                    break;
                 case ChatMessage.VIEW_TYPE_TIME:
                     convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_time, null);
                     timeViewHolder = new TimeViewHolder();
@@ -108,9 +113,9 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
             }
         }
         //将数据设置到视图中
-        switch (type){
+        switch (viewType){
             case ChatMessage.VIEW_TYPE_RECEIVED:
-                switch (itemData.getType()){
+                switch (msgType){
                     case ChatMessage.MSG_TYPE_TEXT:
                         otherViewHolder.msg.setText(itemData.getContent());
                         //itemData.getFriendid() 根据好友id在本地存储图片
@@ -120,13 +125,15 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                         //otherViewHolder.headImg.setImageDrawable();
                         break;
                 }
+                break;
             case ChatMessage.VIEW_TYPE_SEND:
-                switch (itemData.getType()) {
+                switch (msgType) {
                     case ChatMessage.MSG_TYPE_TEXT:
                         meViewHolder.msg.setText(itemData.getContent());
                         meViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
                         break;
                 }
+                break;
             case ChatMessage.VIEW_TYPE_TIME:
                 break;
             default:

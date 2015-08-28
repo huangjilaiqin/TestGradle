@@ -23,5 +23,6 @@
     <string name="title_activity_friends">FriendsActivity</string>
     <string name="title_activity_fragment">FragmentActivity</string>
     <string name="title_activity_swipe_refresh_layout_test">SwipeRefreshLayoutTest</string>
+    <string name="title_activity_test_socket">TestSocket</string>
 
 </resources>

@@ -136,6 +136,7 @@ public class Chat {
             mList.add(message);
             if(globalInfos.getHistoryIds(message.getFriendid())==-1){
                 globalInfos.setHistoryIds(message.getFriendid(), message.getId());
+                Log.e(TAG, "historyId:" + globalInfos.getHistoryIds(message.getFriendid()));
             }
             /*
             Iterator ite = mList.iterator();
@@ -158,6 +159,7 @@ public class Chat {
             dataChangeListener.messageResponse(response);
             if(globalInfos.getHistoryIds(response.getFriendid())==-1){
                 globalInfos.setHistoryIds(response.getFriendid(), response.getId());
+                Log.e(TAG, "historyId:" + globalInfos.getHistoryIds(response.getFriendid()));
             }
         }
     };
@@ -203,8 +205,9 @@ public class Chat {
                         mList.add(0, msg);
                         Log.e(TAG, "history:"+msg.getContent());
                     }
-                    ChatMessage message = messages.get(0);
+                    ChatMessage message = (ChatMessage)mList.get(0);
                     globalInfos.setHistoryIds(message.getFriendid(), message.getId());
+                    Log.e(TAG,"historyId:"+globalInfos.getHistoryIds(message.getFriendid()));
                 }
                 historyListener.history(null, historyResponse.getFriendid(), messages.size());
             }

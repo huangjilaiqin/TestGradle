@@ -54,6 +54,7 @@ public class ChatActivity extends Activity {
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            Log.d(TAG, "handler");
             super.handleMessage(msg);
             Log.d(TAG, "onMessage handler");
 
@@ -73,7 +74,6 @@ public class ChatActivity extends Activity {
                 case HANDLER_HISTORY_SUCCESS:
                     if(msg.arg1>0){
                         chatAdapter.notifyDataSetChanged();
-
                     }else {
                         Toast.makeText(ChatActivity.this, "没有更多数据", Toast.LENGTH_SHORT).show();
                     }
@@ -126,16 +126,18 @@ public class ChatActivity extends Activity {
         chat.setHistoryListener(new Chat.HistoryListener() {
             @Override
             public void history(ResponseError error, int mFriendid, int messageSize) {
+                Log.e(TAG, "chatActivity friendId:"+mFriendid+", messageSize:"+messageSize);
                 if(error!=null){
-
+                    Toast.makeText(getApplicationContext(), "historyError"+error.getError()+", errno:"+error.getErrno(), Toast.LENGTH_SHORT).show();
                 }else {
+                    Log.e(TAG, mFriendid+", "+friendId);
                     if(mFriendid == friendId){
                         Message msg = new Message();
                         msg.arg1 = messageSize;
                         msg.what = HANDLER_HISTORY_SUCCESS;
                         handler.sendMessage(msg);
+                        Log.e(TAG, "history send HANDLER_HISTORY_SUCCESS");
                     }
-
                 }
             }
         });
@@ -232,6 +234,7 @@ public class ChatActivity extends Activity {
                 swipeView.setRefreshing(true);
                 //请求历史数据
                 History history = new History(userId, friendId, globalInfos.getHistoryIds(friendId));
+                Log.e(TAG, "history:"+gson.toJson(history));
                 chat.emit("history", gson.toJson(history));
             }
         });
