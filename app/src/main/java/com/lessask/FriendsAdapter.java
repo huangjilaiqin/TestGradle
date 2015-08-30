@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +14,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 import com.lessask.chat.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.DownImageAsync;
 import com.lessask.model.User;
+import com.lessask.model.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,6 +32,10 @@ import java.util.ArrayList;
 public class FriendsAdapter extends BaseAdapter{
 
     private static final String TAG = FriendsAdapter.class.getName();
+    private RequestQueue requestQueue;
+    private final LruCache<String, Bitmap> lruCache = new LruCache<String, Bitmap>(20);
+    private ImageLoader.ImageCache imageCache;
+    private ImageLoader imageLoader;
 
     private Context context;
     private ArrayList<User> originFriends;
@@ -38,6 +47,19 @@ public class FriendsAdapter extends BaseAdapter{
         originFriends = data;
         //to do 这里有时出现NullException
         headImgDir = context.getExternalFilesDir("headImg");
+        requestQueue = Volley.newRequestQueue(context);
+        imageCache = new ImageLoader.ImageCache() {
+            @Override
+            public void putBitmap(String key, Bitmap bitmap) {
+                lruCache.put(key, bitmap);
+            }
+
+            @Override
+            public Bitmap getBitmap(String key) {
+                return lruCache.get(key);
+            }
+        };
+        imageLoader = new ImageLoader(requestQueue, imageCache);
     }
     @Override
     public int getCount() {
@@ -101,7 +123,9 @@ public class FriendsAdapter extends BaseAdapter{
                 //设置默认图像
                 ivHead.setImageResource(R.mipmap.ic_launcher);
                 //异步加载图像
-                new DownImageAsync("http://123.59.40.113/img/"+user.getUserid()+".jpg",ivHead).execute();
+                String friendHeadImgUrl = globalInfos.getHeadImgHost()+user.getUserid()+".jpg";
+                ImageLoader.ImageListener listener = ImageLoader.getImageListener(ivHead,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                imageLoader.get(friendHeadImgUrl, listener);
             }
         }else {
             ivHead.setImageBitmap(bmp);

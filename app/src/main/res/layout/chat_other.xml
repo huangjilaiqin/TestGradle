@@ -6,9 +6,10 @@
     >
     <ImageView
         android:id="@+id/head_img"
-        android:layout_width="43dp"
-        android:layout_height="43dp"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
         android:layout_gravity="top"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="6dp"
         android:src="@mipmap/ic_launcher"/>
     <TextView
@@ -19,7 +20,7 @@
         android:textSize="17sp"
         android:background="@drawable/sk"
         android:layout_marginRight="55dp"
+        android:layout_marginTop="10dp"
         android:layout_toRightOf="@id/head_img"
-        android:layout_marginTop="6dp"
         />
 </RelativeLayout>

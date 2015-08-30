@@ -34,6 +34,7 @@ import com.lessask.model.UserInfo;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import com.lessask.model.Utils;
 
 /**
  * Created by JHuang on 2015/8/23.

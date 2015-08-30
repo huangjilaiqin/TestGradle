@@ -15,6 +15,7 @@ import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.HistoryResponse;
 import com.lessask.model.ResponseError;
 import com.lessask.model.User;
+import com.lessask.model.Utils;
 
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
@@ -28,13 +29,14 @@ import java.util.Iterator;
 
 public class Chat {
     final private static String TAG = Chat.class.getName();
-    //private String chathost = "http://ws.o-topcy.com";
     //private String chathost = "http://ws.otopcy.com";
-    private String chathost = "http://123.59.40.113:5002";
+    //private String chathost = "http://123.59.40.113:5002";
     //private String chathost = "http://ws.qqshidao2.com";
+    private String chathost = "http://ws.o-topcy.com";
     private Socket mSocket;
     private GlobalInfos globalInfos;
     private Gson gson;
+    private HashMap<Integer, User> friendsMap;
     //更新不一样的activity应该有多个listener
     private DataChangeListener dataChangeListener;
     private LoginListener loginListener;
@@ -69,6 +71,7 @@ public class Chat {
         }
         globalInfos = GlobalInfos.getInstance();
         gson = new Gson();
+        friendsMap = globalInfos.getFriendsinMap();
     }
 
     public static final Chat getInstance(){
@@ -132,11 +135,11 @@ public class Chat {
             //String id = map.get("id");
             ChatMessage message = gson.fromJson(args[0].toString(), ChatMessage.class);
             message.setViewType(ChatMessage.VIEW_TYPE_RECEIVED);
+            int friendId = message.getUserid();
             ArrayList mList = globalInfos.getChatContent(message.getFriendid());
             mList.add(message);
-            if(globalInfos.getHistoryIds(message.getFriendid())==-1){
-                globalInfos.setHistoryIds(message.getFriendid(), message.getId());
-                Log.e(TAG, "historyId:" + globalInfos.getHistoryIds(message.getFriendid()));
+            if(globalInfos.getHistoryIds(friendId)==-1){
+                globalInfos.setHistoryIds(friendId, message.getId());
             }
             /*
             Iterator ite = mList.iterator();
@@ -192,22 +195,33 @@ public class Chat {
             }else {
                 ArrayList<ChatMessage> messages = historyResponse.getMessages();
                 if(messages.size()>0){
-                    ArrayList mList = globalInfos.getChatContent(messages.get(0).getFriendid());
-                    Iterator ite = messages.iterator();
                     int myId = globalInfos.getUserid();
+                    int friendId = 0;
+                    //获取好友id
+                    Iterator ite = messages.iterator();
+                    ChatMessage msg = null;
+                    while(friendId == 0 && ite.hasNext()){
+                        msg = (ChatMessage)ite.next();
+                        if(msg.getUserid() == myId)
+                            friendId = msg.getFriendid();
+                    }
+
+                    ArrayList mList = globalInfos.getChatContent(friendId);
+                    ite = messages.iterator();
                     while(ite.hasNext()){
-                        ChatMessage msg = (ChatMessage)ite.next();
+                        msg = (ChatMessage)ite.next();
                         if(msg.getUserid()==myId){
                             msg.setViewType(ChatMessage.VIEW_TYPE_SEND);
                         }else {
                             msg.setViewType(ChatMessage.VIEW_TYPE_RECEIVED);
                         }
+                        msg.setTime(Utils.formatTime4Chat(msg.getTime()));
                         mList.add(0, msg);
-                        Log.e(TAG, "history:"+msg.getContent());
+                        Log.e(TAG, msg.getId()+", userid:"+msg.getUserid()+", "+msg.getFriendid()+", history:"+msg.getContent());
                     }
                     ChatMessage message = (ChatMessage)mList.get(0);
-                    globalInfos.setHistoryIds(message.getFriendid(), message.getId());
-                    Log.e(TAG,"historyId:"+globalInfos.getHistoryIds(message.getFriendid()));
+                    globalInfos.setHistoryIds(friendId, message.getId());
+                    Log.e(TAG,"historyId:"+globalInfos.getHistoryIds(friendId));
                 }
                 historyListener.history(null, historyResponse.getFriendid(), messages.size());
             }

@@ -9,7 +9,9 @@
     <ImageView
         android:layout_width="43dp"
         android:layout_height="43dp"
-        android:layout_marginLeft="6dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="7dp"
         android:src="@mipmap/ic_launcher"
         android:id="@+id/head_img"/>
     <TextView
@@ -17,27 +19,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="17sp"
+        android:textColor="@color/black"
+        android:layout_marginTop="3dp"
         android:layout_toRightOf="@id/head_img"
         android:layout_alignTop="@id/head_img"
         android:layout_marginLeft="6dp"
-        android:text="赖贝鱼"
         />
     <TextView
         android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="17sp"
+        android:layout_marginTop="6dp"
+        android:layout_marginRight="25dp"
+        android:textSize="14sp"
         android:layout_alignLeft="@id/name"
         android:layout_alignBottom="@id/head_img"
-        android:text="今天情人节干什么好呢?"
+        android:maxLines="1"
+        android:ellipsize="end"
         />
     <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="17sp"
+        android:textSize="12sp"
         android:layout_alignParentRight="true"
         android:layout_marginRight="6dp"
-        android:text="下午13:37"
+        android:layout_alignTop="@id/name"
         />
 </RelativeLayout>

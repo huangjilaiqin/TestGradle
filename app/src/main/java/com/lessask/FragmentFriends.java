@@ -33,7 +33,7 @@ public class FragmentFriends extends Fragment{
     private static final int ON_FRIENDS = 0;
 
     private ListView lvFriends;
-    private FriendsAdapter adapter;
+    private FriendsAdapter mFriendsAdapter;
     private View rootView;
 
     private Handler handler = new Handler() {
@@ -43,11 +43,13 @@ public class FragmentFriends extends Fragment{
             switch (msg.what){
                 case ON_FRIENDS:
                     ArrayList friends = globalInfos.getFriends();
-                    //adapter = new FriendsAdapter(getActivity().getApplicationContext(), friends);
-                    adapter = new FriendsAdapter(getActivity(), friends);
-                    lvFriends.setAdapter(adapter);
-                    lvFriends.deferNotifyDataSetChanged();
-                    Log.e(TAG, "onfriend notifyDataChange");
+                    if(getActivity()!=null){
+                        mFriendsAdapter = new FriendsAdapter(getActivity(), friends);
+                        lvFriends.setAdapter(mFriendsAdapter);
+                        lvFriends.deferNotifyDataSetChanged();
+                        Log.e(TAG, "onfriend notifyDataChange");
+                    }
+
                     break;
                 default:
                     break;
@@ -67,8 +69,8 @@ public class FragmentFriends extends Fragment{
             if(friends==null){
                 Log.e(TAG, "friends is null");
             }
-            adapter = new FriendsAdapter(getActivity().getApplicationContext(), friends);
-            lvFriends.setAdapter(adapter);
+            mFriendsAdapter = new FriendsAdapter(getActivity().getApplicationContext(), friends);
+            lvFriends.setAdapter(mFriendsAdapter);
 
             lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -129,6 +131,8 @@ public class FragmentFriends extends Fragment{
     public void onResume() {
         super.onResume();
         Log.e(TAG, "onResume");
+        //低效率的刷新,只要再次显示这个界面都重新刷新一遍
+        mFriendsAdapter.notifyDataSetChanged();
     }
 
     @Override

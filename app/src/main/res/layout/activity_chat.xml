@@ -11,9 +11,6 @@
             android:layout_weight="1"
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swipe">
-        <ProgressBar
-            android:layout_width=""
-            android:layout_height="" />
         <ListView
             android:transcriptMode="alwaysScroll"
             android:id="@+id/chat_view"

@@ -50,6 +50,7 @@ public class DownImageAsync extends AsyncTask<String, Void, Bitmap>{
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
+        Log.e(TAG, "onPostExecute");
         if(bitmap!=null) {
             imageView.setImageBitmap(bitmap);
             //将bitmap存储在user中
