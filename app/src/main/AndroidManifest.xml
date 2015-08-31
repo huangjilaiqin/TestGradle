@@ -98,6 +98,10 @@
             android:name=".test.TestSocket"
             android:label="@string/title_activity_test_socket" >
         </activity>
+        <activity
+            android:name=".test.TestMapActivity"
+            android:label="@string/title_activity_test_map" >
+        </activity>
     </application>
 
 </manifest>
