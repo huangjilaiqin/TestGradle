@@ -1,9 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'lessask'
+            keyPassword '19910725'
+            storeFile file('D:/git/Android/TestGradle/lessask.jks')
+            storePassword '19910725'
+        }
+    }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
-
     defaultConfig {
         applicationId "com.lessask"
         minSdkVersion 15
@@ -13,7 +20,6 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -25,4 +31,5 @@ dependencies {
     compile 'com.github.nkzawa:socket.io-client:0.3.0'
     compile 'com.google.code.gson:gson:2.2.2'
     compile files('src/main/libs/volley.jar')
+    compile files('src/main/libs/baidumapapi_v3_5_0.jar')
 }

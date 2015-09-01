@@ -19,6 +19,7 @@ import com.lessask.model.Login;
 import com.lessask.model.LoginResponse;
 import com.lessask.model.User;
 import com.lessask.test.SwipeRefreshLayoutTest;
+import com.lessask.test.TestMapActivity;
 import com.lessask.test.TestSocket;
 
 import java.io.File;
@@ -120,7 +121,8 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 //Intent intent = new Intent(LoginActivity.this, SwipeRefreshLayoutTest.class);
-                Intent intent = new Intent(LoginActivity.this, TestSocket.class);
+                //Intent intent = new Intent(LoginActivity.this, TestSocket.class);
+                Intent intent = new Intent(LoginActivity.this, TestMapActivity.class);
                 startActivity(intent);
             }
         });

@@ -1,39 +1,44 @@
 package com.lessask.test;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.Window;
 
+import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.map.MapView;
 import com.lessask.R;
 
-public class TestMapActivity extends ActionBarActivity {
+public class TestMapActivity extends Activity {
 
+    private MapView mMapView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_test_map);
+        //setContentView(R.layout.activity_main);
+        init();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_test_map, menu);
-        return true;
+    private void init() {
+        mMapView = (MapView) findViewById(R.id.bmapview);
     }
-
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    protected void onResume() {
+        super.onResume();
+        mMapView.onResume();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mMapView.onPause();
+    }
+    @Override
+    protected void onDestroy() {
+        mMapView.onDestroy();
+        mMapView = null;
+        super.onDestroy();
     }
 }
