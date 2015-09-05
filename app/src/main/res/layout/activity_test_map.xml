@@ -8,7 +8,18 @@
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="500dp"
         android:clickable="true" />
+    <Button android:text="百度定位"
+        android:id="@+id/baidu"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/bmapview" />
+    <Button android:text="系统定位"
+        android:id="@+id/system"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/bmapview"
+        android:layout_toRightOf="@id/baidu" />
 
 </RelativeLayout>

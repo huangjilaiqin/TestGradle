@@ -37,5 +37,5 @@ dependencies {
     compile 'com.github.nkzawa:socket.io-client:0.3.0'
     compile 'com.google.code.gson:gson:2.2.2'
     compile files('src/main/libs/volley.jar')
-    compile files('src/main/libs/baidumapapi_v3_5_0.jar')
+    compile files('src/main/libs/BaiduLBS_Android.jar')
 }
