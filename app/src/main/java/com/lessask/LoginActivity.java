@@ -18,6 +18,7 @@ import com.lessask.chat.GlobalInfos;
 import com.lessask.model.Login;
 import com.lessask.model.LoginResponse;
 import com.lessask.model.User;
+import com.lessask.test.LocationDemo;
 import com.lessask.test.SwipeRefreshLayoutTest;
 import com.lessask.test.TestMapActivity;
 import com.lessask.test.TestSocket;
@@ -55,7 +56,7 @@ public class LoginActivity extends Activity {
                     Toast.makeText(LoginActivity.this, "login errno:"+loginResponse.getErrno()+", error:"+loginResponse.getError(), Toast.LENGTH_SHORT).show();
                     break;
                 case HANDLER_LOGING_SUCCESS:
-                    Log.d(TAG,"login success userid:"+globalInfos.getUserid());
+                    Log.d(TAG, "login success userid:" + globalInfos.getUserid());
                     //去掉转圈圈
                     loginDialog.cancel();
                     //跳转到首页
@@ -122,7 +123,8 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 //Intent intent = new Intent(LoginActivity.this, SwipeRefreshLayoutTest.class);
                 //Intent intent = new Intent(LoginActivity.this, TestSocket.class);
-                Intent intent = new Intent(LoginActivity.this, TestMapActivity.class);
+                //Intent intent = new Intent(LoginActivity.this, TestMapActivity.class);
+                Intent intent = new Intent(LoginActivity.this, LocationDemo.class);
                 startActivity(intent);
             }
         });

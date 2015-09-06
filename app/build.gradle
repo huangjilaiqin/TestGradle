@@ -32,10 +32,10 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.github.nkzawa:socket.io-client:0.3.0'
     compile 'com.google.code.gson:gson:2.2.2'
-    compile files('src/main/libs/volley.jar')
-    compile files('src/main/libs/BaiduLBS_Android.jar')
+    compile files('libs/volley.jar')
+    compile files('D:/baidu/app/libs/baidumapapi_v3_5_0.jar')
+    compile files('D:/baidu/app/libs/locSDK_5.2.jar')
 }
