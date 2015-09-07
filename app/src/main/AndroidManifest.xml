@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lessask" >
+    package="com.lessask">
 
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.INTERNET" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- SDK1.5需要android.permission.GET_TASKS权限判断本程序是否为当前运行的应用? -->
     <uses-permission android:name="android.permission.GET_TASKS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <!-- 这个权限用于进行网络定位-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
@@ -44,14 +40,14 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="rStUWfxj01iRMw2RnmcTUyIn" />
 
         <activity
             android:name=".LoginActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -60,88 +56,73 @@
         </activity>
         <activity
             android:name=".RegisterActivity"
-            android:label="@string/title_activity_register" >
-        </activity>
+            android:label="@string/title_activity_register"></activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main" >
-        </activity>
+            android:label="@string/title_activity_main"></activity>
         <activity
             android:name=".TestActivity"
-            android:label="@string/title_activity_test" >
-        </activity>
+            android:label="@string/title_activity_test"></activity>
         <activity
             android:name=".MySub2Activity"
-            android:label="@string/title_activity_my_sub2" >
-        </activity>
+            android:label="@string/title_activity_my_sub2"></activity>
         <activity
             android:name=".ChatActivity"
             android:label="@string/title_activity_chat"
-            android:windowSoftInputMode="adjustResize|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
         <activity
             android:name=".StoreFileActivity"
-            android:label="@string/title_activity_store_file" >
-        </activity>
+            android:label="@string/title_activity_store_file"></activity>
         <activity
             android:name=".ExampleActivity"
-            android:label="@string/title_activity_example" >
-        </activity>
+            android:label="@string/title_activity_example"></activity>
         <activity
             android:name=".SharePreferencesActivity"
-            android:label="@string/title_activity_share_preferences" >
-        </activity>
+            android:label="@string/title_activity_share_preferences"></activity>
         <activity
             android:name=".HandlerActivity"
-            android:label="@string/title_activity_handler" >
-        </activity>
+            android:label="@string/title_activity_handler"></activity>
 
         <service
             android:name=".FirstService"
             android:enabled="true"
-            android:exported="true" >
-        </service>
+            android:exported="true"></service>
 
         <activity
             android:name=".FirstServiceActivity"
-            android:label="@string/title_activity_first_service" >
-        </activity>
+            android:label="@string/title_activity_first_service"></activity>
         <activity
             android:name=".SocketIOActivity"
-            android:label="@string/title_activity_socket_io" >
-        </activity>
+            android:label="@string/title_activity_socket_io"></activity>
         <activity
             android:name=".SubThreadActivity"
-            android:label="@string/title_activity_sub_thread" >
-        </activity>
+            android:label="@string/title_activity_sub_thread"></activity>
         <activity
             android:name=".HeadImgActivity"
-            android:label="@string/title_activity_head_img" >
-        </activity>
+            android:label="@string/title_activity_head_img"></activity>
         <activity
             android:name=".FriendsActivity"
-            android:label="@string/title_activity_friends" >
-        </activity>
+            android:label="@string/title_activity_friends"></activity>
         <activity
             android:name=".FragmentTestActivity"
-            android:label="@string/title_activity_fragment" >
-        </activity>
+            android:label="@string/title_activity_fragment"></activity>
         <activity
             android:name=".test.SwipeRefreshLayoutTest"
-            android:label="@string/title_activity_swipe_refresh_layout_test" >
-        </activity>
+            android:label="@string/title_activity_swipe_refresh_layout_test"></activity>
         <activity
             android:name=".test.TestSocket"
-            android:label="@string/title_activity_test_socket" >
-        </activity>
+            android:label="@string/title_activity_test_socket"></activity>
         <activity
             android:name=".test.TestMapActivity"
-            android:label="@string/title_activity_test_map" >
-        </activity>
+            android:label="@string/title_activity_test_map"></activity>
         <activity
             android:name=".test.LocationDemo"
-            android:label="@string/title_activity_location_demo" >
-        </activity>
+            android:label="@string/title_activity_location_demo"></activity>
+
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote"></service>
     </application>
 
 </manifest>

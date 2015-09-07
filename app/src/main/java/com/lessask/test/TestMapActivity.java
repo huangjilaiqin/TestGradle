@@ -62,8 +62,8 @@ public class TestMapActivity extends Activity implements View.OnClickListener {
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMyLocationEnabled(true);
         mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null));
-        //mLocationClient = new LocationClient(getApplicationContext());     //声明LocationClient类
-        mLocationClient = new LocationClient(this);     //声明LocationClient类
+        mLocationClient = new LocationClient(getApplicationContext());     //声明LocationClient类
+        //mLocationClient = new LocationClient(this);     //声明LocationClient类
         //位置改变回调 onReceiveLocation, 打印日志
         mLocationClient.registerLocationListener(myLocationListener );    //注册监听函数
 
@@ -119,7 +119,7 @@ public class TestMapActivity extends Activity implements View.OnClickListener {
         LatLng ll = new LatLng(latitude, longitude);
         MapStatusUpdate update = null;
         if(isFirstLocate){
-            update = MapStatusUpdateFactory.newLatLngZoom(ll, 20);
+            update = MapStatusUpdateFactory.newLatLngZoom(ll, 16);
             isFirstLocate = false;
         }else {
             update = MapStatusUpdateFactory.newLatLng(ll);
