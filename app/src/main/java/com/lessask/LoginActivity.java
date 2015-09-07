@@ -123,8 +123,8 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 //Intent intent = new Intent(LoginActivity.this, SwipeRefreshLayoutTest.class);
                 //Intent intent = new Intent(LoginActivity.this, TestSocket.class);
-                //Intent intent = new Intent(LoginActivity.this, TestMapActivity.class);
-                Intent intent = new Intent(LoginActivity.this, LocationDemo.class);
+                Intent intent = new Intent(LoginActivity.this, TestMapActivity.class);
+                //Intent intent = new Intent(LoginActivity.this, LocationDemo.class);
                 startActivity(intent);
             }
         });
