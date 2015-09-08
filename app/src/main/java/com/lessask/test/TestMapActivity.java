@@ -99,7 +99,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
     private void init(){
         myload = new ArrayList<>();
-        mTotalMileage = 10000;
+        mTotalMileage = 0;
         mCostTime = 0;
 
         tvCostTime = (TextView) findViewById(R.id.cost_time);
