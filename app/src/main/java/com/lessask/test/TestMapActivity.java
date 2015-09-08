@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
@@ -22,32 +26,63 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.UiSettings;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.lessask.R;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.microedition.khronos.opengles.GL10;
 import javax.security.auth.login.LoginException;
 
-public class TestMapActivity extends Activity implements View.OnClickListener,BaiduMap.OnMapDrawFrameCallback {
+public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrameCallback {
     private final String TAG = TestMapActivity.class.getName();
+
+    private final int CHANGE_TIME = 0;
+    private final int CHANGE_MILEAGE = 1;
 
     private MapView mMapView;
     private BaiduMap mBaiduMap;
     public LocationClient mLocationClient;
     public BDLocationListener myLocationListener = new MyLocationListener();
+    private TextView tvCostTime;
+    private TextView tvMileage;
 
     private boolean isFirstLocate = true;
     private int cacheLocation = 2;
 
-    private Button bBaidu;
     //存储所有变化的点
     private List<LatLng> myload;
+    private float mTotalMileage;
+    private int mCostTime;
+
+     private Handler mHandler = new Handler() {
+         @Override
+         public void handleMessage (Message msg) {
+             super.handleMessage(msg);
+             switch (msg.what) {
+             case CHANGE_TIME:
+                 SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+                 formatter.setTimeZone(TimeZone.getTimeZone("utc"));
+                 String costTime = formatter.format(mCostTime*1000);
+                 tvCostTime.setText(costTime);
+                 break;
+             case CHANGE_MILEAGE:
+                 DecimalFormat decimalFormat=new DecimalFormat("0.00");
+                 tvMileage.setText(decimalFormat.format(mTotalMileage/1000));
+             default:
+                     break;
+             }
+         }
+     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +99,15 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
 
     private void init(){
         myload = new ArrayList<>();
+        mTotalMileage = 10000;
+        mCostTime = 0;
 
-        bBaidu = (Button)findViewById(R.id.baidu);
+        tvCostTime = (TextView) findViewById(R.id.cost_time);
+        tvMileage = (TextView) findViewById(R.id.mileage);
         mMapView = (MapView) findViewById(R.id.bmapview);
-        bBaidu.setOnClickListener(this);
+        mMapView.showZoomControls(false);
         //获取地图控制器
+
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMyLocationEnabled(true);
         //回调绘图
@@ -128,6 +167,9 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
                 navigateTo(lat, lon);
                 Log.e(TAG, "move to center");
                 cacheLocation--;
+                if(cacheLocation==0){
+                    new TimeThread().start();
+                }
                 return;
             }
 
@@ -137,6 +179,7 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
                 if(radius<=60) {
                     myload.add(currentNode);
                     navigateTo(lat, lon);
+                    updateMileage();
                 } else {
                     Log.e(TAG, "丢弃gps定位,精度:"+radius);
                 }
@@ -145,6 +188,7 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
                 if(radius<=70){
                     myload.add(currentNode);
                     navigateTo(lat, lon);
+                    updateMileage();
                 }else {
                     Log.e(TAG, "丢弃网络定位,精度:"+radius);
                 }
@@ -183,19 +227,6 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
 
     }
 
-    private void baiduFixed(){
-        //手动请求定位
-        log("baidu requestLocation...");
-        mLocationClient.requestLocation();
-    }
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.baidu:
-                baiduFixed();
-                break;
-        }
-    }
     private void log(String content){
         Log.e(TAG, content);
         Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
@@ -252,6 +283,37 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
         gl.glDisable(GL10.GL_BLEND);
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
     }
+    public class TimeThread extends Thread {
+         @Override
+         public void run () {
+             do {
+                 try {
+                     Thread.sleep(1000);
+                     mCostTime++;
+                     Message msg = new Message();
+                     msg.what = CHANGE_TIME;
+                     mHandler.sendMessage(msg);
+                 }
+                 catch (InterruptedException e) {
+                     e.printStackTrace();
+                 }
+             } while(true);
+         }
+    }
+    private void updateMileage(){
+        int size = myload.size();
+        if(size<2){
+            return;
+        }
+        double distance = DistanceUtil.getDistance(myload.get(size - 2), myload.get(size - 1));
+        if(distance!=-1) {
+            mTotalMileage += distance;
+            Message msg = new Message();
+            msg.what = CHANGE_MILEAGE;
+            mHandler.sendMessage(msg);
+        }
+    }
+
 }
 
 
