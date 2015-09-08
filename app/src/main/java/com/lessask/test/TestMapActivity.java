@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.microedition.khronos.opengles.GL10;
+import javax.security.auth.login.LoginException;
 
 public class TestMapActivity extends Activity implements View.OnClickListener,BaiduMap.OnMapDrawFrameCallback {
     private final String TAG = TestMapActivity.class.getName();
@@ -42,6 +43,7 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
     public BDLocationListener myLocationListener = new MyLocationListener();
 
     private boolean isFirstLocate = true;
+    private int cacheLocation = 2;
 
     private Button bBaidu;
     //存储所有变化的点
@@ -112,10 +114,54 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
             //Receive Location
             if (location == null || mMapView == null)
 				return;
+
+            float radius = location.getRadius();
+            int locType = location.getLocType();
+            Log.e(TAG, "定位精度:" + radius);
             double lat = location.getLatitude();
             double lon = location.getLongitude();
-            myload.add(new LatLng(lat, lon));
-            navigateTo(location.getLatitude(), location.getLongitude());
+            LatLng currentNode = new LatLng(lat, lon);;
+
+            //第一个的请求结果为缓存结果, 第三个结果但是精度可能不好
+            if(cacheLocation>0){
+                //中心点进行移动但是不加入路线中
+                navigateTo(lat, lon);
+                Log.e(TAG, "move to center");
+                cacheLocation--;
+                return;
+            }
+
+            if (locType == BDLocation.TypeGpsLocation) {// GPS定位结果
+                Log.e(TAG, "gps定位");
+
+                if(radius<=60) {
+                    myload.add(currentNode);
+                    navigateTo(lat, lon);
+                } else {
+                    Log.e(TAG, "丢弃gps定位,精度:"+radius);
+                }
+            } else if (locType == BDLocation.TypeNetWorkLocation) {// 网络定位结
+                Log.e(TAG, "网络定位");
+                if(radius<=70){
+                    myload.add(currentNode);
+                    navigateTo(lat, lon);
+                }else {
+                    Log.e(TAG, "丢弃网络定位,精度:"+radius);
+                }
+            } else if (locType == BDLocation.TypeOffLineLocation) {// 离线定位
+                Log.e(TAG, "离线定位");
+            } else if (locType == BDLocation.TypeServerError) {
+                Log.e(TAG,"服务端网络定位失败，可以反馈IMEI号和大体定位时间到loc-bugs@baidu.com，会有人追查原因");
+            } else if (locType == BDLocation.TypeNetWorkException) {
+                Log.e(TAG,"网络不同导致定位失败，请检查网络是否通畅");
+            } else if (locType == BDLocation.TypeCriteriaException) {
+                Log.e(TAG,"无法获取有效定位依据导致定位失败，一般是由于手机的原因，处于飞行模式下一般会造成这种结果，可以试着重启手机");
+            } else if(locType == BDLocation.TypeNone){
+                //当打开wifi, 但wifi需要登录验证, 未通过时会产生该错误
+                Log.e(TAG, "无效定位结果，一般由于定位SDK内部逻辑异常时出现");
+            } else {
+                Log.e(TAG, "未知错误定位类型:"+locType);
+            }
         }
     }
     private void navigateTo(double latitude, double longitude){
@@ -161,7 +207,6 @@ public class TestMapActivity extends Activity implements View.OnClickListener,Ba
             int myloadSize = myload.size();
             PointF[] pointfs = new PointF[myloadSize];
             float[] vertexs = new float[myload.size() * 3];
-            Log.e(TAG, "" + myload.size());
             for (int i=0;i<myloadSize;i++) {
                 LatLng xy = myload.get(i);
                 pointfs[i] = mBaiduMap.getProjection().toOpenGLLocation(xy, mapStatus);
