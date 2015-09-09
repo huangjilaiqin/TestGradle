@@ -1,13 +1,16 @@
 package com.lessask.test;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -43,7 +46,7 @@ import java.util.TimeZone;
 import javax.microedition.khronos.opengles.GL10;
 import javax.security.auth.login.LoginException;
 
-public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrameCallback {
+public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrameCallback{
     private final String TAG = TestMapActivity.class.getName();
 
     private final int CHANGE_TIME = 0;
@@ -314,6 +317,42 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         }
     }
 
+    private void finishRun(){
+        //上传运动数据
+        log("上传数据");
+        //退出
+        finish();
+    }
+
+    protected void dialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TestMapActivity.this);
+        builder.setMessage("你真的不行了吗?");
+        builder.setPositiveButton("不行了", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                TestMapActivity.this.finishRun();
+            }
+        });
+        builder.setNegativeButton("切~~~", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                log("你牛！！！");
+            }
+        });
+        builder.create().show();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            //这里重写返回键
+            dialog();
+            return true;
+        }
+        return false;
+    }
 }
 
 
