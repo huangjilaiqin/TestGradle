@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">lessAsk</string>
 
@@ -26,5 +27,12 @@
     <string name="title_activity_test_socket">TestSocket</string>
     <string name="title_activity_test_map">TestMapActivity</string>
     <string name="title_activity_location_demo">LocationDemo</string>
+    <string name="run_image_1_size">30dp</string>
+    <string name="run_number_1_size">30dp</string>
+    <string name="run_image_2_size">18dp</string>
+    <string name="run_number_2_size">18dp</string>
+    <string name="run_image_3_size">13dp</string>
+    <string name="run_number_3_size">13dp</string>
+    <string name="number_image_margin">10dp</string>
 
 </resources>

@@ -19,19 +19,44 @@
                   配速
         gps信号
         -->
+        <!---时间-->
+        <ImageView
+            android:id="@+id/time_img"
+            android:layout_width="@string/run_image_2_size"
+            android:layout_height="@string/run_image_2_size"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/time"
+            />
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/time_img"
+            android:layout_toRightOf="@id/time_img"
+            android:layout_marginLeft="@string/number_image_margin"
+            android:textColor="@color/white"
+            android:textSize="@string/run_number_2_size"
+            android:text="00:00:00"
+            />
+
+
+
+        <!--距离-->
         <TextView
             android:id="@+id/mileage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_alignLeft="@id/time_img"
+            android:layout_alignTop="@id/time_img"
+            android:layout_marginTop="20dp"
             android:textSize="65dp"
             android:text="0.00"
             android:textAlignment="center"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+             />
         <TextView
             android:id="@+id/mileage_size"
             android:layout_width="wrap_content"
@@ -43,106 +68,92 @@
             android:textSize="15dp"
             android:text="公里"/>
 
+        <!--热量-->
+        <ImageView
+            android:id="@+id/heat_img"
+            android:layout_width="@string/run_image_1_size"
+            android:layout_height="@string/run_image_1_size"
+            android:layout_toRightOf="@id/mileage_size"
+            android:layout_marginLeft="35dp"
+            android:layout_alignBottom="@id/mileage"
+            android:src="@drawable/heat"
+            />
         <TextView
-            android:id="@+id/cost_time"
+            android:id="@+id/heat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/mileage"
+            android:layout_alignTop="@id/heat_img"
+            android:layout_toRightOf="@id/heat_img"
+            android:layout_marginLeft="@string/number_image_margin"
             android:textColor="@color/white"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="8dp"
-            android:layout_alignParentRight="true"
-            android:text="00:00:00"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/mileage"
-            android:textColor="@color/white"
-            android:layout_toLeftOf="@id/cost_time"
-            android:text="时间:"/>
+            android:textSize="@string/run_number_1_size"
+            android:text="354"
+            />
 
-        <!--
+        <!--配速-->
+        <ImageView
+            android:id="@+id/speed_img"
+            android:layout_width="@string/run_image_1_size"
+            android:layout_height="@string/run_image_1_size"
+            android:layout_above="@id/heat_img"
+            android:layout_alignLeft="@id/heat_img"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/speed"
+            />
         <TextView
-            android:id="@+id/mileage1"
+            android:id="@+id/speed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignTop="@id/speed_img"
+            android:layout_toRightOf="@id/speed_img"
+            android:layout_marginLeft="@string/number_image_margin"
             android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="12.34"
-            android:textAlignment="center"
+            android:textSize="@string/run_number_1_size"
+            android:text="1&apos;34&quot;"
+            />
+        <!--平均时速-->
+        <ImageView
+            android:id="@+id/speed_hour_img"
+            android:layout_alignTop="@id/time_img"
+            android:layout_alignLeft="@id/heat_img"
+            android:layout_width="@string/run_image_2_size"
+            android:layout_height="@string/run_image_2_size"
+            android:layout_marginLeft="8.5dp"
+            android:layout_marginRight="8.5dp"
+            android:src="@drawable/speed_hour"
+            />
+        <TextView
+            android:id="@+id/speed_hour"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/time_img"
+            android:layout_toRightOf="@id/speed_hour_img"
+            android:layout_marginLeft="@string/number_image_margin"
+            android:textColor="@color/white"
+            android:textSize="@string/run_number_2_size"
+            android:text="0.00"
+            />
+
+        <!--GPS信号-->
+        <ImageView
+            android:id="@+id/gps_img"
+            android:layout_width="@string/run_image_3_size"
+            android:layout_height="@string/run_image_3_size"
+            android:src="@drawable/gps"
+            android:layout_alignLeft="@id/mileage"
             android:layout_below="@id/mileage"
             />
         <TextView
-            android:id="@+id/mileage11"
+            android:id="@+id/gps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignTop="@id/gps_img"
+            android:layout_toRightOf="@id/gps_img"
+            android:layout_marginLeft="@string/number_image_margin"
             android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="12.34"
-            android:textAlignment="center"
-            android:layout_below="@id/mileage1"
+            android:textSize="@string/run_number_3_size"
+            android:text="检测中..."
             />
-        <TextView
-            android:id="@+id/mileage22"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="12.34"
-            android:textAlignment="center"
-            android:layout_below="@id/mileage11"
-            />
-        <TextView
-            android:id="@+id/mileage33"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="12.3456"
-            android:textAlignment="center"
-            android:layout_below="@id/mileage22"
-            />
-        <TextView
-            android:id="@+id/mileage4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="asdf12.34"
-            android:textAlignment="center"
-            android:layout_below="@id/mileage33"
-            />
-        <TextView
-            android:id="@+id/mileage5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="12.345"
-            android:textAlignment="center"
-            android:layout_below="@id/mileage4"
-            />
-        <TextView
-            android:id="@+id/mileage6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="12.3456"
-            android:textAlignment="center"
-            android:layout_below="@id/mileage5"
-            />
-        <TextView
-            android:id="@+id/mileage7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="50dp"
-            android:text="12.34567"
-            android:textAlignment="center"
-            android:layout_below="@id/mileage6"
-            />
-            -->
     </RelativeLayout>
 
 

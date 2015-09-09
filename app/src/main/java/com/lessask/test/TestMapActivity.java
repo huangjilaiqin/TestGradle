@@ -102,7 +102,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         mTotalMileage = 0;
         mCostTime = 0;
 
-        tvCostTime = (TextView) findViewById(R.id.cost_time);
+        tvCostTime = (TextView) findViewById(R.id.time);
         tvMileage = (TextView) findViewById(R.id.mileage);
         mMapView = (MapView) findViewById(R.id.bmapview);
         mMapView.showZoomControls(false);
