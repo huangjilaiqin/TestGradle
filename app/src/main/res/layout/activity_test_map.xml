@@ -22,8 +22,8 @@
         <!---时间-->
         <ImageView
             android:id="@+id/time_img"
-            android:layout_width="@string/run_image_2_size"
-            android:layout_height="@string/run_image_2_size"
+            android:layout_width="@dimen/run_image_2_size"
+            android:layout_height="@dimen/run_image_2_size"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp"
@@ -36,9 +36,9 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/time_img"
             android:layout_toRightOf="@id/time_img"
-            android:layout_marginLeft="@string/number_image_margin"
+            android:layout_marginLeft="@dimen/number_image_margin"
             android:textColor="@color/white"
-            android:textSize="@string/run_number_2_size"
+            android:textSize="@dimen/run_number_2_size"
             android:text="00:00:00"
             />
 
@@ -71,8 +71,8 @@
         <!--热量-->
         <ImageView
             android:id="@+id/heat_img"
-            android:layout_width="@string/run_image_1_size"
-            android:layout_height="@string/run_image_1_size"
+            android:layout_width="@dimen/run_image_1_size"
+            android:layout_height="@dimen/run_image_1_size"
             android:layout_toRightOf="@id/mileage_size"
             android:layout_marginLeft="35dp"
             android:layout_alignBottom="@id/mileage"
@@ -84,17 +84,17 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/heat_img"
             android:layout_toRightOf="@id/heat_img"
-            android:layout_marginLeft="@string/number_image_margin"
+            android:layout_marginLeft="@dimen/number_image_margin"
             android:textColor="@color/white"
-            android:textSize="@string/run_number_1_size"
+            android:textSize="@dimen/run_number_1_size"
             android:text="354"
             />
 
         <!--配速-->
         <ImageView
             android:id="@+id/speed_img"
-            android:layout_width="@string/run_image_1_size"
-            android:layout_height="@string/run_image_1_size"
+            android:layout_width="@dimen/run_image_1_size"
+            android:layout_height="@dimen/run_image_1_size"
             android:layout_above="@id/heat_img"
             android:layout_alignLeft="@id/heat_img"
             android:layout_marginBottom="8dp"
@@ -106,9 +106,9 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/speed_img"
             android:layout_toRightOf="@id/speed_img"
-            android:layout_marginLeft="@string/number_image_margin"
+            android:layout_marginLeft="@dimen/number_image_margin"
             android:textColor="@color/white"
-            android:textSize="@string/run_number_1_size"
+            android:textSize="@dimen/run_number_1_size"
             android:text="1&apos;34&quot;"
             />
         <!--平均时速-->
@@ -116,8 +116,8 @@
             android:id="@+id/speed_hour_img"
             android:layout_alignTop="@id/time_img"
             android:layout_alignLeft="@id/heat_img"
-            android:layout_width="@string/run_image_2_size"
-            android:layout_height="@string/run_image_2_size"
+            android:layout_width="@dimen/run_image_2_size"
+            android:layout_height="@dimen/run_image_2_size"
             android:layout_marginLeft="8.5dp"
             android:layout_marginRight="8.5dp"
             android:src="@drawable/speed_hour"
@@ -128,17 +128,17 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/time_img"
             android:layout_toRightOf="@id/speed_hour_img"
-            android:layout_marginLeft="@string/number_image_margin"
+            android:layout_marginLeft="@dimen/number_image_margin"
             android:textColor="@color/white"
-            android:textSize="@string/run_number_2_size"
+            android:textSize="@dimen/run_number_2_size"
             android:text="0.00"
             />
 
         <!--GPS信号-->
         <ImageView
             android:id="@+id/gps_img"
-            android:layout_width="@string/run_image_3_size"
-            android:layout_height="@string/run_image_3_size"
+            android:layout_width="@dimen/run_image_3_size"
+            android:layout_height="@dimen/run_image_3_size"
             android:src="@drawable/gps"
             android:layout_alignLeft="@id/mileage"
             android:layout_below="@id/mileage"
@@ -149,9 +149,9 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/gps_img"
             android:layout_toRightOf="@id/gps_img"
-            android:layout_marginLeft="@string/number_image_margin"
+            android:layout_marginLeft="@dimen/number_image_margin"
             android:textColor="@color/white"
-            android:textSize="@string/run_number_3_size"
+            android:textSize="@dimen/run_number_3_size"
             android:text="检测中..."
             />
     </RelativeLayout>
