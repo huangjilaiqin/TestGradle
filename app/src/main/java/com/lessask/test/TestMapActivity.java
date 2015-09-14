@@ -51,6 +51,8 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
     private final int CHANGE_TIME = 0;
     private final int CHANGE_MILEAGE = 1;
+    private final int CHANGE_MPD = 2;
+    private final int CHANGE_SPH = 3;
 
     private MapView mMapView;
     private BaiduMap mBaiduMap;
@@ -58,9 +60,14 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
     public BDLocationListener myLocationListener = new MyLocationListener();
     private TextView tvCostTime;
     private TextView tvMileage;
+    private TextView tvSpeed;
+    private TextView tvSpeedHour;
+
 
     private boolean isFirstLocate = true;
     private int cacheLocation = 2;
+    //上一次计算的时间点
+    private long lastCalculateTime;
 
     //存储所有变化的点
     private List<LatLng> myload;
@@ -71,18 +78,31 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
          @Override
          public void handleMessage (Message msg) {
              super.handleMessage(msg);
+             DecimalFormat decimalFormat;
              switch (msg.what) {
+             //时间
              case CHANGE_TIME:
                  SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
                  formatter.setTimeZone(TimeZone.getTimeZone("utc"));
                  String costTime = formatter.format(mCostTime*1000);
                  tvCostTime.setText(costTime);
                  break;
+             //里程
              case CHANGE_MILEAGE:
-                 DecimalFormat decimalFormat=new DecimalFormat("0.00");
+                 decimalFormat=new DecimalFormat("0.00");
                  tvMileage.setText(decimalFormat.format(mTotalMileage/1000));
+                 break;
+             //配速
+             case CHANGE_MPD:
+                 tvSpeed.setText(msg.arg1+"&apos;"+msg.arg2+"&quot;");
+                 break;
+             //时速
+             case CHANGE_SPH:
+                 decimalFormat=new DecimalFormat("0.00");
+                 tvSpeedHour.setText(decimalFormat.format((double)msg.obj));
+                 break;
              default:
-                     break;
+                 break;
              }
          }
      };
@@ -172,17 +192,24 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
                 cacheLocation--;
                 if(cacheLocation==0){
                     new TimeThread().start();
+                    lastCalculateTime = System.currentTimeMillis()/1000;
                 }
                 return;
             }
-
+            long nowTime = System.currentTimeMillis()/1000;
             if (locType == BDLocation.TypeGpsLocation) {// GPS定位结果
                 Log.e(TAG, "gps定位");
 
                 if(radius<=60) {
                     myload.add(currentNode);
                     navigateTo(lat, lon);
-                    updateMileage();
+
+                    double distanceDelta = getDistanceChange();
+                    long timeDelta = nowTime-lastCalculateTime;
+
+                    updateMileage(distanceDelta);
+                    updateSpeedPerHour(distanceDelta, timeDelta);
+                    updateMinutePerDistance(distanceDelta, timeDelta);
                 } else {
                     Log.e(TAG, "丢弃gps定位,精度:"+radius);
                 }
@@ -191,7 +218,13 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
                 if(radius<=70){
                     myload.add(currentNode);
                     navigateTo(lat, lon);
-                    updateMileage();
+
+                    double distanceDelta = getDistanceChange();
+                    long timeDelta = nowTime-lastCalculateTime;
+
+                    updateMileage(distanceDelta);
+                    updateSpeedPerHour(distanceDelta, timeDelta);
+                    updateMinutePerDistance(distanceDelta, timeDelta);
                 }else {
                     Log.e(TAG, "丢弃网络定位,精度:"+radius);
                 }
@@ -303,18 +336,42 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
              } while(true);
          }
     }
-    private void updateMileage(){
+    private double getDistanceChange(){
         int size = myload.size();
         if(size<2){
-            return;
+            return 0;
         }
         double distance = DistanceUtil.getDistance(myload.get(size - 2), myload.get(size - 1));
         if(distance!=-1) {
-            mTotalMileage += distance;
-            Message msg = new Message();
-            msg.what = CHANGE_MILEAGE;
-            mHandler.sendMessage(msg);
+            return distance;
+        }else {
+            return 0;
         }
+    }
+    private void updateMileage(double distanDelta){
+        mTotalMileage += distanDelta;
+        Message msg = new Message();
+        msg.what = CHANGE_MILEAGE;
+        mHandler.sendMessage(msg);
+    }
+    //配速计算
+    private void updateMinutePerDistance(double distanceDelta, long timeDelta){
+        int totalSecond = (int)(timeDelta/distanceDelta*1000);
+        int minute = totalSecond%60;
+        int second = totalSecond/60;
+        Message msg = new Message();
+        msg.what = CHANGE_MPD;
+        msg.arg1 = minute;
+        msg.arg2 = second;
+        mHandler.sendMessage(msg);
+    }
+    //时速计算
+    private void updateSpeedPerHour(double distanceDelta, long timeDelta){
+        double speed = distanceDelta/1000/timeDelta/3600;
+        Message msg = new Message();
+        msg.what = CHANGE_SPH;
+        msg.obj = speed;
+        mHandler.sendMessage(msg);
     }
 
     private void finishRun(){
@@ -354,5 +411,4 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         return false;
     }
 }
-
 
