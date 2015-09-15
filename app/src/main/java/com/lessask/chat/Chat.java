@@ -1,6 +1,5 @@
 package com.lessask.chat;
 
-import android.app.Application;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -9,11 +8,11 @@ import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.lessask.MyApplication;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.HistoryResponse;
 import com.lessask.model.ResponseError;
+import com.lessask.model.RunDataResponse;
 import com.lessask.model.User;
 import com.lessask.model.Utils;
 
@@ -44,6 +43,7 @@ public class Chat {
     private FriendsListener friendsListener;
     private ChangeUserInfoListener changeUserInfoListener;
     private HistoryListener historyListener;
+    private UploadRunListener uploadRunListener;
 
     private Chat(){
         try {
@@ -56,6 +56,7 @@ public class Chat {
             mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
             mSocket.on(Socket.EVENT_RECONNECT, onReconnect);
             mSocket.on(Socket.EVENT_ERROR, onError);
+            //注册对调函数
             mSocket.on("message", onMessage);
             mSocket.on("messageResp", onMessageResp);
             mSocket.on("login", onLogin);
@@ -63,6 +64,7 @@ public class Chat {
             mSocket.on("friendsInfo", onFriends);
             mSocket.on("changeUserInfo", onChangeUserInfo);
             mSocket.on("history", onHistory);
+            mSocket.on("uploadrun", onUploadRun);
             mSocket.connect();
             Log.e(TAG, "connect");
 
@@ -227,6 +229,18 @@ public class Chat {
             }
         }
     };
+    private Emitter.Listener onUploadRun = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.e(TAG, "onUploadRun" + args[0].toString());
+            RunDataResponse runDataResponse = gson.fromJson(args[0].toString(), RunDataResponse.class);
+            if (runDataResponse.getErrno() != 0 || runDataResponse.getError() != null && runDataResponse.getError().length() != 0) {
+                uploadRunListener.uploadRun(runDataResponse, runDataResponse.getUserid());
+            } else {
+                uploadRunListener.uploadRun(null, runDataResponse.getUserid());
+            }
+        }
+    };
     private Emitter.Listener onFriends = new Emitter.Listener(){
 
         @Override
@@ -299,6 +313,12 @@ public class Chat {
     }
     public void setHistoryListener(HistoryListener listener){
         this.historyListener = listener;
+    }
+    public interface UploadRunListener{
+        void uploadRun(ResponseError error, int userId);
+    }
+    public void setUploadRunListener(UploadRunListener listener){
+        this.uploadRunListener = listener;
     }
 }
 

@@ -1,6 +1,7 @@
 package com.lessask.test;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -8,12 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,9 +27,9 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
-import com.baidu.mapapi.map.UiSettings;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
+import com.google.gson.Gson;
 import com.lessask.R;
 
 import java.nio.ByteBuffer;
@@ -44,7 +42,11 @@ import java.util.List;
 import java.util.TimeZone;
 
 import javax.microedition.khronos.opengles.GL10;
-import javax.security.auth.login.LoginException;
+
+import com.lessask.chat.Chat;
+import com.lessask.chat.GlobalInfos;
+import com.lessask.model.ResponseError;
+import com.lessask.model.RunData;
 
 public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrameCallback{
     private final String TAG = TestMapActivity.class.getName();
@@ -53,6 +55,12 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
     private final int CHANGE_MILEAGE = 1;
     private final int CHANGE_MPD = 2;
     private final int CHANGE_SPH = 3;
+
+    private Gson gson;
+    private Chat chat;
+    private GlobalInfos globalInfos;
+
+    private ProgressDialog uploadDialog;
 
     private MapView mMapView;
     private BaiduMap mBaiduMap;
@@ -71,6 +79,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
     //存储所有变化的点
     private List<LatLng> myload;
+    private List<Long> mytime;
     private float mTotalMileage;
     private int mCostTime;
 
@@ -116,6 +125,27 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_test_map);
         init();
+        gson = new Gson();
+        chat = Chat.getInstance();
+        chat.setUploadRunListener(new Chat.UploadRunListener(){
+            @Override
+            public void uploadRun(ResponseError error, int userId) {
+                if(error!=null){
+                    log("上传失败,error:"+error.getError()+", errno:"+error.getErrno());
+                    uploadDialog.cancel();
+                }else {
+                    log("上传成功");
+                    uploadDialog.cancel();
+                    finish();
+                }
+            }
+        });
+        globalInfos = GlobalInfos.getInstance();
+
+        String myloadStr = gson.toJson(myload);
+        String mytimeStr = gson.toJson(mytime);
+        Log.e(TAG, "myload:"+myloadStr);
+        Log.e(TAG, "mytime:"+mytimeStr);
         //开始定位
         mLocationClient.start();
         log("baidu start...");
@@ -123,6 +153,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
     private void init(){
         myload = new ArrayList<>();
+        mytime = new ArrayList<>();
         mTotalMileage = 0;
         mCostTime = 0;
 
@@ -209,6 +240,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
                     double distanceDelta = getDistanceChange();
                     long timeDelta = nowTime-lastCalculateTime;
+                    mytime.add(timeDelta);
                     lastCalculateTime = nowTime;
 
                     updateMileage(distanceDelta);
@@ -219,12 +251,13 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
                 }
             } else if (locType == BDLocation.TypeNetWorkLocation) {// 网络定位结
                 Log.e(TAG, "网络定位");
-                if(radius<=70){
+                if(radius<=130){
                     myload.add(currentNode);
                     navigateTo(lat, lon);
 
                     double distanceDelta = getDistanceChange();
                     long timeDelta = nowTime-lastCalculateTime;
+                    mytime.add(timeDelta);
                     lastCalculateTime = nowTime;
 
                     updateMileage(distanceDelta);
@@ -384,9 +417,15 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
     private void finishRun(){
         //上传运动数据
-        log("上传数据");
-        //退出
-        finish();
+        RunData runData = new RunData(globalInfos.getUserid(), myload, mytime);
+        String rundataStr = gson.toJson(runData);
+        log("rundataStr:" + rundataStr);
+        chat.emit("uploadrun", gson.toJson(runData));
+        uploadDialog = new ProgressDialog(TestMapActivity.this, ProgressDialog.STYLE_SPINNER);
+        uploadDialog.setTitle("上传数据...");
+        //dialog.setCancelable(false);
+        uploadDialog.show();
+
     }
 
     protected void dialog() {
