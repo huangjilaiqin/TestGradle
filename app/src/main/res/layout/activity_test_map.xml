@@ -87,7 +87,7 @@
             android:layout_marginLeft="@dimen/number_image_margin"
             android:textColor="@color/white"
             android:textSize="@dimen/run_number_1_size"
-            android:text="354"
+            android:text="0"
             />
 
         <!--配速-->
@@ -109,7 +109,7 @@
             android:layout_marginLeft="@dimen/number_image_margin"
             android:textColor="@color/white"
             android:textSize="@dimen/run_number_1_size"
-            android:text="1&apos;34&quot;"
+            android:text="0&apos;00&quot;"
             />
         <!--平均时速-->
         <ImageView

@@ -94,12 +94,13 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
                  break;
              //配速
              case CHANGE_MPD:
-                 tvSpeed.setText(msg.arg1+"&apos;"+msg.arg2+"&quot;");
+                 tvSpeed.setText(msg.arg1+"\'"+msg.arg2+"\"");
                  break;
              //时速
              case CHANGE_SPH:
                  decimalFormat=new DecimalFormat("0.00");
-                 tvSpeedHour.setText(decimalFormat.format((double)msg.obj));
+                 Log.e(TAG, "sph:"+msg.obj);
+                 tvSpeedHour.setText(decimalFormat.format((double) msg.obj));
                  break;
              default:
                  break;
@@ -127,6 +128,8 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
         tvCostTime = (TextView) findViewById(R.id.time);
         tvMileage = (TextView) findViewById(R.id.mileage);
+        tvSpeed = (TextView) findViewById(R.id.speed);
+        tvSpeedHour = (TextView) findViewById(R.id.speed_hour);
         mMapView = (MapView) findViewById(R.id.bmapview);
         mMapView.showZoomControls(false);
         //获取地图控制器
@@ -206,6 +209,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
                     double distanceDelta = getDistanceChange();
                     long timeDelta = nowTime-lastCalculateTime;
+                    lastCalculateTime = nowTime;
 
                     updateMileage(distanceDelta);
                     updateSpeedPerHour(distanceDelta, timeDelta);
@@ -221,6 +225,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
                     double distanceDelta = getDistanceChange();
                     long timeDelta = nowTime-lastCalculateTime;
+                    lastCalculateTime = nowTime;
 
                     updateMileage(distanceDelta);
                     updateSpeedPerHour(distanceDelta, timeDelta);
@@ -357,8 +362,11 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
     //配速计算
     private void updateMinutePerDistance(double distanceDelta, long timeDelta){
         int totalSecond = (int)(timeDelta/distanceDelta*1000);
-        int minute = totalSecond%60;
-        int second = totalSecond/60;
+        int minute = totalSecond/60;
+        if(minute>99)
+            minute = 99;
+        int second = totalSecond%60;
+        Log.e(TAG, "timeDelta:"+timeDelta+",distanceDelta:"+distanceDelta+",totalSecond:"+totalSecond+",minute:"+minute+", second:"+second);
         Message msg = new Message();
         msg.what = CHANGE_MPD;
         msg.arg1 = minute;
@@ -367,7 +375,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
     }
     //时速计算
     private void updateSpeedPerHour(double distanceDelta, long timeDelta){
-        double speed = distanceDelta/1000/timeDelta/3600;
+        double speed = distanceDelta/timeDelta*3.6;
         Message msg = new Message();
         msg.what = CHANGE_SPH;
         msg.obj = speed;
