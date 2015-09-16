@@ -7,19 +7,22 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 /**
  * Created by huangji on 2015/9/16.
  */
 public class FragmentShow extends Fragment {
 
-    private View view;
+    private View mRootView;
+    private ListView mShowList;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if(view == null){
-            view = inflater.inflate(R.layout.fragment_show, null);
+        if(mRootView == null){
+            mRootView = inflater.inflate(R.layout.fragment_show, null);
+            mShowList = (ListView) mRootView.findViewById(R.id.show_list);
         }
-        return view;
+        return mRootView;
     }
 }
