@@ -184,12 +184,14 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
 
         Log.e(TAG, "drawable reid:"+reid);
         Drawable drawable = getResources().getDrawable(reid);
+        drawable.setBounds(0,0,drawable.getMinimumWidth(),drawable.getMinimumHeight());
         if(drawable==null){
             Log.e(TAG, "drawable is null");
             return;
         }
         Log.e(TAG, "drawable is not null");
         radioButton.setCompoundDrawables(null, drawable,null,null);
+        //radioButton.setCompoundDrawables(drawable, drawable,drawable,drawable);
+        //radioButton.setBackground(drawable);
     }
-
 }

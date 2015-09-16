@@ -55,6 +55,8 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
     private final int CHANGE_MILEAGE = 1;
     private final int CHANGE_MPD = 2;
     private final int CHANGE_SPH = 3;
+    private final int UPLOAD_ERROR = 4;
+    private final int UPLOAD_SUCCESS = 5;
 
     private Gson gson;
     private Chat chat;
@@ -70,7 +72,6 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
     private TextView tvMileage;
     private TextView tvSpeed;
     private TextView tvSpeedHour;
-
 
     private boolean isFirstLocate = true;
     private int cacheLocation = 2;
@@ -111,6 +112,15 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
                  Log.e(TAG, "sph:"+msg.obj);
                  tvSpeedHour.setText(decimalFormat.format((double) msg.obj));
                  break;
+             case UPLOAD_ERROR:
+                 log("上传失败");
+                 uploadDialog.cancel();
+                 break;
+             case UPLOAD_SUCCESS:
+                 log("上传成功");
+                 uploadDialog.cancel();
+                 finish();
+                 break;
              default:
                  break;
              }
@@ -133,11 +143,14 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
             public void uploadRun(ResponseError error, int userId) {
                 if(error!=null){
                     //log("上传失败,error:"+error.getError()+", errno:"+error.getErrno());
-                    uploadDialog.cancel();
+                    Message msg = new Message();
+                    msg.what = UPLOAD_ERROR;
+                    msg.obj = error;
+                    mHandler.sendMessage(msg);
                 }else {
-                    log("上传成功");
-                    uploadDialog.cancel();
-                    finish();
+                    Message msg = new Message();
+                    msg.what = UPLOAD_SUCCESS;
+                    mHandler.sendMessage(msg);
                 }
             }
         });
@@ -420,7 +433,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         //上传运动数据
         RunData runData = new RunData(globalInfos.getUserid(), myload, mytime);
         String rundataStr = gson.toJson(runData);
-        log("rundataStr:" + rundataStr);
+        //log("rundataStr:" + rundataStr);
         chat.emit("uploadrun", gson.toJson(runData));
         uploadDialog.setTitle("上传数据...");
         //dialog.setCancelable(false);
