@@ -9,4 +9,8 @@
     <dimen name="run_image_3_size">13dp</dimen>
     <dimen name="run_number_3_size">13dp</dimen>
     <dimen name="number_image_margin">10dp</dimen>
+    <dimen name="tab_img_with">40dp</dimen>
+    <dimen name="tab_img_height">40dp</dimen>
+    <dimen name="tab_img_margin_right">20dp</dimen>
+    <dimen name="tab_img_margin_left">20dp</dimen>
 </resources>

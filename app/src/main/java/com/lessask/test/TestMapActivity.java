@@ -127,11 +127,12 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         init();
         gson = new Gson();
         chat = Chat.getInstance();
+        uploadDialog = new ProgressDialog(TestMapActivity.this, ProgressDialog.STYLE_SPINNER);
         chat.setUploadRunListener(new Chat.UploadRunListener(){
             @Override
             public void uploadRun(ResponseError error, int userId) {
                 if(error!=null){
-                    log("上传失败,error:"+error.getError()+", errno:"+error.getErrno());
+                    //log("上传失败,error:"+error.getError()+", errno:"+error.getErrno());
                     uploadDialog.cancel();
                 }else {
                     log("上传成功");
@@ -303,7 +304,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
     private void log(String content){
         Log.e(TAG, content);
-        Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
+        Toast.makeText(TestMapActivity.this, content, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -421,7 +422,6 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         String rundataStr = gson.toJson(runData);
         log("rundataStr:" + rundataStr);
         chat.emit("uploadrun", gson.toJson(runData));
-        uploadDialog = new ProgressDialog(TestMapActivity.this, ProgressDialog.STYLE_SPINNER);
         uploadDialog.setTitle("上传数据...");
         //dialog.setCancelable(false);
         uploadDialog.show();

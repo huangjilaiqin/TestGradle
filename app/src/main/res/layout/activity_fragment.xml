@@ -13,24 +13,46 @@
 
     <RadioGroup
         android:id="@+id/main_navigation_bar"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center">
         <RadioButton
-            android:id="@+id/friends"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/show"
             android:button="@null"
-            android:background="@mipmap/ic_launcher"
-            android:text="好友"/>
+            android:drawableTop="@drawable/show_selected"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            />
+        <RadioButton
+            android:id="@+id/sports"
+            android:button="@null"
+            android:drawableTop="@drawable/sports"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            />
+        <RadioButton
+            android:id="@+id/friends"
+            android:button="@null"
+            android:drawableTop="@drawable/chat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            />
         <RadioButton
             android:id="@+id/me"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:button="@null"
-            android:background="@mipmap/ic_launcher"
-            android:text="我"/>
+            android:drawableTop="@drawable/me"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            />
     </RadioGroup>
 
 </LinearLayout>
