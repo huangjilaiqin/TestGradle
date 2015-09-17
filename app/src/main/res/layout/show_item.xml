@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     
+
     <ImageView
         android:id="@+id/head_img"
         android:layout_width="35dp"
@@ -20,40 +21,32 @@
         android:layout_alignTop="@id/head_img"
         android:layout_toRightOf="@id/head_img"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="2dp"
         android:text="唐三炮少爷"
         android:textSize="13dp"
         />
-
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/head_img"
+        android:layout_alignLeft="@id/name"
+        android:layout_marginButton="2dp"
+        android:text="36分钟前"
+        android:textSize="9dp"
+        />
+    <RelativeLayout
+        android:id="@+id/show_image_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </RelativeLayout>
     <ImageView
         android:id="@+id/show_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:src="@drawable/runnging"
         android:layout_below="@id/head_img"
-        android:layout_alignLeft="@id/head_img"
         android:layout_marginTop="10dp"
-        />
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/head_img"
-        android:layout_alignRight="@id/show_image"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:text="36分钟前"
-        android:textSize="12dp"
-        />
-    <TextView
-        android:id="@+id/content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/show_image"
-        android:layout_alignLeft="@id/show_image"
-        android:layout_marginTop="10dp"
-        android:textSize="16dp"
-        android:text="今天天气真不错！！！"
         />
 
     <TextView
@@ -61,26 +54,57 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/content"
-        android:layout_marginTop="3dp"
-        android:layout_alignLeft="@id/content"
+        android:layout_alignRight="@id/show_image"
+        android:layout_marginRight="10dp"
+        android:layout_alignTop="@id/head_img"
+        android:layout_marginTop="2dp"
         android:textSize="10dp"
         android:text="深圳市 南山区 塘朗山"
         />
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/show_image"
+        android:layout_alignLeft="@id/head_img"
+        android:layout_marginTop="12dp"
+        android:textSize="16dp"
+        android:text="今天天气真不错！！！"
+        />
+
+    <View
+        android:id="@+id/divider_top"
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="#b2b2b2"
+        android:layout_below="@id/content"
+        android:layout_marginTop="7dp"
+        ></View>
     <ImageView
         android:id="@+id/up"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_below="@id/address"
-        android:layout_alignLeft="@id/address"
-        android:layout_marginTop="5dp"
-        android:src="@drawable/up"/>
+        android:layout_below="@id/divider_top"
+        android:layout_alignLeft="@id/head_img"
+        android:layout_marginTop="6dp"
+        android:src="@drawable/up"
+        />
+
+    <View
+        android:id="@+id/divider_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="#b2b2b2"
+        android:layout_marginTop="6dp"
+        android:layout_below="@id/up"
+        ></View>
     <TextView
         android:id="@+id/up_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/up"
         android:layout_alignTop="@id/up"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:textSize="14dp"
         android:text="138"
         />
@@ -98,7 +122,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/comment"
         android:layout_alignTop="@id/up"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:textSize="14dp"
         android:text="78"
         />
