@@ -2,31 +2,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
-    >
-    <!--
     android:layout_height="match_parent"
-    -->
+    android:id="@+id/root_layout"
+    >
     <ImageView
         android:id="@+id/show_image1"
-        android:layout_width="179dp"
-        android:layout_height="match_parent"
+        android:layout_width="178.5dp"
+        android:layout_height="100.41dp"
         android:src="@drawable/runnging"
         />
     <View
         android:id="@+id/divider"
         android:layout_alignTop="@id/show_image1"
         android:layout_toRightOf="@id/show_image1"
-        android:layout_height="match_parent"
-        android:layout_width="2dp"
-        android:background="#000000"
+        android:layout_height="100.41dp"
+        android:layout_width="3dp"
+        android:background="#f6f6f6"
         ></View>
     <ImageView
+        android:id="@+id/show_image2"
         android:layout_alignTop="@id/show_image1"
         android:layout_toRightOf="@id/divider"
-        android:id="@+id/show_image2"
-        android:layout_width="179dp"
-        android:layout_height="match_parent"
+        android:layout_width="178.5dp"
+        android:layout_height="100.41dp"
         android:src="@drawable/runnging"
         />
 

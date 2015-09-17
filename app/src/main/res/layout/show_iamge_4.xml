@@ -1,7 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/show_image1"
+        android:layout_width="178.5dp"
+        android:layout_height="100.41dp"
+        android:src="@drawable/runnging"
+        />
+    <View
+        android:id="@+id/divider_v"
+        android:layout_alignTop="@id/show_image1"
+        android:layout_toRightOf="@id/show_image1"
+        android:layout_height="200.82dp"
+        android:layout_width="3dp"
+        android:background="#f6f6f6"
+        ></View>
+    <View
+        android:id="@+id/divider_h"
+        android:layout_below="@id/show_image1"
+        android:layout_alignLeft="@id/show_image1"
+        android:layout_height="3dp"
+        android:layout_width="360dp"
+        android:background="#f6f6f6"
+        ></View>
+    <ImageView
+        android:id="@+id/show_image2"
+        android:layout_alignTop="@id/show_image1"
+        android:layout_toRightOf="@id/divider_v"
+        android:layout_width="178.5dp"
+        android:layout_height="100.41dp"
+        android:src="@drawable/runnging"
+        />
+
+    <ImageView
+        android:id="@+id/show_image3"
+        android:layout_alignLeft="@id/show_image1"
+        android:layout_below="@id/divider_h"
+        android:layout_width="178.5dp"
+        android:layout_height="100.41dp"
+        android:src="@drawable/runnging"
+        />
+    <ImageView
+        android:id="@+id/show_image4"
+        android:layout_alignRight="@id/show_image2"
+        android:layout_below="@id/divider_h"
+        android:layout_width="178.5dp"
+        android:layout_height="100.41dp"
+        android:src="@drawable/runnging"
+        />
 
 </RelativeLayout>
