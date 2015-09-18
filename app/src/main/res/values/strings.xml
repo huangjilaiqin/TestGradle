@@ -27,6 +27,7 @@
     <string name="title_activity_test_socket">TestSocket</string>
     <string name="title_activity_test_map">TestMapActivity</string>
     <string name="title_activity_location_demo">LocationDemo</string>
+    <string name="title_activity_show_image">ShowImageActivity</string>
 
 
 </resources>

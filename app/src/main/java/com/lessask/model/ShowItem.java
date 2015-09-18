@@ -13,9 +13,10 @@ public class ShowItem {
     private ArrayList<String> showImgs;
     private String content;
     private int upSize;
+    private int upStatus;
     private int commentSize;
 
-    public ShowItem(String name, String headImg, String time, String address, ArrayList<String> showImgs, String content, int upSize, int commentSize) {
+    public ShowItem(String name, String headImg, String time, String address, ArrayList<String> showImgs, String content, int upSize, int commentSize, int upStatus) {
         this.name = name;
         this.headImg = headImg;
         this.time = time;
@@ -24,6 +25,7 @@ public class ShowItem {
         this.content = content;
         this.upSize = upSize;
         this.commentSize = commentSize;
+        this.upStatus = upStatus;
     }
 
     public void setName(String name) {
@@ -88,5 +90,13 @@ public class ShowItem {
 
     public int getCommentSize() {
         return commentSize;
+    }
+
+    public void setUpStatus(int upStatus) {
+        this.upStatus = upStatus;
+    }
+
+    public int getUpStatus() {
+        return upStatus;
     }
 }

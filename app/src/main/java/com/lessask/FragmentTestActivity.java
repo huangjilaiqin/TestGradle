@@ -49,7 +49,6 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
         rbSports = (RadioButton) findViewById(R.id.sports);
         rbFriends = (RadioButton) findViewById(R.id.friends);
         rbMe = (RadioButton) findViewById(R.id.me);
-
         mGroup.check(R.id.show);
         selectedTab = rbShow;
         selectedTabIndex=0;
@@ -105,6 +104,14 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
     public void onPageSelected(int index) {
         //selectedTab.setCompoundDrawables(null, this.getDrawable(fragmentImg[selectedTabIndex * 2]),null,null);
         setDrawbleTop(selectedTab, fragmentImg[selectedTabIndex * 2]);
+        /*
+        Drawable drawable = getResources().getDrawable(fragmentImg[selectedTabIndex * 2]);
+        int height = selectedTab.getHeight();
+        int width = height;
+        drawable.setBounds(0,0,height,width);
+        selectedTab.setButtonDrawable(drawable);
+        */
+        //selectedTab.setButtonDrawable(fragmentImg[selectedTabIndex * 2]);
         switch (index) {
             case 0:
                 mGroup.check(R.id.show);
@@ -119,6 +126,7 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
                 selectedTabIndex=1;
                 selectedTab=rbSports;
                 //rbSports.setBackground(this.getResources().getDrawable(R.drawable.sports_selected));
+
                 //rbSports.setButtonDrawable(R.drawable.sports_selected);
                 setDrawbleTop(rbSports, R.drawable.sports_selected);
                 break;

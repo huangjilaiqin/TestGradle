@@ -1,11 +1,13 @@
 package com.lessask;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.util.LruCache;
-import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,8 @@ import com.lessask.model.ShowItem;
 import java.io.File;
 import java.util.ArrayList;
 
+import uk.co.senab.photoview.PhotoViewAttacher;
+
 /**
  * Created by JHuang on 2015/9/16.
  */
@@ -33,14 +37,18 @@ public class ShowListAdapter extends BaseAdapter {
     private ImageLoader.ImageCache imageCache;
     private ImageLoader imageLoader;
 
+    PhotoViewAttacher mAttacher;
+
     private Context context;
+    private FragmentActivity activity;
     private ArrayList<ShowItem> mShowListData;
     private File headImgDir;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private final LayoutInflater inflater;
 
-    public ShowListAdapter(Context context, ArrayList data){
-        this.context = context;
+    public ShowListAdapter(FragmentActivity activity, ArrayList data){
+        this.activity = activity;
+        this.context = activity.getApplicationContext();
         inflater = LayoutInflater.from(context);
 
         mShowListData = data;
@@ -90,15 +98,32 @@ public class ShowListAdapter extends BaseAdapter {
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ShowItem showItem = (ShowItem)getItem(position);
+        final ShowItem showItem = (ShowItem)getItem(position);
         convertView = LayoutInflater.from(context).inflate(R.layout.show_item, null);
         ImageView ivHead = (ImageView)convertView.findViewById(R.id.head_img);
         TextView tvName = (TextView)convertView.findViewById(R.id.name);
         TextView tvTime = (TextView)convertView.findViewById(R.id.time);
         TextView tvAddress = (TextView)convertView.findViewById(R.id.address);
         TextView tvContent = (TextView)convertView.findViewById(R.id.content);
-        TextView tvUpSize = (TextView)convertView.findViewById(R.id.up_size);
+        final TextView tvUpSize = (TextView)convertView.findViewById(R.id.up_size);
+        final ImageView ivUp = (ImageView)convertView.findViewById(R.id.up);
+        setUp(showItem, ivUp, tvUpSize);
+        ivUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeUp(showItem, (ImageView) v, (TextView) tvUpSize);
+                Log.e(TAG, "click up");
+            }
+        });
         TextView tvCommentSize = (TextView)convertView.findViewById(R.id.comment_size);
+        ImageView ivComment = (ImageView)convertView.findViewById(R.id.comment);
+        ivComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, ShowImageActivity.class);
+                activity.startActivity(intent);
+            }
+        });
 
         ivHead.setImageResource(R.drawable.head_default);
         tvName.setText(showItem.getName());
@@ -120,6 +145,7 @@ public class ShowListAdapter extends BaseAdapter {
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage1.setImageResource(R.drawable.runnging);
+                new PhotoViewAttacher(showImage1);
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
@@ -201,5 +227,30 @@ public class ShowListAdapter extends BaseAdapter {
         */
 
         return convertView;
+    }
+
+    private void setUp(ShowItem showItem,ImageView ivUp,TextView tvUpSize){
+        if(showItem.getUpStatus()==1){
+            ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
+        }else {
+            ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
+        }
+        tvUpSize.setText(""+showItem.getUpSize());
+    }
+
+    private void changeUp(ShowItem showItem,ImageView ivUp, TextView tvUpSize){
+        if(showItem.getUpStatus()==1){
+            showItem.setUpStatus(0);
+            ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
+            int upSize = showItem.getUpSize()-1;
+            showItem.setUpSize(upSize);
+            tvUpSize.setText("" + upSize);
+        }else {
+            showItem.setUpStatus(1);
+            ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
+            int upSize = showItem.getUpSize()+1;
+            showItem.setUpSize(upSize);
+            tvUpSize.setText("" + upSize);
+        }
     }
 }

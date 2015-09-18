@@ -10,6 +10,8 @@
         android:background="#f6f6f6"
         android:divider="#eee"
         android:dividerHeight="1dp"
+        android:focusable="false"
+        android:listSelector="@android:color/transparent"
         >
     </ListView>
 
