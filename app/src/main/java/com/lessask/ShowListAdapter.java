@@ -15,6 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -117,13 +118,6 @@ public class ShowListAdapter extends BaseAdapter {
         });
         TextView tvCommentSize = (TextView)convertView.findViewById(R.id.comment_size);
         ImageView ivComment = (ImageView)convertView.findViewById(R.id.comment);
-        ivComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(activity, ShowImageActivity.class);
-                activity.startActivity(intent);
-            }
-        });
 
         ivHead.setImageResource(R.drawable.head_default);
         tvName.setText(showItem.getName());
@@ -144,8 +138,9 @@ public class ShowListAdapter extends BaseAdapter {
                 imageLayout = (RelativeLayout) inflater.inflate(R.layout.show_iamge_1, null).findViewById(R.id.root_layout);
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
-                showImage1.setImageResource(R.drawable.runnging);
-                new PhotoViewAttacher(showImage1);
+                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
+                registerImageEvent(showImage1, showItem, 0);
+
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
@@ -155,8 +150,10 @@ public class ShowListAdapter extends BaseAdapter {
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
-                showImage1.setImageResource(R.drawable.runnging);
-                showImage2.setImageResource(R.drawable.runnging);
+                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
+                registerImageEvent(showImage1, showItem, 0);
+                showImage2.setImageResource(Integer.parseInt(showItem.getShowImgs().get(1)));
+                registerImageEvent(showImage2, showItem, 1);
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
@@ -167,9 +164,12 @@ public class ShowListAdapter extends BaseAdapter {
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
                 showImage3 = (ImageView)imageLayout.findViewById(R.id.show_image3);
-                showImage1.setImageResource(R.drawable.runnging);
-                showImage2.setImageResource(R.drawable.runnging);
-                showImage3.setImageResource(R.drawable.runnging);
+                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
+                registerImageEvent(showImage1, showItem, 0);
+                showImage2.setImageResource(Integer.parseInt(showItem.getShowImgs().get(1)));
+                registerImageEvent(showImage2, showItem, 1);
+                showImage3.setImageResource(Integer.parseInt(showItem.getShowImgs().get(2)));
+                registerImageEvent(showImage3, showItem, 2);
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
@@ -181,10 +181,14 @@ public class ShowListAdapter extends BaseAdapter {
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
                 showImage3 = (ImageView)imageLayout.findViewById(R.id.show_image3);
                 showImage4 = (ImageView)imageLayout.findViewById(R.id.show_image4);
-                showImage1.setImageResource(R.drawable.runnging);
-                showImage2.setImageResource(R.drawable.runnging);
-                showImage3.setImageResource(R.drawable.runnging);
-                showImage4.setImageResource(R.drawable.runnging);
+                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
+                registerImageEvent(showImage1, showItem, 0);
+                showImage2.setImageResource(Integer.parseInt(showItem.getShowImgs().get(1)));
+                registerImageEvent(showImage2, showItem, 1);
+                showImage3.setImageResource(Integer.parseInt(showItem.getShowImgs().get(2)));
+                registerImageEvent(showImage3, showItem, 2);
+                showImage4.setImageResource(Integer.parseInt(showItem.getShowImgs().get(3)));
+                registerImageEvent(showImage4, showItem, 3);
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
@@ -252,5 +256,23 @@ public class ShowListAdapter extends BaseAdapter {
             showItem.setUpSize(upSize);
             tvUpSize.setText("" + upSize);
         }
+    }
+    private void registerImageEvent(ImageView image, final ShowItem item, final int index){
+        image.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(context, "long click image", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, ShowImageActivity.class);
+                intent.putExtra("index", index);
+                intent.putStringArrayListExtra("images", item.getShowImgs());
+                activity.startActivity(intent);
+            }
+        });
     }
 }

@@ -1,103 +1,94 @@
 package com.lessask;
 
 import android.app.Activity;
-import android.support.v4.view.PagerAdapter;
+import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.viewpagerindicator.CirclePageIndicator;
+import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TitlePageIndicator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.senab.photoview.PhotoViewAttacher;
-
-
-public class ShowImageActivity extends Activity {
-
+public class ShowImageActivity extends FragmentActivity {
+    private final String TAG = ShowImageActivity.class.getName();
     private View mRootView;
     private ViewPager mViewPager;
-    private List<View> viewList;
+    private ArrayList<String> viewList;
     private List<String> titleList;
     private TitlePageIndicator mTitlePageIndicator;
     private LayoutInflater mInflate;
+    private Intent mIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mIntent = getIntent();
         setContentView(R.layout.activity_show_image);
-        viewList = new ArrayList<>();
-        mInflate = getLayoutInflater().from(this);
-        View v1 = mInflate.inflate(R.layout.image, null);
-        ImageView image1 = (ImageView)v1.findViewById(R.id.image);
-        new PhotoViewAttacher(image1);
-        View v2 = mInflate.inflate(R.layout.image,null);
-        ImageView image2 = (ImageView)v1.findViewById(R.id.image);
-        new PhotoViewAttacher(image2);
-        View v3 = mInflate.inflate(R.layout.image,null);
-        ImageView image3 = (ImageView)v1.findViewById(R.id.image);
-        new PhotoViewAttacher(image3);
+        viewList = mIntent.getStringArrayListExtra("images");
+        int index = mIntent.getIntExtra("index", 0);
 
-        viewList.add(v1);
-        viewList.add(v2);
-        viewList.add(v3);
+        mInflate = getLayoutInflater().from(this);
+
         //mTitlePageIndicator = (TitlePageIndicator) mRootView.findViewById(R.id.title);
+
+        MyPagerAdapter adapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager)findViewById(R.id.viewpager);
-        mViewPager.setAdapter(new MyPagerAdapter(viewList));
+        mViewPager.setAdapter(adapter);
         mViewPager.setCurrentItem(0); //设置默认当前页
 
         CirclePageIndicator indicator = (CirclePageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(mViewPager);
+        indicator.setCurrentItem(index);
     }
-    class MyPagerAdapter extends PagerAdapter {
-        private List<View> mListViews;
-         public MyPagerAdapter(List<View> mListViews) {
-            this.mListViews = mListViews;//构造方法，参数是我们的页卡，这样比较方便。
+    class MyPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
+        public MyPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
-         @Override
-            public boolean isViewFromObject(View arg0, Object arg1) {
 
-                return arg0 == arg1;
-            }
+        @Override
+        public Fragment getItem(int position) {
+            FragmentImageShow fragmentImageShow = new FragmentImageShow();
+            Bundle bundle = new Bundle();
+            bundle.putStringArrayList("images", viewList);
+            bundle.putInt("position", position);
+            fragmentImageShow.setArguments(bundle);
+            Log.e(TAG, fragmentImageShow.toString());
+            return fragmentImageShow;
+        }
 
-            @Override
-            public int getCount() {
 
-                return viewList.size();
-            }
+        /*
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
 
-            @Override
-            public void destroyItem(ViewGroup container, int position,
-                    Object object) {
-                container.removeView(viewList.get(position));
+            PhotoView photoView = new PhotoView(container.getContext());
+            photoView.setImageResource(mListViews.get(position));
 
-            }
+            // Now just add PhotoView to ViewPager and return it
+            container.addView(photoView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-            @Override
-            public int getItemPosition(Object object) {
+            return photoView;
+        }
+        */
 
-                return super.getItemPosition(object);
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-
-                //return titleList.get(position);
-                return null;
-            }
-
-            @Override
-            public Object instantiateItem(ViewGroup container, int position) {
-                container.addView(viewList.get(position));
-                return viewList.get(position);
-            }
+        @Override
+        public int getIconResId(int index) {
+            return 0;
+        }
+        @Override
+        public int getCount() {
+            return viewList.size();
+        }
     }
+
 }

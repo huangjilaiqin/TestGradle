@@ -34,10 +34,10 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.github.nkzawa:socket.io-client:0.3.0'
+    compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile 'com.google.code.gson:gson:2.2.2'
     compile files('libs/volley.jar')
     compile files('libs/BaiduLBS_Android.jar')
     compile files('libs/locSDK_5.2.jar')
-    compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile project(':library')
 }

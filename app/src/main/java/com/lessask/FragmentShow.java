@@ -42,23 +42,23 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private ArrayList getData(){
 
         ArrayList<ShowItem> showItems = new ArrayList<>();
-        ArrayList<String> showImgs = new ArrayList<>();
-        showImgs.add("1");
-        showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs, "今天天气真不错！！！", 89, 23,0));
+        ArrayList<String> showImgs1 = new ArrayList<>();
+        showImgs1.add(""+R.drawable.runnging);
+        showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs1, "今天天气真不错！！！", 89, 23,0));
         ArrayList<String> showImgs2 = new ArrayList<>();
-        showImgs2.add("1");
-        showImgs2.add("1");
+        showImgs2.add(""+R.drawable.runnging);
+        showImgs2.add(""+R.drawable.speed);
         showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs2, "今天天气真不错！！！", 89, 23,0));
         ArrayList<String> showImgs3 = new ArrayList<>();
-        showImgs3.add("1");
-        showImgs3.add("1");
-        showImgs3.add("1");
+        showImgs3.add(""+R.drawable.runnging);
+        showImgs3.add(""+R.drawable.speed);
+        showImgs3.add(""+R.drawable.comment);
         showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs3, "今天天气真不错！！！", 89, 23,0));
         ArrayList<String> showImgs4 = new ArrayList<>();
-        showImgs4.add("1");
-        showImgs4.add("1");
-        showImgs4.add("1");
-        showImgs4.add("1");
+        showImgs4.add(""+R.drawable.runnging);
+        showImgs4.add(""+R.drawable.speed);
+        showImgs4.add(""+R.drawable.chat);
+        showImgs4.add(""+R.drawable.runnging);
         showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs4, "今天天气真不错！！！", 89, 23,0));
         return showItems;
     }
