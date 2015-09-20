@@ -1,5 +1,6 @@
 package com.lessask;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -16,9 +17,12 @@ import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 
+import me.iwf.photopicker.PhotoPickerActivity;
+
 public class FragmentTestActivity extends FragmentActivity implements ViewPager.OnPageChangeListener, RadioGroup.OnCheckedChangeListener{
 
     private LayoutInflater layoutInflater;
+    private int REQUEST_CODE = 100;
     private Class fragmentArray[] = {FragmentShow.class, FragmentSports.class, FragmentFriends.class, FragmentMe.class};
     private String mTextviewArray[] = {"发现", "运动", "好友", "我"};
     private int fragmentImg[] = {R.drawable.show,R.drawable.show_selected,R.drawable.sports,R.drawable.sports_selected,R.drawable.chat,R.drawable.chat_selected,R.drawable.me,R.drawable.me_selected};
@@ -190,7 +194,7 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
     }
     private void setDrawbleTop(RadioButton radioButton, int reid){
 
-        Log.e(TAG, "drawable reid:"+reid);
+        Log.e(TAG, "drawable reid:" + reid);
         Drawable drawable = getResources().getDrawable(reid);
         drawable.setBounds(0,0,drawable.getMinimumWidth(),drawable.getMinimumHeight());
         if(drawable==null){

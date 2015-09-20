@@ -1,6 +1,5 @@
 package com.lessask;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -9,24 +8,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
-import com.viewpagerindicator.TitlePageIndicator;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ShowImageActivity extends FragmentActivity {
     private final String TAG = ShowImageActivity.class.getName();
-    private View mRootView;
     private ViewPager mViewPager;
     private ArrayList<String> viewList;
-    private List<String> titleList;
-    private TitlePageIndicator mTitlePageIndicator;
-    private LayoutInflater mInflate;
     private Intent mIntent;
 
     @Override
@@ -37,9 +28,6 @@ public class ShowImageActivity extends FragmentActivity {
         viewList = mIntent.getStringArrayListExtra("images");
         int index = mIntent.getIntExtra("index", 0);
 
-        mInflate = getLayoutInflater().from(this);
-
-        //mTitlePageIndicator = (TitlePageIndicator) mRootView.findViewById(R.id.title);
 
         MyPagerAdapter adapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager)findViewById(R.id.viewpager);
@@ -65,21 +53,6 @@ public class ShowImageActivity extends FragmentActivity {
             Log.e(TAG, fragmentImageShow.toString());
             return fragmentImageShow;
         }
-
-
-        /*
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-
-            PhotoView photoView = new PhotoView(container.getContext());
-            photoView.setImageResource(mListViews.get(position));
-
-            // Now just add PhotoView to ViewPager and return it
-            container.addView(photoView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-
-            return photoView;
-        }
-        */
 
         @Override
         public int getIconResId(int index) {

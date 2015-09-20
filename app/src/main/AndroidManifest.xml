@@ -105,9 +105,6 @@
             android:name=".FragmentTestActivity"
             android:label="@string/title_activity_fragment" />
         <activity
-            android:name=".FragmentImageShow"
-            android:label="FragmentImageShow" />
-        <activity
             android:name=".test.SwipeRefreshLayoutTest"
             android:label="@string/title_activity_swipe_refresh_layout_test" />
         <activity
@@ -119,6 +116,12 @@
         <activity
             android:name=".test.LocationDemo"
             android:label="@string/title_activity_location_demo" />
+        <activity
+            android:name="me.iwf.photopicker.PhotoPickerActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name="me.iwf.photopicker.PhotoPagerActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <service
             android:name="com.baidu.location.f"
@@ -128,6 +131,14 @@
         <activity
             android:name=".ShowImageActivity"
             android:label="@string/title_activity_show_image" >
+        </activity>
+        <activity
+            android:name=".ShowSelectedImageActivity"
+            android:label="@string/title_activity_show_selected_image" >
+        </activity>
+        <activity
+            android:name=".CreateShowActivity"
+            android:label="@string/title_activity_create_show" >
         </activity>
     </application>
 

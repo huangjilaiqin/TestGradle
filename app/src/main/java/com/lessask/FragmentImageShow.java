@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.lessask.model.Utils;
+
+import java.io.File;
 import java.util.List;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -40,7 +43,11 @@ public class FragmentImageShow extends Fragment{
                 }
             });
             ImageView imageView = (ImageView)rootView.findViewById(R.id.image);
-            imageView.setImageResource(Integer.parseInt(mImages.get(position)));
+            try {
+                imageView.setImageResource(Integer.parseInt(mImages.get(position)));
+            }catch (Exception e){
+                imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImages.get(position))));
+            }
             //imageView.setImageDrawable(mImages.get(position));
             mAttacher = new PhotoViewAttacher(imageView);
             mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {

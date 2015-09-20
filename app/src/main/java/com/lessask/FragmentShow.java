@@ -1,9 +1,12 @@
 package com.lessask;
 
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +17,21 @@ import com.lessask.model.ShowItem;
 
 import java.util.ArrayList;
 
+import me.iwf.photopicker.PhotoPickerActivity;
+import me.iwf.photopicker.utils.PhotoPickerIntent;
+
 /**
  * Created by huangji on 2015/9/16.
  */
 public class FragmentShow extends Fragment implements View.OnClickListener {
 
+    private final String TAG = FragmentShow.class.getName();
     private View mRootView;
-    private ListView mShowList;
     private ShowListAdapter mShowListAdapter;
+    private ListView mShowList;
+    private ImageView mCreate;
+
+    private int REQUEST_CODE = 100;
 
     private ImageView ivUp;
     @Nullable
@@ -36,6 +46,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mShowList.setAdapter(mShowListAdapter);
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
+            mCreate = (ImageView) mRootView.findViewById(R.id.create);
+            mCreate.setOnClickListener(this);
         }
         return mRootView;
     }
@@ -69,6 +81,27 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             case R.id.up:
                 ImageView view = (ImageView)v;
                 break;
+            case R.id.create:
+                PhotoPickerIntent intent = new PhotoPickerIntent(getActivity());
+                intent.setPhotoCount(4);
+                intent.setShowCamera(true);
+                intent.setShowGif(true);
+                startActivityForResult(intent, REQUEST_CODE);
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
+            if (data != null) {
+                ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
+                Log.e(TAG, "onActivityResult:"+photos.toString());
+                Intent intent = new Intent(getActivity(), CreateShowActivity.class);
+                intent.putStringArrayListExtra("images", photos);
+                startActivity(intent);
+            }
         }
     }
 }

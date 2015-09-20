@@ -72,9 +72,13 @@ public class Utils {
     public static Bitmap getBitmapFromFile(File file) {
         Bitmap bitmap = null;
         try {
-            Log.e(TAG, "get bitmap:" + file);
+            Log.e(TAG, "get bitmap:" + file+", size:"+file.length()/1024/1024);
             //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-            bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+            BitmapFactory.Options opts=new BitmapFactory.Options();
+            opts.inTempStorage = new byte[100 * 1024];
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            opts.inSampleSize = 10;
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(file),null,opts);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
