@@ -22,8 +22,10 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class FragmentImageShow extends Fragment{
     private final String TAG = FragmentImageShow.class.getName();
     private List<String> mImages;
-     private PhotoViewAttacher mAttacher;
+    private PhotoViewAttacher mAttacher;
     private View rootView;
+    private ImageView imageView;
+    private int position;
 
 
     @Nullable
@@ -32,7 +34,7 @@ public class FragmentImageShow extends Fragment{
 
         Bundle bundle = getArguments();
         mImages = bundle.getStringArrayList("images");
-        int position = bundle.getInt("position");
+        position = bundle.getInt("position");
         if(rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_image_show, null);
             rootView.setOnClickListener(new View.OnClickListener() {
@@ -42,7 +44,7 @@ public class FragmentImageShow extends Fragment{
                     getActivity().onBackPressed();
                 }
             });
-            ImageView imageView = (ImageView)rootView.findViewById(R.id.image);
+            imageView = (ImageView)rootView.findViewById(R.id.image);
             try {
                 imageView.setImageResource(Integer.parseInt(mImages.get(position)));
             }catch (Exception e){
@@ -67,5 +69,12 @@ public class FragmentImageShow extends Fragment{
         }
         return rootView;
 
+    }
+    public void update(){
+        try {
+            imageView.setImageResource(Integer.parseInt(mImages.get(position)));
+        }catch (Exception e){
+            imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImages.get(position))));
+        }
     }
 }

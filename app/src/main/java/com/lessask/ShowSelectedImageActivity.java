@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class ShowSelectedImageActivity extends FragmentActivity {
     private final String TAG = ShowSelectedImageActivity.class.getName();
     private ViewPager mViewPager;
+    private CirclePageIndicator indicator;
     private ArrayList<String> photos;
     private ImageView mDelete;
     private Intent mIntent;
@@ -44,9 +45,26 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         mViewPager.setAdapter(adapter);
         mViewPager.setCurrentItem(0); //设置默认当前页
 
-        final CirclePageIndicator indicator = (CirclePageIndicator)findViewById(R.id.indicator);
+        indicator = (CirclePageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(mViewPager);
         indicator.setCurrentItem(mCurrentPosition);
+        indicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                Log.e(TAG, "onPageScrolled:"+position);
+                mCurrentPosition = position;
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         mDelete = (ImageView) findViewById(R.id.delete);
         mDelete.setOnClickListener(new View.OnClickListener() {
@@ -61,8 +79,12 @@ public class ShowSelectedImageActivity extends FragmentActivity {
                 if(mCurrentPosition==-1){
                     finish();
                 }
-                Log.e(TAG, "current:"+mCurrentPosition);
+                Log.e(TAG, "current:" + mCurrentPosition);
+                //mViewPager.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
+                //FragmentImageShow fragmentImageShow = (FragmentImageShow)adapter.getItem(mCurrentPosition);
+                //fragmentImageShow.update();
+                //mViewPager.setCurrentItem(mCurrentPosition); //设置默认当前页
                 indicator.notifyDataSetChanged();
 
             }
@@ -92,6 +114,11 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         @Override
         public int getCount() {
             return photos.size();
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 
