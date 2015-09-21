@@ -9,8 +9,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -25,7 +25,7 @@ public class ShowSelectedImageActivity extends FragmentActivity {
     private ImageView mDelete;
     private Intent mIntent;
     private int mCurrentPosition;
-    private MyPagerAdapter adapter;
+    private MyFragmentPagerAdapter myFragmentPagerAdapter;
     private static final int REQUEST_DELETE_IMAGE = 101;
 
     @Override
@@ -40,9 +40,9 @@ public class ShowSelectedImageActivity extends FragmentActivity {
 
         Log.e(TAG, "onCreate index:"+mCurrentPosition +", photos:"+photos);
 
-        adapter = new MyPagerAdapter(getSupportFragmentManager());
+        myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager)findViewById(R.id.viewpager);
-        mViewPager.setAdapter(adapter);
+        mViewPager.setAdapter(myFragmentPagerAdapter);
         mViewPager.setCurrentItem(0); //设置默认当前页
 
         indicator = (CirclePageIndicator)findViewById(R.id.indicator);
@@ -81,32 +81,52 @@ public class ShowSelectedImageActivity extends FragmentActivity {
                 }
                 Log.e(TAG, "current:" + mCurrentPosition);
                 //mViewPager.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
+                mViewPager.setCurrentItem(mCurrentPosition); //设置默认当前页
+                myFragmentPagerAdapter.notifyDataSetChanged();
                 //FragmentImageShow fragmentImageShow = (FragmentImageShow)adapter.getItem(mCurrentPosition);
-                //fragmentImageShow.update();
-                //mViewPager.setCurrentItem(mCurrentPosition); //设置默认当前页
+                //fragmentImageShow.update(photos.get(mCurrentPosition));
+                //fragmentImageShow.update(R.drawable.runnging+"");
                 indicator.notifyDataSetChanged();
 
             }
         });
     }
-    class MyPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
-        public MyPagerAdapter(FragmentManager fm) {
+    class MyFragmentPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
+        public MyFragmentPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-            mCurrentPosition = position;
+            //mCurrentPosition = position;
             FragmentImageShow fragmentImageShow = new FragmentImageShow();
-            Bundle bundle = new Bundle();
-            bundle.putStringArrayList("images", photos);
-            bundle.putInt("position", position);
-            fragmentImageShow.setArguments(bundle);
-            Log.e(TAG, fragmentImageShow.toString());
+            Log.e(TAG, "getItem:"+fragmentImageShow.toString());
             return fragmentImageShow;
         }
 
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            FragmentImageShow fragmentImageShow = (FragmentImageShow)super.instantiateItem(container, position);
+            Log.e(TAG, "instantiateItem:"+fragmentImageShow.toString());
+            Log.e(TAG, "instantiateItem:"+photos.get(position));
+            Log.e(TAG, "instantiateItem:"+photos);
+            /*
+            Bundle bundle = new Bundle();
+            bundle.putString("image", photos.get(position));
+            bundle.putInt("position", position);
+            fragmentImageShow.setArguments(bundle);
+            Log.e(TAG, fragmentImageShow.toString());
+            */
+            fragmentImageShow.setPosition(position);
+            fragmentImageShow.setmImage(photos.get(position));
+            return fragmentImageShow;
+        }
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
+        //IconPagerAdapter 接口
         @Override
         public int getIconResId(int index) {
             return 0;
@@ -115,11 +135,5 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         public int getCount() {
             return photos.size();
         }
-
-        @Override
-        public int getItemPosition(Object object) {
-            return POSITION_NONE;
-        }
     }
-
 }

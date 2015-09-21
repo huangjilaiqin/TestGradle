@@ -72,7 +72,7 @@ public class Utils {
     public static Bitmap getBitmapFromFile(File file) {
         Bitmap bitmap = null;
         try {
-            Log.e(TAG, "get bitmap:" + file+", size:"+file.length()/1024/1024);
+            //Log.e(TAG, "get bitmap:" + file+", size:"+file.length()/1024/1024);
             //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             BitmapFactory.Options opts=new BitmapFactory.Options();
             opts.inTempStorage = new byte[100 * 1024];

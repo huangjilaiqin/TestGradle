@@ -21,20 +21,34 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  */
 public class FragmentImageShow extends Fragment{
     private final String TAG = FragmentImageShow.class.getName();
-    private List<String> mImages;
+    private String mImage;
     private PhotoViewAttacher mAttacher;
     private View rootView;
     private ImageView imageView;
     private int position;
 
+    public void setmImage(String mImage) {
+        this.mImage = mImage;
+        if(imageView!=null) {
+            try {
+                imageView.setImageResource(Integer.parseInt(mImage));
+            } catch (Exception e) {
+                imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
+            }
+        }
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         Bundle bundle = getArguments();
-        mImages = bundle.getStringArrayList("images");
-        position = bundle.getInt("position");
+        //mImage = bundle.getString("image");
+        //position = bundle.getInt("position");
         if(rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_image_show, null);
             rootView.setOnClickListener(new View.OnClickListener() {
@@ -46,9 +60,9 @@ public class FragmentImageShow extends Fragment{
             });
             imageView = (ImageView)rootView.findViewById(R.id.image);
             try {
-                imageView.setImageResource(Integer.parseInt(mImages.get(position)));
+                imageView.setImageResource(Integer.parseInt(mImage));
             }catch (Exception e){
-                imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImages.get(position))));
+                imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
             }
             //imageView.setImageDrawable(mImages.get(position));
             mAttacher = new PhotoViewAttacher(imageView);
@@ -70,11 +84,12 @@ public class FragmentImageShow extends Fragment{
         return rootView;
 
     }
-    public void update(){
+    public void update(String image){
+        mImage = image;
         try {
-            imageView.setImageResource(Integer.parseInt(mImages.get(position)));
+            imageView.setImageResource(Integer.parseInt(mImage));
         }catch (Exception e){
-            imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImages.get(position))));
+            imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
         }
     }
 }
