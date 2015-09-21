@@ -14,10 +14,14 @@ import com.viewpagerindicator.IconPagerAdapter;
 
 import java.util.ArrayList;
 
+/*
+* 展示show中的图片
+* */
+
 public class ShowImageActivity extends FragmentActivity {
     private final String TAG = ShowImageActivity.class.getName();
     private ViewPager mViewPager;
-    private ArrayList<String> viewList;
+    private ArrayList<String> photos;
     private Intent mIntent;
 
     @Override
@@ -25,7 +29,7 @@ public class ShowImageActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         mIntent = getIntent();
         setContentView(R.layout.activity_show_image);
-        viewList = mIntent.getStringArrayListExtra("images");
+        photos = mIntent.getStringArrayListExtra("images");
         int index = mIntent.getIntExtra("index", 0);
 
 
@@ -46,10 +50,8 @@ public class ShowImageActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             FragmentImageShow fragmentImageShow = new FragmentImageShow();
-            Bundle bundle = new Bundle();
-            bundle.putStringArrayList("images", viewList);
-            bundle.putInt("position", position);
-            fragmentImageShow.setArguments(bundle);
+            fragmentImageShow.setPosition(position);
+            fragmentImageShow.setmImage(photos.get(position));
             Log.e(TAG, fragmentImageShow.toString());
             return fragmentImageShow;
         }
@@ -60,7 +62,7 @@ public class ShowImageActivity extends FragmentActivity {
         }
         @Override
         public int getCount() {
-            return viewList.size();
+            return photos.size();
         }
     }
 

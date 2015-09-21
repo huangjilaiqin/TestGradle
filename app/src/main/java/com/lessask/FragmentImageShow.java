@@ -12,12 +12,12 @@ import android.widget.ImageView;
 import com.lessask.model.Utils;
 
 import java.io.File;
-import java.util.List;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Created by huangji on 2015/9/18.
+ * viewpager中展示图片的fragment
  */
 public class FragmentImageShow extends Fragment{
     private final String TAG = FragmentImageShow.class.getName();
@@ -62,7 +62,12 @@ public class FragmentImageShow extends Fragment{
             try {
                 imageView.setImageResource(Integer.parseInt(mImage));
             }catch (Exception e){
-                imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
+                try {
+                    Log.e(TAG, "file:"+mImage);
+                    imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
+                }catch (Exception e1){
+                    Log.e(TAG, "IOException:"+e1.getMessage());
+                }
             }
             //imageView.setImageDrawable(mImages.get(position));
             mAttacher = new PhotoViewAttacher(imageView);

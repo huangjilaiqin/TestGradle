@@ -17,6 +17,9 @@ import com.viewpagerindicator.IconPagerAdapter;
 
 import java.util.ArrayList;
 
+/*
+* 展示选中的图片
+* */
 public class ShowSelectedImageActivity extends FragmentActivity {
     private final String TAG = ShowSelectedImageActivity.class.getName();
     private ViewPager mViewPager;
@@ -81,13 +84,10 @@ public class ShowSelectedImageActivity extends FragmentActivity {
                 }
                 Log.e(TAG, "current:" + mCurrentPosition);
                 //mViewPager.setAdapter(adapter);
-                mViewPager.setCurrentItem(mCurrentPosition); //设置默认当前页
                 myFragmentPagerAdapter.notifyDataSetChanged();
-                //FragmentImageShow fragmentImageShow = (FragmentImageShow)adapter.getItem(mCurrentPosition);
-                //fragmentImageShow.update(photos.get(mCurrentPosition));
-                //fragmentImageShow.update(R.drawable.runnging+"");
+                //数据改变后一定要先notifyDataSetChanged
+                mViewPager.setCurrentItem(mCurrentPosition); //设置默认当前页
                 indicator.notifyDataSetChanged();
-
             }
         });
     }
@@ -107,6 +107,7 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             FragmentImageShow fragmentImageShow = (FragmentImageShow)super.instantiateItem(container, position);
+            Log.e(TAG, "position:"+position);
             Log.e(TAG, "instantiateItem:"+fragmentImageShow.toString());
             Log.e(TAG, "instantiateItem:"+photos.get(position));
             Log.e(TAG, "instantiateItem:"+photos);
