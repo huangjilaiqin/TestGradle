@@ -15,7 +15,9 @@ public class ShowItem {
     private int upSize;
     private int upStatus;
     private int commentSize;
+    public ShowItem(){
 
+    }
     public ShowItem(String name, String headImg, String time, String address, ArrayList<String> showImgs, String content, int upSize, int commentSize, int upStatus) {
         this.name = name;
         this.headImg = headImg;

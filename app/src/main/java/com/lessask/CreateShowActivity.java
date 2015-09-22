@@ -1,12 +1,15 @@
 package com.lessask;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +20,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lessask.chat.GlobalInfos;
+import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
+import com.lessask.net.MultipartEntity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,6 +37,7 @@ import me.iwf.photopicker.utils.PhotoPickerIntent;
 public class CreateShowActivity extends Activity implements View.OnClickListener{
 
     private final String TAG = CreateShowActivity.class.getName();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private ImageView mBack;
     private Button mSend;
     private TextView mtvContent;
@@ -40,6 +47,23 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
     private static final int REQUEST_ADD_IMAGE = 100;
     private static final int REQUEST_DELETE_IMAGE = 101;
     private MyAdapter mGridViewAdapter;
+    private ProgressDialog showDialog;
+
+    private final int HANDLER_SHOW_SEND = 0;
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "login handler:" + msg.what);
+            switch (msg.what) {
+                case HANDLER_SHOW_SEND:
+                    Log.e(TAG, "HANDLER_SHOW_SEND");
+                    showDialog.cancel();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +100,34 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 finish();
                 break;
             case R.id.send:
-                Toast.makeText(this, "send", Toast.LENGTH_SHORT).show();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ShowItem showItem = new ShowItem();
+                            showItem.setName(globalInfos.getUserid() + "");
+                            showItem.setShowImgs(photos);
+                            showItem.setContent(mtvContent.getText().toString().trim());
+                            MultipartEntity multipartEntity = new MultipartEntity("http://ws.o-topcy.com/httproute/show");
+                            multipartEntity.addStringPart("userid", ""+showItem.getName());
+                            multipartEntity.addStringPart("content", ""+showItem.getContent());
+                            ArrayList<String> imgs = showItem.getShowImgs();
+                            for(int i=0;i<imgs.size();i++){
+                                Log.e(TAG, imgs.get(i));
+                                if(i!=imgs.size()-1) {
+                                    multipartEntity.addFilePart("file" + i, new File(imgs.get(i)));
+                                }else if(isFull){
+                                    multipartEntity.addFilePart("file" + i, new File(imgs.get(i)));
+                                }
+                            }
+                            multipartEntity.end();
+
+                        }catch (Exception e){
+                            Log.e(TAG, e.toString());
+                        }
+                    }
+                }).start();
                 break;
         }
     }
@@ -189,11 +240,11 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             public void onClick(View v) {
                 Intent intent = new Intent(CreateShowActivity.this, ShowSelectedImageActivity.class);
                 intent.putExtra("index", index);
-                if(!isFull){
-                    Log.e(TAG, "2 "+photos.get(photos.size()-1));
-                    photos.remove(photos.size()-1);
+                if (!isFull) {
+                    Log.e(TAG, "2 " + photos.get(photos.size() - 1));
+                    photos.remove(photos.size() - 1);
                 }
-                Log.e(TAG, "before delete photos:"+photos.size());
+                Log.e(TAG, "before delete photos:" + photos.size());
                 intent.putStringArrayListExtra("images", photos);
                 CreateShowActivity.this.startActivityForResult(intent, REQUEST_DELETE_IMAGE);
             }
