@@ -7,20 +7,17 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
 
-public class MultipartEntity {
+public class PostSingleImage {
 
-    private final String TAG = MultipartEntity.class.getSimpleName();
+    private final String TAG = PostSingleImage.class.getSimpleName();
     private final static char[] MULTIPART_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
             .toCharArray();
     /**
@@ -56,9 +53,10 @@ public class MultipartEntity {
     private BufferedOutputStream netOutput;
     private HttpURLConnection con;
 
-    public MultipartEntity(String url) throws Exception{
+    public PostSingleImage(String url) throws Exception{
         this.mBoundary = generateBoundary();
         this.url = url;
+        Log.e(TAG, "url:"+url);
         initNet();
     }
 
@@ -74,6 +72,7 @@ public class MultipartEntity {
         con.setRequestProperty("Charset", "UTF-8");
         con.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + mBoundary);
         netOutput= new BufferedOutputStream(con.getOutputStream());
+        Log.e(TAG, "initNet");
     }
 
     /**
@@ -99,6 +98,7 @@ public class MultipartEntity {
 
 
     public void addStringPart(final String paramName, final String value) throws Exception{
+        Log.e(TAG, "addStringPart:"+ paramName+", "+value);
         writeToOutputStream(paramName, value.getBytes(), TYPE_TEXT_CHARSET, BIT_ENCODING, "");
     }
 
@@ -130,6 +130,7 @@ public class MultipartEntity {
      * 添加文件参数,可以实现文件上传功能
      */
     public void addFilePart(final String key, final File file) throws Exception{
+        Log.e(TAG, "addFilePart:" + file.getName());
         BufferedInputStream fin = new BufferedInputStream(new FileInputStream(file));
         writeFirstBoundary();
         //Content-Type
@@ -147,6 +148,7 @@ public class MultipartEntity {
             totalLen+=len;
         }
         fin.close();
+        Log.e(TAG, "totalLen:"+totalLen);
         netOutput.write(NEW_LINE_STR.getBytes());
         netOutput.flush();
     }
@@ -171,6 +173,7 @@ public class MultipartEntity {
         netOutput.write(("--" + mBoundary + "--\r\n").getBytes());
         netOutput.flush();
         netOutput.close();
+        Log.e(TAG, "end");
         // 定义BufferedReader输入流来读取URL的响应
         int res = con.getResponseCode();
         if(res == 200){
@@ -181,6 +184,7 @@ public class MultipartEntity {
             while ((line = reader.readLine()) != null) {
                 builder.append(line);
             }
+            Log.e(TAG, "post end:"+builder.toString());
         }else if(res == 413) {
             Log.e(TAG, "请求体过大");
         }else {

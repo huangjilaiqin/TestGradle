@@ -24,6 +24,8 @@ import com.lessask.chat.GlobalInfos;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.MultipartEntity;
+import com.lessask.test.UploadImageSingle;
+import com.lessask.test.UploadImageTogether;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
     private static final int REQUEST_ADD_IMAGE = 100;
     private static final int REQUEST_DELETE_IMAGE = 101;
     private MyAdapter mGridViewAdapter;
-    private ProgressDialog showDialog;
+    private ProgressDialog uploadDialog;
 
     private final int HANDLER_SHOW_SEND = 0;
 
@@ -59,7 +61,8 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             switch (msg.what) {
                 case HANDLER_SHOW_SEND:
                     Log.e(TAG, "HANDLER_SHOW_SEND");
-                    showDialog.cancel();
+
+                    uploadDialog.cancel();
                     break;
             }
         }
@@ -101,33 +104,24 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 break;
             case R.id.send:
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ShowItem showItem = new ShowItem();
-                            showItem.setName(globalInfos.getUserid() + "");
-                            showItem.setShowImgs(photos);
-                            showItem.setContent(mtvContent.getText().toString().trim());
-                            MultipartEntity multipartEntity = new MultipartEntity("http://ws.o-topcy.com/httproute/show");
-                            multipartEntity.addStringPart("userid", ""+showItem.getName());
-                            multipartEntity.addStringPart("content", ""+showItem.getContent());
-                            ArrayList<String> imgs = showItem.getShowImgs();
-                            for(int i=0;i<imgs.size();i++){
-                                Log.e(TAG, imgs.get(i));
-                                if(i!=imgs.size()-1) {
-                                    multipartEntity.addFilePart("file" + i, new File(imgs.get(i)));
-                                }else if(isFull){
-                                    multipartEntity.addFilePart("file" + i, new File(imgs.get(i)));
-                                }
-                            }
-                            multipartEntity.end();
+                /*
+                uploadDialog = new ProgressDialog(CreateShowActivity.this, ProgressDialog.STYLE_SPINNER);
+                uploadDialog.setTitle("发布中...");
+                uploadDialog.show();
+                */
 
-                        }catch (Exception e){
-                            Log.e(TAG, e.toString());
-                        }
-                    }
-                }).start();
+                ShowItem showItem = new ShowItem();
+                showItem.setName(globalInfos.getUserid() + "");
+                showItem.setShowImgs(photos);
+                showItem.setContent(mtvContent.getText().toString().trim());
+
+                //new UploadImageTogether(showItem, isFull).start();
+                for(int i=0;i<photos.size();i++){
+                    if(i==photos.size()-1 && !isFull)
+                        return;
+                    new UploadImageSingle(new File(photos.get(i))).start();
+                }
+
                 break;
         }
     }
