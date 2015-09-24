@@ -75,9 +75,18 @@ public class Utils {
             //Log.e(TAG, "get bitmap:" + file+", size:"+file.length()/1024/1024);
             //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             BitmapFactory.Options opts=new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+            int width = opts.outWidth;
+            int height = opts.outHeight;
+            opts.
+            int mysize = width*height;
+            Log.e(TAG, "width:"+width+", height:"+height+", mysize:"+mysize+", size:"+file.length());
+
             opts.inTempStorage = new byte[100 * 1024];
-            opts.inPreferredConfig = Bitmap.Config.RGB_565;
-            opts.inSampleSize = 10;
+            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            //opts.inPreferredConfig = Bitmap.Config.ALPHA_8;
+            opts.inSampleSize = 2;
             bitmap = BitmapFactory.decodeStream(new FileInputStream(file),null,opts);
         } catch (Exception e) {
             e.printStackTrace();
