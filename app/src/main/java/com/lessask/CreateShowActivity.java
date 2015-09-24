@@ -26,6 +26,7 @@ import com.lessask.model.Utils;
 import com.lessask.net.MultipartEntity;
 import com.lessask.test.UploadImageSingle;
 import com.lessask.test.UploadImageTogether;
+import com.lessask.util.BitmapHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -187,6 +188,16 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 case REQUEST_ADD_IMAGE:
                     if (data != null) {
                         ArrayList<String> selectedPhotos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
+                        //测试图片压缩
+                        for(int i=0;i<selectedPhotos.size();i++){
+                            File originFile = new File(selectedPhotos.get(i));
+                            Bitmap bitmap = BitmapHelper.imageZoom(originFile );
+                            String fileName = originFile.getName();
+                            String name = fileName.substring(0, fileName.indexOf("."));
+                            String ex = fileName.substring(fileName.indexOf(".")+1);
+                            String newFile = this.getFilesDir()+"/"+name+"_cmp."+ex;
+                            Utils.setBitmapToFile(new File(newFile), bitmap);
+                        }
                         //把最后一个加号的图片去掉
                         Log.e(TAG, "1 "+photos.get(photos.size()-1));
                         photos.remove(photos.size() - 1);
@@ -201,6 +212,8 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                             isFull = true;
                         }
                         mGridView.setAdapter(new MyAdapter(this, photos));
+
+
                     }
                     break;
                 case REQUEST_DELETE_IMAGE:

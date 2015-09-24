@@ -79,7 +79,6 @@ public class Utils {
             BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
             int width = opts.outWidth;
             int height = opts.outHeight;
-            opts.
             int mysize = width*height;
             Log.e(TAG, "width:"+width+", height:"+height+", mysize:"+mysize+", size:"+file.length());
 
@@ -98,12 +97,15 @@ public class Utils {
     public static void setBitmapToFile(File file, Bitmap bitmap) {
         try {
             Log.e(TAG, "set bitmap:" + file);
+            file.createNewFile();
             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
             if (file.getName().contains("png") || file.getName().contains("PNG")) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 0, out);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             } else {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 0, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             }
+            out.flush();
+            out.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
