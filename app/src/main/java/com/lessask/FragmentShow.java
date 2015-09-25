@@ -3,7 +3,10 @@ package com.lessask;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,7 +17,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.lessask.model.ShowItem;
+import com.lessask.model.Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import me.iwf.photopicker.PhotoPickerActivity;
@@ -98,6 +103,30 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             if (data != null) {
                 ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
                 Log.e(TAG, "onActivityResult:"+photos.toString());
+                for(int i=0;i<photos.size();i++) {
+                    File originFile = new File(photos.get(i));
+
+                    //压缩
+                    //Bitmap bitmap = BitmapHelper.imageZoom(originFile);
+                    int width = FragmentShow.this.getActivity().getWindowManager().getDefaultDisplay().getWidth();
+                    int height = FragmentShow.this.getActivity().getWindowManager().getDefaultDisplay().getHeight();
+                    Bitmap bitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), width, height);
+                    Bitmap bp = ThumbnailUtils.extractThumbnail(bitmap, width, height,ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+
+                    String fileName = originFile.getName();
+                    String name = fileName.substring(0, fileName.indexOf("."));
+                    String ex = fileName.substring(fileName.indexOf(".") + 1);
+                    String newName = name + "_cmp1." + ex;
+                    String bpName = name + "_bp." + ex;
+
+                    File dir = Environment.getExternalStorageDirectory();
+                    dir = new File(dir, "testImage");
+                    if (!dir.exists())
+                        dir.mkdir();
+
+                    Utils.setBitmapToFile(new File(dir, newName), bitmap);
+                    Utils.setBitmapToFile(new File(dir, bpName), bp);
+                }
                 Intent intent = new Intent(getActivity(), CreateShowActivity.class);
                 intent.putStringArrayListExtra("images", photos);
                 startActivity(intent);

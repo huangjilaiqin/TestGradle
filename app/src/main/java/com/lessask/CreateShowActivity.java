@@ -6,7 +6,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -28,7 +30,11 @@ import com.lessask.test.UploadImageSingle;
 import com.lessask.test.UploadImageTogether;
 import com.lessask.util.BitmapHelper;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import me.iwf.photopicker.PhotoPickerActivity;
@@ -191,12 +197,24 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                         //测试图片压缩
                         for(int i=0;i<selectedPhotos.size();i++){
                             File originFile = new File(selectedPhotos.get(i));
-                            Bitmap bitmap = BitmapHelper.imageZoom(originFile );
+
+                            //压缩
+                            //Bitmap bitmap = BitmapHelper.imageZoom(originFile);
+                            int width = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getWidth();
+                            int height = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getHeight();
+                            Bitmap bitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), width, height);
+
                             String fileName = originFile.getName();
                             String name = fileName.substring(0, fileName.indexOf("."));
-                            String ex = fileName.substring(fileName.indexOf(".")+1);
-                            String newFile = this.getFilesDir()+"/"+name+"_cmp."+ex;
-                            Utils.setBitmapToFile(new File(newFile), bitmap);
+                            String ex = fileName.substring(fileName.indexOf(".") + 1);
+                            String newName = name+"_cmp1."+ex;
+
+                            File dir = Environment.getExternalStorageDirectory();
+                            dir = new File(dir, "testImage");
+                            if(!dir.exists())
+                                dir.mkdir();
+
+                            Utils.setBitmapToFile(new File(dir, newName), bitmap);
                         }
                         //把最后一个加号的图片去掉
                         Log.e(TAG, "1 "+photos.get(photos.size()-1));

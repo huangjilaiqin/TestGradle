@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -79,11 +80,9 @@ public class Utils {
             BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
             int width = opts.outWidth;
             int height = opts.outHeight;
-            int mysize = width*height;
-            Log.e(TAG, "width:"+width+", height:"+height+", mysize:"+mysize+", size:"+file.length());
 
             opts.inTempStorage = new byte[100 * 1024];
-            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
             //opts.inPreferredConfig = Bitmap.Config.ALPHA_8;
             opts.inSampleSize = 2;
             bitmap = BitmapFactory.decodeStream(new FileInputStream(file),null,opts);
@@ -98,11 +97,11 @@ public class Utils {
         try {
             Log.e(TAG, "set bitmap:" + file);
             file.createNewFile();
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+            OutputStream out = new FileOutputStream(file);
             if (file.getName().contains("png") || file.getName().contains("PNG")) {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 70, out);
             } else {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out);
             }
             out.flush();
             out.close();
@@ -206,4 +205,34 @@ public class Utils {
             return null;
         }
     }
+    public static Bitmap optimizeBitmap(String pathName, int maxWidth,
+			int maxHeight) {
+		Bitmap result = null;
+		try {
+            // 图片配置对象，该对象可以配置图片加载的像素获取个数
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            // 表示加载图像的原始宽高
+            options.inJustDecodeBounds = true;
+            result = BitmapFactory.decodeFile(pathName, options);
+            // Math.ceil表示获取与它最近的整数（向上取值 如：4.1->5 4.9->5）
+            int widthRatio = (int) Math.ceil(options.outWidth / maxWidth);
+            int heightRatio = (int) Math.ceil(options.outHeight / maxHeight);
+            // 设置最终加载的像素比例，表示最终显示的像素个数为总个数的
+            if (widthRatio > 1 || heightRatio > 1) {
+                if (widthRatio > heightRatio) {
+                    options.inSampleSize = widthRatio;
+                } else {
+                    options.inSampleSize = heightRatio;
+                }
+            }
+            // 解码像素的模式，在该模式下可以直接按照option的配置取出像素点
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+            options.inJustDecodeBounds = false;
+            result = BitmapFactory.decodeFile(pathName, options);
+
+        } catch (Exception e) {
+        }
+		return result;
+	}
+
 }
