@@ -1,6 +1,7 @@
 package com.lessask;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -10,10 +11,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.WindowManager;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+
+import com.lessask.chat.GlobalInfos;
 
 import java.util.ArrayList;
 
@@ -33,6 +38,7 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
     private RadioButton rbMe;
     private RadioButton selectedTab;
     private int selectedTabIndex;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
 
     private ViewPager vp;
     private RadioGroup mGroup;
@@ -45,6 +51,14 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
 
         initViews();
         initPager();
+
+        WindowManager wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(outMetrics);
+		int width = outMetrics.widthPixels;
+		int height = outMetrics.heightPixels;
+        globalInfos.setScreenWidth(width);
+        globalInfos.setScreenHeight(height);
     }
 
     private void initViews() {

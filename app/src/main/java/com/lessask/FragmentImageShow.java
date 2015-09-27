@@ -33,7 +33,7 @@ public class FragmentImageShow extends Fragment{
             try {
                 imageView.setImageResource(Integer.parseInt(mImage));
             } catch (Exception e) {
-                imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
+                imageView.setImageBitmap(Utils.optimizeBitmap(mImage));
             }
         }
     }
@@ -54,17 +54,17 @@ public class FragmentImageShow extends Fragment{
             rootView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e(TAG, "FragmentImageShow click");
                     getActivity().onBackPressed();
                 }
             });
             imageView = (ImageView)rootView.findViewById(R.id.image);
+
+            Log.e(TAG, "onCreateView setImage:"+mImage);
             try {
                 imageView.setImageResource(Integer.parseInt(mImage));
             }catch (Exception e){
                 try {
-                    Log.e(TAG, "file:"+mImage);
-                    imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
+                    imageView.setImageBitmap(Utils.optimizeBitmap(mImage));
                 }catch (Exception e1){
                     Log.e(TAG, "IOException:"+e1.getMessage());
                 }
@@ -94,7 +94,7 @@ public class FragmentImageShow extends Fragment{
         try {
             imageView.setImageResource(Integer.parseInt(mImage));
         }catch (Exception e){
-            imageView.setImageBitmap(Utils.getBitmapFromFile(new File(mImage)));
+            imageView.setImageBitmap(Utils.optimizeBitmap(mImage));
         }
     }
 }

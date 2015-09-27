@@ -37,7 +37,6 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         mIntent = getIntent();
         setContentView(R.layout.activity_show_selected_image);
         photos = mIntent.getStringArrayListExtra("images");
-        //这个数据是对的,但是删除错位
         mCurrentPosition = mIntent.getIntExtra("index", 0);
         setResult(RESULT_OK, mIntent);
 
@@ -54,7 +53,6 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         indicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                Log.e(TAG, "onPageScrolled:"+position);
                 mCurrentPosition = position;
             }
 
@@ -73,16 +71,13 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         mDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e(TAG, ""+photos.get(mCurrentPosition));
                 photos.remove(mCurrentPosition);
-                Log.e(TAG, "delete:"+mCurrentPosition);
                 if(photos.size()==mCurrentPosition){
                     mCurrentPosition--;
                 }
                 if(mCurrentPosition==-1){
                     finish();
                 }
-                Log.e(TAG, "current:" + mCurrentPosition);
                 //mViewPager.setAdapter(adapter);
                 myFragmentPagerAdapter.notifyDataSetChanged();
                 //数据改变后一定要先notifyDataSetChanged
@@ -100,28 +95,18 @@ public class ShowSelectedImageActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             //mCurrentPosition = position;
             FragmentImageShow fragmentImageShow = new FragmentImageShow();
-            Log.e(TAG, "getItem:"+fragmentImageShow.toString());
             return fragmentImageShow;
         }
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             FragmentImageShow fragmentImageShow = (FragmentImageShow)super.instantiateItem(container, position);
-            Log.e(TAG, "position:"+position);
-            Log.e(TAG, "instantiateItem:"+fragmentImageShow.toString());
-            Log.e(TAG, "instantiateItem:"+photos.get(position));
-            Log.e(TAG, "instantiateItem:"+photos);
-            /*
-            Bundle bundle = new Bundle();
-            bundle.putString("image", photos.get(position));
-            bundle.putInt("position", position);
-            fragmentImageShow.setArguments(bundle);
-            Log.e(TAG, fragmentImageShow.toString());
-            */
+
             fragmentImageShow.setPosition(position);
             fragmentImageShow.setmImage(photos.get(position));
             return fragmentImageShow;
         }
+
         @Override
         public int getItemPosition(Object object) {
             return POSITION_NONE;

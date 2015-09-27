@@ -31,6 +31,9 @@ public class GlobalInfos {
     private File headImgDir;
     private String headImgHost;
 
+    private int screenWidth;
+    private int screenHeight;
+
     private GlobalInfos(){
         historyIds = new HashMap<>();
         chatContents = new HashMap<>();
@@ -40,6 +43,22 @@ public class GlobalInfos {
     }
     private static class LazyHolder {
         private static final GlobalInfos INSTANCE = new GlobalInfos();
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
+    }
+
+    public void setScreenHeight(int screenHeight) {
+        this.screenHeight = screenHeight;
+    }
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public void setScreenWidth(int screenWidth) {
+        this.screenWidth = screenWidth;
     }
 
     public int getHistoryIds(int userId) {

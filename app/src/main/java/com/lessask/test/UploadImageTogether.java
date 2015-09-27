@@ -33,9 +33,9 @@ public class UploadImageTogether extends Thread{
             for(int i=0;i<imgs.size();i++){
                 Log.e(TAG, imgs.get(i));
                 if(i!=imgs.size()-1) {
-                    multipartEntity.addFilePart("file" + i, new File(imgs.get(i)));
+                    multipartEntity.addOptimizeImagePart("image" + i, new File(imgs.get(i)));
                 }else if(isFull){
-                    multipartEntity.addFilePart("file" + i, new File(imgs.get(i)));
+                    multipartEntity.addOptimizeImagePart("image" + i, new File(imgs.get(i)));
                 }
             }
             multipartEntity.end();

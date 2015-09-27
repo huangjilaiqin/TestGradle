@@ -30,6 +30,7 @@
     <string name="title_activity_show_image">ShowImageActivity</string>
     <string name="title_activity_show_selected_image">ShowSelectedImageActivity</string>
     <string name="title_activity_create_show">CreateShowActivity</string>
+    <string name="title_activity_squats">SquatsActivity</string>
 
 
 </resources>

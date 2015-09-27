@@ -3,14 +3,17 @@ package com.lessask;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -122,12 +125,14 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 showItem.setShowImgs(photos);
                 showItem.setContent(mtvContent.getText().toString().trim());
 
-                //new UploadImageTogether(showItem, isFull).start();
+                new UploadImageTogether(showItem, isFull).start();
+                /* 多线程上传
                 for(int i=0;i<photos.size();i++){
                     if(i==photos.size()-1 && !isFull)
                         return;
                     new UploadImageSingle(new File(photos.get(i))).start();
                 }
+                */
 
                 break;
         }
@@ -140,6 +145,9 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
 
         MyAdapter(Context context, ArrayList<String> imgs){
             this.context = context;
+            this.imgs = imgs;
+        }
+        public void setImgs(ArrayList<String> imgs){
             this.imgs = imgs;
         }
         public int getCount() {
@@ -164,7 +172,8 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);//设置刻度的类型
 
             if(isFull || position<imgs.size()-1){
-                Bitmap bitmap = Utils.getBitmapFromFile(new File(imgs.get(position)));
+                //使用缩略图
+                Bitmap bitmap = Utils.getThumbnail(new File(imgs.get(position)), getContentResolver());
                 imageView.setImageBitmap(bitmap);
                 registerImageEvent(imageView, position);
             }else {
@@ -195,14 +204,15 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                     if (data != null) {
                         ArrayList<String> selectedPhotos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
                         //测试图片压缩
+                        /*
                         for(int i=0;i<selectedPhotos.size();i++){
-                            File originFile = new File(selectedPhotos.get(i));
+                            String originFileStr = selectedPhotos.get(i);
+                            File originFile = new File(originFileStr);
 
-                            //压缩
-                            //Bitmap bitmap = BitmapHelper.imageZoom(originFile);
-                            int width = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getWidth();
-                            int height = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getHeight();
-                            Bitmap bitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), width, height);
+                            //获取缩略图
+                            ContentResolver cr = getContentResolver();
+
+                            Bitmap thumbnailBitmap = Utils.getThumbnail(originFile, cr);
 
                             String fileName = originFile.getName();
                             String name = fileName.substring(0, fileName.indexOf("."));
@@ -214,8 +224,9 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                             if(!dir.exists())
                                 dir.mkdir();
 
-                            Utils.setBitmapToFile(new File(dir, newName), bitmap);
+                            Utils.setBitmapToFile(new File(dir, newName), thumbnailBitmap);
                         }
+                        */
                         //把最后一个加号的图片去掉
                         Log.e(TAG, "1 "+photos.get(photos.size()-1));
                         photos.remove(photos.size() - 1);
@@ -229,15 +240,16 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                         } else {
                             isFull = true;
                         }
-                        mGridView.setAdapter(new MyAdapter(this, photos));
-
+                        //mGridViewAdapter.setImgs(photos);
+                        mGridViewAdapter.notifyDataSetChanged();
 
                     }
                     break;
                 case REQUEST_DELETE_IMAGE:
                     if (data != null) {
                         ArrayList<String> remainPhotos = data.getStringArrayListExtra("images");
-                        photos = remainPhotos;
+                        photos.clear();
+                        photos.addAll(remainPhotos);
                         Log.e(TAG, "back photos:"+photos.size());
                         if (photos.size() < 4) {
                             photos.add("" + R.drawable.image_add);
@@ -246,7 +258,8 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                         } else {
                             isFull = true;
                         }
-                        mGridView.setAdapter(new MyAdapter(this, photos));
+                        mGridViewAdapter.notifyDataSetChanged();
+                        //mGridView.setAdapter(new MyAdapter(this, photos));
                     }
                     break;
             }
@@ -269,7 +282,6 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                     Log.e(TAG, "2 " + photos.get(photos.size() - 1));
                     photos.remove(photos.size() - 1);
                 }
-                Log.e(TAG, "before delete photos:" + photos.size());
                 intent.putStringArrayListExtra("images", photos);
                 CreateShowActivity.this.startActivityForResult(intent, REQUEST_DELETE_IMAGE);
             }

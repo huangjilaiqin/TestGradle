@@ -1,17 +1,23 @@
 package com.lessask.net;
 
 
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.lessask.model.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -141,10 +147,30 @@ public class MultipartEntity {
 
         byte[] tmp = new byte[4096];
         int len = 0;
-        int totalLen = 0;
         while ((len = fin.read(tmp)) != -1) {
             netOutput.write(tmp, 0, len);
-            totalLen+=len;
+        }
+        fin.close();
+        netOutput.write(NEW_LINE_STR.getBytes());
+        netOutput.flush();
+    }
+
+    public void addOptimizeImagePart(final String key, final File file) throws Exception{
+        //压缩图片
+        Bitmap bitmap = Utils.optimizeBitmap(file);
+        BufferedInputStream fin = Utils.bitmat2BufferedInputStream(bitmap);
+        writeFirstBoundary();
+        //Content-Type
+        netOutput.write((CONTENT_TYPE + TYPE_OCTET_STREAM + NEW_LINE_STR).getBytes());
+        //Content-Disposition
+        netOutput.write(getContentDisposition(key, file.getName()));
+        //Content-Transfer-Encoding
+        netOutput.write(BINARY_ENCODING);
+
+        byte[] tmp = new byte[4096];
+        int len = 0;
+        while ((len = fin.read(tmp)) != -1) {
+            netOutput.write(tmp, 0, len);
         }
         fin.close();
         netOutput.write(NEW_LINE_STR.getBytes());

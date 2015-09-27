@@ -10,4 +10,10 @@
         android:layout_height="wrap_content"
         android:text="跑步"
         />
+    <Button
+        android:id="@+id/squats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="深蹲"
+        />
 </LinearLayout>

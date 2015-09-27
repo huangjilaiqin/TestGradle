@@ -140,6 +140,10 @@
             android:name=".CreateShowActivity"
             android:label="@string/title_activity_create_show" >
         </activity>
+        <activity
+            android:name=".sports.SquatsActivity"
+            android:label="@string/title_activity_squats" >
+        </activity>
     </application>
 
 </manifest>

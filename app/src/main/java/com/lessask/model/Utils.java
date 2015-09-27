@@ -1,8 +1,11 @@
 package com.lessask.model;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.ImageView;
@@ -11,11 +14,14 @@ import com.lessask.chat.GlobalInfos;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -70,22 +76,25 @@ public class Utils {
         return result;
     }
 
+    /*
+    * 如果加载原图非常容易内存溢出
+    * */
     public static Bitmap getBitmapFromFile(File file) {
         Bitmap bitmap = null;
         try {
-            //Log.e(TAG, "get bitmap:" + file+", size:"+file.length()/1024/1024);
-            //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             BitmapFactory.Options opts=new BitmapFactory.Options();
             opts.inJustDecodeBounds = true;
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            opts.inTempStorage = new byte[100 * 1024];
+            /*
             BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
             int width = opts.outWidth;
             int height = opts.outHeight;
 
-            opts.inTempStorage = new byte[100 * 1024];
-            opts.inPreferredConfig = Bitmap.Config.RGB_565;
-            //opts.inPreferredConfig = Bitmap.Config.ALPHA_8;
-            opts.inSampleSize = 2;
-            bitmap = BitmapFactory.decodeStream(new FileInputStream(file),null,opts);
+            opts.inJustDecodeBounds = false;
+            */
+            //opts.inSampleSize = 2;
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(file),null,null);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -95,7 +104,6 @@ public class Utils {
 
     public static void setBitmapToFile(File file, Bitmap bitmap) {
         try {
-            Log.e(TAG, "set bitmap:" + file);
             file.createNewFile();
             OutputStream out = new FileOutputStream(file);
             if (file.getName().contains("png") || file.getName().contains("PNG")) {
@@ -110,11 +118,17 @@ public class Utils {
         }
     }
 
+    public static BufferedInputStream bitmat2BufferedInputStream(Bitmap bitmap){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 70, baos);
+        BufferedInputStream is = new BufferedInputStream(new ByteArrayInputStream(baos.toByteArray()));
+        return is;
+    }
+
     public static Bitmap getImgFromLonowOrNet(File file, String url, ImageView view) {
         Bitmap bitmap = null;
 
         if (file.exists()) {
-            Log.e(TAG, "exists file:" + file.getAbsolutePath());
             bitmap = getBitmapFromFile(file);
             if (bitmap != null) {
                 view.setImageBitmap(bitmap);
@@ -178,13 +192,11 @@ public class Utils {
             }
         }
 
-        Log.e(TAG, "date2Chat:" + buffer.toString());
         return buffer.toString();
     }
 
     public static String formatTime4Chat(String time) {
         if (time == null) {
-            Log.e(TAG, "formatTime4Chat time is null");
             return null;
         }
         return formatTime4Chat(time, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -192,21 +204,27 @@ public class Utils {
 
     public static String formatTime4Chat(String time, String format) {
         Date date = null;
-        Log.e(TAG, "formatTime4Chat time:"+time);
         SimpleDateFormat formater = new SimpleDateFormat(format);
         //格式化字符串中的Z表示是UTC时间(世界标准时间,而不是北京世界)
         formater.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             date = formater.parse(time);
-            Log.e(TAG, "time parse:"+date.toString());
             return date2Chat(date);
         } catch (ParseException e) {
-            Log.e(TAG, "ParseException time:" + time);
             return null;
         }
     }
-    public static Bitmap optimizeBitmap(String pathName, int maxWidth,
-			int maxHeight) {
+
+    public static Bitmap optimizeBitmap(File file) {
+        return optimizeBitmap(file.getAbsolutePath(), globalInfos.getScreenWidth(), globalInfos.getScreenHeight());
+    }
+    public static Bitmap optimizeBitmap(File file, int maxWidth, int maxHeight) {
+        return optimizeBitmap(file.getAbsolutePath(), maxWidth, maxHeight);
+    }
+    public static Bitmap optimizeBitmap(String pathName) {
+        return optimizeBitmap(pathName, globalInfos.getScreenWidth(), globalInfos.getScreenHeight());
+    }
+    public static Bitmap optimizeBitmap(String pathName, int maxWidth, int maxHeight) {
 		Bitmap result = null;
 		try {
             // 图片配置对象，该对象可以配置图片加载的像素获取个数
@@ -234,5 +252,31 @@ public class Utils {
         }
 		return result;
 	}
+
+    public static Bitmap getThumbnail(File originFile,ContentResolver cr){
+
+        //获取缩略图
+        //获取原图id
+        String columns[] = new String[] { MediaStore.Images.Media._ID};
+        Cursor cursor = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "_data=?", new String[]{originFile.getAbsolutePath()}, null);
+        int originImgId = 0;
+        if(cursor.moveToFirst()) {
+            originImgId = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
+        }
+        //根据原图id查找缩略图
+        String[] projection = { MediaStore.Images.Thumbnails.DATA};
+        cursor = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection, "image_id=?", new String[]{originImgId+""}, null);
+        String thumbnailPath = "";
+        String thumbData = "";
+        Bitmap thumbnailBitmap = null;
+        if(cursor.moveToFirst()) {
+            thumbnailPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
+            thumbnailBitmap = Utils.getBitmapFromFile(new File(thumbnailPath));
+        }else {
+            //不存在缩略图,自己进行压缩
+            thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), 100, 100);
+        }
+        return thumbnailBitmap;
+    }
 
 }

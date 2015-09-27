@@ -2,11 +2,14 @@ package com.lessask;
 
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -102,30 +105,48 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
             if (data != null) {
                 ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
-                Log.e(TAG, "onActivityResult:"+photos.toString());
                 for(int i=0;i<photos.size();i++) {
-                    File originFile = new File(photos.get(i));
+                    String originFileStr = photos.get(i);
+                    File originFile = new File(originFileStr);
 
-                    //压缩
-                    //Bitmap bitmap = BitmapHelper.imageZoom(originFile);
-                    int width = FragmentShow.this.getActivity().getWindowManager().getDefaultDisplay().getWidth();
-                    int height = FragmentShow.this.getActivity().getWindowManager().getDefaultDisplay().getHeight();
-                    Bitmap bitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), width, height);
-                    Bitmap bp = ThumbnailUtils.extractThumbnail(bitmap, width, height,ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+                    //获取缩略图
+                    ContentResolver cr = getActivity().getContentResolver();
+                    //获取原图id
+                    String columns[] = new String[] { MediaStore.Images.Media._ID};
+                    Cursor cursor = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "_data=?", new String[]{originFileStr}, null);
+                    int originImgId = 0;
+                    if(cursor.moveToFirst()){
+                        originImgId = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
+                    }
+
+
+                    String[] projection = { MediaStore.Images.Thumbnails.DATA};
+                    cursor = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection, "image_id=?", new String[]{originImgId+""}, null);
+                    String thumbnailPath = "";
+                    String thumbData = "";
+                    Bitmap thumbnailBitmap = null;
+                    if(cursor.moveToFirst()){
+                        thumbnailPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
+                        thumbnailBitmap = Utils.getBitmapFromFile(new File(thumbnailPath));
+                    }else {
+                        //不存在缩略图
+                        //int width = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getWidth();
+                        //int height = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getHeight();
+                        thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), 100, 100);
+                    }
 
                     String fileName = originFile.getName();
                     String name = fileName.substring(0, fileName.indexOf("."));
                     String ex = fileName.substring(fileName.indexOf(".") + 1);
-                    String newName = name + "_cmp1." + ex;
-                    String bpName = name + "_bp." + ex;
+                    String newName = name+"_cmp1."+ex;
 
                     File dir = Environment.getExternalStorageDirectory();
                     dir = new File(dir, "testImage");
-                    if (!dir.exists())
+                    if(!dir.exists())
                         dir.mkdir();
 
-                    Utils.setBitmapToFile(new File(dir, newName), bitmap);
-                    Utils.setBitmapToFile(new File(dir, bpName), bp);
+                    Utils.setBitmapToFile(new File(dir, newName), thumbnailBitmap);
+
                 }
                 Intent intent = new Intent(getActivity(), CreateShowActivity.class);
                 intent.putStringArrayListExtra("images", photos);
