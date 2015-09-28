@@ -7,6 +7,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +40,11 @@ public class SquatsActivity extends Activity {
     private double lastGravity = 9.8;
     private long lastCheck;
     private long statusCheckTime;
+    private long lastChangeTime;
+    private long deltaChangeTime;
+    private double currentSpeed;
+    private double aveG;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +54,17 @@ public class SquatsActivity extends Activity {
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         //根据g值判断手机的静止方向
         Sensor gSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor laSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         if(gSensor==null){
             Toast.makeText(this, "重力传感器", Toast.LENGTH_SHORT).show();
         }
-        mSensorManager.registerListener(gListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(gListener, gSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(laListener, laSensor, SensorManager.SENSOR_DELAY_FASTEST);
         lastCheck = System.currentTimeMillis();
         detectMotinless = 0;
+        currentSpeed = 0;
+        lastChangeTime = System.currentTimeMillis();
+        aveG = 0;
     }
 
     @Override
@@ -67,46 +79,58 @@ public class SquatsActivity extends Activity {
             gValues[0] = event.values[0];
             gValues[1] = event.values[1];
             gValues[2] = event.values[2];
-            double re = Math.sqrt(Math.pow(gValues[0], 2)+Math.pow(gValues[1], 2)+Math.pow(gValues[2], 2));
+            double re = Math.sqrt(Math.pow(gValues[0], 2) + Math.pow(gValues[1], 2) + Math.pow(gValues[2], 2));
+            if(aveG!=0){
+                aveG = (aveG+re)/2;
+            }else {
+                aveG = re;
+            }
+            Log.e(TAG, "re:"+re);
             //向下运动的变化过程(向上为逆过程) 9.8 -> 6 -> 14 -> 9.8
             long now = System.currentTimeMillis();
-            long deltime = now-statusCheckTime;
-            Log.i(TAG, now+", "+statusCheckTime+", "+deltime+", "+currentState);
+            long deltaChangeTime = now-lastChangeTime;
+
             DecimalFormat df = new DecimalFormat("0.00");
-            String str = df.format(re)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2]);
+            String str = df.format(re)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2])+
+                    ", "+currentState+", "+currentSpeed;
             Log.i(TAG, str);
 
             boolean statusChange = false;
 
             // [9.2,10.4] 为静止状态
+
+            if(re<=9.3 || re>=10.3) {
+                //速度向下为正，向上为负
+                currentSpeed += 0.5 * (9.8 - re) * Math.sqrt(deltaChangeTime / 1000f);
+            }
             if(re<=9.3 ){
+                //向下
                 if(currentState==MoveState.up || currentState==MoveState.motionless) {
                     //开始向下加速
                     currentState = MoveState.downAcelerateBegin;
                     statusCheckTime = now;
                     statusChange = true;
                     Log.e(TAG, ""+currentState);
-                }else if(currentState==MoveState.downAcelerateBegin && now-statusCheckTime>190){
-                    //向下加速超过额定时间,判为无效动作
-                    if(currentState == MoveState.downAcelerateIng && now-statusCheckTime>900){
+                }else if(currentState==MoveState.upDecelerateBegin && now-statusCheckTime>190){
+                    if(now-statusCheckTime>900 && currentSpeed<0){
+                        //向下加速超过额定时间,判为无效动作
                         Log.e(TAG, "向下加速超时");
                         return;
+                    }else {
+                        //向下加速达到额定时间
+                        currentState = MoveState.downAcelerateIng;
+                        statusChange = true;
+                        Log.e(TAG, ""+currentState);
+
                     }
-                    //向下加速达到额定时间
-                    currentState = MoveState.downAcelerateIng;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }
-                /* 最高点前和最高点后加速度都小于9.8无法区分
-                else if(currentState==MoveState.upDecelerateIng){
-                    //一次有效深蹲计数,因为没检测到最低点暂停的数据又直接向上加速了
+                }else if(currentState==MoveState.upDecelerateIng && currentSpeed>0){
+                    //一次有效深蹲计数,因为没检测到最高点暂停的数据又直接向下加速了
                     currentState = MoveState.downAcelerateBegin;
                     statusChange = true;
                     Log.e(TAG, ""+currentState);
                 }
-                */
 
-
+                //向上
                 if(currentState==MoveState.upAcelerateEnd || currentState==MoveState.upAcelerateIng){
                     //开始向上减速
                     currentState = MoveState.upDecelerateBegin;
@@ -133,23 +157,22 @@ public class SquatsActivity extends Activity {
                     statusChange = true;
                     Log.e(TAG, ""+currentState);
                 }else if(currentState==MoveState.downDecelerateBegin && now-statusCheckTime>190){
-                    //向下减速超过额定时间,判为无效动作
-                    if(currentState == MoveState.downDecelerateIng && now-statusCheckTime>900){
+                    if(now-statusCheckTime>900 && currentSpeed>0){
+                        //向下减速超过额定时间,判为无效动作
                         Log.e(TAG, "向下减速超时");
+                        return;
+                    }else if(currentSpeed>0){
+                        //向下减速达到额定时间
+                        currentState = MoveState.downDecelerateIng;
+                        statusChange = true;
+                        Log.e(TAG, ""+currentState);
                     }
-                    //向下减速达到额定时间
-                    currentState = MoveState.downDecelerateIng;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }
-                /* 最低点前和最低点后加速度都大于9.8无法区分
-                else if(currentState==MoveState.downDecelerateIng){
+                }else if(currentState==MoveState.downDecelerateIng && currentSpeed<0){
                     //一次有效深蹲计数,因为没检测到最低点暂停的数据又直接向上加速了
                     currentState = MoveState.upAcelerateBegin;
                     statusChange = true;
                     Log.e(TAG, ""+currentState);
                 }
-                */
 
 
                 if(currentState==MoveState.down || currentState==MoveState.motionless){
@@ -210,6 +233,7 @@ public class SquatsActivity extends Activity {
             }
             mDate.setText(""+currentState);
             lastGravity = re;
+            lastChangeTime = now;
         }
 
         @Override
@@ -217,23 +241,23 @@ public class SquatsActivity extends Activity {
             Log.e(TAG, "accuracy:"+accuracy);
         }
     };
-    private SensorEventListener directionListener = new SensorEventListener() {
+    private SensorEventListener laListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            if(Math.abs(directionValues[0]-event.values[0])>1 || Math.abs(directionValues[1]-event.values[1])>1 || Math.abs(directionValues[2]-event.values[2])>1){
-                directionValues[0] = event.values[0];
-                directionValues[1] = event.values[1];
-                directionValues[2] = event.values[2];
-                DecimalFormat df = new DecimalFormat("0.00");
-                String str = df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2]);
-                Log.e(TAG, str);
+            DecimalFormat df = new DecimalFormat("0");
+            double re = Math.sqrt(Math.pow(event.values[0], 2)+Math.pow(event.values[1], 2)+Math.pow(event.values[2], 2));
+            String str = df.format(re)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2]);
+            //Log.e(TAG, str);
+            size++;
+            if(size%7==0) {
                 mDate1.setText(str);
+                size=0;
             }
         }
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            Log.e(TAG, "accuracy:"+accuracy);
+            Log.e(TAG, "accuracy:" + accuracy);
         }
     };
 }
