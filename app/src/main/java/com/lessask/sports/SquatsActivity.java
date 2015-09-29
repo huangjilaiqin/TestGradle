@@ -61,7 +61,7 @@ public class SquatsActivity extends Activity {
         if(gSensor==null){
             Toast.makeText(this, "重力传感器", Toast.LENGTH_SHORT).show();
         }
-        mSensorManager.registerListener(gListener, gSensor, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(gListener, gSensor, SensorManager.SENSOR_DELAY_NORMAL);
         //mSensorManager.registerListener(laListener, laSensor, SensorManager.SENSOR_DELAY_GAME);
         currentSpeed = 0;
     }
@@ -85,9 +85,54 @@ public class SquatsActivity extends Activity {
             if(lastChangeTime != 0)
                 deltaChangeTime = now-lastChangeTime;
 
+             //计算重力在Y轴方向的量，即G*cos(α)
+            double ratioY = gValues[1]/SensorManager.GRAVITY_EARTH;
+            if(ratioY > 1.0)
+                ratioY = 1.0;
+            if(ratioY < -1.0)
+                ratioY = -1.0;
+            //获得α的值，根据z轴的方向修正其正负值。
+            double angleY = Math.toDegrees(Math.acos(ratioY));
+            /*
+            if(gValues[2] < 0)
+                angleY = - angleY;
+                */
+
+            double ratioX = gValues[0]/SensorManager.GRAVITY_EARTH;
+            if(ratioX > 1.0)
+                ratioX = 1.0;
+            if(ratioX < -1.0)
+                ratioX = -1.0;
+            //获得α的值，根据z轴的方向修正其正负值。
+            double angleX = Math.toDegrees(Math.acos(ratioX));
+            /*
+            if(gValues[2] < 0)
+                angleX = - angleX;
+                */
+            double ratioZ = gValues[2]/SensorManager.GRAVITY_EARTH;
+            if(ratioZ > 1.0)
+                ratioZ = 1.0;
+            if(ratioZ < -1.0)
+                ratioZ = -1.0;
+            //获得α的值，根据z轴的方向修正其正负值。
+            double angleZ = Math.toDegrees(Math.acos(ratioZ));
+            /*
+            if(gValues[2] < 0)
+                angleZ = - angleZ;
+                */
+            DecimalFormat df = new DecimalFormat("0.00");
+            double xA = gValues[0]*Math.cos(ratioX);
+            double yA = gValues[0]*Math.cos(ratioY);
+            double zA = gValues[0]*Math.cos(ratioZ);
+            Log.e(TAG, df.format(xA)+", "+df.format(yA)+", "+df.format(zA));
+            double total = xA+yA+zA;
+            Log.e(TAG, df.format(acelereate)+", "+df.format(total));
+            //Log.e(TAG, "angle:"+df.format(angleX)+", "+df.format(angleY)+", "+df.format(angleZ));
+            //Log.e(TAG, "gridy:"+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2]));
+
+
             currentSpeed = currentState + (9.8-acelereate)*(deltaChangeTime/1000f);
 
-            DecimalFormat df = new DecimalFormat("0.00");
             String str = df.format(acelereate)+", "+df.format(currentSpeed)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2])+
                     ", "+currentState;
             Log.i(TAG, str);
@@ -124,6 +169,7 @@ public class SquatsActivity extends Activity {
                     }else {
                         //条件不满足另行处理
                         Log.e(TAG, "downAcelerateBegin not match");
+                        currentState = motionless;
                     }
                     break;
                 case downAcelerateIng:
@@ -139,6 +185,7 @@ public class SquatsActivity extends Activity {
                         statusRemainTime = 0;
                     }else {
                         Log.e(TAG, "downAcelerateIng not match");
+                        currentState = motionless;
                     }
                     break;
                 case downAcelerateEnd:
@@ -154,6 +201,7 @@ public class SquatsActivity extends Activity {
                     }else {
                         //数据与该状态不吻合
                         Log.e(TAG, "downDecelerateBegin not match");
+                        currentState = motionless;
                     }
                     break;
                 case downDecelerateIng:
@@ -175,6 +223,7 @@ public class SquatsActivity extends Activity {
                     }else {
                         //不符合的数据
                         Log.e(TAG, "downDecelerateIng not match");
+                        currentState = motionless;
                     }
                     break;
                 case downDecelerateEnd:
@@ -190,6 +239,7 @@ public class SquatsActivity extends Activity {
                     }else {
                         //不符合条件
                         Log.e(TAG, "upAcelerateBegin not match");
+                        currentState = motionless;
                     }
                     break;
                 case upAcelerateIng:
@@ -206,6 +256,7 @@ public class SquatsActivity extends Activity {
                     }else {
                         //不符合条件
                         Log.e(TAG, "upAcelerateIng not match");
+                        currentState = motionless;
                     }
                     break;
                 case upDecelerateBegin:
@@ -218,6 +269,7 @@ public class SquatsActivity extends Activity {
                     }else {
                         //不符合条件
                         Log.e(TAG, "upDecelerateBegin not match");
+                        currentState = motionless;
                     }
                     break;
                 case upDecelerateIng:
@@ -239,6 +291,7 @@ public class SquatsActivity extends Activity {
                     }else {
                         //不符合条件
                         Log.e(TAG, "upDecelerateIng not match");
+                        currentState = motionless;
                     }
                     break;
             }
