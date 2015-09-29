@@ -43,14 +43,9 @@ public class SquatsActivity extends Activity {
         upDecelerateEnd = 14;
     //设置为静止状态
     private int currentState = motionless;
-    private int detectMotinless;
     private double lastGravity = 9.8;
-    private long lastCheck;
-    private long statusCheckTime;
     private long lastChangeTime;
-    private long deltaChangeTime;
     private double currentSpeed;
-    private double aveG;
     private long statusRemainTime = 0;
 
     @Override
@@ -66,13 +61,9 @@ public class SquatsActivity extends Activity {
         if(gSensor==null){
             Toast.makeText(this, "重力传感器", Toast.LENGTH_SHORT).show();
         }
-        mSensorManager.registerListener(gListener, gSensor, SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(laListener, laSensor, SensorManager.SENSOR_DELAY_FASTEST);
-        lastCheck = System.currentTimeMillis();
-        detectMotinless = 0;
+        mSensorManager.registerListener(gListener, gSensor, SensorManager.SENSOR_DELAY_GAME);
+        //mSensorManager.registerListener(laListener, laSensor, SensorManager.SENSOR_DELAY_GAME);
         currentSpeed = 0;
-        lastChangeTime = System.currentTimeMillis();
-        aveG = 0;
     }
 
     @Override
@@ -90,20 +81,37 @@ public class SquatsActivity extends Activity {
             double acelereate = Math.sqrt(Math.pow(gValues[0], 2) + Math.pow(gValues[1], 2) + Math.pow(gValues[2], 2));
             //向下运动的变化过程(向上为逆过程) 9.8 -> 6 -> 14 -> 9.8
             long now = System.currentTimeMillis();
-            long deltaChangeTime = now-lastChangeTime;
+            long deltaChangeTime = 0;
+            if(lastChangeTime != 0)
+                deltaChangeTime = now-lastChangeTime;
+
+            currentSpeed = currentState + (9.8-acelereate)*(deltaChangeTime/1000f);
 
             DecimalFormat df = new DecimalFormat("0.00");
-            String str = df.format(acelereate)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2])+
-                    ", "+currentState+", "+currentSpeed;
+            String str = df.format(acelereate)+", "+df.format(currentSpeed)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2])+
+                    ", "+currentState;
             Log.i(TAG, str);
-
-            boolean statusChange = false;
 
             switch (currentState){
                 case motionless:
-                    if(speedIsZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
+                    if(speedBigThanZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
+                        currentState = downAcelerateBegin;
+                    }else if(speedLessThanZero(currentSpeed) && acelerateBigThanNormal(acelereate)){
+                        currentState = upAcelerateBegin;
+                    }
+                    mDate.setText("motionless");
+                    break;
+                case up:
+                    if(speedBigThanZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
                         currentState = downAcelerateBegin;
                     }
+                    mDate.setText("up");
+                    break;
+                case down:
+                    if(speedLessThanZero(currentSpeed) && acelerateBigThanNormal(acelereate)){
+                        currentState = upAcelerateBegin;
+                    }
+                    mDate.setText("down");
                     break;
                 case downAcelerateBegin:
                     if(speedBigThanZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
@@ -115,6 +123,7 @@ public class SquatsActivity extends Activity {
                         }
                     }else {
                         //条件不满足另行处理
+                        Log.e(TAG, "downAcelerateBegin not match");
                     }
                     break;
                 case downAcelerateIng:
@@ -122,165 +131,117 @@ public class SquatsActivity extends Activity {
                         statusRemainTime += deltaChangeTime;
                         if(statusRemainTime>710){
                             //向下减速太久，置为无效状态
-                            currentState = downAcelerateIng;
                             statusRemainTime = 0;
+                            Log.e(TAG, "downAcelerateIng too long");
                         }
                     }else if(speedBigThanZero(currentSpeed) && !acelerateLessThanNormal(acelereate)){
                         currentState = downDecelerateBegin;
                         statusRemainTime = 0;
+                    }else {
+                        Log.e(TAG, "downAcelerateIng not match");
                     }
                     break;
                 case downAcelerateEnd:
                     break;
 
                 case downDecelerateBegin:
+                    if(speedBigThanZero(currentSpeed) && acelerateBigThanNormal(acelereate)){
+                        statusRemainTime += deltaChangeTime;
+                        if(statusRemainTime>170){
+                            currentState = downDecelerateIng;
+                            statusRemainTime = 0;
+                        }
+                    }else {
+                        //数据与该状态不吻合
+                        Log.e(TAG, "downDecelerateBegin not match");
+                    }
                     break;
                 case downDecelerateIng:
+                    if(speedBigThanZero(currentSpeed) && acelerateBigThanNormal(acelereate)){
+                        statusRemainTime += deltaChangeTime;
+                        if(statusRemainTime>710){
+                            //向下减速太久，置为无效状态
+                            Log.e(TAG, "downDecelerateIng too long");
+                            statusRemainTime = 0;
+                        }
+                    }else if(speedIsZero(currentSpeed) && acelerateIsNormal(acelereate)){
+                        currentState = down;
+                        currentSpeed = 0;
+                        statusRemainTime = 0;
+                    }else if(speedLessThanZero(currentSpeed) && acelerateBigThanNormal(acelereate)){
+                        currentState = upAcelerateBegin;
+                        statusRemainTime = 0;
+                        mDate.setText("down");
+                    }else {
+                        //不符合的数据
+                        Log.e(TAG, "downDecelerateIng not match");
+                    }
                     break;
                 case downDecelerateEnd:
                     break;
 
                 case upAcelerateBegin:
-                    break;
-
-            }
-
-            // [9.2,10.4] 为静止状态
-
-            if(re<=9.3 || re>=10.3) {
-                //速度向下为正，向上为负
-                currentSpeed += 0.5 * (9.8 - re) * Math.sqrt(deltaChangeTime / 1000f);
-            }
-            if(re<=9.3 ){
-                //向下加速过程
-                if(currentState==up || currentState==motionless) {
-                    //开始向下加速
-                    currentState = downAcelerateBegin;
-                    statusCheckTime = now;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }else if(currentState==downAcelerateBegin && now-statusCheckTime>190){
-                    if(now-statusCheckTime>900 && currentSpeed<0){
-                        //向下加速超过额定时间,判为无效动作
-                        Log.e(TAG, "向下加速超时");
-                        return;
+                    if(speedLessThanZero(currentSpeed) && acelerateBigThanNormal(acelereate)){
+                        statusRemainTime += deltaChangeTime;
+                        if(statusRemainTime>190){
+                            currentState = upAcelerateIng;
+                            statusRemainTime = 0;
+                        }
                     }else {
-                        //向下加速达到额定时间
-                        currentState = downAcelerateIng;
-                        statusChange = true;
-                        Log.e(TAG, ""+currentState);
+                        //不符合条件
+                        Log.e(TAG, "upAcelerateBegin not match");
                     }
-                }else if(currentState==upDecelerateIng && currentSpeed>0){
-                    //一次有效深蹲计数,因为没检测到最高点暂停的数据又直接向下加速了
-                    currentState = downAcelerateBegin;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }
-
-                //向上减速过程
-                if(currentState==upAcelerateEnd || currentState==upAcelerateIng){
-                    //开始向上减速
-                    currentState = upDecelerateBegin;
-                    statusCheckTime = now;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }else if(currentState==upDecelerateBegin && now-statusCheckTime>190){
-                    //向上减速超过额定时间判为无效动作
-                    if(currentState==upDecelerateIng && now-statusCheckTime>900){
-                        Log.e(TAG, "向上减速超时");
-                        return;
+                    break;
+                case upAcelerateIng:
+                    if(speedLessThanZero(currentSpeed) && acelerateBigThanNormal(acelereate)){
+                        statusRemainTime += deltaChangeTime;
+                        if(statusRemainTime>790){
+                            //加速时间过长
+                            statusRemainTime = 0;
+                            Log.e(TAG, "upAcelerateIng too long");
+                        }
+                    }else if(speedLessThanZero(currentSpeed) && !acelerateBigThanNormal(acelereate)){
+                        currentState = upDecelerateBegin;
+                        statusRemainTime = 0;
+                    }else {
+                        //不符合条件
+                        Log.e(TAG, "upAcelerateIng not match");
                     }
-                    //向上减速达到额定时间
-                    currentState = upDecelerateIng;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }
-
-            } else if(re>10.3){
-                //向下运动的减速过程
-                if(currentState==downAcelerateEnd || currentState==downAcelerateIng){
-                    //开始向下减速
-                    currentState = downDecelerateBegin;
-                    statusCheckTime = now;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }else if(currentState==downDecelerateBegin && now-statusCheckTime>190){
-                    if(now-statusCheckTime>900 && currentSpeed>0){
-                        //向下减速超过额定时间,判为无效动作
-                        Log.e(TAG, "向下减速超时");
-                        return;
-                    }else if(currentSpeed>0){
-                        //向下减速达到额定时间
-                        currentState = downDecelerateIng;
-                        statusChange = true;
-                        Log.e(TAG, ""+currentState);
+                    break;
+                case upDecelerateBegin:
+                    if(speedLessThanZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
+                        statusRemainTime += deltaChangeTime;
+                        if(statusRemainTime>190){
+                            currentState = upDecelerateIng;
+                            statusRemainTime = 0;
+                        }
+                    }else {
+                        //不符合条件
+                        Log.e(TAG, "upDecelerateBegin not match");
                     }
-                }else if(currentState==downDecelerateIng && currentSpeed<0){
-                    //一次有效深蹲计数,因为没检测到最低点暂停的数据又直接向上加速了
-                    currentState = upAcelerateBegin;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }
-
-
-                if(currentState==down || currentState==motionless){
-                    //开始向上加速
-                    currentState = upAcelerateBegin;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }else if(currentState==upAcelerateBegin && now-statusCheckTime>190){
-                    //向上加速超过额定时间,判为无效动作
-                    if(currentState == upAcelerateIng && now-statusCheckTime>900){
-                        Log.e(TAG, "向上加速超时");
+                    break;
+                case upDecelerateIng:
+                    if(speedLessThanZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
+                        statusRemainTime += deltaChangeTime;
+                        if(statusRemainTime>790){
+                            //减速时间过长,置为无效
+                            statusRemainTime = 0;
+                            Log.e(TAG, "upDecelerateIng too long");
+                        }
+                    }else if(speedIsZero(currentSpeed) && acelerateIsNormal(acelereate)){
+                        currentState = up;
+                        currentSpeed = 0;
+                        statusRemainTime = 0;
+                    }else if(speedBigThanZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
+                        currentState = downAcelerateBegin;
+                        statusRemainTime = 0;
+                        mDate.setText("up");
+                    }else {
+                        //不符合条件
+                        Log.e(TAG, "upDecelerateIng not match");
                     }
-                    //向上加速达到额定时间
-                    currentState = upAcelerateIng;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }
-
-            } else {
-                if(currentState==downAcelerateIng){
-                    //向下加速结束
-                    currentState = downAcelerateEnd;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }else if(currentState== upAcelerateIng){
-                    //向上加速结束
-                    currentState = upAcelerateEnd;
-                    statusChange = true;
-                    Log.e(TAG, ""+currentState);
-                }else if(currentState== downDecelerateIng){
-                    //向下减速结束
-                    currentState = downDecelerateEnd;
-                    Log.e(TAG, ""+currentState);
-                    currentState = down;
-                    Log.e(TAG, ""+currentState);
-                    statusChange = true;
-                }else if(currentState==upDecelerateIng){
-                    //向上减速结束
-                    currentState=upDecelerateEnd;
-                    Log.e(TAG, ""+currentState);
-                    currentState = up;
-                    Log.e(TAG, ""+currentState);
-                    statusChange = true;
-                }else {
-                    detectMotinless++;
-                    if(detectMotinless%4==0) {
-                        //currentState = motionless;
-                        detectMotinless=0;
-                    }
-                }
+                    break;
             }
-            if(statusChange==false && now-statusCheckTime>2000){
-                currentState = motionless;
-            }
-            if(currentState==down || currentState==up) {
-                mDate.setText("" + currentState);
-                //currentState = motionless;
-            }
-            mDate.setText(""+currentState);
-            lastGravity = re;
             lastChangeTime = now;
         }
 
@@ -308,34 +269,23 @@ public class SquatsActivity extends Activity {
             Log.e(TAG, "accuracy:" + accuracy);
         }
     };
+    private double speedZeroLimit = 0.02;
     private boolean speedIsZero(double speed){
-        if(speed<0.2 && speed>-0.2)
-            return true;
-        return false;
+        return speed < speedZeroLimit && speed > -speedZeroLimit;
     }
     private boolean speedLessThanZero(double speed){
-        if(speed<=-0.2)
-            return true;
-        return false;
+        return speed <= -speedZeroLimit;
     }
     private boolean speedBigThanZero(double speed){
-        if(speed>=0.2)
-            return true;
-        return false;
+        return speed >= speedZeroLimit;
     }
     private boolean acelerateLessThanNormal(double acelerate){
-        if(acelerate<9.3)
-            return true;
-        return false;
+        return acelerate < 9.3;
     }
     private boolean acelerateBigThanNormal(double acelerate){
-        if(acelerate>10.3)
-            return true;
-        return false;
+        return acelerate>10.3;
     }
     private boolean acelerateIsNormal(double acelerate){
-        if(acelerate>9.3 && acelerate<10.3)
-            return true;
-        return false;
+        return acelerate > 9.3 && acelerate < 10.3;
     }
 }
