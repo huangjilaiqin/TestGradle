@@ -7,8 +7,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,7 +21,9 @@ public class SquatsActivity extends Activity {
     private int size = 0;
     private TextView mDate;
     private TextView mDate1;
-    private double[] gValues = new  double[3];
+    private TextView mTvSpeed;
+    private double[] gAcelerator = new  double[3];
+    private double[] linearAcelerator = new double[3];
     private double[] directionValues = new  double[3];
     private final int
         motionless = 0,
@@ -47,6 +47,7 @@ public class SquatsActivity extends Activity {
     private long lastChangeTime;
     private double currentSpeed;
     private long statusRemainTime = 0;
+    private int ignoreDataSize = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class SquatsActivity extends Activity {
         setContentView(R.layout.activity_squats);
         mDate = (TextView)findViewById(R.id.data);
         mDate1 = (TextView)findViewById(R.id.data1);
+        mTvSpeed = (TextView)findViewById(R.id.speed);
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         //根据g值判断手机的静止方向
         Sensor gSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -75,10 +77,27 @@ public class SquatsActivity extends Activity {
     private SensorEventListener gListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            gValues[0] = event.values[0];
-            gValues[1] = event.values[1];
-            gValues[2] = event.values[2];
-            double acelereate = Math.sqrt(Math.pow(gValues[0], 2) + Math.pow(gValues[1], 2) + Math.pow(gValues[2], 2));
+
+            DecimalFormat df = new DecimalFormat("0.00");
+            double alpha = 0.8;
+            for(int i=0;i<3;i++){
+                //用低通滤波器分离出重力加速度
+                gAcelerator[i] = alpha * gAcelerator[i] + (1-alpha) * event.values[i];
+                //用高通滤波器剔除重力干扰
+                linearAcelerator[i] = event.values[i]-gAcelerator[i];
+            }
+            //Log.i(TAG, "g:"+gAcelerator[0]+", "+gAcelerator[1]+", "+gAcelerator[2]);
+            String linearStr = "liner:"+df.format(linearAcelerator[0])+", "+df.format(linearAcelerator[1])+", "+df.format(linearAcelerator[2]);
+            if(ignoreDataSize>0) {
+                Log.i(TAG, "ignore:" + linearStr);
+                ignoreDataSize--;
+                return;
+            }
+            Log.i(TAG, linearStr);
+            mDate.setText(linearStr);
+            double acelereate = Math.sqrt(Math.pow(gAcelerator[0], 2) + Math.pow(gAcelerator[1], 2) + Math.pow(gAcelerator[2], 2));
+            double lAcelerator = Math.sqrt(Math.pow(linearAcelerator[0], 2) + Math.pow(linearAcelerator[1], 2) + Math.pow(linearAcelerator[2], 2));
+
             //向下运动的变化过程(向上为逆过程) 9.8 -> 6 -> 14 -> 9.8
             long now = System.currentTimeMillis();
             long deltaChangeTime = 0;
@@ -86,7 +105,7 @@ public class SquatsActivity extends Activity {
                 deltaChangeTime = now-lastChangeTime;
 
              //计算重力在Y轴方向的量，即G*cos(α)
-            double ratioY = gValues[1]/SensorManager.GRAVITY_EARTH;
+            double ratioY = gAcelerator[1]/SensorManager.GRAVITY_EARTH;
             if(ratioY > 1.0)
                 ratioY = 1.0;
             if(ratioY < -1.0)
@@ -94,11 +113,11 @@ public class SquatsActivity extends Activity {
             //获得α的值，根据z轴的方向修正其正负值。
             double angleY = Math.toDegrees(Math.acos(ratioY));
             /*
-            if(gValues[2] < 0)
+            if(gAcelerator[2] < 0)
                 angleY = - angleY;
                 */
 
-            double ratioX = gValues[0]/SensorManager.GRAVITY_EARTH;
+            double ratioX = gAcelerator[0]/SensorManager.GRAVITY_EARTH;
             if(ratioX > 1.0)
                 ratioX = 1.0;
             if(ratioX < -1.0)
@@ -106,10 +125,10 @@ public class SquatsActivity extends Activity {
             //获得α的值，根据z轴的方向修正其正负值。
             double angleX = Math.toDegrees(Math.acos(ratioX));
             /*
-            if(gValues[2] < 0)
+            if(gAcelerator[2] < 0)
                 angleX = - angleX;
                 */
-            double ratioZ = gValues[2]/SensorManager.GRAVITY_EARTH;
+            double ratioZ = gAcelerator[2]/SensorManager.GRAVITY_EARTH;
             if(ratioZ > 1.0)
                 ratioZ = 1.0;
             if(ratioZ < -1.0)
@@ -117,26 +136,40 @@ public class SquatsActivity extends Activity {
             //获得α的值，根据z轴的方向修正其正负值。
             double angleZ = Math.toDegrees(Math.acos(ratioZ));
             /*
-            if(gValues[2] < 0)
+            if(gAcelerator[2] < 0)
                 angleZ = - angleZ;
                 */
-            DecimalFormat df = new DecimalFormat("0.00");
-            double xA = gValues[0]*Math.cos(ratioX);
-            double yA = gValues[0]*Math.cos(ratioY);
-            double zA = gValues[0]*Math.cos(ratioZ);
-            Log.e(TAG, df.format(xA)+", "+df.format(yA)+", "+df.format(zA));
-            double total = xA+yA+zA;
-            Log.e(TAG, df.format(acelereate)+", "+df.format(total));
+
+            String angleStr = "angle:"+df.format(angleX)+", "+df.format(angleY)+", "+df.format(angleZ);
+            Log.e(TAG, angleStr);
+            mDate1.setText(angleStr);
+
+            double xA = linearAcelerator[0]*Math.cos(ratioX);
+            double yA = linearAcelerator[1]*Math.cos(ratioY);
+            double zA = linearAcelerator[2]*Math.cos(ratioZ);
+            //合线性加速度
+            double aTotal = xA+yA+zA;
+            //Log.e(TAG, "linear compare: "+df.format(lAcelerator)+", "+df.format(aTotal));
+
+            double xG = gAcelerator[0]*Math.cos(ratioX);
+            double yG = gAcelerator[1]*Math.cos(ratioY);
+            double zG = gAcelerator[2]*Math.cos(ratioZ);
+            double gTotal = xG+yG+zG;
+            //Log.e(TAG, "g compare:"+df.format(acelereate)+", "+df.format(gTotal));
+
             //Log.e(TAG, "angle:"+df.format(angleX)+", "+df.format(angleY)+", "+df.format(angleZ));
             //Log.e(TAG, "gridy:"+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2]));
 
-
-            currentSpeed = currentState + (9.8-acelereate)*(deltaChangeTime/1000f);
+            //currentSpeed = currentState + (9.8-acelereate)*(deltaChangeTime/1000f);
+            currentSpeed = currentSpeed + aTotal * (deltaChangeTime / 1000f);
+            Log.e(TAG, "test:"+currentSpeed+", "+aTotal+", "+deltaChangeTime);
+            mTvSpeed.setText("speed: " + currentSpeed);
 
             String str = df.format(acelereate)+", "+df.format(currentSpeed)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2])+
                     ", "+currentState;
-            Log.i(TAG, str);
+            //Log.i(TAG, str);
 
+            /*
             switch (currentState){
                 case motionless:
                     if(speedBigThanZero(currentSpeed) && acelerateLessThanNormal(acelereate)){
@@ -295,31 +328,13 @@ public class SquatsActivity extends Activity {
                     }
                     break;
             }
+            */
             lastChangeTime = now;
         }
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            Log.e(TAG, "accuracy:"+accuracy);
-        }
-    };
-    private SensorEventListener laListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            DecimalFormat df = new DecimalFormat("0");
-            double re = Math.sqrt(Math.pow(event.values[0], 2)+Math.pow(event.values[1], 2)+Math.pow(event.values[2], 2));
-            String str = df.format(re)+", "+df.format(event.values[0]) + "," + df.format(event.values[1]) + "," + df.format(event.values[2]);
-            //Log.e(TAG, str);
-            size++;
-            if(size%7==0) {
-                mDate1.setText(str);
-                size=0;
-            }
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            Log.e(TAG, "accuracy:" + accuracy);
+            //Log.e(TAG, "accuracy:"+accuracy);
         }
     };
     private double speedZeroLimit = 0.02;
