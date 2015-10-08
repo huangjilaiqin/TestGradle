@@ -16,4 +16,10 @@
         android:layout_height="wrap_content"
         android:text="深蹲"
         />
+    <Button
+        android:id="@+id/video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="小视屏"
+        />
 </LinearLayout>

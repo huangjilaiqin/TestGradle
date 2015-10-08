@@ -20,6 +20,7 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
     private View view;
     private Button mRun;
     private Button mSquats;
+    private Button mVideo;
 
 
     @Nullable
@@ -31,6 +32,8 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
             mRun.setOnClickListener(this);
             mSquats = (Button)view.findViewById(R.id.squats);
             mSquats.setOnClickListener(this);
+            mVideo = (Button)view.findViewById(R.id.video);
+            mVideo.setOnClickListener(this);
         }
         return view;
     }
@@ -45,6 +48,10 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
                 break;
             case R.id.squats:
                 intent = new Intent(getActivity(), SquatsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.video:
+                intent = new Intent(getActivity(), VideoRecordActivity.class);
                 startActivity(intent);
                 break;
         }
