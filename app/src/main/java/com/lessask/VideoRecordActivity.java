@@ -32,9 +32,11 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_record);
         surfaceView = (SurfaceView) findViewById(R.id.surface_camera);
+
         surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
+        surfaceHolder.addCallback(VideoRecordActivity.this);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
         mStart = (Button) findViewById(R.id.start);
         mStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,6 +48,8 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        this.surfaceHolder = holder;
+        /*
         camera = Camera.open();
         if (camera != null) {
             Camera.Parameters params = camera.getParameters();
@@ -55,10 +59,13 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
             Toast.makeText(getApplicationContext(), "Camera not available!", Toast.LENGTH_LONG).show();
             finish();
         }
+        */
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        this.surfaceHolder = holder;
+        /*
         if (previewRunning) {
             camera.stopPreview();
         }
@@ -75,13 +82,19 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
             Log.e(TAG, e.getMessage());
             e.printStackTrace();
         }
+        */
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        this.surfaceHolder = null;
+        this.mediaRecorder = null;
+        this.surfaceView = null;
+        /*
         camera.stopPreview();
         previewRunning = false;
         camera.release();
+        */
     }
     private MediaRecorder mediaRecorder;
     private final int maxDurationInMs = 20000;
@@ -91,11 +104,15 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
 
     public boolean startRecording() {
         try {
-            camera.unlock();
+            //camera.unlock();
 
-            mediaRecorder = new MediaRecorder();
+            if(mediaRecorder==null)
+                mediaRecorder = new MediaRecorder();
+            else
+                mediaRecorder.reset();
 
-            mediaRecorder.setCamera(camera);
+            mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
+            //mediaRecorder.setCamera(camera);
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
@@ -103,16 +120,15 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
 
             mediaRecorder.setMaxDuration(maxDurationInMs);
 
-            tempFile = new File(getCacheDir(), "testVideo");
+            tempFile = new File(getCacheDir(), "testVideo.3gp");
             mediaRecorder.setOutputFile(tempFile.getPath());
 
-            mediaRecorder.setVideoFrameRate(videoFramesPerSecond);
-            mediaRecorder.setVideoSize(surfaceView.getWidth(), surfaceView.getHeight());
+            //mediaRecorder.setVideoFrameRate(videoFramesPerSecond);
+            //mediaRecorder.setVideoSize(surfaceView.getWidth(), surfaceView.getHeight());
 
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
 
-            mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
 
             mediaRecorder.setMaxFileSize(maxFileSizeInBytes);
 
