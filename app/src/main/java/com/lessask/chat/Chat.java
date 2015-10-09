@@ -2,10 +2,10 @@ package com.lessask.chat;
 
 import android.util.Log;
 
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Ack;
-import com.github.nkzawa.socketio.client.Socket;
+import io.socket.emitter.Emitter;
+import io.socket.client.IO;
+import io.socket.client.Ack;
+import io.socket.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.model.ChatMessage;

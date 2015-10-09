@@ -11,10 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
+import io.socket.emitter.Emitter;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import com.lessask.R;
 
 import java.net.URISyntaxException;

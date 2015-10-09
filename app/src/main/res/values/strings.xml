@@ -32,6 +32,7 @@
     <string name="title_activity_create_show">CreateShowActivity</string>
     <string name="title_activity_squats">SquatsActivity</string>
     <string name="title_activity_video_record">VideoRecordActivity</string>
+    <string name="title_activity_vedio_play">VedioPlayActivity</string>
 
 
 </resources>
