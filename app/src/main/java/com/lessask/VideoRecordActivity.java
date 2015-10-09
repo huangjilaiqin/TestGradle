@@ -15,9 +15,10 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 
-public class VideoRecordActivity extends Activity  implements SurfaceHolder.Callback {
+public class VideoRecordActivity extends Activity  implements SurfaceHolder.Callback, Camera.PreviewCallback{
     private static final String TAG = "CAMERA_TUTORIAL";
 
     private SurfaceView surfaceView;
@@ -59,8 +60,16 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
     public void surfaceCreated(SurfaceHolder holder) {
         this.surfaceHolder = holder;
         camera = Camera.open();
+        camera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                Toast.makeText(getApplicationContext(), "focus", Toast.LENGTH_LONG).show();
+            }
+        });
         if (camera != null) {
             Camera.Parameters params = camera.getParameters();
+            List<String> list = params.getSupportedFocusModes();
+            Log.e(TAG, "list:"+list.toString());
             camera.setParameters(params);
             camera.setDisplayOrientation(90);
         } else {
@@ -97,8 +106,8 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
 
     private MediaRecorder mediaRecorder;
     private final int maxDurationInMs = 20000;
-    private final long maxFileSizeInBytes = 500000;
-    private final int videoFramesPerSecond = 20;
+    private final long maxFileSizeInBytes = 5000000;
+    private final int videoFramesPerSecond = 16;
     private File tempFile;
 
     public boolean startRecording() {
@@ -120,9 +129,10 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
 
             //mediaRecorder.setVideoSize(surfaceView.getWidth(), surfaceView.getHeight());
-            Log.e(TAG, "w:"+surfaceView.getWidth()+", h:"+surfaceView.getHeight());
-            mediaRecorder.setVideoSize(640,480);
+            Log.e(TAG, "w:" + surfaceView.getWidth() + ", h:" + surfaceView.getHeight());
+            mediaRecorder.setVideoSize(640, 480);
             mediaRecorder.setVideoFrameRate(videoFramesPerSecond);
+            mediaRecorder.setVideoEncodingBitRate(5*1024*1024);
 
             mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
             tempFile = new File(Environment.getExternalStorageDirectory(), "testVideo.mp4");
@@ -153,8 +163,14 @@ public class VideoRecordActivity extends Activity  implements SurfaceHolder.Call
         }
         camera.lock();
         Intent intent = new Intent(this, VedioPlayActivity.class);
-        intent.putExtra("path", tempFile.getAbsoluteFile());
+        intent.putExtra("path", tempFile.getAbsolutePath());
         intent.putExtra("imagePath", "");
         startActivity(intent);
+    }
+
+    @Override
+    public void onPreviewFrame(byte[] data, Camera camera) {
+        Log.e(TAG, "onPreviewFrame");
+
     }
 }

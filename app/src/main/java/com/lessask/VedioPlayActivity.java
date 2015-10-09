@@ -72,28 +72,27 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     private void prepare(Surface surface) {
         try {
             mediaPlayer.reset();
-            //mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             // 设置需要播放的视频
             mediaPlayer.setDataSource(path);
             // 把视频画面输出到Surface
             mediaPlayer.setSurface(surface);
-            mediaPlayer.setLooping(true);
+            //mediaPlayer.setLooping(true);
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     Log.e(TAG, "prepared");
-                    mediaPlayer.start();
+                    //mediaPlayer.start();
                 }
             });
             mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    Log.e(TAG, "error:"+mp+", what:"+what+", extra:"+extra);
+                    Log.e(TAG, "error:" + mp + ", what:" + what + ", extra:" + extra);
                     return false;
                 }
             });
-            mediaPlayer.prepare();
-            Log.e(TAG, "prepared2");
+            mediaPlayer.prepareAsync();
             mediaPlayer.seekTo(0);
 
         } catch (Exception e) {
@@ -104,7 +103,8 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     public void onSurfaceTextureAvailable(SurfaceTexture arg0, int arg1,
                                           int arg2) {
         Log.e(TAG, "onSurfaceTextureAvailable prepare");
-        prepare(new Surface(arg0));
+        Surface surface = new Surface(arg0);
+        prepare(surface);
     }
 
     @Override
