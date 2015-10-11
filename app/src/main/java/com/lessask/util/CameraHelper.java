@@ -16,6 +16,9 @@ import android.util.Log;
  */
 public class CameraHelper {
 
+    private static final String TAG = CameraHelper.class.getSimpleName();
+    private static final CameraSizeComparator sizeComparator = new CameraSizeComparator();
+
 	/**
 	 * 根据预设宽高获取匹配的相机分辨率,若没有则返回中间值
 	 * @param camera 相机
@@ -32,7 +35,8 @@ public class CameraHelper {
 		if (null != supportedSizes && supportedSizes.size() > 0) {
             boolean hasSize = false;
             for (Size size : supportedSizes) {
-                Log.d("wzy.size", "当前手机支持的分辨率：" + size.width + "*" + size.height);
+                float rate = size.height/(size.width*1f);
+                Log.e("wzy.size", "当前手机支持的分辨率：" + size.width + "*" + size.height+", "+rate);
                 if (null != size && size.width == width
                         && size.height == height) {
                     previewSize = size;
@@ -92,4 +96,61 @@ public class CameraHelper {
         }
 		return x;
 	}
+	public static Size getPropPreviewSize(List<Camera.Size> list, float th, int minWidth){
+        Collections.sort(list, sizeComparator);
+        int i = 0;
+        for(Size s:list) {
+            if ((s.width >= minWidth) && equalRate(s, th)) {
+                float rate = s.width/(s.height*1f);
+                Log.e(TAG, "PreviewSize:w = " + s.width + ",h = " + s.height+", rate:"+rate);
+                break;
+            }
+            i++;
+        }
+        if(i == list.size()) {
+            i = 0;//如果没找到，就选最小的size
+        }
+        return list.get(i);
+    }
+	public static Size getPropPictureSize(List<Camera.Size> list, float th, int minWidth){
+        Collections.sort(list, sizeComparator);
+        int i = 0;
+        for(Size s:list) {
+            if ((s.width >= minWidth) && equalRate(s, th)) {
+                float rate = s.width/(s.height*1f);
+                Log.e(TAG, "PictureSize :w = " + s.width + ",h = " + s.height+", rate:"+rate);
+                break;
+            }
+            i++;
+        }
+        if(i == list.size()) {
+            i = 0;//如果没找到，就选最小的size
+        }
+        return list.get(i);
+    }
+    public static class CameraSizeComparator implements Comparator<Camera.Size>{
+        //按升序排列
+        public int compare(Size lhs, Size rhs) {
+            // TODO Auto-generated method stub
+            if(lhs.width == rhs.width) {
+                return 0;
+            }
+            else if(lhs.width > rhs.width) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        }
+
+    }
+    public static boolean equalRate(Size s, float rate){
+        float r = (float)(s.width)/(float)(s.height);
+        if(Math.abs(r - rate) <= 0.2) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }

@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class VideoRecordActivity extends Activity  {
+public class VideoRecordActivity extends Activity implements SurfaceHolder.Callback {
     private static final String TAG = "CAMERA_TUTORIAL";
 
     private SurfaceView surfaceView;
@@ -36,7 +36,6 @@ public class VideoRecordActivity extends Activity  {
 
     private Camera camera;
     private Camera.Parameters cameraParams;
-    private CameraView cameraView;
     private int cameraId = -1, cameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK;// 默认为后置摄像头
 
     private DisplayMetrics displayMetrics;
@@ -56,7 +55,19 @@ public class VideoRecordActivity extends Activity  {
         displayMetrics = getResources().getDisplayMetrics();
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
-        Log.e(TAG, "screenSize w:"+screenWidth+", h:"+screenHeight);
+        Log.e(TAG, "screenSize w:" + screenWidth + ", h:" + screenHeight);
+
+        surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
+        /*
+        SurfaceHolder holder = surfaceView.getHolder();
+        holder.setKeepScreenOn(true);
+        holder.addCallback(this);
+        holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        */
+        surfaceHolder = surfaceView.getHolder();
+        surfaceHolder .setKeepScreenOn(true);
+        surfaceHolder .addCallback(this);
+        surfaceHolder .setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         mStart = (Button) findViewById(R.id.btn_recorder_record);
         mStop = (Button) findViewById(R.id.btn_recorder_finish);
@@ -64,8 +75,7 @@ public class VideoRecordActivity extends Activity  {
             @Override
             public void onClick(View v) {
                 //录制之前要unlock否则会出错, 到底是lock还是unlock？
-                camera.unlock();
-                mediaRecorder.start();
+                startRecording();
             }
         });
         mStop.setOnClickListener(new View.OnClickListener() {
@@ -85,14 +95,12 @@ public class VideoRecordActivity extends Activity  {
     @Override
     protected void onResume() {
         super.onResume();
-        initCamera();
+        //initCamera();
     }
 
-    /*
     public boolean startRecording() {
         try {
             camera.unlock();
-
             if(mediaRecorder==null)
                 mediaRecorder = new MediaRecorder();
             else
@@ -111,7 +119,7 @@ public class VideoRecordActivity extends Activity  {
             Log.e(TAG, "w:" + surfaceView.getWidth() + ", h:" + surfaceView.getHeight());
             mediaRecorder.setVideoSize(640, 480);
             mediaRecorder.setVideoFrameRate(videoFramesPerSecond);
-            mediaRecorder.setVideoEncodingBitRate(5*1024*1024);
+            mediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
 
             mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
             tempFile = new File(Environment.getExternalStorageDirectory(), "testVideo.mp4");
@@ -134,7 +142,6 @@ public class VideoRecordActivity extends Activity  {
             return false;
         }
     }
-    */
 
     public void stopRecording() {
         Log.e(TAG, "stopRecording");
@@ -148,7 +155,60 @@ public class VideoRecordActivity extends Activity  {
         intent.putExtra("imagePath", "");
         startActivity(intent);
     }
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        Log.e(TAG, ".surfaceCreated() called!");
+        surfaceHolder = holder;
+        camera = Camera.open();
+        camera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                Toast.makeText(getApplicationContext(), "focus", Toast.LENGTH_LONG).show();
+            }
+        });
+        if (camera != null) {
+            Camera.Parameters params = camera.getParameters();
+            List<String> list = params.getSupportedFocusModes();
+            Log.e(TAG, "list:" + list.toString());
+            camera.setParameters(params);
+            camera.setDisplayOrientation(90);
+        } else {
+            Toast.makeText(getApplicationContext(), "Camera not available!", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
 
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        Log.e(TAG, ".surfaceChanged() called!");
+        //handleSurfaceChanged();
+        //camera.startPreview();
+        surfaceHolder = holder;
+        if (previewRunning) {
+            camera.stopPreview();
+        }
+        try {
+            camera.setPreviewDisplay(holder);
+            camera.startPreview();
+            previewRunning = true;
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.e(TAG, ".surfaceDestroyed() called!");
+        this.surfaceHolder = null;
+        this.mediaRecorder = null;
+        this.surfaceView = null;
+        camera.stopPreview();
+        previewRunning = false;
+        camera.release();
+    }
+
+    /*
     class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			Camera.PreviewCallback {
 		private SurfaceHolder mHolder;
@@ -156,6 +216,7 @@ public class VideoRecordActivity extends Activity  {
 		public CameraView(Context context) {
 			super(context);
 			mHolder = getHolder();
+            mHolder.setFixedSize(640,480);
 			mHolder.addCallback(CameraView.this);
 			mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 			camera.setPreviewCallback(CameraView.this);
@@ -195,7 +256,9 @@ public class VideoRecordActivity extends Activity  {
 		}
 
 	}
+	*/
     private void handleSurfaceChanged() {
+        Log.e(TAG, "handleSurfaceChanged");
         if (null == camera) {
             return;
         }
@@ -206,9 +269,21 @@ public class VideoRecordActivity extends Activity  {
         if (null != previewSize) {
             previewWidth = previewSize.width;
             previewHeight = previewSize.height;
-            cameraParams.setPreviewSize(previewWidth, previewHeight);
+            //cameraParams.setPreviewSize(previewWidth, previewHeight);
+            //int layoutHeight = (int) (screenWidth * (previewHeight / (previewWidth * 1f)));
+            //cameraParams.setPictureSize(previewWidth, previewHeight);
+            //设置PictureSize
+            float previewRate = previewWidth/(previewHeight*1f);
+            Camera.Size pictureSize = CameraHelper.getPropPictureSize(cameraParams.getSupportedPictureSizes(),1, 1280);
+            Log.e(TAG, "pictureSize:"+pictureSize.width+", h:"+pictureSize.height);
+            //cameraParams.setPictureSize(pictureSize.width, pictureSize.height);
+            cameraParams.setPictureSize(640,480);
+            //设置PreviewSize
+            previewSize = CameraHelper.getPropPreviewSize(cameraParams.getSupportedPreviewSizes(), 1, 1280);
+            Log.e(TAG, "previewSize :"+previewSize.width+", h:"+previewSize.height);
+            //cameraParams.setPreviewSize(previewSize.width, previewSize.height);
+            cameraParams.setPreviewSize(640,480);
         }
-        Log.e(TAG, "preivewSize w:"+previewWidth+", h:"+previewHeight);
         camera.setDisplayOrientation(90);
         /*
 		// 摄像头自动对焦,SDK2.2以上不支持
@@ -271,18 +346,21 @@ public class VideoRecordActivity extends Activity  {
                     return;
                 }
 				cameraParams = camera.getParameters();
-				cameraView = new CameraView(VideoRecordActivity.this);
+				//cameraView = new CameraView(VideoRecordActivity.this);
 				handleSurfaceChanged();
+                /*
 				surfaceLayout = (RelativeLayout) findViewById(R.id.layout_recorder_surface);
 				if (null != surfaceLayout && surfaceLayout.getChildCount() > 0)
 					surfaceLayout.removeAllViews();
                 int layoutHeight = (int) (screenWidth * (previewWidth / (previewHeight * 1f)));
-				RelativeLayout.LayoutParams lpCameraView = new RelativeLayout.LayoutParams(
-						screenWidth,layoutHeight);
-                Log.e(TAG, "layoutSize w:"+screenWidth+", "+layoutHeight);
+                //int layoutHeight = (int) (screenWidth * (previewHeight / (previewWidth * 1f)));
+				//RelativeLayout.LayoutParams lpCameraView = new RelativeLayout.LayoutParams(screenWidth,layoutHeight);
+                RelativeLayout.LayoutParams lpCameraView = new RelativeLayout.LayoutParams(480, 640);
+                //Log.e(TAG, "layoutSize w:"+screenWidth+", "+layoutHeight);
 				lpCameraView.addRule(RelativeLayout.ALIGN_PARENT_TOP,
 						RelativeLayout.TRUE);
 				surfaceLayout.addView(cameraView, lpCameraView);
+				*/
 			}
 		}.execute();
 	}
