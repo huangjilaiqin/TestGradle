@@ -66,9 +66,9 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
         Log.e(TAG, "screenSize w:" + screenWidth + ", h:" + screenHeight);
 
         tipMoveDialog = new TipsDialog(VideoRecordActivity.this, "上滑取消");
-        tipMoveDialog.setGravity(Gravity.TOP|Gravity.CENTER, 0, 17);
+        tipMoveDialog.setGravity(Gravity.TOP|Gravity.CENTER, 0, 27);
         tipUpDialog = new TipsDialog(VideoRecordActivity.this, "松开取消");
-        tipUpDialog.setGravity(Gravity.TOP|Gravity.CENTER, 0, 17);
+        tipUpDialog.setGravity(Gravity.TOP|Gravity.CENTER, 0, 27);
 
         surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
         surfaceHolder = surfaceView.getHolder();
@@ -184,6 +184,7 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
             Camera.Size previewSize = CameraHelper.getPropPreviewSize(cameraParams.getSupportedPreviewSizes(), screenRate, screenWidth);
             Log.e(TAG, "resolution size:" + previewSize.width+", "+previewSize.height);
             cameraParams.setPreviewSize(previewSize.width, previewSize.height);
+            cameraParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
 
             camera.setParameters(cameraParams);
             camera.setDisplayOrientation(90);
