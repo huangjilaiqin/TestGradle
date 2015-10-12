@@ -96,21 +96,32 @@ public class CameraHelper {
         }
 		return x;
 	}
-	public static Size getPropPreviewSize(List<Camera.Size> list, float th, int minWidth){
+
+    public static Size getPropResolution(List<Camera.Size> list){
+        Collections.sort(list, sizeComparator);
+        return list.get(list.size()/2);
+    }
+	public static Size getPropPreviewSize(List<Camera.Size> list, float th, int maxWidth){
         Collections.sort(list, sizeComparator);
         int i = 0;
+        int selected=0;
+        float selectedRate=1;
+        Log.e(TAG, "getPropPreviewSize:"+th+", "+maxWidth);
         for(Size s:list) {
-            if ((s.width >= minWidth) && equalRate(s, th)) {
-                float rate = s.width/(s.height*1f);
-                Log.e(TAG, "PreviewSize:w = " + s.width + ",h = " + s.height+", rate:"+rate);
-                break;
+            float rate = s.height/(s.width*1f);
+            Log.e(TAG, "PreviewSize:w = " + s.width + ",h = " + s.height+", rate:"+rate);
+            if(rate>=th && s.height<=maxWidth){
+                float a = rate-th;
+                float b = selectedRate-th;
+                Log.e(TAG, a+", "+b);
+                if(rate-th<selectedRate-th) {
+                    selected = i;
+                    selectedRate = rate;
+                }
             }
             i++;
         }
-        if(i == list.size()) {
-            i = 0;//如果没找到，就选最小的size
-        }
-        return list.get(i);
+        return list.get(selected);
     }
 	public static Size getPropPictureSize(List<Camera.Size> list, float th, int minWidth){
         Collections.sort(list, sizeComparator);

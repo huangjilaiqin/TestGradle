@@ -9,11 +9,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
+
+import com.lessask.test.TestSocket;
 
 public class ProgressView extends View {
 	private final String TAG = getClass().getSimpleName();
-    public final static float MAX_RECORD_TIME = 8000f;
+    public final static float MAX_RECORD_TIME = 10000f;
 	public final static float MIN_RECORD_TIME = 2000f;
 
 	public ProgressView(Context context) {
@@ -53,7 +56,7 @@ public class ProgressView extends View {
 		breakPaint = new Paint();
 		rollbackPaint = new Paint();
 
-		setBackgroundColor(Color.parseColor("#222222"));
+		//setBackgroundColor(Color.parseColor("#222222"));
 
 		progressPaint.setStyle(Paint.Style.FILL);
 		progressPaint.setColor(Color.parseColor("#19E3CF"));
@@ -108,10 +111,11 @@ public class ProgressView extends View {
 		currentState = state;
 		if (state != State.START)
 			perProgress = perWidth;
-		if (state == State.DELETE) {
-            if ((timeList != null) && (!timeList.isEmpty())) {
-                timeList.removeLast();
-            }
+
+        if (state == State.START)
+            Log.e(TAG, "START");
+		if (state == State.PAUSE) {
+            Log.e(TAG, "PAUSE");
         }
 	}
 
@@ -119,41 +123,10 @@ public class ProgressView extends View {
 //		Log.d("wzy.lifecycle", TAG + ".onDraw() called!");
 		super.onDraw(canvas);
 		progressHeight = getMeasuredHeight();
-//		Log.d("wzy.size", TAG + ".progressHeight=" + progressHeight);
+		//Log.d("wzy.size", TAG + ".progressHeight=" + progressHeight);
 		long curSystemTime = System.currentTimeMillis();
 		countWidth = 0;
 //		Log.d("wzy.logic", TAG + ".timeList.isEmpty()=" + timeList.isEmpty());
-		if (!timeList.isEmpty()) {
-            long preTime = 0;
-            long curTime = 0;
-            Iterator<Integer> iterator = timeList.iterator();
-            while (iterator.hasNext()) {
-                lastStartTime = preTime;
-                curTime = iterator.next();
-                lastEndTime = curTime;
-                float left = countWidth;
-                countWidth += (curTime - preTime) * perWidth;
-                canvas.drawRect(left, 0, countWidth, progressHeight,
-                        progressPaint);
-                canvas.drawRect(countWidth, 0, countWidth + breakWidth,
-                        progressHeight, breakPaint);
-                countWidth += breakWidth;
-                preTime = curTime;
-            }
-        }
-		if (timeList.isEmpty()
-				|| (!timeList.isEmpty() && timeList.getLast() <= MIN_RECORD_TIME)) {
-            float left = perWidth * MIN_RECORD_TIME;
-            canvas.drawRect(left, 0, left + minTimeWidth, progressHeight,
-                    minTimePaint);
-        }
-		// 将回滚状态下的视频片段进度条绘制成红色
-		if (currentState == State.ROLLBACK) {
-            float left = countWidth - (lastEndTime - lastStartTime) * perWidth;
-            float right = countWidth;
-            canvas.drawRect(left, 0, right, progressHeight, rollbackPaint);
-        }
-		// 手指按下时，绘制新进度条
 		if (currentState == State.START) {
             perProgress += perWidth * (curSystemTime - initTime);
             if (countWidth + perProgress <= getMeasuredWidth())
@@ -163,35 +136,7 @@ public class ProgressView extends View {
                 canvas.drawRect(countWidth, 0, getMeasuredWidth(),
                         getMeasuredHeight(), progressPaint);
         }
-		if (currentState == State.START) {
-            canvas.drawRect(countWidth + perProgress, 0, countWidth
-                    + flashWidth + perProgress, getMeasuredHeight(), flashPaint);
-        } else {
-            if (drawFlashTime == 0 || curSystemTime - drawFlashTime >= 800) {
-                isVisible = !isVisible;
-                drawFlashTime = System.currentTimeMillis();
-            }
-            if (isVisible) {
-                canvas.drawRect(countWidth, 0, countWidth + flashWidth,
-                        getMeasuredHeight(), flashPaint);
-            }
-        }
 		initTime = System.currentTimeMillis();
 		invalidate();
-	}
-
-	public void putTimeList(int time) {
-		timeList.add(time);
-	}
-
-	public int getLastTime() {
-		if ((timeList != null) && (!timeList.isEmpty())) {
-            return timeList.getLast();
-        }
-		return 0;
-	}
-
-	public boolean isTimeListEmpty() {
-		return timeList.isEmpty();
 	}
 }
