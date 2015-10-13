@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="15dp"
         android:layout_marginRight="10dp"
         android:hint="输入或选择标签"
         />
@@ -59,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/select_content"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
         app:lineMargin="5dp"
         app:tagMargin="3dp"
         app:textPaddingBottom="3dp"
@@ -72,10 +73,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/selected_tags"
         android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
+        android:paddingLeft="15dp"
         android:paddingTop="3dp"
         android:paddingBottom="3dp"
         android:background="@color/background_white"
+        android:textSize="15sp"
         android:text="所有标签"
         />
     <ListView
@@ -83,7 +85,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tags_label"
-        android:layout_marginTop="10dp"
         />
 
 

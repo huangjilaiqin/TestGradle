@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
+import java.util.ArrayList;
+
 
 public class VedioPlayActivity extends Activity implements TextureView.SurfaceTextureListener
         ,OnClickListener,OnCompletionListener{
@@ -151,7 +153,11 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case SELECT_TAGS:
+                ArrayList<String> tagsName = data.getStringArrayListExtra("tagsName");
+                break;
+        }
     }
 
     private void stop(){
