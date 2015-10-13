@@ -151,12 +151,16 @@
         </activity>
         <activity
             android:name=".VideoRecordActivity"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:label="@string/title_activity_video_record" >
+            android:label="@string/title_activity_video_record"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
         <activity
             android:name=".VedioPlayActivity"
             android:label="@string/title_activity_vedio_play" >
+        </activity>
+        <activity
+            android:name=".SelectTagsActivity"
+            android:label="@string/title_activity_select_tag" >
         </activity>
     </application>
 

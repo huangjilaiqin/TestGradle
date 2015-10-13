@@ -16,6 +16,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lessask.util.CameraHelper;
@@ -37,6 +38,7 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
     private Camera camera;
     private Camera.Parameters cameraParams;
     private int cameraId = -1, cameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK;// 默认为后置摄像头
+    private boolean isRecording;
 
     private DisplayMetrics displayMetrics;
     private int screenWidth, screenHeight;// 竖屏为准
@@ -47,12 +49,14 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
     private boolean previewRunning;
     private boolean initSuccess;
     private boolean isFirstFrame;
+
+    private TextView mTips;
+    private String mMoveTips = "上滑取消";
+    private String mUpTips = "松开取消";
     //提示松开
     private boolean isTipUp;
-    private TipsDialog tipUpDialog;
     //提示上移
     private boolean isTipMove;
-    private TipsDialog tipMoveDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,10 +69,7 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
         screenRate = screenWidth/(screenHeight*1f);
         Log.e(TAG, "screenSize w:" + screenWidth + ", h:" + screenHeight);
 
-        tipMoveDialog = new TipsDialog(VideoRecordActivity.this, "上滑取消");
-        tipMoveDialog.setGravity(Gravity.TOP|Gravity.CENTER, 0, 27);
-        tipUpDialog = new TipsDialog(VideoRecordActivity.this, "松开取消");
-        tipUpDialog.setGravity(Gravity.TOP|Gravity.CENTER, 0, 27);
+        mTips = (TextView)findViewById(R.id.tips);
 
         surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
         surfaceHolder = surfaceView.getHolder();
@@ -101,7 +102,17 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
         //initCamera();
     }
 
-    public boolean startRecording() {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        camera.release();
+    }
+
+    public void startRecording() {
+        if(isRecording)
+            return;
+        isRecording=true;
+        Log.e(TAG, "startRecording");
         try {
             camera.unlock();
             if(mediaRecorder==null)
@@ -134,25 +145,23 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
 
             mediaRecorder.start();
 
-            return true;
         } catch (IllegalStateException e) {
             Log.e(TAG, e.getMessage());
             e.printStackTrace();
-            return false;
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
             e.printStackTrace();
-            return false;
         }
     }
 
     public void stopRecording() {
+        if(!isRecording)
+            return;
         Log.e(TAG, "stopRecording");
+        isRecording=false;
         camera.lock();
         mediaRecorder.stop();
-        if(tempFile.exists()){
-            Log.e(TAG, "tempFile exitsts: "+tempFile.getTotalSpace());
-        }
+
         Intent intent = new Intent(this, VedioPlayActivity.class);
         intent.putExtra("path", tempFile.getAbsolutePath());
         intent.putExtra("imagePath", "");
@@ -160,6 +169,10 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
     }
 
     public void cancleRecording() {
+        if(!isRecording)
+            return;
+        isRecording=false;
+        Log.e(TAG, "cancleRecording");
         camera.lock();
         mediaRecorder.stop();
         if(tempFile.exists()){
@@ -172,18 +185,14 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
         Log.e(TAG, ".surfaceCreated() called!");
         surfaceHolder = holder;
         camera = Camera.open();
-        camera.autoFocus(new Camera.AutoFocusCallback() {
-            @Override
-            public void onAutoFocus(boolean success, Camera camera) {
-                Toast.makeText(getApplicationContext(), "focus", Toast.LENGTH_LONG).show();
-            }
-        });
+
         if (camera != null) {
             cameraParams = camera.getParameters();
             List<String> list = cameraParams.getSupportedFocusModes();
             Camera.Size previewSize = CameraHelper.getPropPreviewSize(cameraParams.getSupportedPreviewSizes(), screenRate, screenWidth);
             Log.e(TAG, "resolution size:" + previewSize.width+", "+previewSize.height);
             cameraParams.setPreviewSize(previewSize.width, previewSize.height);
+            //自动对焦
             cameraParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
 
             camera.setParameters(cameraParams);
@@ -236,16 +245,16 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
                 downX = event.getRawX();
                 downY = event.getRawY();
                 isTipUp=false;
-                tipMoveDialog.show();
+                //tipMoveDialog.show();
+                mTips.setText(mMoveTips);
+                mTips.setVisibility(View.VISIBLE);
                 startRecording();
             }else if(event.getAction() == MotionEvent.ACTION_UP){
                 progressView.setCurrentState(ProgressView.State.PAUSE);
                 float moveX = event.getRawX()-downX;
                 float moveY = event.getRawY()-downY;
-                if(tipUpDialog.isShowing())
-                    tipUpDialog.dismiss();
-                if(tipMoveDialog.isShowing())
-                    tipMoveDialog.dismiss();
+                mTips.setVisibility(View.GONE);
+
                 if(moveY<-100) {
                     //取消录像
                     cancleRecording();
@@ -256,17 +265,10 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
             }else if(event.getAction() == MotionEvent.ACTION_MOVE){
                 float moveX = event.getRawX()-downX;
                 float moveY = event.getRawY()-downY;
-                Log.e(TAG, "moveY:" + moveY + ", moveX:" + moveX);
                 if(moveY<-100){
-                    if(!isTipUp){
-                        tipMoveDialog.dismiss();
-                        tipUpDialog.show();
-                        isTipUp=true;
-                    }
+                    mTips.setText(mUpTips);
                 }else if(moveY<-30) {
-                    if(tipUpDialog.isShowing()){
-                        tipUpDialog.dismiss();
-                    }
+                    mTips.setText(mMoveTips);
                 }
             }
         }

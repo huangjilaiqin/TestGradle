@@ -7,6 +7,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
@@ -22,30 +23,31 @@ import android.widget.RelativeLayout.LayoutParams;
 public class VedioPlayActivity extends Activity implements TextureView.SurfaceTextureListener
         ,OnClickListener,OnCompletionListener{
 
+    private final int SELECT_TAGS = 1;
     private final String TAG = VedioPlayActivity.class.getSimpleName();
     private String path;
     private TextureView surfaceView;
-    private Button cancelBtn;
     private MediaPlayer mediaPlayer;
     private ImageView imagePlay;
+    private ImageView mEditTags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vedio_play);
 
-        cancelBtn = (Button) findViewById(R.id.play_cancel);
-        cancelBtn.setOnClickListener(this);
+        mEditTags = (ImageView) findViewById(R.id.edit_tags);
+        mEditTags.setOnClickListener(this);
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         surfaceView = (TextureView) findViewById(R.id.preview_video);
 
+        //修改控件大小
         RelativeLayout preview_video_parent = (RelativeLayout)findViewById(R.id.preview_video_parent);
-        LayoutParams layoutParams = (LayoutParams) preview_video_parent
-                .getLayoutParams();
-        layoutParams.width = displaymetrics.widthPixels;
-        layoutParams.height = displaymetrics.widthPixels;
+        LayoutParams layoutParams = (LayoutParams) preview_video_parent.getLayoutParams();
+        layoutParams.width = displaymetrics.widthPixels/2;
+        layoutParams.height = displaymetrics.heightPixels/2;
         preview_video_parent.setLayoutParams(layoutParams);
 
         surfaceView.setSurfaceTextureListener(this);
@@ -53,7 +55,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
 
         path = getIntent().getStringExtra("path");
 
-        imagePlay = (ImageView) findViewById(R.id.previre_play);
+        imagePlay = (ImageView) findViewById(R.id.preview_play);
         imagePlay.setOnClickListener(this);
 
         mediaPlayer = new MediaPlayer();
@@ -126,10 +128,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.play_cancel:
-                stop();
-                break;
-            case R.id.previre_play:
+            case R.id.preview_play:
                 if(!mediaPlayer.isPlaying()){
                     mediaPlayer.start();
                 }
@@ -141,9 +140,18 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
                     imagePlay.setVisibility(View.VISIBLE);
                 }
                 break;
+            case R.id.edit_tags:
+                Intent intent = new Intent(this,SelectTagsActivity.class);
+                startActivityForResult(intent, SELECT_TAGS);
+                break;
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void stop(){
