@@ -1,7 +1,10 @@
 package com.lessask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,16 +13,27 @@ import android.os.Bundle;
 import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import me.kaede.tagview.Tag;
+import me.kaede.tagview.TagView;
 
 
 public class VedioPlayActivity extends Activity implements TextureView.SurfaceTextureListener
@@ -31,17 +45,28 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     private TextureView surfaceView;
     private MediaPlayer mediaPlayer;
     private ImageView imagePlay;
+    private EditText mName;
     private ImageView mEditTags;
+    private TagView mTagView;
+    private ImageView mNotice;
+    private DisplayMetrics displaymetrics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vedio_play);
 
+        mName = (EditText) findViewById(R.id.name);
+        mName.clearFocus();
+
         mEditTags = (ImageView) findViewById(R.id.edit_tags);
         mEditTags.setOnClickListener(this);
+        mTagView = (TagView) findViewById(R.id.selected_tags);
 
-        DisplayMetrics displaymetrics = new DisplayMetrics();
+        mNotice = (ImageView) findViewById(R.id.notice);
+        mNotice.setOnClickListener(this);
+
+        displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         surfaceView = (TextureView) findViewById(R.id.preview_video);
 
@@ -62,6 +87,31 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
+    }
+
+    private void editTextView2AttentionListItem(String content, View v){
+        RelativeLayout.LayoutParams tvLayoutParams;
+        TextView textView = (TextView)v;
+        textView.setText(content);
+    }
+    private void addTextView2AttentionListItem(final String content){
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.notice_item_layout);
+        LinearLayout.LayoutParams tvLayoutParams;
+        TextView textView = new TextView(this);
+        textView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG, "click:"+content);
+                showEditNoticeDialog(true, content, (EditText) v);
+                //editTextView2AttentionListItem(content, v);
+            }
+        });
+        textView.setText(content);
+        textView.setTextSize(18);
+        textView.setBackground(getResources().getDrawable(R.drawable.text_white_bg));
+        //textView.setBackgroundColor(getResources().getLayout(R.drawable.text_white_bg));
+        textView.setPadding(5, 3, 5, 3);
+        linearLayout.addView(textView);
     }
 
     @Override
@@ -144,18 +194,87 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
                 break;
             case R.id.edit_tags:
                 Intent intent = new Intent(this,SelectTagsActivity.class);
+                List<Tag> tags = mTagView.getTags();
+                ArrayList<String> tagsName = new ArrayList<>();
+                for(int i=0;i<tags.size();i++){
+                    tagsName.add(tags.get(i).text);
+                }
+                intent.putStringArrayListExtra("tagsName", tagsName);
                 startActivityForResult(intent, SELECT_TAGS);
+                break;
+            case R.id.notice:
+                showEditNoticeDialog();
                 break;
             default:
                 break;
         }
     }
+    private void showEditNoticeDialog(){
+        showEditNoticeDialog(false, "", null);
+    }
+    private void showEditNoticeDialog(final boolean isEdit, String originContent, EditText v){
+        Log.e(TAG, "showEditNoticeDialog"+isEdit+", "+originContent);
+        LayoutInflater li = LayoutInflater.from(this);
+        View view = li.inflate(R.layout.prompt_view, null);
+        final Button cancle = (Button)view.findViewById(R.id.cancel_action);
+        Button confirm = (Button)view.findViewById(R.id.confirm);
+        final EditText content = (EditText)view.findViewById(R.id.content);
+        if(isEdit)
+            content.setText(originContent);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.nothing_dialog);
+        builder.setView(view);
+        final AlertDialog alertDialog = builder.create();
+        //设置水平全屏
+        Window dialogWindow = alertDialog.getWindow();
+        WindowManager.LayoutParams dialogParams = dialogWindow.getAttributes();
+        dialogParams.width = displaymetrics.widthPixels;
+        Log.e(TAG, "dialog w:" + dialogParams.width);
+        dialogWindow.setAttributes(dialogParams);
 
+        alertDialog.setCanceledOnTouchOutside(true);
+        OnClickListener dialogOnClick = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.confirm:
+                        if(isEdit)
+                            editTextView2AttentionListItem(content.getText().toString().trim(), v);
+                        else
+                            addTextView2AttentionListItem(content.getText().toString().trim());
+                        break;
+                    case R.id.cancel_action:
+                        break;
+                }
+                alertDialog.dismiss();
+            }
+        };
+        cancle.setOnClickListener(dialogOnClick);
+        confirm.setOnClickListener(dialogOnClick);
+        Log.e(TAG, "dialog show");
+        alertDialog.show();
+    }
+    private Tag getTag(String name){
+        Tag tag = new Tag(name);
+        tag.tagTextColor = R.color.main_color;
+        tag.layoutColor =  Color.parseColor("#DDDDDD");
+        //tag.layoutColorPress = Color.parseColor("#555555");
+        //or tag.background = this.getResources().getDrawable(R.drawable.custom_bg);
+        tag.radius = 20f;
+        tag.tagTextSize = 18f;
+        tag.layoutBorderSize = 1f;
+        tag.layoutBorderColor = Color.parseColor("#FFFFFF");
+        //tag.isDeletable = true;
+        return tag;
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case SELECT_TAGS:
                 ArrayList<String> tagsName = data.getStringArrayListExtra("tagsName");
+                mTagView.removeAllTags();
+                for(int i=0;i<tagsName.size();i++){
+                    mTagView.addTag(getTag(tagsName.get(i)));
+                }
                 break;
         }
     }

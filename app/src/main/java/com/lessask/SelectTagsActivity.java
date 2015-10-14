@@ -40,19 +40,30 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     private ArrayList<String> allTags;
     private ArrayList<String> filterTags;
     private TagsAdapter mTagsAdapter;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_tags);
 
+        intent = getIntent();
+
         mSave = (Button) findViewById(R.id.save);
         mSave.setOnClickListener(this);
         mSelectContent = (EditText) findViewById(R.id.select_content);
+        mSelectContent.clearFocus();
         mTagView = (TagView) findViewById(R.id.selected_tags);
+        //初始化tagview
+        ArrayList<String> tagsName = intent.getStringArrayListExtra("tagsName");
+        for(int i=0;i<tagsName.size();i++){
+            mTagView.addTag(getTag(tagsName.get(i)));
+        }
+
         mAllTags = (ListView) findViewById(R.id.tags);
         mSelectContent.addTextChangedListener(new TagFilterWatch());
 
+        //to do换成网络协议
         allTags = getData();
         filterTags = new ArrayList<>();
         mTagsAdapter = new TagsAdapter(filterTags);
@@ -62,9 +73,6 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
 
         mAllTags.setOnItemClickListener(new OnTagItemClick(filterTags));
 
-        for(int i=0;i<5;i++){
-            mTagView.addTag(getTag("深蹲"+i));
-        }
     }
 
     private ArrayList<String> getData(){
@@ -122,7 +130,6 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
                 for (int i=0;i<tags.size();i++){
                     tagsName.add(tags.get(i).text);
                 }
-                Intent intent = getIntent();
                 intent.putStringArrayListExtra("tagsName", tagsName);
                 this.setResult(SELECT_TAGS, intent);
                 finish();
