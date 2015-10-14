@@ -2,6 +2,7 @@ package com.lessask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,6 +33,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
@@ -89,21 +93,32 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         mediaPlayer.setOnCompletionListener(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mName.clearFocus();
+    }
+
     private void editTextView2AttentionListItem(String content, View v){
-        RelativeLayout.LayoutParams tvLayoutParams;
         TextView textView = (TextView)v;
-        textView.setText(content);
+        if(content.length()>0){
+            textView.setText(content);
+        }else {
+            LinearLayout linearLayout = (LinearLayout)findViewById(R.id.notice_item_layout);
+            linearLayout.removeView(v);
+        }
     }
     private void addTextView2AttentionListItem(final String content){
+        if(content.length()==0)
+            return;
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.notice_item_layout);
         LinearLayout.LayoutParams tvLayoutParams;
-        TextView textView = new TextView(this);
+        final TextView textView = new TextView(this);
         textView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e(TAG, "click:"+content);
-                showEditNoticeDialog(true, content, (EditText) v);
-                //editTextView2AttentionListItem(content, v);
+                Log.e(TAG, "click:" + content);
+                showEditNoticeDialog(true, textView.getText().toString(), (TextView) v);
             }
         });
         textView.setText(content);
@@ -112,6 +127,9 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         //textView.setBackgroundColor(getResources().getLayout(R.drawable.text_white_bg));
         textView.setPadding(5, 3, 5, 3);
         linearLayout.addView(textView);
+        tvLayoutParams = (LinearLayout.LayoutParams)textView.getLayoutParams();
+        tvLayoutParams.bottomMargin = 3;
+        textView.setLayoutParams(tvLayoutParams);
     }
 
     @Override
@@ -167,14 +185,11 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     }
 
     @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture arg0, int arg1,
-                                            int arg2) {
-
+    public void onSurfaceTextureSizeChanged(SurfaceTexture arg0, int arg1,int arg2) {
     }
 
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture arg0) {
-
     }
 
     @Override
@@ -212,7 +227,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     private void showEditNoticeDialog(){
         showEditNoticeDialog(false, "", null);
     }
-    private void showEditNoticeDialog(final boolean isEdit, String originContent, EditText v){
+    private void showEditNoticeDialog(final boolean isEdit, String originContent, final TextView textView){
         Log.e(TAG, "showEditNoticeDialog"+isEdit+", "+originContent);
         LayoutInflater li = LayoutInflater.from(this);
         View view = li.inflate(R.layout.prompt_view, null);
@@ -221,6 +236,11 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         final EditText content = (EditText)view.findViewById(R.id.content);
         if(isEdit)
             content.setText(originContent);
+        content.setFocusable(true);
+        content.setFocusableInTouchMode(true);
+        confirm.requestFocus();
+        content.setSelection(originContent.length());
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.nothing_dialog);
         builder.setView(view);
         final AlertDialog alertDialog = builder.create();
@@ -238,7 +258,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
                 switch (v.getId()){
                     case R.id.confirm:
                         if(isEdit)
-                            editTextView2AttentionListItem(content.getText().toString().trim(), v);
+                            editTextView2AttentionListItem(content.getText().toString().trim(), textView);
                         else
                             addTextView2AttentionListItem(content.getText().toString().trim());
                         break;
@@ -252,6 +272,15 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         confirm.setOnClickListener(dialogOnClick);
         Log.e(TAG, "dialog show");
         alertDialog.show();
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask()
+        {
+
+            public void run() {
+                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.showSoftInput(content, 0);
+            }
+        },100);
     }
     private Tag getTag(String name){
         Tag tag = new Tag(name);
