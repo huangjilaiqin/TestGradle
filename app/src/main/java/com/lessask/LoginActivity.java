@@ -1,13 +1,17 @@
 package com.lessask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.*;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,10 +22,6 @@ import com.lessask.chat.GlobalInfos;
 import com.lessask.model.Login;
 import com.lessask.model.LoginResponse;
 import com.lessask.model.User;
-import com.lessask.test.LocationDemo;
-import com.lessask.test.SwipeRefreshLayoutTest;
-import com.lessask.test.TestMapActivity;
-import com.lessask.test.TestSocket;
 
 import java.io.File;
 
@@ -123,9 +123,17 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 //Intent intent = new Intent(LoginActivity.this, SwipeRefreshLayoutTest.class);
                 //Intent intent = new Intent(LoginActivity.this, TestSocket.class);
-                Intent intent = new Intent(LoginActivity.this, TestMapActivity.class);
-                //Intent intent = new Intent(LoginActivity.this, LocationDemo.class);
-                startActivity(intent);
+                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                builder.setMessage("确认退出吗？");
+                builder.setTitle("提示");
+                AlertDialog dialog = builder.create();
+                Window dialogWindow = dialog.getWindow();
+                WindowManager.LayoutParams dialogParams = dialogWindow.getAttributes();
+                DisplayMetrics displaymetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+                dialogParams.width = displaymetrics.widthPixels;
+                dialogWindow.setAttributes(dialogParams);
+                dialog.show();
             }
         });
 

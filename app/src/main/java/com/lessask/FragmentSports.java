@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.lessask.sports.SquatsActivity;
-import com.lessask.test.TestMapActivity;
+import com.lessask.sports.RunActivity;
 
 /**
  * Created by huangji on 2015/9/16.
@@ -43,7 +43,7 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
         Intent intent;
         switch (v.getId()){
             case R.id.run:
-                intent = new Intent(getActivity(), TestMapActivity.class);
+                intent = new Intent(getActivity(), RunActivity.class);
                 startActivity(intent);
                 break;
             case R.id.squats:

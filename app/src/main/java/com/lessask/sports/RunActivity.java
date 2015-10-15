@@ -1,4 +1,4 @@
-package com.lessask.test;
+package com.lessask.sports;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -48,8 +48,8 @@ import com.lessask.chat.GlobalInfos;
 import com.lessask.model.ResponseError;
 import com.lessask.model.RunData;
 
-public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrameCallback{
-    private final String TAG = TestMapActivity.class.getName();
+public class RunActivity extends Activity implements BaiduMap.OnMapDrawFrameCallback{
+    private final String TAG = RunActivity.class.getName();
 
     private final int CHANGE_TIME = 0;
     private final int CHANGE_MILEAGE = 1;
@@ -137,7 +137,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
         init();
         gson = new Gson();
         chat = Chat.getInstance();
-        uploadDialog = new ProgressDialog(TestMapActivity.this, ProgressDialog.STYLE_SPINNER);
+        uploadDialog = new ProgressDialog(RunActivity.this, ProgressDialog.STYLE_SPINNER);
         chat.setUploadRunListener(new Chat.UploadRunListener(){
             @Override
             public void uploadRun(ResponseError error, int userId) {
@@ -317,7 +317,7 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
 
     private void log(String content){
         Log.e(TAG, content);
-        Toast.makeText(TestMapActivity.this, content, Toast.LENGTH_SHORT).show();
+        Toast.makeText(RunActivity.this, content, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -442,13 +442,13 @@ public class TestMapActivity extends Activity implements BaiduMap.OnMapDrawFrame
     }
 
     protected void dialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TestMapActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(RunActivity.this);
         builder.setMessage("你真的不行了吗?");
         builder.setPositiveButton("不行了", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                TestMapActivity.this.finishRun();
+                RunActivity.this.finishRun();
             }
         });
         builder.setNegativeButton("切~~~", new DialogInterface.OnClickListener() {

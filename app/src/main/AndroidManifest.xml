@@ -67,9 +67,6 @@
             android:name=".TestActivity"
             android:label="@string/title_activity_test" />
         <activity
-            android:name=".MySub2Activity"
-            android:label="@string/title_activity_my_sub2" />
-        <activity
             android:name=".ChatActivity"
             android:label="@string/title_activity_chat"
             android:windowSoftInputMode="adjustResize|stateHidden" />
@@ -116,7 +113,7 @@
             android:name=".test.TestSocket"
             android:label="@string/title_activity_test_socket" />
         <activity
-            android:name=".test.TestMapActivity"
+            android:name=".sports.RunActivity"
             android:label="@string/title_activity_test_map" />
         <activity
             android:name=".test.LocationDemo"

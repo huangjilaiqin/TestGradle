@@ -4,6 +4,7 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/background_white"
                 tools:context="com.lessask.SelectTagsActivity">
     <EditText
         android:id="@+id/content"
@@ -14,7 +15,6 @@
         android:paddingRight="12dp"
         android:paddingBottom="10dp"
         android:textSize="18sp"
-        android:background="@color/background_white"
         android:textColorHint="@color/white_bg_font"
         android:hint="输入注意事项"
         >
@@ -24,12 +24,18 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/content"
         android:layout_marginTop="5dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="5dp"
         >
         <Button
             android:id="@+id/cancel_action"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/button_left_white_bg"
+            android:textColor="@color/white_bg_font"
+            android:layout_marginRight="-0.5px"
             android:text="取消"
             />
         <Button
@@ -37,9 +43,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/button_right_white_bg"
+            android:textColor="@color/white_bg_font"
+            android:layout_marginLeft="-0.5px"
             android:text="确定"
             />
-
     </LinearLayout>
-
 </RelativeLayout>

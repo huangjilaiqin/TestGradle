@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#cccccc"
-    tools:context="com.lessask.test.TestMapActivity">
+    tools:context="com.lessask.sports.RunActivity">
     <com.baidu.mapapi.map.MapView
         android:id="@+id/bmapview"
         android:layout_width="match_parent"

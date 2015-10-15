@@ -2,6 +2,7 @@ package com.lessask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -241,17 +242,15 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         confirm.requestFocus();
         content.setSelection(originContent.length());
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.nothing_dialog);
-        builder.setView(view);
-        final AlertDialog alertDialog = builder.create();
+        final Dialog dialog = new Dialog(this, R.style.nothing_dialog);
+        dialog.setContentView(view);
         //设置水平全屏
-        Window dialogWindow = alertDialog.getWindow();
+        Window dialogWindow = dialog.getWindow();
         WindowManager.LayoutParams dialogParams = dialogWindow.getAttributes();
         dialogParams.width = displaymetrics.widthPixels;
-        Log.e(TAG, "dialog w:" + dialogParams.width);
         dialogWindow.setAttributes(dialogParams);
 
-        alertDialog.setCanceledOnTouchOutside(true);
+        dialog.setCanceledOnTouchOutside(true);
         OnClickListener dialogOnClick = new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -265,13 +264,13 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
                     case R.id.cancel_action:
                         break;
                 }
-                alertDialog.dismiss();
+                dialog.dismiss();
             }
         };
         cancle.setOnClickListener(dialogOnClick);
         confirm.setOnClickListener(dialogOnClick);
         Log.e(TAG, "dialog show");
-        alertDialog.show();
+        dialog.show();
         Timer timer = new Timer();
         timer.schedule(new TimerTask()
         {
