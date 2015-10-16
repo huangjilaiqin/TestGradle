@@ -12,6 +12,7 @@ import android.widget.Button;
 
 import com.lessask.sports.SquatsActivity;
 import com.lessask.sports.RunActivity;
+import com.lessask.vedio.VideoRecordActivity;
 
 /**
  * Created by huangji on 2015/9/16.

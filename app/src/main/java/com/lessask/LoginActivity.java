@@ -143,10 +143,10 @@ public class LoginActivity extends Activity {
                 username = tUsername.getText().toString().trim();
                 passwd = tPassword.getText().toString().trim();
                 if(username.length()==0 || passwd.length()==0){
-                    /*
+                    //*
                     username = "1577594730@qq.com";
-                    passwd = "19910725";
-                    //*/
+                    passwd = "8888";
+                    /*/
                     username = "136437945@qq.com";
                     passwd = "19910725";
                     //*/

@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.vedio;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,15 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.lessask.R;
+import com.lessask.chat.GlobalInfos;
+import com.lessask.dialog.LoadingDialog;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import me.kaede.tagview.Tag;
@@ -34,19 +38,31 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     private Button mSave;
     private EditText mSelectContent;
     private TagView mTagView;
-    private ListView mAllTags;
+    private ListView mTagsListView;
+    private LoadingDialog loadingDialog;
 
     private String mSelecteContentStr;
-    private ArrayList<String> allTags;
-    private ArrayList<String> filterTags;
+    private ArrayList<TagData> allTags;
+    private ArrayList<TagData> filterTags;
     private TagsAdapter mTagsAdapter;
     private Intent intent;
+    private VedioNet mVedioNet;
+    private Gson gson;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private HashMap<Integer, String> vedioTags = globalInfos.getVedioTags();
+    private ArrayList<TagData> selectedTagDatas;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_tags);
 
+        loadingDialog = new LoadingDialog(this);
+
+        gson = new Gson();
+        mVedioNet = VedioNet.getInstance();
+        mVedioNet.setCreateTagListener(createTagListener);
         intent = getIntent();
 
         mSave = (Button) findViewById(R.id.save);
@@ -55,25 +71,34 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         mSelectContent.clearFocus();
         mTagView = (TagView) findViewById(R.id.selected_tags);
         //初始化tagview
-        ArrayList<String> tagsName = intent.getStringArrayListExtra("tagsName");
-        for(int i=0;i<tagsName.size();i++){
-            mTagView.addTag(getTag(tagsName.get(i)));
+        selectedTagDatas = intent.getParcelableArrayListExtra("tagDatas");
+        for(int i=0;i<selectedTagDatas.size();i++){
+            mTagView.addTag(getTag(selectedTagDatas.get(i).getId()));
         }
 
-        mAllTags = (ListView) findViewById(R.id.tags);
+        mTagsListView = (ListView) findViewById(R.id.tags);
         mSelectContent.addTextChangedListener(new TagFilterWatch());
 
         //to do换成网络协议
         allTags = getData();
         filterTags = new ArrayList<>();
         mTagsAdapter = new TagsAdapter(filterTags);
-        mAllTags.setAdapter(mTagsAdapter);
+        mTagsListView.setAdapter(mTagsAdapter);
 
         filterTags(allTags, filterTags, "");
 
-        mAllTags.setOnItemClickListener(new OnTagItemClick(filterTags));
+        mTagsListView.setOnItemClickListener(new OnTagItemClick(filterTags));
 
     }
+
+    private VedioNet.CreateTagListener createTagListener = new VedioNet.CreateTagListener() {
+        @Override
+        public void createTagResponse(CreateTagResponse response) {
+            Log.e(TAG, "createTag resp id:"+response.getId());
+            mTagView.addTag(getTag(response.getId()));
+            loadingDialog.dismiss();
+        }
+    };
 
     private ArrayList<String> getData(){
         ArrayList<String> list = new ArrayList<>();
@@ -83,8 +108,10 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         return list;
     }
 
-    private Tag getTag(String name){
+    private Tag getTag(int id){
+        String name = vedioTags.get(id);
         Tag tag = new Tag(name);
+        tag.id = id;
         tag.tagTextColor = R.color.main_color;
         tag.layoutColor =  Color.parseColor("#DDDDDD");
         //tag.layoutColorPress = Color.parseColor("#555555");
@@ -97,14 +124,14 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         return tag;
     }
 
-    private void filterTags(ArrayList<String>allTags, ArrayList<String>filterTags, String filter){
+    private void filterTags(ArrayList<TagData>allTags, ArrayList<TagData>filterTags, String filter){
         filterTags.clear();
         int tagSize = allTags.size();
         boolean isEqual = false;
         for(int i=0;i<tagSize;i++){
-            String tagName = allTags.get(i);
+            String tagName = allTags.get(i).getName();
             if(tagName.contains(filter)){
-                filterTags.add(tagName);
+                filterTags.add(allTags.get(i));
                 if(filter.equals(tagName)){
                     isEqual=true;
                     break;
@@ -112,7 +139,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
             }
         }
         if(!isEqual && filter.length()!=0){
-            filterTags.add("添加新标签 \""+filter+"\"");
+            filterTags.add(new TagData(-1,"添加新标签 \""+filter+"\""));
             mTagsAdapter.setCanCreateTag(true);
         }else {
             mTagsAdapter.setCanCreateTag(false);
@@ -139,20 +166,30 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
 
     }
 
+    private int tagSeq = 0;
+    private int getTagSeq(){
+        tagSeq++;
+        return tagSeq;
+    }
+
     class OnTagItemClick implements AdapterView.OnItemClickListener{
 
-        private ArrayList<String> tags;
+        private ArrayList<TagData> tags;
 
-        public OnTagItemClick(ArrayList<String> tags) {
+        public OnTagItemClick(ArrayList<TagData> tags) {
             this.tags = tags;
         }
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if(position==filterTags.size()-1 && mTagsAdapter.getCanCreateTag()){
-                mTagView.addTag(getTag(mSelectContent.getText().toString()));
+                //create new tag
+                String newTagName = mSelectContent.getText().toString();
+                CreateTagRequest request = new CreateTagRequest(globalInfos.getUserid(), newTagName, getTagSeq());
+                mVedioNet.emit("createtag", gson.toJson(request));
+                loadingDialog.show();
             }else {
-                mTagView.addTag(getTag(tags.get(position)));
+                mTagView.addTag(getTag(tags.get(position).getId()));
             }
             filterTags(allTags, filterTags, "");
             mSelectContent.setText("");
@@ -160,10 +197,10 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     }
 
     class TagsAdapter extends BaseAdapter{
-        private ArrayList<String> tags;
+        private ArrayList<TagData> tags;
         private boolean canCreateTag;
 
-        public TagsAdapter(ArrayList<String> tags) {
+        public TagsAdapter(ArrayList<TagData> tags) {
             this.tags = tags;
         }
 
@@ -204,7 +241,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
 
                 convertView.setTag(tagViewHolder);
             }
-            tagViewHolder.tagName.setText(tags.get(position));
+            tagViewHolder.tagName.setText(tags.get(position).getName());
             if(position==tags.size()-1 && canCreateTag){
                 tagViewHolder.tagName.setTextColor(getResources().getColor(R.color.main_color));
             }else {

@@ -5,7 +5,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/background_white"
-                tools:context="com.lessask.SelectTagsActivity">
+                tools:context="com.lessask.vedio.SelectTagsActivity">
     <EditText
         android:id="@+id/content"
         android:layout_width="match_parent"

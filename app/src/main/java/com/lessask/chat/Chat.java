@@ -15,6 +15,7 @@ import com.lessask.model.ResponseError;
 import com.lessask.model.RunDataResponse;
 import com.lessask.model.User;
 import com.lessask.model.Utils;
+import com.lessask.net.LASocketIO;
 
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
@@ -46,31 +47,17 @@ public class Chat {
     private UploadRunListener uploadRunListener;
 
     private Chat(){
-        try {
-            IO.Options options = new IO.Options();
-            options.transports = new String[]{"websocket", "polling"};
-            mSocket = IO.socket(chathost, options);
-            mSocket.on(Socket.EVENT_CONNECT, onConnect);
-            mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
-            mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onTimeout);
-            mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
-            mSocket.on(Socket.EVENT_RECONNECT, onReconnect);
-            mSocket.on(Socket.EVENT_ERROR, onError);
-            //注册对调函数
-            mSocket.on("message", onMessage);
-            mSocket.on("messageResp", onMessageResp);
-            mSocket.on("login", onLogin);
-            mSocket.on("register", onRegister);
-            mSocket.on("friendsInfo", onFriends);
-            mSocket.on("changeUserInfo", onChangeUserInfo);
-            mSocket.on("history", onHistory);
-            mSocket.on("uploadrun", onUploadRun);
-            mSocket.connect();
-            Log.e(TAG, "connect");
+        mSocket = LASocketIO.getSocket();
+        //注册回调函数
+        mSocket.on("message", onMessage);
+        mSocket.on("messageResp", onMessageResp);
+        mSocket.on("login", onLogin);
+        mSocket.on("register", onRegister);
+        mSocket.on("friendsInfo", onFriends);
+        mSocket.on("changeUserInfo", onChangeUserInfo);
+        mSocket.on("history", onHistory);
+        mSocket.on("uploadrun", onUploadRun);
 
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
         globalInfos = GlobalInfos.getInstance();
         gson = new Gson();
         friendsMap = globalInfos.getFriendsinMap();
@@ -82,50 +69,6 @@ public class Chat {
     private static class LazyHolder {
         private static final Chat INSTANCE = new Chat();
     }
-
-    private Emitter.Listener onConnect = new Emitter.Listener() {
-		@Override
-		public void call(final Object... args) {// 监控回调
-            Log.e(TAG, "onConnect");
-		}
-	};
-    private Emitter.Listener onConnectError = new Emitter.Listener() {
-		@Override
-		public void call(final Object... args) {// 监控回调
-            String error= "";
-            for(int i=0;i<args.length;i++)
-                error+=args[i]+", ";
-            Log.e(TAG, "onConnectError:" + error);
-		}
-	};
-    private Emitter.Listener onDisconnect = new Emitter.Listener() {
-		@Override
-		public void call(final Object... args) {// 监控回调
-            Log.e(TAG, "onDisconnect");
-		}
-	};
-    private Emitter.Listener onTimeout = new Emitter.Listener() {
-		@Override
-		public void call(final Object... args) {// 监控回调
-            Log.e(TAG, "onTimeout:" + args[0]);
-		}
-	};
-    private Emitter.Listener onReconnect = new Emitter.Listener() {
-		@Override
-		public void call(final Object... args) {// 监控回调
-            Log.e(TAG, "onReconnect");
-            Log.e(TAG, "args length:" + args.length);
-		}
-	};
-    private Emitter.Listener onError = new Emitter.Listener() {
-		@Override
-		public void call(final Object... args) {// 监控回调
-            String error= "";
-            for(int i=0;i<args.length;i++)
-                error+=args[i]+", ";
-            Log.e(TAG, "onError:" + error);
-		}
-	};
     private Emitter.Listener onMessage = new Emitter.Listener(){
         @Override
         public void call(Object... args) {

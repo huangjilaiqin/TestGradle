@@ -28,6 +28,9 @@ public class GlobalInfos {
     //好友列表
     private ArrayList<User> friends;
 
+    //vedio tags
+    private HashMap<Integer, String> vedioTags;
+
     private File headImgDir;
     private String headImgHost;
 
@@ -37,6 +40,7 @@ public class GlobalInfos {
     private GlobalInfos(){
         historyIds = new HashMap<>();
         chatContents = new HashMap<>();
+        vedioTags = new HashMap<>();
     }
     public static final GlobalInfos getInstance(){
         return LazyHolder.INSTANCE;
@@ -129,5 +133,11 @@ public class GlobalInfos {
 
     public void setUserid(int userid) {
         this.userid = userid;
+    }
+    public void setVedioTags(HashMap tags){
+        this.vedioTags = tags;
+    }
+    public HashMap getVedioTags(){
+        return vedioTags;
     }
 }

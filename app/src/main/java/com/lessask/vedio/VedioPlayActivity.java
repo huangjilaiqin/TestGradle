@@ -1,10 +1,8 @@
-package com.lessask;
+package com.lessask.vedio;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
@@ -12,7 +10,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
-import android.text.Layout;
+import android.os.Parcelable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,10 +25,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+
+import com.lessask.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,13 +53,16 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     private ImageView mEditTags;
     private TagView mTagView;
     private ImageView mNotice;
+    private ImageView mUpload;
     private DisplayMetrics displaymetrics;
+    private ArrayList<TagData> tagDatas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vedio_play);
 
+        tagDatas = new ArrayList<>();
         mName = (EditText) findViewById(R.id.name);
         mName.clearFocus();
 
@@ -70,6 +72,8 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
 
         mNotice = (ImageView) findViewById(R.id.notice);
         mNotice.setOnClickListener(this);
+        mUpload = (ImageView) findViewById(R.id.upload);
+        mUpload.setOnClickListener(this);
 
         displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -210,20 +214,22 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
                 break;
             case R.id.edit_tags:
                 Intent intent = new Intent(this,SelectTagsActivity.class);
-                List<Tag> tags = mTagView.getTags();
-                ArrayList<String> tagsName = new ArrayList<>();
-                for(int i=0;i<tags.size();i++){
-                    tagsName.add(tags.get(i).text);
-                }
-                intent.putStringArrayListExtra("tagsName", tagsName);
+                intent.putParcelableArrayListExtra("tagDatas", tagDatas);
                 startActivityForResult(intent, SELECT_TAGS);
                 break;
             case R.id.notice:
                 showEditNoticeDialog();
                 break;
+            case R.id.upload:
+                uploadVedio();
+                break;
             default:
                 break;
         }
+    }
+
+    private void uploadVedio(){
+
     }
     private void showEditNoticeDialog(){
         showEditNoticeDialog(false, "", null);
@@ -298,10 +304,10 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case SELECT_TAGS:
-                ArrayList<String> tagsName = data.getStringArrayListExtra("tagsName");
+                tagDatas = data.getParcelableArrayListExtra("tagDatas");
                 mTagView.removeAllTags();
-                for(int i=0;i<tagsName.size();i++){
-                    mTagView.addTag(getTag(tagsName.get(i)));
+                for(int i=0;i<tagDatas.size();i++){
+                    mTagView.addTag(getTag(tagDatas.get(i).getName()));
                 }
                 break;
         }

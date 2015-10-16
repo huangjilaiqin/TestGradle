@@ -1,7 +1,6 @@
-package com.lessask;
+package com.lessask.vedio;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.media.MediaRecorder;
@@ -9,7 +8,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,8 +17,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lessask.ProgressView;
+import com.lessask.R;
 import com.lessask.util.CameraHelper;
-import com.lessask.util.TipsDialog;
+import com.lessask.vedio.VedioPlayActivity;
 
 import java.io.File;
 import java.io.IOException;
