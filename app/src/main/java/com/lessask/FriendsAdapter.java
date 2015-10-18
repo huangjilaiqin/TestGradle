@@ -1,12 +1,10 @@
 package com.lessask;
 
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.util.LruCache;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +15,9 @@ import android.widget.TextView;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.lessask.chat.GlobalInfos;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
-import com.lessask.model.DownImageAsync;
 import com.lessask.model.User;
-import com.lessask.model.Utils;
 
 import java.io.File;
 import java.util.ArrayList;

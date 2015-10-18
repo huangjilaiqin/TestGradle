@@ -1,19 +1,13 @@
 package com.lessask;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,19 +19,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lessask.chat.GlobalInfos;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
-import com.lessask.net.MultipartEntity;
-import com.lessask.test.UploadImageSingle;
 import com.lessask.test.UploadImageTogether;
-import com.lessask.util.BitmapHelper;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 import me.iwf.photopicker.PhotoPickerActivity;

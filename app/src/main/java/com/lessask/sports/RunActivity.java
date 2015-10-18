@@ -44,7 +44,7 @@ import java.util.TimeZone;
 import javax.microedition.khronos.opengles.GL10;
 
 import com.lessask.chat.Chat;
-import com.lessask.chat.GlobalInfos;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ResponseError;
 import com.lessask.model.RunData;
 

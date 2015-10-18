@@ -10,7 +10,8 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,10 +29,17 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lessask.R;
+import com.lessask.dialog.LoadingDialog;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
+import com.lessask.net.PostSingle;
+import com.lessask.net.PostSingleEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,7 +63,37 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     private ImageView mNotice;
     private ImageView mUpload;
     private DisplayMetrics displaymetrics;
+
     private ArrayList<TagData> tagDatas;
+    private ArrayList<String> noticeDatas;
+
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
+
+    private final int ON_UPLOAD_START = 1;
+    private final int ON_UPLOAD_DONE = 2;
+    private LoadingDialog loadingDialog;
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "login handler:" + msg.what);
+            switch (msg.what) {
+                case ON_UPLOAD_START:
+                    loadingDialog.show();
+                    break;
+                case ON_UPLOAD_DONE:
+                    loadingDialog.cancel();
+                    if(msg.arg1==1){
+                        Toast.makeText(VedioPlayActivity.this, "upload success", Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(VedioPlayActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +101,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         setContentView(R.layout.activity_vedio_play);
 
         tagDatas = new ArrayList<>();
+        noticeDatas = new ArrayList<>();
         mName = (EditText) findViewById(R.id.name);
         mName.clearFocus();
 
@@ -111,8 +150,10 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         }else {
             LinearLayout linearLayout = (LinearLayout)findViewById(R.id.notice_item_layout);
             linearLayout.removeView(v);
+            noticeDatas.remove(beforeEditContent);
         }
     }
+    private String beforeEditContent;
     private void addTextView2AttentionListItem(final String content){
         if(content.length()==0)
             return;
@@ -123,9 +164,11 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "click:" + content);
+                beforeEditContent = content;
                 showEditNoticeDialog(true, textView.getText().toString(), (TextView) v);
             }
         });
+        noticeDatas.add(content);
         textView.setText(content);
         textView.setTextSize(18);
         textView.setBackgroundResource(R.drawable.text_white_bg);
@@ -230,8 +273,72 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     }
 
     private void uploadVedio(){
+        loadingDialog = new LoadingDialog(VedioPlayActivity.this);
+        PostSingleEvent event = new PostSingleEvent() {
+
+            @Override
+            public HashMap<String, HashMap> postData() {
+                HashMap<String, HashMap> datas = new HashMap<>();
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("userid", globalInfos.getUserid()+"");
+                headers.put("name", mName.getText().toString().trim());
+                headers.put("tags", getTagsString());
+                headers.put("notice", getNoticeString());
+
+                HashMap<String, String> files = new HashMap<>();
+                files.put("vediofile", path);
+
+                datas.put("headers", headers);
+                datas.put("files", files);
+                return datas;
+            }
+
+            @Override
+            public void onStart() {
+                Message msg = new Message();
+                msg.what = ON_UPLOAD_START;
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onDone(boolean success) {
+                Message msg = new Message();
+                msg.what = ON_UPLOAD_DONE;
+                if(success)
+                    msg.arg1 = 1;
+                else
+                    msg.arg1 = 0;
+                handler.sendMessage(msg);
+            }
+        };
+        new PostSingle(config.getUploadVedioUrl(), event).start();
 
     }
+    private String getTagsString(){
+        StringBuilder builder = new StringBuilder();
+        int tagSize = tagDatas.size();
+        int lastIndex = tagSize-1;
+        for(int i=0;i<tagSize;i++){
+            builder.append(tagDatas.get(i).getId());
+            if(i!=lastIndex){
+                builder.append(",");
+            }
+        }
+        return builder.toString();
+    }
+    private String getNoticeString(){
+        StringBuilder builder = new StringBuilder();
+        int noticeSize = noticeDatas.size();
+        int lastIndex = noticeSize-1;
+        for (int i=0;i<noticeSize;i++){
+            builder.append(noticeDatas.get(i));
+            if(i!=lastIndex){
+                builder.append("##");
+            }
+        }
+        return builder.toString();
+    }
+
     private void showEditNoticeDialog(){
         showEditNoticeDialog(false, "", null);
     }

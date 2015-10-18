@@ -3,11 +3,11 @@ package com.lessask.chat;
 import android.util.Log;
 
 import io.socket.emitter.Emitter;
-import io.socket.client.IO;
 import io.socket.client.Ack;
 import io.socket.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.HistoryResponse;
@@ -18,7 +18,6 @@ import com.lessask.model.Utils;
 import com.lessask.net.LASocketIO;
 
 import java.lang.reflect.Type;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;

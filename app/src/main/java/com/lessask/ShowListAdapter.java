@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.lessask.chat.GlobalInfos;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 
 import java.io.File;

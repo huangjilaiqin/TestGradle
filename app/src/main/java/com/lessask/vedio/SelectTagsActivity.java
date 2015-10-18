@@ -22,12 +22,10 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.lessask.R;
-import com.lessask.chat.GlobalInfos;
+import com.lessask.global.GlobalInfos;
 import com.lessask.dialog.LoadingDialog;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import me.kaede.tagview.OnTagDeleteListener;
 import me.kaede.tagview.Tag;

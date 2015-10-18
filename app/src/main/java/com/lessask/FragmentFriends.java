@@ -17,7 +17,7 @@ import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
-import com.lessask.chat.GlobalInfos;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.User;
 
 import java.util.ArrayList;

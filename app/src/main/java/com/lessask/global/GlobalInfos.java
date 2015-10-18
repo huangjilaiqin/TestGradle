@@ -1,18 +1,13 @@
-package com.lessask.chat;
+package com.lessask.global;
 
-import android.content.Intent;
 import android.util.Log;
 
 import com.lessask.model.User;
-import com.lessask.vedio.TagData;
 import com.lessask.vedio.VedioTagsHolder;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.zip.Inflater;
-
-import me.kaede.tagview.Tag;
 
 /**
  * Created by huangji on 2015/8/12.
@@ -38,17 +33,23 @@ public class GlobalInfos {
     private int screenWidth;
     private int screenHeight;
     private VedioTagsHolder vedioTagsHolder;
+    private Config config;
 
     private GlobalInfos(){
         historyIds = new HashMap<>();
         chatContents = new HashMap<>();
         vedioTagsHolder = new VedioTagsHolder();
+        config = new Config();
     }
     public static final GlobalInfos getInstance(){
         return LazyHolder.INSTANCE;
     }
     private static class LazyHolder {
         private static final GlobalInfos INSTANCE = new GlobalInfos();
+    }
+
+    public Config getConfig(){
+        return config;
     }
     public VedioTagsHolder getVedioTagsHolder(){
         return vedioTagsHolder;

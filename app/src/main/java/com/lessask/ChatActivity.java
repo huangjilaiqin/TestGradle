@@ -22,7 +22,7 @@ import android.os.Handler;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
-import com.lessask.chat.GlobalInfos;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.History;

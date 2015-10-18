@@ -105,7 +105,16 @@ public class MultipartEntity {
 
 
     public void addStringPart(final String paramName, final String value) throws Exception{
-        writeToOutputStream(paramName, value.getBytes(), TYPE_TEXT_CHARSET, BIT_ENCODING, "");
+        writeFirstBoundary();
+        //
+        netOutput.write(getContentDisposition(paramName, ""));
+        //
+        byte[] types = (CONTENT_TYPE + TYPE_TEXT_CHARSET + NEW_LINE_STR).getBytes();
+        netOutput.write(types, 0, TYPE_TEXT_CHARSET.length());
+        netOutput.write(BIT_ENCODING);
+        netOutput.write(value.getBytes());
+        netOutput.write(NEW_LINE_STR.getBytes());
+        netOutput.flush();
     }
 
     /**
@@ -116,8 +125,10 @@ public class MultipartEntity {
                                      byte[] encodingBytes,
                                      String fileName)throws Exception{
         writeFirstBoundary();
+        //
         byte[] types = (CONTENT_TYPE + type + NEW_LINE_STR).getBytes();
         netOutput.write(types, 0, type.length());
+        //
         netOutput.write(getContentDisposition(paramName, fileName));
         netOutput.write(encodingBytes);
         netOutput.write(rawData);
@@ -180,8 +191,8 @@ public class MultipartEntity {
     private byte[] getContentDisposition(String paramName, String fileName) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(CONTENT_DISPOSITION + "form-data; name=\"" + paramName + "\"");
-        // 文本参数没有filename参数,设置为空即可
-        if (!TextUtils.isEmpty(fileName)) {
+        // 没有filename参数,则没有filename字段, 服务器根据filename字段定义是否为上传文件
+        if(fileName.length()!=0){
             stringBuilder.append("; filename=\""
                     + fileName + "\"");
         }
