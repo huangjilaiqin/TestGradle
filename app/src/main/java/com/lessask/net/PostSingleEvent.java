@@ -12,5 +12,5 @@ public interface PostSingleEvent {
      */
     HashMap<String, HashMap> postData();
     void onStart();
-    void onDone(boolean success);
+    void onDone(boolean success, PostResponse response);
 }

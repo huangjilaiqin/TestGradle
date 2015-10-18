@@ -14,6 +14,7 @@ public class PostSingle extends Thread{
     private String TAG = PostSingle.class.getSimpleName();
     private String host;
     private PostSingleEvent postSingleEvent;
+    private PostResponse postResponse;
 
     public PostSingle(String host, PostSingleEvent postSingleEvent) {
         this.host = host;
@@ -46,7 +47,7 @@ public class PostSingle extends Thread{
                     Map.Entry entry = (Map.Entry)iterator.next();
                     String name = (String) entry.getKey();
                     String value = (String) entry.getValue();
-                    Log.e(TAG, "files: "+name+", "+value);
+                    Log.e(TAG, "files: " + name + ", " + value);
                     multipartEntity.addFilePart(name, new File(value));
                 }
             }
@@ -60,12 +61,12 @@ public class PostSingle extends Thread{
                     multipartEntity.addOptimizeImagePart(name, new File(value));
                 }
             }
-            multipartEntity.end();
+            postResponse = multipartEntity.end();
         }catch (Exception e){
             Log.e(TAG, "MultipartEntity Exception:" + e.toString());
             isSuccess = false;
         }finally {
-            postSingleEvent.onDone(isSuccess);
+            postSingleEvent.onDone(isSuccess, postResponse);
         }
     }
 }

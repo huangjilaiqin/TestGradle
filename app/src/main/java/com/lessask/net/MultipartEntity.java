@@ -202,27 +202,21 @@ public class MultipartEntity {
     }
 
     //最后一定要调用这个方法
-    public void end() throws IOException {
+    public PostResponse end() throws IOException {
         // 参数最末尾的结束符
         // 写入结束符
         netOutput.write(("--" + mBoundary + "--\r\n").getBytes());
         netOutput.flush();
         netOutput.close();
         // 定义BufferedReader输入流来读取URL的响应
-        int res = con.getResponseCode();
-        if(res == 200){
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                con.getInputStream()));
-            String line = null;
-            StringBuilder builder = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
-        }else if(res == 413) {
-            Log.e(TAG, "请求体过大");
-        }else {
-            Log.e(TAG, "post code:"+res);
+        int resCode = con.getResponseCode();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+            con.getInputStream()));
+        String line = null;
+        StringBuilder builder = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            builder.append(line);
         }
-
+        return new PostResponse(resCode, builder.toString());
     }
 }

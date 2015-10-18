@@ -31,10 +31,12 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
 
@@ -68,6 +70,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     private ArrayList<String> noticeDatas;
 
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Gson gson = new Gson();
     private Config config = globalInfos.getConfig();
 
     private final int ON_UPLOAD_START = 1;
@@ -301,7 +304,12 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
             }
 
             @Override
-            public void onDone(boolean success) {
+            public void onDone(boolean success, PostResponse postResponse) {
+                int resCode = postResponse.getCode();
+                String body = postResponse.getBody();
+                UploadVedioResponse response = gson.fromJson(body, UploadVedioResponse.class);
+                int vedioId = response.getVedioid();
+
                 Message msg = new Message();
                 msg.what = ON_UPLOAD_DONE;
                 if(success)
@@ -312,7 +320,6 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
             }
         };
         new PostSingle(config.getUploadVedioUrl(), event).start();
-
     }
     private String getTagsString(){
         StringBuilder builder = new StringBuilder();
