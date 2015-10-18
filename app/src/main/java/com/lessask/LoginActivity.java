@@ -2,7 +2,6 @@ package com.lessask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.*;
@@ -62,7 +61,7 @@ public class LoginActivity extends Activity {
                     //跳转到首页
                     //Intent intent = new Intent(LoginActivity.this, TestActivity.class);
                     //Intent intent = new Intent(LoginActivity.this, FriendsActivity.class);
-                    Intent intent = new Intent(LoginActivity.this, FragmentTestActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, FragmentMainActivity.class);
 
                     startActivity(intent);
                     break;
@@ -76,6 +75,8 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
 
         File headImgDir = getApplicationContext().getExternalFilesDir("headImg");
         globalInfos.setHeadImgDir(headImgDir);
@@ -177,6 +178,7 @@ public class LoginActivity extends Activity {
                 startActivity(intent);
             }
         });
+
     }
 
     protected void onStart(){
@@ -215,5 +217,30 @@ public class LoginActivity extends Activity {
             Log.i(TAG, data.getStringExtra("passwd"));
         }
     }
-
+    class DefaultExceptionHandler implements Thread.UncaughtExceptionHandler {
+        public DefaultExceptionHandler() {
+        }
+        @Override
+        public void uncaughtException(Thread thread, Throwable ex) {
+            if(thread.getId()==1){
+                Log.e(TAG, "UI thread:"+ ex.getMessage());
+                Log.e(TAG, "UI thread:"+ ex.toString());
+                ex.printStackTrace();
+            }else{
+                Log.e(TAG, "sub thread:"+ ex.getMessage());
+            }
+           handleException();
+        }
+        private void sendCrashReport(Throwable ex) {
+           StringBuffer exceptionStr = new StringBuffer();
+           exceptionStr.append(ex.getMessage());
+           StackTraceElement[] elements = ex.getStackTrace();
+           for (int i = 0; i < elements.length; i++) {
+               exceptionStr.append(elements[i].toString());
+           }
+        }
+        private void handleException() {
+            System.out.println("handleException");
+        }
+    }
 }

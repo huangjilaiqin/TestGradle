@@ -4,11 +4,15 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.lessask.model.User;
+import com.lessask.vedio.TagData;
+import com.lessask.vedio.VedioTagsHolder;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.Inflater;
+
+import me.kaede.tagview.Tag;
 
 /**
  * Created by huangji on 2015/8/12.
@@ -28,25 +32,26 @@ public class GlobalInfos {
     //好友列表
     private ArrayList<User> friends;
 
-    //vedio tags
-    private HashMap<Integer, String> vedioTags;
-
     private File headImgDir;
     private String headImgHost;
 
     private int screenWidth;
     private int screenHeight;
+    private VedioTagsHolder vedioTagsHolder;
 
     private GlobalInfos(){
         historyIds = new HashMap<>();
         chatContents = new HashMap<>();
-        vedioTags = new HashMap<>();
+        vedioTagsHolder = new VedioTagsHolder();
     }
     public static final GlobalInfos getInstance(){
         return LazyHolder.INSTANCE;
     }
     private static class LazyHolder {
         private static final GlobalInfos INSTANCE = new GlobalInfos();
+    }
+    public VedioTagsHolder getVedioTagsHolder(){
+        return vedioTagsHolder;
     }
 
     public int getScreenHeight() {
@@ -134,10 +139,5 @@ public class GlobalInfos {
     public void setUserid(int userid) {
         this.userid = userid;
     }
-    public void setVedioTags(HashMap tags){
-        this.vedioTags = tags;
-    }
-    public HashMap getVedioTags(){
-        return vedioTags;
-    }
+
 }

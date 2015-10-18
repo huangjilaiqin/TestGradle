@@ -104,7 +104,7 @@
             android:name=".FriendsActivity"
             android:label="@string/title_activity_friends" />
         <activity
-            android:name=".FragmentTestActivity"
+            android:name=".FragmentMainActivity"
             android:label="@string/title_activity_fragment" />
         <activity
             android:name=".test.SwipeRefreshLayoutTest"

@@ -1,9 +1,6 @@
 package com.lessask;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,20 +15,23 @@ import android.view.WindowManager;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.google.gson.Gson;
 import com.lessask.chat.GlobalInfos;
+import com.lessask.vedio.GetTagsRequest;
+import com.lessask.vedio.GetTagsResponse;
+import com.lessask.vedio.TagData;
+import com.lessask.vedio.VedioNet;
 
 import java.util.ArrayList;
 
-import me.iwf.photopicker.PhotoPickerActivity;
-
-public class FragmentTestActivity extends FragmentActivity implements ViewPager.OnPageChangeListener, RadioGroup.OnCheckedChangeListener{
+public class FragmentMainActivity extends FragmentActivity implements ViewPager.OnPageChangeListener, RadioGroup.OnCheckedChangeListener{
 
     private LayoutInflater layoutInflater;
     private int REQUEST_CODE = 100;
     private Class fragmentArray[] = {FragmentShow.class, FragmentSports.class, FragmentFriends.class, FragmentMe.class};
     private String mTextviewArray[] = {"发现", "运动", "好友", "我"};
     private int fragmentImg[] = {R.drawable.show,R.drawable.show_selected,R.drawable.sports,R.drawable.sports_selected,R.drawable.chat,R.drawable.chat_selected,R.drawable.me,R.drawable.me_selected};
-    private static final String TAG = FragmentTestActivity.class.getName();
+    private static final String TAG = FragmentMainActivity.class.getName();
     private RadioButton rbShow;
     private RadioButton rbSports;
     private RadioButton rbFriends;
@@ -39,6 +39,7 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
     private RadioButton selectedTab;
     private int selectedTabIndex;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Gson gson = new Gson();
 
     private ViewPager vp;
     private RadioGroup mGroup;
@@ -59,7 +60,23 @@ public class FragmentTestActivity extends FragmentActivity implements ViewPager.
 		int height = outMetrics.heightPixels;
         globalInfos.setScreenWidth(width);
         globalInfos.setScreenHeight(height);
+
+        loadData();
     }
+    private void loadData(){
+        VedioNet mVedioNet = VedioNet.getInstance();
+        mVedioNet.setGetTagsListener(getTagsListener);
+        GetTagsRequest request = new GetTagsRequest(globalInfos.getUserid());
+        mVedioNet.emit("gettags", gson.toJson(request));
+    }
+    private VedioNet.GetTagsListener getTagsListener = new VedioNet.GetTagsListener() {
+        @Override
+        public void getTagsResponse(GetTagsResponse response) {
+            ArrayList<TagData> allTags = response.getTagDatas();
+            globalInfos.getVedioTagsHolder().setVedioTags(allTags);
+            Log.e(TAG, "gettags resp size:" + allTags.size());
+        }
+    };
 
     private void initViews() {
         mGroup = (RadioGroup) findViewById(R.id.main_navigation_bar);

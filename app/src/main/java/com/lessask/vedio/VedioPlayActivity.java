@@ -128,7 +128,8 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         });
         textView.setText(content);
         textView.setTextSize(18);
-        textView.setBackground(getResources().getDrawable(R.drawable.text_white_bg));
+        textView.setBackgroundResource(R.drawable.text_white_bg);
+        //setBackground(getResources().getDrawable(R.drawable.text_white_bg));
         //textView.setBackgroundColor(getResources().getLayout(R.drawable.text_white_bg));
         textView.setPadding(5, 3, 5, 3);
         linearLayout.addView(textView);
@@ -305,6 +306,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
         switch (requestCode){
             case SELECT_TAGS:
                 tagDatas = data.getParcelableArrayListExtra("tagDatas");
+                Log.e(TAG, "on result:"+tagDatas);
                 mTagView.removeAllTags();
                 for(int i=0;i<tagDatas.size();i++){
                     mTagView.addTag(getTag(tagDatas.get(i).getName()));

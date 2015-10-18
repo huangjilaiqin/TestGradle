@@ -14,6 +14,10 @@ public class TagData implements Parcelable{
         this.id = id;
         this.name = name;
     }
+    public TagData(Parcel in){
+        id = in.readInt();
+        name = in.readString();
+    }
 
     public int getId() {
         return id;
@@ -41,4 +45,14 @@ public class TagData implements Parcelable{
         dest.writeInt(id);
         dest.writeString(name);
     }
+    public static final Parcelable.Creator<TagData> CREATOR
+             = new Parcelable.Creator<TagData>() {
+         public TagData createFromParcel(Parcel in) {
+             return new TagData(in);
+         }
+
+         public TagData[] newArray(int size) {
+             return new TagData[size];
+         }
+     };
 }

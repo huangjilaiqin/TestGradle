@@ -64,11 +64,17 @@ public class VedioNet {
         @Override
         public void call(Object... args) {
             Log.e(TAG, "onGetTagsResp:" + args[0].toString());
-            GetTagsResponse response = gson.fromJson(args[0].toString(), GetTagsResponse.class);
+            GetTagsResponse response = null;
+            try {
+                response =gson.fromJson(args[0].toString(), GetTagsResponse.class);
+            }catch (Exception e){
+                Log.e(TAG, "e:"+e.getMessage());
+                return;
+            }
             getTagsListener.getTagsResponse(response);
         }
     };
-    public void setCreateTagListener(GetTagsListener listener){
+    public void setGetTagsListener(GetTagsListener listener){
         this.getTagsListener = listener;
     }
     public interface GetTagsListener{
