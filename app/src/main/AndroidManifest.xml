@@ -139,7 +139,7 @@
             android:label="@string/title_activity_show_selected_image" >
         </activity>
         <activity
-            android:name=".CreateShowActivity"
+            android:name=".show.CreateShowActivity"
             android:label="@string/title_activity_create_show" >
         </activity>
         <activity

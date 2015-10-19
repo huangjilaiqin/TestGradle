@@ -260,6 +260,7 @@ public class Utils {
         if(cursor.moveToFirst()) {
             originImgId = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
         }
+        cursor.close();
         //根据原图id查找缩略图
         String[] projection = { MediaStore.Images.Thumbnails.DATA};
         cursor = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection, "image_id=?", new String[]{originImgId+""}, null);
@@ -273,6 +274,7 @@ public class Utils {
             //不存在缩略图,自己进行压缩
             thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), 100, 100);
         }
+        cursor.close();
         return thumbnailBitmap;
     }
 

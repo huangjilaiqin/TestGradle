@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.show;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -19,13 +19,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.lessask.R;
+import com.lessask.ShowSelectedImageActivity;
+import com.lessask.dialog.LoadingDialog;
+import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
+import com.lessask.net.PostResponse;
+import com.lessask.net.PostSingle;
+import com.lessask.net.PostSingleEvent;
 import com.lessask.test.UploadImageTogether;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 import me.iwf.photopicker.PhotoPickerActivity;
 import me.iwf.photopicker.utils.PhotoPickerIntent;
@@ -45,8 +55,14 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
     private boolean isFull;
     private static final int REQUEST_ADD_IMAGE = 100;
     private static final int REQUEST_DELETE_IMAGE = 101;
+    private static final int ON_CREATESHOW_START= 102;
+    private static final int ON_CREATESHOW_DONE= 103;
     private MyAdapter mGridViewAdapter;
     private ProgressDialog uploadDialog;
+    private LoadingDialog loadingDialog;
+
+    private Gson gson = new Gson();
+    private Config config = globalInfos.getConfig();
 
     private final int HANDLER_SHOW_SEND = 0;
 
@@ -56,10 +72,18 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             super.handleMessage(msg);
             Log.d(TAG, "login handler:" + msg.what);
             switch (msg.what) {
-                case HANDLER_SHOW_SEND:
-                    Log.e(TAG, "HANDLER_SHOW_SEND");
-
-                    uploadDialog.cancel();
+                case ON_CREATESHOW_START:
+                    loadingDialog.show();
+                    break;
+                case ON_CREATESHOW_DONE:
+                    CreateShowResponse response = (CreateShowResponse)msg.obj;
+                    int success = msg.arg1;
+                    int resCode = msg.arg2;
+                    int showId = response.getShowid();
+                    String time = response.getTime();
+                    loadingDialog.cancel();
+                    Toast.makeText(CreateShowActivity.this, "create success", Toast.LENGTH_SHORT).show();
+                    //跳转到动态
                     break;
             }
         }
@@ -100,29 +124,72 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 finish();
                 break;
             case R.id.send:
-
-                /*
-                uploadDialog = new ProgressDialog(CreateShowActivity.this, ProgressDialog.STYLE_SPINNER);
-                uploadDialog.setTitle("发布中...");
-                uploadDialog.show();
-                */
-
-                ShowItem showItem = new ShowItem();
-                showItem.setName(globalInfos.getUserid() + "");
-                showItem.setShowImgs(photos);
-                showItem.setContent(mtvContent.getText().toString().trim());
-
-                new UploadImageTogether(showItem, isFull).start();
-                /* 多线程上传
-                for(int i=0;i<photos.size();i++){
-                    if(i==photos.size()-1 && !isFull)
-                        return;
-                    new UploadImageSingle(new File(photos.get(i))).start();
-                }
-                */
-
+                createShow();
                 break;
         }
+    }
+
+    private void createShow(){
+        loadingDialog = new LoadingDialog(CreateShowActivity.this);
+        PostSingleEvent event = new PostSingleEvent() {
+
+            @Override
+            public HashMap<String, HashMap> postData() {
+                HashMap<String, HashMap> datas = new HashMap<>();
+                HashMap<String, String> headers = new HashMap<>();
+                HashMap<String, String> images = new HashMap<>();
+
+                headers.put("userid", globalInfos.getUserid()+"");
+                headers.put("address", "深圳市 南山区");
+                headers.put("content", mtvContent.getText().toString().trim());
+                headers.put("permission", "1");
+                headers.put("ats", "");
+
+                StringBuilder builder = new StringBuilder();
+                int photosSize=0;
+                if(!isFull)
+                    photosSize = photos.size()-1;
+                int lastIndex = photosSize-1;
+                for (int i=0;i<photosSize;i++){
+                    File file = new File(photos.get(i));
+                    builder.append(file.getName());
+                    if(i!=lastIndex){
+                        builder.append("##");
+                    }
+                    images.put(file.getName(), photos.get(i));
+                }
+                headers.put("pictures", builder.toString());
+
+                datas.put("headers", headers);
+                datas.put("images", images);
+                return datas;
+            }
+
+            @Override
+            public void onStart() {
+                Message msg = new Message();
+                msg.what = ON_CREATESHOW_START;
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onDone(boolean success, PostResponse postResponse) {
+                int resCode = postResponse.getCode();
+                String body = postResponse.getBody();
+                CreateShowResponse response = gson.fromJson(body, CreateShowResponse.class);
+
+                Message msg = new Message();
+                msg.arg2 = resCode;
+                msg.obj = response;
+                msg.what = ON_CREATESHOW_DONE;
+                if(success)
+                    msg.arg1 = 1;
+                else
+                    msg.arg1 = 0;
+                handler.sendMessage(msg);
+            }
+        };
+        new PostSingle(config.getCreateShowUrl(), event).start();
     }
     //自定义适配器
     class MyAdapter extends BaseAdapter {

@@ -224,12 +224,12 @@ public class LoginActivity extends Activity {
         public void uncaughtException(Thread thread, Throwable ex) {
             if(thread.getId()==1){
                 Log.e(TAG, "UI thread:"+ ex.getMessage());
-                Log.e(TAG, "UI thread:"+ ex.toString());
-                ex.printStackTrace();
+                Log.e(TAG, "UI thread:" + ex.toString());
             }else{
                 Log.e(TAG, "sub thread:"+ ex.getMessage());
             }
-           handleException();
+            ex.printStackTrace();
+           handleException(ex);
         }
         private void sendCrashReport(Throwable ex) {
            StringBuffer exceptionStr = new StringBuffer();
@@ -239,8 +239,7 @@ public class LoginActivity extends Activity {
                exceptionStr.append(elements[i].toString());
            }
         }
-        private void handleException() {
-            System.out.println("handleException");
+        private void handleException(Throwable ex) {
         }
     }
 }

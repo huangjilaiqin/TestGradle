@@ -6,13 +6,11 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +19,7 @@ import android.widget.ListView;
 
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
+import com.lessask.show.CreateShowActivity;
 
 import java.io.File;
 import java.util.ArrayList;

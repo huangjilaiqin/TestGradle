@@ -7,6 +7,7 @@ import io.socket.client.Ack;
 import io.socket.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
@@ -31,10 +32,11 @@ public class Chat {
     //private String chathost = "http://ws.otopcy.com";
     //private String chathost = "http://123.59.40.113:5002";
     //private String chathost = "http://ws.qqshidao2.com";
-    private String chathost = "http://ws.o-topcy.com";
     private Socket mSocket;
-    private GlobalInfos globalInfos;
-    private Gson gson;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
+    private String chathost = config.getWsUrl();
+    private Gson gson = new Gson();
     private HashMap<Integer, User> friendsMap;
     //更新不一样的activity应该有多个listener
     private DataChangeListener dataChangeListener;
@@ -57,8 +59,6 @@ public class Chat {
         mSocket.on("history", onHistory);
         mSocket.on("uploadrun", onUploadRun);
 
-        globalInfos = GlobalInfos.getInstance();
-        gson = new Gson();
         friendsMap = globalInfos.getFriendsinMap();
     }
 
