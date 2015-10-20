@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.lessask.lesson.LessonsActivity;
 import com.lessask.sports.SquatsActivity;
 import com.lessask.sports.RunActivity;
 import com.lessask.vedio.VideoRecordActivity;
@@ -22,7 +23,7 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
     private Button mRun;
     private Button mSquats;
     private Button mVideo;
-
+    private Button mLesson;
 
     @Nullable
     @Override
@@ -33,8 +34,10 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
             mRun.setOnClickListener(this);
             mSquats = (Button)view.findViewById(R.id.squats);
             mSquats.setOnClickListener(this);
-            mVideo = (Button)view.findViewById(R.id.video);
+            mVideo = (Button)view.findViewById(R.id.vedio);
             mVideo.setOnClickListener(this);
+            mLesson = (Button)view.findViewById(R.id.lesson);
+            mLesson.setOnClickListener(this);
         }
         return view;
     }
@@ -51,8 +54,12 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
                 intent = new Intent(getActivity(), SquatsActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.video:
+            case R.id.vedio:
                 intent = new Intent(getActivity(), VideoRecordActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.lesson:
+                intent = new Intent(getActivity(), LessonsActivity.class);
                 startActivity(intent);
                 break;
         }

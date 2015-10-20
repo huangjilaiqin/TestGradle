@@ -33,6 +33,10 @@
         <item name="android:background">@null</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
-
+    <style name="sportRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/star</item>
+        <item name="android:minHeight">64px</item>
+        <item name="android:maxHeight">64px</item>
+    </style>
 
 </resources>

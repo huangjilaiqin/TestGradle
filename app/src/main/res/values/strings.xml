@@ -36,6 +36,23 @@
     <string name="title_activity_select_tag">SelectTagActivity</string>
     <string name="title_activity_lessons">LessonsActivity</string>
     <string name="title_activity_create_lesson">CreateLessonActivity</string>
+    <string-array name="sport_address_array">
+        <item>家里</item>
+        <item>健身房</item>
+        <item>社区活动中心</item>
+    </string-array>
+    <string-array name="cycle_time_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
 
 
 </resources>
