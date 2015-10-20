@@ -29,13 +29,9 @@ import java.util.Iterator;
 
 public class Chat {
     final private static String TAG = Chat.class.getName();
-    //private String chathost = "http://ws.otopcy.com";
-    //private String chathost = "http://123.59.40.113:5002";
-    //private String chathost = "http://ws.qqshidao2.com";
     private Socket mSocket;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
-    private String chathost = config.getWsUrl();
     private Gson gson = new Gson();
     private HashMap<Integer, User> friendsMap;
     //更新不一样的activity应该有多个listener

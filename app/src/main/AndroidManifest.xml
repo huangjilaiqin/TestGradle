@@ -159,6 +159,14 @@
             android:name=".vedio.SelectTagsActivity"
             android:label="@string/title_activity_select_tag" >
         </activity>
+        <activity
+            android:name=".lesson.LessonsActivity"
+            android:label="@string/title_activity_lessons" >
+        </activity>
+        <activity
+            android:name=".lesson.CreateLessonActivity"
+            android:label="@string/title_activity_create_lesson" >
+        </activity>
     </application>
 
 </manifest>

@@ -34,6 +34,8 @@
     <string name="title_activity_video_record">VideoRecordActivity</string>
     <string name="title_activity_vedio_play">VedioPlayActivity</string>
     <string name="title_activity_select_tag">SelectTagActivity</string>
+    <string name="title_activity_lessons">LessonsActivity</string>
+    <string name="title_activity_create_lesson">CreateLessonActivity</string>
 
 
 </resources>

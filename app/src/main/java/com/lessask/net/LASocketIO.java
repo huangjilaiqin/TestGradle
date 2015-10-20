@@ -2,6 +2,9 @@ package com.lessask.net;
 
 import android.util.Log;
 
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
+
 import java.net.URISyntaxException;
 
 import io.socket.client.IO;
@@ -14,7 +17,9 @@ import io.socket.emitter.Emitter;
 public class LASocketIO {
 
     private static String TAG = LASocketIO.class.getSimpleName();
-    private static String chathost = "http://ws.o-topcy.com";
+    private static GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private static Config config = globalInfos.getConfig();
+    private static String wshost = config.getWsUrl();
 
     public static Socket getSocket(){
         return LazyHolder.socket;
@@ -24,7 +29,8 @@ public class LASocketIO {
         try {
             IO.Options options = new IO.Options();
             options.transports = new String[]{"websocket", "polling"};
-            socket = IO.socket(chathost, options);
+            options.path = config.getWsPath();
+            socket = IO.socket(wshost, options);
             socket.on(Socket.EVENT_CONNECT, onConnect);
             socket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
             socket.on(Socket.EVENT_CONNECT_TIMEOUT, onTimeout);
@@ -32,7 +38,7 @@ public class LASocketIO {
             socket.on(Socket.EVENT_RECONNECT, onReconnect);
             socket.on(Socket.EVENT_ERROR, onError);
             socket.connect();
-            Log.d(TAG, "connect to "+chathost);
+            Log.d(TAG, "connect to "+wshost);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
