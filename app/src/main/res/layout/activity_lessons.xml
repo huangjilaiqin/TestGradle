@@ -50,12 +50,45 @@
             />
     </RelativeLayout>
     <RelativeLayout
+        android:id="@+id/search_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:paddingTop="20dp"
+        >
+        <EditText
+            android:id="@+id/search_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            />
+        <ImageView
+            android:id="@+id/search_img"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/search"
+            />
+        <Button
+            android:id="@+id/search"
+            android:layout_width="53.33dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/button_border_main_color"
+            android:text="搜索"
+            />
+
+    </RelativeLayout>
+    <RelativeLayout
         android:id="@+id/lessons_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
         >
         <ListView
+            android:id="@+id/lessons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"></ListView>
 
