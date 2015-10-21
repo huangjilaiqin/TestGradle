@@ -78,6 +78,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/fresco/0.7.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline/0.7.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.github.chrisbanes.photoview/library/1.2.4/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.hedgehog.ratingbar/app/1.0.2/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/me.iwf.photopicker/PhotoPicker/0.2.7/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jacoco" />
@@ -119,6 +120,7 @@
     <orderEntry type="library" exported="" name="locSDK_5.2" level="project" />
     <orderEntry type="library" exported="" name="engine.io-client-0.6.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="app-1.0.2" level="project" />
     <orderEntry type="library" exported="" name="javacv" level="project" />
     <orderEntry type="library" exported="" name="design-22.2.0" level="project" />
     <orderEntry type="module" module-name="tagview" exported="" />

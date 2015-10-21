@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.show;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,9 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.lessask.FriendsAdapter;
+import com.lessask.R;
+import com.lessask.ShowImageActivity;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 
@@ -194,41 +197,6 @@ public class ShowListAdapter extends BaseAdapter {
                 break;
         }
 
-        /*
-        ArrayList chatContent = globalInfos.getChatContent(user.getUserid());
-        ChatMessage msg = null;
-        if(chatContent.size()>0) {
-            msg = (ChatMessage) chatContent.get(chatContent.size()-1);
-        }
-        tvName.setText(user.getNickname());
-        //获取对话内容
-        if(msg!=null) {
-            tvContent.setText(msg.getContent());
-            tvTime.setText(msg.getTime());
-        }
-
-        //先从内内存中找, 再从文件中找, 再服务器加载
-        //Bitmap bmp = user.getHeadImg();
-        Bitmap bmp = null;
-        if(bmp == null){
-            File imageFile = new File(headImgDir, user.getUserid()+".jpg");
-            if(imageFile.exists()) {
-                Uri headImgUri = Uri.fromFile(imageFile);//获取文件的Uri
-                bmp = decodeUriAsBitmap(headImgUri);
-                //user.setHeadImg(bmp);
-                ivHead.setImageBitmap(bmp);
-            }else {
-                //设置默认图像
-                ivHead.setImageResource(R.mipmap.ic_launcher);
-                //异步加载图像
-                String friendHeadImgUrl = globalInfos.getHeadImgHost()+user.getUserid()+".jpg";
-                ImageLoader.ImageListener listener = ImageLoader.getImageListener(ivHead,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                imageLoader.get(friendHeadImgUrl, listener);
-            }
-        }else {
-            ivHead.setImageBitmap(bmp);
-        }
-        */
 
         return convertView;
     }

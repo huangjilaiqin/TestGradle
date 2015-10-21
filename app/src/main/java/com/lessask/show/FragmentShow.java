@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.show;
 
 
 import android.app.Activity;
@@ -17,9 +17,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.lessask.R;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
-import com.lessask.show.CreateShowActivity;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -162,7 +162,9 @@
         </activity>
         <activity
             android:name=".lesson.CreateLessonActivity"
-            android:label="@string/title_activity_create_lesson" >
+            android:label="@string/title_activity_create_lesson"
+            android:windowSoftInputMode="adjustPan"
+            >
         </activity>
     </application>
 

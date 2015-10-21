@@ -34,9 +34,10 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
     <style name="sportRatingBar" parent="@android:style/Widget.RatingBar">
-        <item name="android:progressDrawable">@drawable/star</item>
-        <item name="android:minHeight">64px</item>
-        <item name="android:maxHeight">64px</item>
+        <item name="android:progressDrawable">@drawable/sport_rating_bar</item>
+        <item name="android:minHeight">16dip</item>
+        <item name="android:maxHeight">16dip</item>
+        <item name="android:isIndicator">false</item>
     </style>
 
 </resources>

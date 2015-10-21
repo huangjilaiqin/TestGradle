@@ -76,7 +76,7 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
+        //Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
 
         File headImgDir = getApplicationContext().getExternalFilesDir("headImg");
         globalInfos.setHeadImgDir(headImgDir);
