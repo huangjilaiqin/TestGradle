@@ -124,7 +124,7 @@ public class LessonsActivity extends Activity implements View.OnClickListener{
 
             LessonInfo data = datas.get(position);
             holder.name.setText(data.getName());
-            holder.time.setText(data.getTime());
+            holder.time.setText(data.getTime()+"分钟");
             holder.address.setText(data.getAddress());
             ArrayList<String> tags = data.getTags();
             for(int i=0;i<tags.size();i++){
