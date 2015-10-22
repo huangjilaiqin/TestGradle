@@ -1,4 +1,4 @@
-package com.lessask.vedio;
+package com.lessask.tag;
 
 import android.os.Parcel;
 import android.os.Parcelable;

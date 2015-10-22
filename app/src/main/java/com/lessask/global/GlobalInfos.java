@@ -3,7 +3,7 @@ package com.lessask.global;
 import android.util.Log;
 
 import com.lessask.model.User;
-import com.lessask.vedio.VedioTagsHolder;
+import com.lessask.action.ActionTagsHolder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,13 +32,13 @@ public class GlobalInfos {
 
     private int screenWidth;
     private int screenHeight;
-    private VedioTagsHolder vedioTagsHolder;
+    private ActionTagsHolder actionTagsHolder;
     private Config config;
 
     private GlobalInfos(){
         historyIds = new HashMap<>();
         chatContents = new HashMap<>();
-        vedioTagsHolder = new VedioTagsHolder();
+        actionTagsHolder = new ActionTagsHolder();
         config = new Config();
     }
     public static final GlobalInfos getInstance(){
@@ -51,8 +51,8 @@ public class GlobalInfos {
     public Config getConfig(){
         return config;
     }
-    public VedioTagsHolder getVedioTagsHolder(){
-        return vedioTagsHolder;
+    public ActionTagsHolder getActionTagsHolder(){
+        return actionTagsHolder;
     }
 
     public int getScreenHeight() {

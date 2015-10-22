@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="13dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         android:textSize="18sp"
         android:textColor="@color/black"
         android:text="30天无敌减脂"
@@ -31,6 +31,7 @@
         android:layout_height="25dp"
         android:layout_below="@id/edit"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:layout_alignLeft="@id/edit"
         android:background="@drawable/button_border_main_color"
         android:textSize="15sp"
@@ -45,20 +46,18 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="13dp"
         />
-    <me.kaede.tagview.TagView
+    <TextView
         android:id="@+id/tags"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/main_color"
         android:layout_below="@id/time_label"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="13dp"
-        app:lineMargin="5dp"
-        app:tagMargin="3dp"
-        app:textPaddingBottom="3dp"
-        app:textPaddingLeft="10dp"
-        app:textPaddingRight="10dp"
-        app:textPaddingTop="3dp"
+        android:layout_alignLeft="@id/time_label"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="10dp"
+        android:text="test"
         />
+
 
     <TextView
         android:id="@+id/time"

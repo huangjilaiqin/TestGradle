@@ -1,4 +1,4 @@
-package com.lessask.vedio;
+package com.lessask.tag;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.lessask.R;
+import com.lessask.action.ActionTagsHolder;
 import com.lessask.global.GlobalInfos;
 import com.lessask.dialog.LoadingDialog;
 
@@ -49,12 +50,12 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     private ArrayList<TagData> filteredTags;
     private TagsAdapter mTagsAdapter;
     private Intent intent;
-    private VedioNet mVedioNet;
+    private TagNet mTagNet;
     private Gson gson;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private ArrayList<TagData> selectedTagDatas;
     private ArrayList<TagData> originSelectedTagDatas;
-    private VedioTagsHolder vedioTagsHolder = globalInfos.getVedioTagsHolder();
+    private ActionTagsHolder actionTagsHolder = globalInfos.getActionTagsHolder();
 
     private Handler handler = new Handler() {
         @Override
@@ -66,7 +67,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
                     int tagId = response.getId();
                     String tagName = response.getName();
                     //更新总的tags
-                    vedioTagsHolder.addVedioTag(new TagData(tagId, tagName));
+                    actionTagsHolder.addActionTag(new TagData(tagId, tagName));
                     filterTags(filteredTags, "");
 
                     //更新选中视图
@@ -89,9 +90,9 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         loadingDialog = new LoadingDialog(this);
 
         gson = new Gson();
-        mVedioNet = VedioNet.getInstance();
-        mVedioNet.setCreateTagListener(createTagListener);
-        //mVedioNet.setGetTagsListener(getTagsListener);
+        mTagNet = TagNet.getInstance();
+        mTagNet.setCreateTagListener(createTagListener);
+        //mTagNet.setGetTagsListener(getTagsListener);
         intent = getIntent();
 
         mSave = (Button) findViewById(R.id.save);
@@ -102,7 +103,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         mTagView.setOnTagDeleteListener(new OnTagDeleteListener() {
             @Override
             public void onTagDeleted(Tag tag, int position) {
-                String tagName = vedioTagsHolder.getVedioTagNameById(tag.id);
+                String tagName = actionTagsHolder.getActionTagNameById(tag.id);
                 Log.e(TAG, "tagName "+tagName);
                 TagData tagData = new TagData(tag.id, tagName);
                 Log.e(TAG, "before "+selectedTagDatas.size());
@@ -145,7 +146,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     }
 
 
-    private VedioNet.CreateTagListener createTagListener = new VedioNet.CreateTagListener() {
+    private TagNet.CreateTagListener createTagListener = new TagNet.CreateTagListener() {
         @Override
         public void createTagResponse(CreateTagResponse response) {
             Log.e(TAG, "createTag resp id:" + response.getId());
@@ -158,7 +159,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     };
 
     private Tag getTag(int id){
-        String name = vedioTagsHolder.getVedioTagNameById(id);
+        String name = actionTagsHolder.getActionTagNameById(id);
         Tag tag = new Tag(name);
         tag.id = id;
         tag.tagTextColor = R.color.main_color;
@@ -176,7 +177,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     private void filterTags(ArrayList<TagData>filteredTags, String filter){
         Log.e(TAG, "filterStr:" + filter);
         filteredTags.clear();
-        ArrayList<TagData> nameLikeTagDatas = vedioTagsHolder.getVedioTagsLike(filter);
+        ArrayList<TagData> nameLikeTagDatas = actionTagsHolder.getActionTagsLike(filter);
         filteredTags.addAll(nameLikeTagDatas);
         boolean isEqual = false;
         for(int i=0;i<nameLikeTagDatas.size();i++){
@@ -235,7 +236,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
                 //create new tag
                 String newTagName = mSelectContent.getText().toString();
                 CreateTagRequest request = new CreateTagRequest(globalInfos.getUserid(), newTagName, getTagSeq());
-                mVedioNet.emit("createtag", gson.toJson(request));
+                mTagNet.emit("createtag", gson.toJson(request));
                 loadingDialog.show();
             }else {
                 TagData tag = tags.get(position);

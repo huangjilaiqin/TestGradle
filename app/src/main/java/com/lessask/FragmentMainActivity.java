@@ -18,10 +18,10 @@ import android.widget.RadioGroup;
 import com.google.gson.Gson;
 import com.lessask.global.GlobalInfos;
 import com.lessask.show.FragmentShow;
-import com.lessask.vedio.GetTagsRequest;
-import com.lessask.vedio.GetTagsResponse;
-import com.lessask.vedio.TagData;
-import com.lessask.vedio.VedioNet;
+import com.lessask.tag.GetTagsRequest;
+import com.lessask.tag.GetTagsResponse;
+import com.lessask.tag.TagData;
+import com.lessask.tag.TagNet;
 
 import java.util.ArrayList;
 
@@ -65,16 +65,16 @@ public class FragmentMainActivity extends FragmentActivity implements ViewPager.
         loadData();
     }
     private void loadData(){
-        VedioNet mVedioNet = VedioNet.getInstance();
-        mVedioNet.setGetTagsListener(getTagsListener);
+        TagNet mTagNet = TagNet.getInstance();
+        mTagNet.setGetTagsListener(getTagsListener);
         GetTagsRequest request = new GetTagsRequest(globalInfos.getUserid());
-        mVedioNet.emit("gettags", gson.toJson(request));
+        mTagNet.emit("gettags", gson.toJson(request));
     }
-    private VedioNet.GetTagsListener getTagsListener = new VedioNet.GetTagsListener() {
+    private TagNet.GetTagsListener getTagsListener = new TagNet.GetTagsListener() {
         @Override
         public void getTagsResponse(GetTagsResponse response) {
             ArrayList<TagData> allTags = response.getTagDatas();
-            globalInfos.getVedioTagsHolder().setVedioTags(allTags);
+            globalInfos.getActionTagsHolder().setActionTags(allTags);
             Log.e(TAG, "gettags resp size:" + allTags.size());
         }
     };

@@ -1,4 +1,4 @@
-package com.lessask.vedio;
+package com.lessask.tag;
 
 import android.util.Log;
 
@@ -12,24 +12,24 @@ import io.socket.emitter.Emitter;
 /**
  * Created by huangji on 2015/10/16.
  */
-public class VedioNet {
+public class TagNet {
 
-    private static String TAG = VedioNet.class.getSimpleName();
+    private static String TAG = TagNet.class.getSimpleName();
     private Socket mSocket;
     private Gson gson;
     private CreateTagListener createTagListener;
     private GetTagsListener getTagsListener;
-    private VedioNet(){
+    private TagNet(){
         mSocket = LASocketIO.getSocket();
         //注册事件
         gson = new Gson();
         registerEvent();
     }
-    public static VedioNet getInstance(){
+    public static TagNet getInstance(){
         return LazyHolder.INSTANCE;
     }
     private static class LazyHolder {
-        private static final VedioNet INSTANCE = new VedioNet();
+        private static final TagNet INSTANCE = new TagNet();
     }
     public void emit(String event, Object... args){
         Log.e(TAG, event + ":" + args[0].toString());

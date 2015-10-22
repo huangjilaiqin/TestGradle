@@ -3,13 +3,13 @@ package com.lessask.lesson;
 /**
  * Created by huangji on 2015/10/21.
  */
-public class ActionInfo {
+public class LessonActionInfo {
     private String name;
     private int times;
     private int groups;
     private int costTimes;
 
-    public ActionInfo(String name, int times, int groups, int costTimes) {
+    public LessonActionInfo(String name, int times, int groups, int costTimes) {
         this.groups = groups;
         this.times = times;
         this.name = name;

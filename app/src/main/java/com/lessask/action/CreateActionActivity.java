@@ -1,4 +1,4 @@
-package com.lessask.vedio;
+package com.lessask.action;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -39,10 +39,11 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
+import com.lessask.tag.SelectTagsActivity;
+import com.lessask.tag.TagData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -50,11 +51,11 @@ import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class VedioPlayActivity extends Activity implements TextureView.SurfaceTextureListener
+public class CreateActionActivity extends Activity implements TextureView.SurfaceTextureListener
         ,OnClickListener,OnCompletionListener{
 
     private final int SELECT_TAGS = 1;
-    private final String TAG = VedioPlayActivity.class.getSimpleName();
+    private final String TAG = CreateActionActivity.class.getSimpleName();
     private String path;
     private TextureView surfaceView;
     private MediaPlayer mediaPlayer;
@@ -89,9 +90,9 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
                 case ON_UPLOAD_DONE:
                     loadingDialog.cancel();
                     if(msg.arg1==1){
-                        Toast.makeText(VedioPlayActivity.this, "upload success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
                     }else {
-                        Toast.makeText(VedioPlayActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateActionActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
                     }
                     break;
             }
@@ -101,7 +102,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_vedio_play);
+        setContentView(R.layout.activity_create_action);
 
         tagDatas = new ArrayList<>();
         noticeDatas = new ArrayList<>();
@@ -276,7 +277,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
     }
 
     private void uploadVedio(){
-        loadingDialog = new LoadingDialog(VedioPlayActivity.this);
+        loadingDialog = new LoadingDialog(CreateActionActivity.this);
         PostSingleEvent event = new PostSingleEvent() {
 
             @Override
@@ -307,7 +308,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
             public void onDone(boolean success, PostResponse postResponse) {
                 int resCode = postResponse.getCode();
                 String body = postResponse.getBody();
-                UploadVedioResponse response = gson.fromJson(body, UploadVedioResponse.class);
+                UploadActionResponse response = gson.fromJson(body, UploadActionResponse.class);
                 int vedioId = response.getVedioid();
 
                 Message msg = new Message();
@@ -431,7 +432,7 @@ public class VedioPlayActivity extends Activity implements TextureView.SurfaceTe
 
     private void stop(){
         mediaPlayer.stop();
-        Intent intent = new Intent(this,VideoRecordActivity.class);
+        Intent intent = new Intent(this,RecordActionActivity.class);
         startActivity(intent);
         finish();
     }

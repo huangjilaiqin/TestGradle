@@ -1,4 +1,4 @@
-package com.lessask.vedio;
+package com.lessask.action;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,15 +19,15 @@ import android.widget.Toast;
 
 import com.lessask.ProgressView;
 import com.lessask.R;
+import com.lessask.action.CreateActionActivity;
 import com.lessask.util.CameraHelper;
-import com.lessask.vedio.VedioPlayActivity;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 
-public class VideoRecordActivity extends Activity implements SurfaceHolder.Callback, View.OnTouchListener{
+public class RecordActionActivity extends Activity implements SurfaceHolder.Callback, View.OnTouchListener{
     private static final String TAG = "CAMERA_TUTORIAL";
 
     private SurfaceView surfaceView;
@@ -61,7 +61,7 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_record);
+        setContentView(R.layout.activity_record_action);
 
         displayMetrics = getResources().getDisplayMetrics();
 		screenWidth = displayMetrics.widthPixels;
@@ -162,7 +162,7 @@ public class VideoRecordActivity extends Activity implements SurfaceHolder.Callb
         camera.lock();
         mediaRecorder.stop();
 
-        Intent intent = new Intent(this, VedioPlayActivity.class);
+        Intent intent = new Intent(this, CreateActionActivity.class);
         intent.putExtra("path", tempFile.getAbsolutePath());
         intent.putExtra("imagePath", "");
         startActivity(intent);

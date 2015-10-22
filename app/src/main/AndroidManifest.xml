@@ -144,16 +144,16 @@
             android:label="@string/title_activity_squats" >
         </activity>
         <activity
-            android:name=".vedio.VideoRecordActivity"
+            android:name=".action.RecordActionActivity"
             android:label="@string/title_activity_video_record"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
         <activity
-            android:name=".vedio.VedioPlayActivity"
+            android:name=".action.CreateActionActivity"
             android:label="@string/title_activity_vedio_play" >
         </activity>
         <activity
-            android:name=".vedio.SelectTagsActivity"
+            android:name=".tag.SelectTagsActivity"
             android:label="@string/title_activity_select_tag" >
         </activity>
         <activity
@@ -163,8 +163,15 @@
         <activity
             android:name=".lesson.CreateLessonActivity"
             android:label="@string/title_activity_create_lesson"
-            android:windowSoftInputMode="adjustPan"
-            >
+            android:windowSoftInputMode="adjustPan" >
+        </activity>
+        <activity
+            android:name=".action.ActionsActivity"
+            android:label="@string/title_activity_actions" >
+        </activity>
+        <activity
+            android:name=".action.SelectActionActivity"
+            android:label="@string/title_activity_select_action" >
         </activity>
     </application>
 

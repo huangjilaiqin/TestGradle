@@ -1,12 +1,12 @@
-package com.lessask.vedio;
+package com.lessask.action;
 
 /**
  * Created by JHuang on 2015/10/18.
  */
-public class UploadVedioResponse {
+public class UploadActionResponse {
     int vedioid;
 
-    public UploadVedioResponse(int vedioid) {
+    public UploadActionResponse(int vedioid) {
         this.vedioid = vedioid;
     }
 

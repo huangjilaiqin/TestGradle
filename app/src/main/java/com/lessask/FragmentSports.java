@@ -13,7 +13,7 @@ import android.widget.Button;
 import com.lessask.lesson.LessonsActivity;
 import com.lessask.sports.SquatsActivity;
 import com.lessask.sports.RunActivity;
-import com.lessask.vedio.VideoRecordActivity;
+import com.lessask.action.RecordActionActivity;
 
 /**
  * Created by huangji on 2015/9/16.
@@ -55,7 +55,7 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.vedio:
-                intent = new Intent(getActivity(), VideoRecordActivity.class);
+                intent = new Intent(getActivity(), RecordActionActivity.class);
                 startActivity(intent);
                 break;
             case R.id.lesson:
