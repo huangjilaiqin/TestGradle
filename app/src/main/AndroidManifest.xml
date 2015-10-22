@@ -173,6 +173,10 @@
             android:name=".action.SelectActionActivity"
             android:label="@string/title_activity_select_action" >
         </activity>
+        <activity
+            android:name=".me.ChangePersonInfoActivity"
+            android:label="@string/title_activity_change_person_info" >
+        </activity>
     </application>
 
 </manifest>

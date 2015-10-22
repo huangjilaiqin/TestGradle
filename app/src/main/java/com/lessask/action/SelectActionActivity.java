@@ -19,8 +19,8 @@ import java.util.ArrayList;
 
 public class SelectActionActivity extends Activity implements View.OnClickListener{
     private String TAG = SelectActionActivity.class.getSimpleName();
-    private ImageView mBack = (ImageView)findViewById(R.id.back);
-    private ListView mActions = (ListView)findViewById(R.id.actions);
+    private ImageView mBack;
+    private ListView mActions;
     private ActionListAdapter actionsAdapter;
     private ArrayList<ActionInfo> allActions;
     private ArrayList<ActionInfo> selectedActions;
@@ -29,10 +29,35 @@ public class SelectActionActivity extends Activity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_action);
+        mBack = (ImageView)findViewById(R.id.back);
+        mBack.setOnClickListener(this);
+        mActions = (ListView)findViewById(R.id.actions);
+        selectedActions = getData();
+        actionsAdapter = new ActionListAdapter(this, selectedActions);
+        mActions.setAdapter(actionsAdapter);
+    }
+
+    private ArrayList<ActionInfo> getData(){
+        ArrayList<ActionInfo> datas =new ArrayList<>();
+        for(int i=0;i<20;i++){
+            ArrayList<Integer> tags = new ArrayList<>();
+            tags.add(i+1);
+            tags.add(i+2);
+            ArrayList<String> notices = new ArrayList<>();
+            notices.add("注意事项"+i);
+            notices.add("注意事项"+i+1);
+            datas.add(new ActionInfo("深蹲"+i, tags, notices, "123.mp4"));
+        }
+        return  datas;
     }
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.back:
+                finish();
+                break;
+        }
 
     }
 
@@ -67,14 +92,14 @@ public class SelectActionActivity extends Activity implements View.OnClickListen
                 holder = (ActionViewHolder)convertView.getTag();
             }else {
                 convertView = LayoutInflater.from(context).inflate(R.layout.action_item_selecte, null);
+                holder = new ActionViewHolder();
 
                 TextView name = (TextView)convertView.findViewById(R.id.name);
                 Button select = (Button)convertView.findViewById(R.id.select);
-                select.setOnClickListener(SelectActionActivity.this);
+                select.setOnClickListener(holder);
                 TextView tags = (TextView)convertView.findViewById(R.id.tags);
 
                 //不变的控件
-                holder = new ActionViewHolder();
                 holder.select = select;
                 holder.name = name;
                 holder.tags = tags;
