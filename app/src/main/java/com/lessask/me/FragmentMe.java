@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.me;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.lessask.R;
 import com.lessask.chat.Chat;
 import com.lessask.global.GlobalInfos;
 import com.lessask.me.FragmentStatus;
@@ -41,6 +42,7 @@ import com.viewpagerindicator.TitlePageIndicator;
  * Created by JHuang on 2015/8/23.
  */
 public class FragmentMe extends Fragment{
+    private String TAG = FragmentMe.class.getSimpleName();
     private Chat chat = Chat.getInstance();
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -65,7 +67,9 @@ public class FragmentMe extends Fragment{
             fragmentNames.add("时间轴");
             fragmentNames.add("训练");
 
-            myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
+            //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
+            myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
+            //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().);
             mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
             mViewPager.setAdapter(myFragmentPagerAdapter);
             mViewPager.setCurrentItem(0); //设置默认当前页
@@ -85,6 +89,7 @@ public class FragmentMe extends Fragment{
 
         @Override
         public Fragment getItem(int position) {
+            Log.e(TAG, "fragmentMe getitem:"+fragmentDatas.get(position));
             return fragmentDatas.get(position);
         }
 

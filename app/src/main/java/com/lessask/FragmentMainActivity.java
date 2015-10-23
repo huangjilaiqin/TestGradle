@@ -17,6 +17,7 @@ import android.widget.RadioGroup;
 
 import com.google.gson.Gson;
 import com.lessask.global.GlobalInfos;
+import com.lessask.me.FragmentMe;
 import com.lessask.show.FragmentShow;
 import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
