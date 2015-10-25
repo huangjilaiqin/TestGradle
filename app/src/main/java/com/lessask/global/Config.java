@@ -5,12 +5,13 @@ package com.lessask.global;
  */
 public class Config {
     //private String wsUrl = "http://123.59.40.113:5002/ws/";
-    private String wsUrl = "http://ws.o-topcy.com";
-    private String wsPath = "/ws/socket.io/";
-    private String uploadVedioUrl = "http://ws.o-topcy.com/httproute/uploadvedio";
-    private String createShowUrl = "http://ws.o-topcy.com/httproute/show";
-    private String imgUrl = "http://ws.o-topcy.com/imgs/";
-    private String vedioUrl = "http://ws.o-topcy.com/vedios/";
+    private String wsUrl = "http://123.59.40.113";
+    //private String wsPath = "/ws/socket.io/";
+    private String wsPath = "/ws/";
+    private String uploadVedioUrl = "http://123.59.40.113/httproute/uploadvedio";
+    private String createShowUrl = "http://123.59.40.113/httproute/show";
+    private String imgUrl = "http://123.59.40.113/imgs/";
+    private String vedioUrl = "http://123.59.40.113/vedios/";
 
     public String getWsPath() {
         return wsPath;
