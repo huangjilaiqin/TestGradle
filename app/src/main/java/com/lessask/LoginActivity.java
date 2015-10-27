@@ -61,7 +61,8 @@ public class LoginActivity extends Activity {
                     //跳转到首页
                     //Intent intent = new Intent(LoginActivity.this, TestActivity.class);
                     //Intent intent = new Intent(LoginActivity.this, FriendsActivity.class);
-                    Intent intent = new Intent(LoginActivity.this, FragmentMainActivity.class);
+                    //Intent intent = new Intent(LoginActivity.this, FragmentMainActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 
                     startActivity(intent);
                     break;

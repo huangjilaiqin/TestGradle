@@ -5,52 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <RelativeLayout
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#23282B"
-        >
-        <ImageView
-            android:id="@+id/back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/back"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
-            android:layout_centerVertical="true"
-            />
-        <View
-            android:layout_width="1dp"
-            android:layout_height="20dp"
-            android:layout_toRightOf="@id/back"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="#000"
-            ></View>
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:text="唐三炮"
-            />
-        <Button
-            android:id="@+id/customize"
-            android:layout_width="53.33dp"
-            android:layout_height="30dp"
-            android:background="@drawable/button_main_color_bg"
-            android:text="关注"
-            android:textColor="#ffffff"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            />
-    </RelativeLayout>
-    <RelativeLayout
         android:id="@+id/base_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -298,9 +252,8 @@
         <android.support.v4.view.ViewPager
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:descendantFocusability="afterDescendants"
+            android:layout_height="match_parent"
+            android:layout_below="@id/indicator"
             />
     </RelativeLayout>
 </RelativeLayout>

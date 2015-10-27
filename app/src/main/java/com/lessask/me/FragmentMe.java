@@ -73,11 +73,26 @@ public class FragmentMe extends Fragment{
             mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
             mViewPager.setAdapter(myFragmentPagerAdapter);
             mViewPager.setCurrentItem(0); //设置默认当前页
+            mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    Log.e(TAG, "onPageSelected:"+position);
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
+                }
+            });
 
             indicator = (TitlePageIndicator)rootView.findViewById(R.id.indicator);
             indicator.setViewPager(mViewPager);
             indicator.setCurrentItem(0);
-
         }
         return rootView;
     }

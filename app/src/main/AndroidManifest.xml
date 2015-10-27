@@ -177,6 +177,10 @@
             android:name=".me.ChangePersonInfoActivity"
             android:label="@string/title_activity_change_person_info" >
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
     </application>
 
 </manifest>
