@@ -22,6 +22,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.global.GlobalInfos;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private ArrayList<Fragment> fragments ;
+    private boolean isFragmentMain;
+    private int currentSelectItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             mDrawerView.setPadding(mDrawerView.getPaddingLeft(), mDrawerView.getPaddingTop() + statusBarHeight, mDrawerView.getPaddingRight(), mDrawerView.getPaddingBottom());
             mToolbar.setPadding(mToolbar.getPaddingLeft(), mToolbar.getPaddingTop() + statusBarHeight, mToolbar.getPaddingRight(), mToolbar.getPaddingBottom());
         }
-        selectItem(0);
+        selectItemManual(0);
 
         loadData();
     }
@@ -185,26 +188,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /** Swaps fragments in the main content view */
-    private void selectItem(int position) {
+    public void changeToolbar(int position){
+        mDrawerList.setItemChecked(position, true);
+        setTitle(datas.get(position).getName());
+    }
+    private void selectItemManual(int position) {
         // Create a new fragment and specify the planet to show based on position
+        isFragmentMain = true;
+        currentSelectItem = position;
         Fragment fragment = fragments.get(position);
-        if(position<3){
-            FragmentMain f = (FragmentMain)fragment;
-            f.select(position);
-        }
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
+
+        FragmentMain f = (FragmentMain)fragment;
+        f.selectViewPagerItem(position);
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.main_fragment_container, fragment)
-                .commit();
+            .replace(R.id.main_fragment_container, fragment)
+            .commit();
+
+        // Highlight the selected item, update the title, and close the drawer
+        mDrawerList.setItemChecked(position, true);
+        setTitle(datas.get(position).getName());
+    }
+
+    /** Swaps fragments in the main content view */
+    private void selectItem(int position) {
+        // Create a new fragment and specify the planet to show based on position
+
+        Fragment fragment = null;
+        if(position<3) {
+            fragment = new FragmentMain();
+            FragmentMain f = (FragmentMain)fragment;
+            f.setCurrentPager(position);
+        }else if(position==3)
+            fragment = new FragmentMe();
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+            .replace(R.id.main_fragment_container, fragment)
+            .commit();
 
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         setTitle(datas.get(position).getName());
         mDrawerLayout.closeDrawer(mDrawerView);
+        currentSelectItem = position;
     }
 }

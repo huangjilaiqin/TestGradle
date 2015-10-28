@@ -13,18 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.lessask.global.GlobalInfos;
-import com.lessask.me.FragmentMe;
 import com.lessask.show.FragmentShow;
-import com.lessask.tag.GetTagsRequest;
-import com.lessask.tag.GetTagsResponse;
-import com.lessask.tag.TagData;
-import com.lessask.tag.TagNet;
 
 import java.util.ArrayList;
 
@@ -36,6 +27,12 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     private View rootView;
     private ViewPager vp;
     private ArrayList<Fragment> list = new ArrayList<Fragment>();
+    private MainActivity mainActivity;
+    private int currentPager;
+
+    public void setCurrentPager(int position){
+        this.currentPager = position;
+    }
 
     @Nullable
     @Override
@@ -44,12 +41,16 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
             rootView = inflater.inflate(R.layout.fragment_main, null);
             initViews();
             initPager();
+            mainActivity = (MainActivity)getActivity();
         }
+        Log.e(TAG, "onCreateView");
+        selectViewPagerItem(currentPager);
         return rootView;
     }
 
-    public void select(int position){
-        vp.setCurrentItem(position);
+    public void selectViewPagerItem(int position){
+        if(vp!=null)
+            vp.setCurrentItem(position);
     }
 
 
@@ -99,7 +100,54 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageSelected(int index) {
-
+        mainActivity.changeToolbar(index);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.e(TAG, "onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.e(TAG, "onStop");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.e(TAG, "onDestroyView");
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.e(TAG, "onDetach");
+    }
 }
