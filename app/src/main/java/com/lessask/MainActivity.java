@@ -32,6 +32,7 @@ import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;
 import com.lessask.tag.TagNet;
+import com.viewpagerindicator.IconPageIndicator;
 
 import java.util.ArrayList;
 
@@ -65,7 +66,9 @@ public class MainActivity extends AppCompatActivity {
         globalInfos.setScreenHeight(height);
 
         fragments = new ArrayList<>();
-        Fragment fragmentMain = new FragmentMain();
+        FragmentMain fragmentMain = new FragmentMain();
+        IconPageIndicator iconPageIndicator = (IconPageIndicator)findViewById(R.id.main_indicator);
+        fragmentMain.setIconPageIndicator(iconPageIndicator);
         fragments.add(fragmentMain);
         fragments.add(fragmentMain);
         fragments.add(fragmentMain);
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         mDrawerList.setAdapter(mAdapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
+        /*
         //设置状态栏padding
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             int statusBarHeight = getStatusBarHeight();
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
             mDrawerView.setPadding(mDrawerView.getPaddingLeft(), mDrawerView.getPaddingTop() + statusBarHeight, mDrawerView.getPaddingRight(), mDrawerView.getPaddingBottom());
             mToolbar.setPadding(mToolbar.getPaddingLeft(), mToolbar.getPaddingTop() + statusBarHeight, mToolbar.getPaddingRight(), mToolbar.getPaddingBottom());
         }
+        */
         selectItemManual(0);
 
         loadData();
@@ -191,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
     public void changeToolbar(int position){
         mDrawerList.setItemChecked(position, true);
         setTitle(datas.get(position).getName());
+        Log.e(TAG, "scroll setTitle:"+datas.get(position).getName());
     }
     private void selectItemManual(int position) {
         // Create a new fragment and specify the planet to show based on position

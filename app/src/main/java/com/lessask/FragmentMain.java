@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.lessask.show.FragmentShow;
+import com.viewpagerindicator.IconPageIndicator;
+import com.viewpagerindicator.IconPagerAdapter;
 
 import java.util.ArrayList;
 
@@ -21,10 +23,15 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     private int REQUEST_CODE = 100;
     private static final String TAG = FragmentMain.class.getName();
     private View rootView;
-    private ViewPager vp;
+    private ViewPager mViewPager;
     private ArrayList<Fragment> list = new ArrayList<Fragment>();
     private MainActivity mainActivity;
     private int currentPager;
+    private IconPageIndicator iconPageIndicator;
+
+    public void setIconPageIndicator(IconPageIndicator iconPageIndicator) {
+        this.iconPageIndicator = iconPageIndicator;
+    }
 
     public void setCurrentPager(int position){
         this.currentPager = position;
@@ -45,14 +52,14 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     }
 
     public void selectViewPagerItem(int position){
-        if(vp!=null)
-            vp.setCurrentItem(position);
+        if(mViewPager!=null)
+            mViewPager.setCurrentItem(position);
     }
 
 
     private void initViews() {
-        vp = (ViewPager) rootView.findViewById(R.id.pager);
-        vp.setOnPageChangeListener(this);
+        mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
+        mViewPager.setOnPageChangeListener(this);
     }
 
     private void initPager() {
@@ -62,11 +69,19 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         list.add(fgSports);
         FragmentChat fgFriends = new FragmentChat();
         list.add(fgFriends);
-        vp.setAdapter(new MyAdapter(getChildFragmentManager(), list));
+        mViewPager.setAdapter(new MyAdapter(getChildFragmentManager(), list));
+        this.iconPageIndicator.setViewPager(mViewPager);
+        this.iconPageIndicator.setOnPageChangeListener(this);
+        this.iconPageIndicator.setCurrentItem(0);
     }
 
-    class MyAdapter extends FragmentPagerAdapter {
+    class MyAdapter extends FragmentPagerAdapter implements IconPagerAdapter{
         ArrayList<Fragment> list;
+        protected final int[] ICONS = new int[] {
+            R.drawable.show_indicator,
+            R.drawable.sport_indicator,
+            R.drawable.chat_indicator,
+        };
         public MyAdapter(FragmentManager fm, ArrayList<Fragment> mList) {
             super(fm);
             list = mList;
@@ -75,6 +90,11 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         @Override
         public Fragment getItem(int arg0) {
             return list.get(arg0);
+        }
+
+        @Override
+        public int getIconResId(int index) {
+            return ICONS[index % ICONS.length];
         }
 
         @Override
@@ -97,6 +117,7 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     @Override
     public void onPageSelected(int index) {
         mainActivity.changeToolbar(index);
+        Log.e(TAG, "onPageSelected "+index);
     }
 
     @Override

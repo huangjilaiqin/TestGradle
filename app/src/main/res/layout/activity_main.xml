@@ -15,24 +15,39 @@
         >
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            >
             <!--
             android:paddingTop="24dp"
             -->
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            <RelativeLayout
+                android:id="@+id/header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="?attr/actionBarSize"
                 android:background="#00bb9c"
+                android:paddingTop="@dimen/toolbar_padding_top"
                 >
-                </android.support.v7.widget.Toolbar>
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="?attr/actionBarSize"
+                    />
+                <com.viewpagerindicator.IconPageIndicator
+                    android:id="@+id/main_indicator"
+                    android:layout_height="24dp"
+                    android:layout_width="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="@dimen/indicator_margin_top"
+                    />
+            </RelativeLayout>
             <FrameLayout
                 android:id="@+id/main_fragment_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/toolbar"
+                android:layout_below="@id/header"
                 />
         </RelativeLayout>
         <!--
@@ -44,6 +59,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:background="#00bb9c"
+            android:paddingTop="@dimen/drawer_padding_top"
             >
             <RelativeLayout
                 android:id="@+id/person_info"

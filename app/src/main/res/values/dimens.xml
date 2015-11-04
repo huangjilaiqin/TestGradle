@@ -13,4 +13,7 @@
     <dimen name="tab_img_height">40dp</dimen>
     <dimen name="tab_img_margin_right">20dp</dimen>
     <dimen name="tab_img_margin_left">20dp</dimen>
+    <dimen name="toolbar_padding_top">0dp</dimen>
+    <dimen name="drawer_padding_top">0dp</dimen>
+    <dimen name="indicator_margin_top">16dp</dimen>
 </resources>
