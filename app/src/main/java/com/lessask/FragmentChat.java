@@ -25,11 +25,11 @@ import java.util.ArrayList;
 /**
  * Created by JHuang on 2015/8/23.
  */
-public class FragmentFriends extends Fragment{
+public class FragmentChat extends Fragment{
     private Chat chat = Chat.getInstance();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
-    private static final String TAG = FragmentFriends.class.getName();
+    private static final String TAG = FragmentChat.class.getName();
     private static final int ON_FRIENDS = 0;
 
     private ListView lvFriends;
@@ -62,7 +62,7 @@ public class FragmentFriends extends Fragment{
         Log.e(TAG, "onCreateView");
         if(rootView==null){
             Log.e(TAG, "rootView is null");
-            rootView = inflater.inflate(R.layout.fragment_friends, container, false);
+            rootView = inflater.inflate(R.layout.fragment_chat, container, false);
             lvFriends = (ListView)rootView.findViewById(R.id.friends);
 
             ArrayList friends = globalInfos.getFriends();

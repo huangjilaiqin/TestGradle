@@ -30,7 +30,7 @@ public class FragmentMainActivity extends FragmentActivity implements ViewPager.
 
     private LayoutInflater layoutInflater;
     private int REQUEST_CODE = 100;
-    private Class fragmentArray[] = {FragmentShow.class, FragmentSports.class, FragmentFriends.class, FragmentMe.class};
+    private Class fragmentArray[] = {FragmentShow.class, FragmentSports.class, FragmentChat.class, FragmentMe.class};
     private String mTextviewArray[] = {"发现", "运动", "好友", "我"};
     private int fragmentImg[] = {R.drawable.show,R.drawable.show_selected,R.drawable.sports,R.drawable.sports_selected,R.drawable.chat,R.drawable.chat_selected,R.drawable.me,R.drawable.me_selected};
     private static final String TAG = FragmentMainActivity.class.getName();
@@ -101,7 +101,7 @@ public class FragmentMainActivity extends FragmentActivity implements ViewPager.
         list.add(fgShow);
         FragmentSports fgSports = new FragmentSports();
         list.add(fgSports);
-        FragmentFriends fgFriends = new FragmentFriends();
+        FragmentChat fgFriends = new FragmentChat();
         list.add(fgFriends);
         FragmentMe fgMe = new FragmentMe();
         list.add(fgMe);

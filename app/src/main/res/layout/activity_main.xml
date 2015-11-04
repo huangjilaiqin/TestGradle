@@ -26,7 +26,8 @@
                 android:layout_height="wrap_content"
                 android:minHeight="?attr/actionBarSize"
                 android:background="#00bb9c"
-                />
+                >
+                </android.support.v7.widget.Toolbar>
             <FrameLayout
                 android:id="@+id/main_fragment_container"
                 android:layout_width="match_parent"

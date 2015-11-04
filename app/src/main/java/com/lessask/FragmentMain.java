@@ -1,19 +1,15 @@
 package com.lessask;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.lessask.show.FragmentShow;
 
@@ -64,7 +60,7 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         list.add(fgShow);
         FragmentSports fgSports = new FragmentSports();
         list.add(fgSports);
-        FragmentFriends fgFriends = new FragmentFriends();
+        FragmentChat fgFriends = new FragmentChat();
         list.add(fgFriends);
         vp.setAdapter(new MyAdapter(getChildFragmentManager(), list));
     }
