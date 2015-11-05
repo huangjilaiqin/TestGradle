@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private ArrayList<Fragment> fragments ;
-    private boolean isFragmentMain;
     private int currentSelectItem;
     private IconPageIndicator iconPageIndicator;
 
@@ -149,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
     class DrawerAdapter extends BaseAdapter{
         private ArrayList<DrawerItem> datas;
         private Context context;
+        private int selectItem;
 
         public DrawerAdapter(Context context, ArrayList<DrawerItem> datas){
             this.context = context;
@@ -176,7 +176,18 @@ public class MainActivity extends AppCompatActivity {
             TextView name = (TextView)convertView.findViewById(R.id.name);
             DrawerItem data = datas.get(position);
             name.setText(data.getName());
+            if(position==selectItem){
+                convertView.setBackgroundColor(getResources().getColor(R.color.background_white_not_transparent));
+                name.setTextColor(getResources().getColor(R.color.main_color));
+            }else {
+                convertView.setBackgroundColor(getResources().getColor(R.color.white));
+                name.setTextColor(getResources().getColor(R.color.black_40));
+            }
+
             return convertView;
+        }
+        public  void setSelectItem(int selectItem) {
+             this.selectItem = selectItem;
         }
     }
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -193,8 +204,6 @@ public class MainActivity extends AppCompatActivity {
     }
     private void selectItemManual(int position) {
         // Create a new fragment and specify the planet to show based on position
-        isFragmentMain = true;
-        currentSelectItem = position;
         Fragment fragment = fragments.get(position);
 
         FragmentMain f = (FragmentMain)fragment;
@@ -211,12 +220,21 @@ public class MainActivity extends AppCompatActivity {
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         setTitle(datas.get(position).getName());
+        currentSelectItem = position;
+        mAdapter.setSelectItem(position);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public void changeDrawerMenu(int position){
+        mAdapter.setSelectItem(position);
+        mAdapter.notifyDataSetChanged();
     }
 
     /** Swaps fragments in the main content view */
     private void selectItem(int position) {
         // Create a new fragment and specify the planet to show based on position
-        Log.e(TAG, "selectItem:"+position);
+        mAdapter.setSelectItem(position);
+        mAdapter.notifyDataSetChanged();
 
         Fragment fragment = null;
         if(position<3) {
@@ -225,11 +243,15 @@ public class MainActivity extends AppCompatActivity {
             FragmentMain fragmentMain = (FragmentMain)fragment;
             fragmentMain.setIconPageIndicator(iconPageIndicator);
             fragmentMain.setCurrentPager(position);
-            if(currentSelectItem!=position){
-
+            Log.e(TAG, "selectItem:"+position);
+            if(currentSelectItem>=3){
+                fragmentMain.setOnlyOut(true);
+            }else {
+                fragmentMain.setOnlyOut(false);
             }
         }else if(position==3) {
             fragment = new FragmentMe();
+            Log.e(TAG, "selectItem:"+position);
             iconPageIndicator.setVisibility(View.INVISIBLE);
         }
 

@@ -38,29 +38,30 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     private ArrayList<Fragment> list = new ArrayList<Fragment>();
     private MainActivity mainActivity;
     private int currentPager;
+    private boolean onlyOut;
     private IconPageIndicator iconPageIndicator;
     private FloatingActionButton mCreate;
 
     private final int CAHNGE_FAB_COLOR = 1;
 
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Log.d(TAG, "login handler:"+msg.what);
-            switch (msg.what){
+            Log.d(TAG, "login handler:" + msg.what);
+            switch (msg.what) {
                 case CAHNGE_FAB_COLOR:
-                    Log.e(TAG, "handler currentpager:"+currentPager);
-                    if(currentPager==0) {
+                    Log.e(TAG, "handler currentpager:" + currentPager);
+                    if (currentPager == 0) {
                         mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.main_color));
                         mCreate.setImageResource(R.drawable.camera);
-                    }else if(currentPager==1){
+                    } else if (currentPager == 1) {
                         mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.red_fab));
                         mCreate.setImageResource(R.drawable.add);
-                    }else if(currentPager==2){
+                    } else if (currentPager == 2) {
                         mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.purple_fab));
                     }
-                    Animation ani2 = new ScaleAnimation(0f,1f,0f,1f,Animation.RELATIVE_TO_SELF,0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+                    Animation ani2 = new ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                     ani2.setInterpolator(new DecelerateInterpolator());
                     ani2.setDuration(250);
                     mCreate.startAnimation(ani2);
@@ -72,34 +73,41 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     };
 
 
-
     public void setIconPageIndicator(IconPageIndicator iconPageIndicator) {
         this.iconPageIndicator = iconPageIndicator;
     }
 
-    public void setCurrentPager(int position){
+    public void setCurrentPager(int position) {
         this.currentPager = position;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if(rootView==null){
+        if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_main, null);
             initViews();
             initPager();
-            mainActivity = (MainActivity)getActivity();
+            mainActivity = (MainActivity) getActivity();
         }
-        Log.e(TAG, "onCreateView:"+currentPager);
+        Log.e(TAG, "onCreateView:" + currentPager);
         selectViewPagerItem(currentPager);
         return rootView;
     }
 
-    public void selectViewPagerItem(int position){
-        if(mViewPager!=null)
-            mViewPager.setCurrentItem(position);
-        if(iconPageIndicator!=null)
-            iconPageIndicator.setCurrentItem(position);
+    public void selectViewPagerItem(int position) {
+        Log.e(TAG, "selectViewPagerItem:" + position);
+        mViewPager.setCurrentItem(position);
+        iconPageIndicator.setCurrentItem(position);
+        if (currentPager == 0) {
+            mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.main_color));
+            mCreate.setImageResource(R.drawable.camera);
+        } else if (currentPager == 1) {
+            mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.red_fab));
+            mCreate.setImageResource(R.drawable.add);
+        } else if (currentPager == 2) {
+            mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.purple_fab));
+        }
     }
 
 
@@ -121,12 +129,11 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         mViewPager.setAdapter(new MyAdapter(getChildFragmentManager(), list));
         iconPageIndicator.setViewPager(mViewPager);
         iconPageIndicator.setOnPageChangeListener(this);
-        iconPageIndicator.setCurrentItem(0);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.create:
                 //mCreate.animate().scaleX(0.1f).scaleY(0.1f).start();
                 PhotoPickerIntent intent = new PhotoPickerIntent(getActivity());
@@ -138,13 +145,14 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         }
     }
 
-    class MyAdapter extends FragmentPagerAdapter implements IconPagerAdapter{
+    class MyAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
         ArrayList<Fragment> list;
-        protected final int[] ICONS = new int[] {
-            R.drawable.show_indicator,
-            R.drawable.sport_indicator,
-            R.drawable.chat_indicator,
+        protected final int[] ICONS = new int[]{
+                R.drawable.show_indicator,
+                R.drawable.sport_indicator,
+                R.drawable.chat_indicator,
         };
+
         public MyAdapter(FragmentManager fm, ArrayList<Fragment> mList) {
             super(fm);
             list = mList;
@@ -177,39 +185,64 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
 
     }
 
+    public void setOnlyOut(boolean onlyOut) {
+        this.onlyOut = onlyOut;
+    }
+
     @Override
     public void onPageSelected(int index) {
-        if(mainActivity==null)
-            mainActivity=(MainActivity)getActivity();
+        if (mainActivity == null)
+            mainActivity = (MainActivity) getActivity();
         mainActivity.changeToolbar(index);
         Log.e(TAG, "onPageSelected " + index);
 
         currentPager = index;
-        Animation ani = new ScaleAnimation(1f,0f,1f,0f,Animation.RELATIVE_TO_SELF,0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+        mainActivity.changeDrawerMenu(currentPager);
+        /*
+        if(onlyOut){
+            onlyOutAnimation(index);
+        }else {
+            inAndOutAnimation(index);
+        }
+        */
+        //onlyOut=false;
+        inAndOutAnimation(index);
+    }
+
+    public void inAndOutAnimation(int index) {
+        Animation ani = new ScaleAnimation(1f, 0f, 1f, 0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         ani.setInterpolator(new AccelerateInterpolator());
         ani.setDuration(250);
         mCreate.startAnimation(ani);
-        ani.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                Message msg = new Message();
-                msg.what = CAHNGE_FAB_COLOR;
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
+        ani.setAnimationListener(new Animation.AnimationListener(){
+                @Override
+                public void onAnimationStart (Animation animation){}
+                @Override
+                public void onAnimationEnd (Animation animation){
+                    Message msg = new Message();
+                    msg.what = CAHNGE_FAB_COLOR;
+                    handler.sendMessage(msg);
+                }
+                @Override
+                public void onAnimationRepeat (Animation animation){}
         });
-
-
-        //mCreate.animate().scaleX(1f).scaleY(1f).start();
+    }
+    public void onlyOutAnimation(int index) {
+        if(mainActivity==null)
+            mainActivity=(MainActivity)getActivity();
+        mainActivity.changeToolbar(index);
+        if (currentPager == 0) {
+            mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.main_color));
+            mCreate.setImageResource(R.drawable.camera);
+        } else if (currentPager == 1) {
+            mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.red_fab));
+            mCreate.setImageResource(R.drawable.add);
+        } else if (currentPager == 2) {
+            mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.purple_fab));
+        }
     }
 
+    /*
     @Override
     public void onStart() {
         super.onStart();
@@ -274,4 +307,5 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         super.onActivityCreated(savedInstanceState);
         Log.e(TAG, "onActivityCreated");
     }
+    */
 }

@@ -61,7 +61,6 @@ public class FragmentChat extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         if(rootView==null){
-            Log.e(TAG, "rootView is null");
             rootView = inflater.inflate(R.layout.fragment_chat, container, false);
             lvFriends = (ListView)rootView.findViewById(R.id.friends);
 
@@ -104,28 +103,6 @@ public class FragmentChat extends Fragment{
     }
 
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        Log.e(TAG, "onAttach");
-    }
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_friends);
-        Log.e(TAG, "oncreate");
-    }
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Log.e(TAG, "onActivityCreated");
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.e(TAG, "onStart");
-    }
 
     @Override
     public void onResume() {
@@ -134,34 +111,4 @@ public class FragmentChat extends Fragment{
         //低效率的刷新,只要再次显示这个界面都重新刷新一遍
         mFriendsAdapter.notifyDataSetChanged();
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.e(TAG, "onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.e(TAG, "onStop");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.e(TAG, "onDestroyView");
-    }
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy");
-    }
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.e(TAG, "onDetach");
-    }
-
-
 }
