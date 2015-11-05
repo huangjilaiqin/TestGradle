@@ -1,7 +1,11 @@
 package com.lessask;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -10,14 +14,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 
+import com.lessask.model.Login;
 import com.lessask.show.FragmentShow;
 import com.viewpagerindicator.IconPageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
 
 import java.util.ArrayList;
 
-public class FragmentMain extends Fragment implements ViewPager.OnPageChangeListener {
+import me.iwf.photopicker.utils.PhotoPickerIntent;
+
+public class FragmentMain extends Fragment implements ViewPager.OnPageChangeListener,View.OnClickListener {
 
     private LayoutInflater layoutInflater;
     private int REQUEST_CODE = 100;
@@ -28,6 +39,39 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     private MainActivity mainActivity;
     private int currentPager;
     private IconPageIndicator iconPageIndicator;
+    private FloatingActionButton mCreate;
+
+    private final int CAHNGE_FAB_COLOR = 1;
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "login handler:"+msg.what);
+            switch (msg.what){
+                case CAHNGE_FAB_COLOR:
+                    Log.e(TAG, "handler currentpager:"+currentPager);
+                    if(currentPager==0) {
+                        mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.main_color));
+                        mCreate.setImageResource(R.drawable.camera);
+                    }else if(currentPager==1){
+                        mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.red_fab));
+                        mCreate.setImageResource(R.drawable.add);
+                    }else if(currentPager==2){
+                        mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.purple_fab));
+                    }
+                    Animation ani2 = new ScaleAnimation(0f,1f,0f,1f,Animation.RELATIVE_TO_SELF,0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+                    ani2.setInterpolator(new DecelerateInterpolator());
+                    ani2.setDuration(250);
+                    mCreate.startAnimation(ani2);
+
+                default:
+                    break;
+            }
+        }
+    };
+
+
 
     public void setIconPageIndicator(IconPageIndicator iconPageIndicator) {
         this.iconPageIndicator = iconPageIndicator;
@@ -46,7 +90,7 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
             initPager();
             mainActivity = (MainActivity)getActivity();
         }
-        Log.e(TAG, "onCreateView");
+        Log.e(TAG, "onCreateView:"+currentPager);
         selectViewPagerItem(currentPager);
         return rootView;
     }
@@ -54,12 +98,17 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     public void selectViewPagerItem(int position){
         if(mViewPager!=null)
             mViewPager.setCurrentItem(position);
+        if(iconPageIndicator!=null)
+            iconPageIndicator.setCurrentItem(position);
     }
 
 
     private void initViews() {
         mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
         mViewPager.setOnPageChangeListener(this);
+        mCreate = (FloatingActionButton) rootView.findViewById(R.id.create);
+        mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.main_color));
+        mCreate.setOnClickListener(this);
     }
 
     private void initPager() {
@@ -70,9 +119,23 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         FragmentChat fgFriends = new FragmentChat();
         list.add(fgFriends);
         mViewPager.setAdapter(new MyAdapter(getChildFragmentManager(), list));
-        this.iconPageIndicator.setViewPager(mViewPager);
-        this.iconPageIndicator.setOnPageChangeListener(this);
-        this.iconPageIndicator.setCurrentItem(0);
+        iconPageIndicator.setViewPager(mViewPager);
+        iconPageIndicator.setOnPageChangeListener(this);
+        iconPageIndicator.setCurrentItem(0);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.create:
+                //mCreate.animate().scaleX(0.1f).scaleY(0.1f).start();
+                PhotoPickerIntent intent = new PhotoPickerIntent(getActivity());
+                intent.setPhotoCount(4);
+                intent.setShowCamera(true);
+                intent.setShowGif(true);
+                startActivityForResult(intent, REQUEST_CODE);
+                break;
+        }
     }
 
     class MyAdapter extends FragmentPagerAdapter implements IconPagerAdapter{
@@ -116,8 +179,35 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageSelected(int index) {
+        if(mainActivity==null)
+            mainActivity=(MainActivity)getActivity();
         mainActivity.changeToolbar(index);
-        Log.e(TAG, "onPageSelected "+index);
+        Log.e(TAG, "onPageSelected " + index);
+
+        currentPager = index;
+        Animation ani = new ScaleAnimation(1f,0f,1f,0f,Animation.RELATIVE_TO_SELF,0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+        ani.setInterpolator(new AccelerateInterpolator());
+        ani.setDuration(250);
+        mCreate.startAnimation(ani);
+        ani.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                Message msg = new Message();
+                msg.what = CAHNGE_FAB_COLOR;
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+
+
+        //mCreate.animate().scaleX(1f).scaleY(1f).start();
     }
 
     @Override
@@ -166,5 +256,22 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     public void onDetach() {
         super.onDetach();
         Log.e(TAG, "onDetach");
+    }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.e(TAG, "onAttach");
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.e(TAG, "onViewCreated");
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.e(TAG, "onActivityCreated");
     }
 }

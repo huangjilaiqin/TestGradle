@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Fragment> fragments ;
     private boolean isFragmentMain;
     private int currentSelectItem;
+    private IconPageIndicator iconPageIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         fragments = new ArrayList<>();
         FragmentMain fragmentMain = new FragmentMain();
-        IconPageIndicator iconPageIndicator = (IconPageIndicator)findViewById(R.id.main_indicator);
+        iconPageIndicator = (IconPageIndicator)findViewById(R.id.main_indicator);
         fragmentMain.setIconPageIndicator(iconPageIndicator);
         fragments.add(fragmentMain);
         fragments.add(fragmentMain);
@@ -93,15 +94,7 @@ public class MainActivity extends AppCompatActivity {
         mDrawerList.setAdapter(mAdapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        /*
-        //设置状态栏padding
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            int statusBarHeight = getStatusBarHeight();
-            Log.e(TAG, "status length:"+statusBarHeight);
-            mDrawerView.setPadding(mDrawerView.getPaddingLeft(), mDrawerView.getPaddingTop() + statusBarHeight, mDrawerView.getPaddingRight(), mDrawerView.getPaddingBottom());
-            mToolbar.setPadding(mToolbar.getPaddingLeft(), mToolbar.getPaddingTop() + statusBarHeight, mToolbar.getPaddingRight(), mToolbar.getPaddingBottom());
-        }
-        */
+        //设置选中 发现 界面
         selectItemManual(0);
 
         loadData();
@@ -205,7 +198,9 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment = fragments.get(position);
 
         FragmentMain f = (FragmentMain)fragment;
-        f.selectViewPagerItem(position);
+        //f.selectViewPagerItem(position);
+        f.setCurrentPager(position);
+
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -221,14 +216,22 @@ public class MainActivity extends AppCompatActivity {
     /** Swaps fragments in the main content view */
     private void selectItem(int position) {
         // Create a new fragment and specify the planet to show based on position
+        Log.e(TAG, "selectItem:"+position);
 
         Fragment fragment = null;
         if(position<3) {
+            iconPageIndicator.setVisibility(View.VISIBLE);
             fragment = new FragmentMain();
-            FragmentMain f = (FragmentMain)fragment;
-            f.setCurrentPager(position);
-        }else if(position==3)
+            FragmentMain fragmentMain = (FragmentMain)fragment;
+            fragmentMain.setIconPageIndicator(iconPageIndicator);
+            fragmentMain.setCurrentPager(position);
+            if(currentSelectItem!=position){
+
+            }
+        }else if(position==3) {
             fragment = new FragmentMe();
+            iconPageIndicator.setVisibility(View.INVISIBLE);
+        }
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();

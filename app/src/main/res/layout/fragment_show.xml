@@ -16,15 +16,5 @@
         android:scrollbars="none"
         >
     </ListView>
-    <ImageView
-        android:id="@+id/create"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@id/show_list"
-        android:layout_alignBottom="@id/show_list"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="15dp"
-        android:src="@drawable/camera"
-        />
 
 </RelativeLayout>

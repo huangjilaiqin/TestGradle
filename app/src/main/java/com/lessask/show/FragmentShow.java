@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +37,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private View mRootView;
     private ShowListAdapter mShowListAdapter;
     private ListView mShowList;
-    private ImageView mCreate;
 
     private int REQUEST_CODE = 100;
 
@@ -53,8 +53,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mShowList.setAdapter(mShowListAdapter);
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
-            mCreate = (ImageView) mRootView.findViewById(R.id.create);
-            mCreate.setOnClickListener(this);
+
         }
         return mRootView;
     }
@@ -87,13 +86,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         switch (v.getId()){
             case R.id.up:
                 ImageView view = (ImageView)v;
-                break;
-            case R.id.create:
-                PhotoPickerIntent intent = new PhotoPickerIntent(getActivity());
-                intent.setPhotoCount(4);
-                intent.setShowCamera(true);
-                intent.setShowGif(true);
-                startActivityForResult(intent, REQUEST_CODE);
                 break;
         }
     }

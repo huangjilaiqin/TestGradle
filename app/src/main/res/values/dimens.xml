@@ -16,4 +16,6 @@
     <dimen name="toolbar_padding_top">0dp</dimen>
     <dimen name="drawer_padding_top">0dp</dimen>
     <dimen name="indicator_margin_top">16dp</dimen>
+    <dimen name="system_bar_height">0dp</dimen>
+    <dimen name="system_bar_height_16dp">16dp</dimen>
 </resources>
