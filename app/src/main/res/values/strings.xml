@@ -57,5 +57,6 @@
     <string name="title_activity_actions">ActionsActivity</string>
     <string name="title_activity_select_action">SelectActionActivity</string>
     <string name="title_activity_change_person_info">ChangePersonInfoActivity</string>
+    <string name="title_activity_startup">StartupActivity</string>
 
 </resources>

@@ -29,34 +29,35 @@
         android:textColor="@color/white"
         android:textSize="16dp"
         />
-    <EditText
-        android:id="@+id/tUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="邮箱"
-        />
-    <EditText
-        android:id="@+id/tPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="center_vertical"
-        android:background="@color/selected_bg"
-        />
-    <Button
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        style="?android:attr/borderlessButtonStyle"
-        android:textColor="@color/black_40"
-        android:textSize="18dp"
-        android:text="登录"
-        />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        >
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            style="?android:attr/borderlessButtonStyle"
+            android:textColor="@color/black_40"
+            android:textSize="18dp"
+            android:text="登录"
+            />
+        <View
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/selected_bg"
+            />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            style="?android:attr/borderlessButtonStyle"
+            android:textSize="18dp"
+            android:text="注册"
+            />
+    </LinearLayout>
 </RelativeLayout>
-
-
