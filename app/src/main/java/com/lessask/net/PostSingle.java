@@ -15,18 +15,29 @@ public class PostSingle extends Thread{
     private String host;
     private PostSingleEvent postSingleEvent;
     private PostResponse postResponse;
+    private HashMap<String, String> headers;
+    private HashMap<String, String> files;
+    private HashMap<String, String> images;
 
     public PostSingle(String host, PostSingleEvent postSingleEvent) {
         this.host = host;
         this.postSingleEvent = postSingleEvent;
     }
 
+    public void setHeaders(HashMap<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public void setImages(HashMap<String, String> images) {
+        this.images = images;
+    }
+
+    public void setFiles(HashMap<String, String> files) {
+        this.files = files;
+    }
+
     @Override
     public void run() {
-        HashMap<String, HashMap> datas = postSingleEvent.postData();
-        HashMap<String, String> headers = datas.get("headers");
-        HashMap<String, String> files= datas.get("files");
-        HashMap<String, String> images = datas.get("images");
         boolean isSuccess = true;
         postSingleEvent.onStart();
         try {

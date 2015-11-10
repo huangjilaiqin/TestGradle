@@ -1,16 +1,12 @@
 package com.lessask;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.*;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -106,9 +102,7 @@ public class LoginActivity extends Activity {
         });
 
         Log.e(TAG, "onCreate");
-        Button bLogin = (Button)findViewById(R.id.bLogin);
-        Button bRegister = (Button)findViewById(R.id.bRegister);
-        Button bTest = (Button)findViewById(R.id.bTest);
+        Button bLogin = (Button)findViewById(R.id.login);
         final EditText tUsername = (EditText)findViewById(R.id.tUsername);
         final EditText tPassword = (EditText)findViewById(R.id.tPassword);
 
@@ -120,24 +114,6 @@ public class LoginActivity extends Activity {
             tPassword.setText(passwd);
         }
 
-        bTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent intent = new Intent(LoginActivity.this, SwipeRefreshLayoutTest.class);
-                //Intent intent = new Intent(LoginActivity.this, TestSocket.class);
-                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                builder.setMessage("确认退出吗？");
-                builder.setTitle("提示");
-                AlertDialog dialog = builder.create();
-                Window dialogWindow = dialog.getWindow();
-                WindowManager.LayoutParams dialogParams = dialogWindow.getAttributes();
-                DisplayMetrics displaymetrics = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-                dialogParams.width = displaymetrics.widthPixels;
-                dialogWindow.setAttributes(dialogParams);
-                dialog.show();
-            }
-        });
 
         bLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,17 +145,6 @@ public class LoginActivity extends Activity {
                 */
             }
         });
-        bRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "register");
-                Log.i(TAG, tUsername.getText().toString().trim());
-                Log.i(TAG, tPassword.getText().toString().trim());
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
-        });
-
     }
 
     protected void onStart(){

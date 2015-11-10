@@ -12,6 +12,7 @@ public class Config {
     private String createShowUrl = "http://123.59.40.113/httproute/show";
     private String imgUrl = "http://123.59.40.113/imgs/";
     private String vedioUrl = "http://123.59.40.113/vedios/";
+    private String registerUrl = "http://123.59.40.113/register/";
 
     public String getWsPath() {
         return wsPath;
@@ -35,5 +36,9 @@ public class Config {
 
     public String getImgUrl() {
         return imgUrl;
+    }
+
+    public String getRegisterUrl() {
+        return registerUrl;
     }
 }
