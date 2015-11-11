@@ -53,11 +53,7 @@ public class RegisterActivity extends Activity {
     private String passwd;
     private EditText etConfirmPasswd;
     private Button bRegister;
-    private Uri headImgUri;
-    private String headImgContent;
     private static final String TAG = RegisterActivity.class.getName();
-    private int outputX = 180;
-    private int outputY = 180;
 
     private ProgressDialog registerDialog;
 
@@ -66,47 +62,38 @@ public class RegisterActivity extends Activity {
     private final int HANDLER_REGISTER_START = 2;
     private final int HANDLER_REGISTER_DONE = 3;
 
-    private final int LOGIN_MAIL = 1;
-    private final int LOGIN_WEIXIN = 2;
-
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Log.d(TAG, "register handler:"+msg.what);
+            Log.d(TAG, "register handler:" + msg.what);
             switch (msg.what){
                 case HANDLER_REGISTER_START:
                     registerDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
                     registerDialog.setTitle("注册中...");
                     registerDialog.show();
                     break;
-                case HANDLER_REGISTER_ERROR:
-                    RegisterResponse registerResponse = (RegisterResponse)msg.obj;
-                    Log.e(TAG, "register errno:"+registerResponse.getErrno()+", error:"+registerResponse.getError());
-                    registerDialog.cancel();
-                    Toast.makeText(RegisterActivity.this, "register errno:"+registerResponse.getErrno()+", error:"+registerResponse.getError(), Toast.LENGTH_LONG).show();
-                    break;
-                case HANDLER_REGISTER_SUCCESS:
-                    Log.d(TAG,"register success userid:"+globalInfos.getUserid());
-                    File appDir = getApplicationContext().getExternalFilesDir("headImg");
-                    String fileName = "myheadImg.jpg";
-                    File oldImgFile = new File(appDir, fileName);
-                    File newImgFile = new File(appDir, globalInfos.getUserid()+".jpg");
-                    if(oldImgFile.exists()) {
-                        oldImgFile.renameTo(newImgFile);
-                    }
-                    //去掉转圈圈
-                    registerDialog.cancel();
-                    Toast.makeText(RegisterActivity.this, "注册成功, 跳转登录...", Toast.LENGTH_LONG).show();
-                    //跳转到首页
-                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                    intent.putExtra("mail", mail);
-                    intent.putExtra("passwd", passwd);
-
-                    startActivity(intent);
-                    break;
                 case HANDLER_REGISTER_DONE:
-                    registerDialog.cancel();
+                    int statusCode = msg.arg1;
+                    RegisterResponse registerResponse = (RegisterResponse)msg.obj;
+                    if(statusCode==200){
+                        globalInfos.setUserid(registerResponse.getUserid());
+                        registerDialog.cancel();
+                        Toast.makeText(RegisterActivity.this, "注册成功, 跳转登录...", Toast.LENGTH_LONG).show();
+                        //跳转到首页
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        intent.putExtra("mail", mail);
+                        intent.putExtra("passwd", passwd);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                        startActivity(intent);
+                        finish();
+
+                    }else {
+                        Log.e(TAG, "register errno:"+registerResponse.getErrno()+", error:"+registerResponse.getError());
+                        registerDialog.cancel();
+                        Toast.makeText(RegisterActivity.this, "error:"+registerResponse.getError(), Toast.LENGTH_LONG).show();
+                    }
                     break;
                 default:
                     break;
@@ -114,18 +101,6 @@ public class RegisterActivity extends Activity {
         }
     };
 
-    private Bitmap decodeUriAsBitmap(Uri uri, BitmapFactory.Options options){
-      Bitmap bitmap = null;
-      try {
-          Log.e(TAG, "bitmap:"+uri);
-          //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-          bitmap = BitmapFactory.decodeFile(uri.getPath(), options);
-      } catch (Exception e) {
-          e.printStackTrace();
-          return null;
-      }
-      return bitmap;
-    }
     private HashMap<String, String> requestArgs = new HashMap<>();
     private PostSingleEvent postSingleEvent = new PostSingleEvent() {
 
@@ -139,6 +114,8 @@ public class RegisterActivity extends Activity {
         public void onDone(boolean success, PostResponse response) {
             Message msg = new Message();
             msg.what = HANDLER_REGISTER_DONE;
+            msg.arg1 = response.getCode();
+            msg.obj = gson.fromJson(response.getBody(), RegisterResponse.class);
             handler.sendMessage(msg);
         }
     };
@@ -152,7 +129,6 @@ public class RegisterActivity extends Activity {
         etPasswd = (EditText)findViewById(R.id.passwd);
         etConfirmPasswd = (EditText)findViewById(R.id.confirm_passwd);
         bRegister = (Button)findViewById(R.id.register);
-        headImgContent = "";
 
         bRegister.setOnClickListener(new View.OnClickListener() {
             @Override
