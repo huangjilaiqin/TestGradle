@@ -281,23 +281,6 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
         PostSingleEvent event = new PostSingleEvent() {
 
             @Override
-            public HashMap<String, HashMap> postData() {
-                HashMap<String, HashMap> datas = new HashMap<>();
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("userid", globalInfos.getUserid()+"");
-                headers.put("name", mName.getText().toString().trim());
-                headers.put("tags", getTagsString());
-                headers.put("notice", getNoticeString());
-
-                HashMap<String, String> files = new HashMap<>();
-                files.put("vediofile", path);
-
-                datas.put("headers", headers);
-                datas.put("files", files);
-                return datas;
-            }
-
-            @Override
             public void onStart() {
                 Message msg = new Message();
                 msg.what = ON_UPLOAD_START;
@@ -320,7 +303,21 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
                 handler.sendMessage(msg);
             }
         };
-        new PostSingle(config.getUploadVedioUrl(), event).start();
+        PostSingle postSingle = new PostSingle(config.getUploadVedioUrl(), event);
+
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("userid", globalInfos.getUserid()+"");
+        headers.put("name", mName.getText().toString().trim());
+        headers.put("tags", getTagsString());
+        headers.put("notice", getNoticeString());
+        postSingle.setHeaders(headers);
+
+        HashMap<String, String> files = new HashMap<>();
+        files.put("vediofile", path);
+        postSingle.setFiles(files);
+
+        postSingle.start();
+
     }
     private String getTagsString(){
         StringBuilder builder = new StringBuilder();

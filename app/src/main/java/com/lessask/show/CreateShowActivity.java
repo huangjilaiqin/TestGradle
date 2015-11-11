@@ -134,38 +134,6 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
         PostSingleEvent event = new PostSingleEvent() {
 
             @Override
-            public HashMap<String, HashMap> postData() {
-                HashMap<String, HashMap> datas = new HashMap<>();
-                HashMap<String, String> headers = new HashMap<>();
-                HashMap<String, String> images = new HashMap<>();
-
-                headers.put("userid", globalInfos.getUserid()+"");
-                headers.put("address", "深圳市 南山区");
-                headers.put("content", mtvContent.getText().toString().trim());
-                headers.put("permission", "1");
-                headers.put("ats", "");
-
-                StringBuilder builder = new StringBuilder();
-                int photosSize=0;
-                if(!isFull)
-                    photosSize = photos.size()-1;
-                int lastIndex = photosSize-1;
-                for (int i=0;i<photosSize;i++){
-                    File file = new File(photos.get(i));
-                    builder.append(file.getName());
-                    if(i!=lastIndex){
-                        builder.append("##");
-                    }
-                    images.put(file.getName(), photos.get(i));
-                }
-                headers.put("pictures", builder.toString());
-
-                datas.put("headers", headers);
-                datas.put("images", images);
-                return datas;
-            }
-
-            @Override
             public void onStart() {
                 Message msg = new Message();
                 msg.what = ON_CREATESHOW_START;
@@ -189,7 +157,33 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 handler.sendMessage(msg);
             }
         };
-        new PostSingle(config.getCreateShowUrl(), event).start();
+        PostSingle postSingle = new PostSingle(config.getCreateShowUrl(), event);
+        HashMap<String, String> headers = new HashMap<>();
+        HashMap<String, String> images = new HashMap<>();
+
+        headers.put("userid", globalInfos.getUserid()+"");
+        headers.put("address", "深圳市 南山区");
+        headers.put("content", mtvContent.getText().toString().trim());
+        headers.put("permission", "1");
+        headers.put("ats", "");
+
+        StringBuilder builder = new StringBuilder();
+        int photosSize=0;
+        if(!isFull)
+            photosSize = photos.size()-1;
+        int lastIndex = photosSize-1;
+        for (int i=0;i<photosSize;i++){
+            File file = new File(photos.get(i));
+            builder.append(file.getName());
+            if(i!=lastIndex){
+                builder.append("##");
+            }
+            images.put(file.getName(), photos.get(i));
+        }
+        headers.put("pictures", builder.toString());
+        postSingle.setHeaders(headers);
+        postSingle.setImages(images);
+        postSingle.start();
     }
     //自定义适配器
     class MyAdapter extends BaseAdapter {

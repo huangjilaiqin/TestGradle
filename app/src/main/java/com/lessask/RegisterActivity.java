@@ -63,6 +63,8 @@ public class RegisterActivity extends Activity {
 
     private final int HANDLER_REGISTER_ERROR = 0;
     private final int HANDLER_REGISTER_SUCCESS = 1;
+    private final int HANDLER_REGISTER_START = 2;
+    private final int HANDLER_REGISTER_DONE = 3;
 
     private final int LOGIN_MAIL = 1;
     private final int LOGIN_WEIXIN = 2;
@@ -73,6 +75,11 @@ public class RegisterActivity extends Activity {
             super.handleMessage(msg);
             Log.d(TAG, "register handler:"+msg.what);
             switch (msg.what){
+                case HANDLER_REGISTER_START:
+                    registerDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
+                    registerDialog.setTitle("注册中...");
+                    registerDialog.show();
+                    break;
                 case HANDLER_REGISTER_ERROR:
                     RegisterResponse registerResponse = (RegisterResponse)msg.obj;
                     Log.e(TAG, "register errno:"+registerResponse.getErrno()+", error:"+registerResponse.getError());
@@ -98,6 +105,9 @@ public class RegisterActivity extends Activity {
 
                     startActivity(intent);
                     break;
+                case HANDLER_REGISTER_DONE:
+                    registerDialog.cancel();
+                    break;
                 default:
                     break;
             }
@@ -121,14 +131,15 @@ public class RegisterActivity extends Activity {
 
         @Override
         public void onStart() {
-            registerDialog = new ProgressDialog(RegisterActivity.this, ProgressDialog.STYLE_SPINNER);
-            registerDialog.setTitle("注册中...");
-            registerDialog.show();
+            Message msg = new Message();
+            msg.what = HANDLER_REGISTER_START;
+            handler.sendMessage(msg);
         }
-
         @Override
         public void onDone(boolean success, PostResponse response) {
-
+            Message msg = new Message();
+            msg.what = HANDLER_REGISTER_DONE;
+            handler.sendMessage(msg);
         }
     };
     @Override
@@ -167,8 +178,6 @@ public class RegisterActivity extends Activity {
                 PostSingle postSingle = new PostSingle(config.getRegisterUrl(), postSingleEvent);
                 postSingle.setHeaders(requestArgs);
                 postSingle.start();
-
-
             }
         });
 
