@@ -27,9 +27,9 @@ public class UploadImageTogether extends Thread{
         try {
             Log.e(TAG, "begin:"+new Date());
             MultipartEntity multipartEntity = new MultipartEntity("http://ws.o-topcy.com/httproute/show");
-            multipartEntity.addStringPart("userid", ""+showItem.getName());
+            multipartEntity.addStringPart("userid", ""+showItem.getUserid());
             multipartEntity.addStringPart("content", ""+showItem.getContent());
-            ArrayList<String> imgs = showItem.getShowImgs();
+            ArrayList<String> imgs = showItem.getPictures();
             for(int i=0;i<imgs.size();i++){
                 Log.e(TAG, imgs.get(i));
                 if(i!=imgs.size()-1) {

@@ -1,8 +1,6 @@
 package com.lessask.model;
 
-import android.content.Intent;
 
-import java.sql.Date;
 import java.util.ArrayList;
 
 /**
@@ -11,7 +9,7 @@ import java.util.ArrayList;
 public class ShowItem {
     private int id;
     private int userid;
-    private Date time;
+    private String time;
     private String address;
     private String content;
     private ArrayList<String> pictures;
@@ -23,7 +21,7 @@ public class ShowItem {
     //评论
     private ArrayList<CommentItem> comments;
 
-    public ShowItem(int id, int userid, Date time, String address, String content, ArrayList<String> pictures, int permission, String ats, ArrayList<Integer> liker, int upStatus, ArrayList<CommentItem> comments) {
+    public ShowItem(int id, int userid, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, ArrayList<Integer> liker, int upStatus, ArrayList<CommentItem> comments) {
         this.id = id;
         this.userid = userid;
         this.time = time;
@@ -53,11 +51,11 @@ public class ShowItem {
         this.userid = userid;
     }
 
-    public Date getTime() {
+    public String getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(String time) {
         this.time = time;
     }
 

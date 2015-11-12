@@ -1,7 +1,6 @@
 package com.lessask.model;
 
 
-import java.sql.Date;
 
 /**
  * Created by huangji on 2015/11/12.
@@ -11,9 +10,9 @@ public class CommentItem {
     private int commentuid;
     private int becommentuid;
     private String comment;
-    private Date time;
+    private String time;
 
-    public CommentItem(int id, int commentuid, int becommentuid, String comment, Date time) {
+    public CommentItem(int id, int commentuid, int becommentuid, String comment, String time) {
         this.id = id;
         this.commentuid = commentuid;
         this.becommentuid = becommentuid;
@@ -53,11 +52,11 @@ public class CommentItem {
         this.comment = comment;
     }
 
-    public Date getTime() {
+    public String getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(String time) {
         this.time = time;
     }
 }

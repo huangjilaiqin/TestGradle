@@ -1,5 +1,6 @@
 package com.lessask;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,7 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.lessask.model.Utils;
-
+import android.support.v4.util.LruCache;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 import java.io.File;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -26,15 +30,17 @@ public class FragmentImageShow extends Fragment{
     private View rootView;
     private ImageView imageView;
     private int position;
+    private RequestQueue requestQueue;
+    private final LruCache<String, Bitmap> lruCache = new LruCache<String, Bitmap>(20);
+    private ImageLoader.ImageCache imageCache;
+    private ImageLoader imageLoader;
+
 
     public void setmImage(String mImage) {
         this.mImage = mImage;
         if(imageView!=null) {
-            try {
-                imageView.setImageResource(Integer.parseInt(mImage));
-            } catch (Exception e) {
-                imageView.setImageBitmap(Utils.optimizeBitmap(mImage));
-            }
+            ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(imageView, R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+            imageLoader.get(mImage, listener1);
         }
     }
 
@@ -49,6 +55,20 @@ public class FragmentImageShow extends Fragment{
         Bundle bundle = getArguments();
         //mImage = bundle.getString("image");
         //position = bundle.getInt("position");
+        requestQueue = Volley.newRequestQueue(getActivity());
+        imageCache = new ImageLoader.ImageCache() {
+            @Override
+            public void putBitmap(String key, Bitmap bitmap) {
+                lruCache.put(key, bitmap);
+            }
+
+            @Override
+            public Bitmap getBitmap(String key) {
+                return lruCache.get(key);
+            }
+        };
+        imageLoader = new ImageLoader(requestQueue, imageCache);
+
         if(rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_image_show, null);
             rootView.setOnClickListener(new View.OnClickListener() {
@@ -58,17 +78,9 @@ public class FragmentImageShow extends Fragment{
                 }
             });
             imageView = (ImageView)rootView.findViewById(R.id.image);
+            ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(imageView, R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+            imageLoader.get(mImage, listener1);
 
-            Log.e(TAG, "onCreateView setImage:"+mImage);
-            try {
-                imageView.setImageResource(Integer.parseInt(mImage));
-            }catch (Exception e){
-                try {
-                    imageView.setImageBitmap(Utils.optimizeBitmap(mImage));
-                }catch (Exception e1){
-                    Log.e(TAG, "IOException:"+e1.getMessage());
-                }
-            }
             //imageView.setImageDrawable(mImages.get(position));
             mAttacher = new PhotoViewAttacher(imageView);
             mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {

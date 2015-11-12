@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -100,6 +99,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             msg.what = HANDLER_GETSHOW_DONE;
             msg.arg1 = response.getCode();
             //to do 动态条目 module类
+            Log.e(TAG, response.getBody());
             ArrayList<ShowItem> showdatas = gson.fromJson(response.getBody(),  new TypeToken<List<ShowItem>>(){}.getType());
             msg.obj = showdatas;
             handler.sendMessage(msg);
@@ -115,7 +115,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mShowList = (ListView) mRootView.findViewById(R.id.show_list);
 
             //获取数据状态数据
-            postSingle = new PostSingle(config.getRegisterUrl(), postSingleEvent);
+            postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
             HashMap<String, String> requestArgs = new HashMap<>();
             requestArgs.put("userid", ""+globalInfos.getUserid());
             postSingle.setHeaders(requestArgs);

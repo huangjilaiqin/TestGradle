@@ -23,6 +23,7 @@ import com.android.volley.toolbox.Volley;
 import com.lessask.FriendsAdapter;
 import com.lessask.R;
 import com.lessask.ShowImageActivity;
+import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 
@@ -48,6 +49,9 @@ public class ShowListAdapter extends BaseAdapter {
     private ArrayList<ShowItem> mShowListData;
     private File headImgDir;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
+    private  String imageUrlPrefix = config.getImgUrl();
+
     private final LayoutInflater inflater;
 
     public ShowListAdapter(FragmentActivity activity, ArrayList data){
@@ -123,26 +127,32 @@ public class ShowListAdapter extends BaseAdapter {
         ImageView ivComment = (ImageView)convertView.findViewById(R.id.comment);
 
         ivHead.setImageResource(R.drawable.head_default);
-        tvName.setText(showItem.getName());
+        //to do 根据userid获取用户的名字
+        showItem.getUserid();
+        tvName.setText("用户名");
         tvTime.setText(showItem.getTime());
         tvAddress.setText(showItem.getAddress());
         tvContent.setText(showItem.getContent());
-        tvUpSize.setText(""+showItem.getUpSize());
-        tvCommentSize.setText(""+showItem.getCommentSize());
+        tvUpSize.setText(""+showItem.getLiker().size());
+        tvCommentSize.setText(""+showItem.getComments().size());
         //获取被动态填充的布局控件
         RelativeLayout showImageLayout = (RelativeLayout)convertView.findViewById(R.id.show_image_layout);
 
         RelativeLayout imageLayout;
         ImageView showImage1,showImage2,showImage3,showImage4;
+        ArrayList<String> pictures = showItem.getPictures();
 
-        switch (showItem.getShowImgs().size()){
+        switch (pictures.size()){
             case 1:
                 //加载图片布局xml文件, 获取布局对象
                 imageLayout = (RelativeLayout) inflater.inflate(R.layout.show_iamge_1, null).findViewById(R.id.root_layout);
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
-                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
                 registerImageEvent(showImage1, showItem, 0);
+
+                String imgUrl1 = imageUrlPrefix+pictures.get(0);
+                ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(showImage1,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                imageLoader.get(imgUrl1, listener1);
 
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
@@ -153,10 +163,15 @@ public class ShowListAdapter extends BaseAdapter {
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
-                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
-                registerImageEvent(showImage1, showItem, 0);
-                showImage2.setImageResource(Integer.parseInt(showItem.getShowImgs().get(1)));
-                registerImageEvent(showImage2, showItem, 1);
+                ImageView[] imageViews2 = {showImage1,showImage2};
+
+                for(int i=0;i<pictures.size();i++){
+                    String imgUrl = imageUrlPrefix+pictures.get(0);
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews2[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    imageLoader.get(imgUrl, listener);
+                    registerImageEvent(imageViews2[i], showItem, 0);
+                }
+
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
@@ -167,12 +182,15 @@ public class ShowListAdapter extends BaseAdapter {
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
                 showImage3 = (ImageView)imageLayout.findViewById(R.id.show_image3);
-                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
-                registerImageEvent(showImage1, showItem, 0);
-                showImage2.setImageResource(Integer.parseInt(showItem.getShowImgs().get(1)));
-                registerImageEvent(showImage2, showItem, 1);
-                showImage3.setImageResource(Integer.parseInt(showItem.getShowImgs().get(2)));
-                registerImageEvent(showImage3, showItem, 2);
+                ImageView[] imageViews3 = {showImage1,showImage2,showImage3};
+
+                for(int i=0;i<pictures.size();i++){
+                    String imgUrl = imageUrlPrefix+pictures.get(0);
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews3[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    imageLoader.get(imgUrl, listener);
+                    registerImageEvent(imageViews3[i], showItem, 0);
+                }
+
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
@@ -184,19 +202,19 @@ public class ShowListAdapter extends BaseAdapter {
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
                 showImage3 = (ImageView)imageLayout.findViewById(R.id.show_image3);
                 showImage4 = (ImageView)imageLayout.findViewById(R.id.show_image4);
-                showImage1.setImageResource(Integer.parseInt(showItem.getShowImgs().get(0)));
-                registerImageEvent(showImage1, showItem, 0);
-                showImage2.setImageResource(Integer.parseInt(showItem.getShowImgs().get(1)));
-                registerImageEvent(showImage2, showItem, 1);
-                showImage3.setImageResource(Integer.parseInt(showItem.getShowImgs().get(2)));
-                registerImageEvent(showImage3, showItem, 2);
-                showImage4.setImageResource(Integer.parseInt(showItem.getShowImgs().get(3)));
-                registerImageEvent(showImage4, showItem, 3);
+                ImageView[] imageViews4 = {showImage1,showImage2,showImage3,showImage4};
+
+                for(int i=0;i<pictures.size();i++){
+                    String imgUrl = imageUrlPrefix+pictures.get(0);
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews4[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    imageLoader.get(imgUrl, listener);
+                    registerImageEvent(imageViews4[i], showItem, 0);
+                }
+
                 showImageLayout.removeAllViews();
                 showImageLayout.addView(imageLayout);
                 break;
         }
-
 
         return convertView;
     }
@@ -207,21 +225,19 @@ public class ShowListAdapter extends BaseAdapter {
         }else {
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
         }
-        tvUpSize.setText(""+showItem.getUpSize());
+        tvUpSize.setText(""+showItem.getLiker().size());
     }
 
     private void changeUp(ShowItem showItem,ImageView ivUp, TextView tvUpSize){
         if(showItem.getUpStatus()==1){
             showItem.setUpStatus(0);
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
-            int upSize = showItem.getUpSize()-1;
-            showItem.setUpSize(upSize);
+            int upSize = showItem.getLiker().size()-1;
             tvUpSize.setText("" + upSize);
         }else {
             showItem.setUpStatus(1);
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
-            int upSize = showItem.getUpSize()+1;
-            showItem.setUpSize(upSize);
+            int upSize = showItem.getLiker().size()+1;
             tvUpSize.setText("" + upSize);
         }
     }
@@ -238,7 +254,7 @@ public class ShowListAdapter extends BaseAdapter {
             public void onClick(View v) {
                 Intent intent = new Intent(context, ShowImageActivity.class);
                 intent.putExtra("index", index);
-                intent.putStringArrayListExtra("images", item.getShowImgs());
+                intent.putStringArrayListExtra("images", item.getPictures());
                 activity.startActivity(intent);
             }
         });

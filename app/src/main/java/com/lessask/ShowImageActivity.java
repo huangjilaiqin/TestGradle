@@ -1,6 +1,7 @@
 package com.lessask;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -9,6 +10,9 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 
+
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
 
@@ -23,6 +27,10 @@ public class ShowImageActivity extends FragmentActivity {
     private ViewPager mViewPager;
     private ArrayList<String> photos;
     private Intent mIntent;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
+    private  String imageUrlPrefix = config.getImgUrl();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +49,8 @@ public class ShowImageActivity extends FragmentActivity {
         CirclePageIndicator indicator = (CirclePageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(mViewPager);
         indicator.setCurrentItem(index);
+
+
     }
     class MyPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
         public MyPagerAdapter(FragmentManager fm) {
@@ -51,7 +61,7 @@ public class ShowImageActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             FragmentImageShow fragmentImageShow = new FragmentImageShow();
             fragmentImageShow.setPosition(position);
-            fragmentImageShow.setmImage(photos.get(position));
+            fragmentImageShow.setmImage(imageUrlPrefix + photos.get(position));
             Log.e(TAG, fragmentImageShow.toString());
             return fragmentImageShow;
         }

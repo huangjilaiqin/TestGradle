@@ -1,6 +1,7 @@
 package com.lessask;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -65,6 +66,13 @@ public class FragmentMainActivity extends FragmentActivity implements ViewPager.
 
         loadData();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "onActivityResult");
+    }
+
     private void loadData(){
         TagNet mTagNet = TagNet.getInstance();
         mTagNet.setGetTagsListener(getTagsListener);
