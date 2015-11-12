@@ -1,104 +1,127 @@
 package com.lessask.model;
 
+import android.content.Intent;
+
+import java.sql.Date;
 import java.util.ArrayList;
 
 /**
  * Created by JHuang on 2015/9/16.
  */
 public class ShowItem {
-    private String name;
-    private String headImg;
-    private String time;
+    private int id;
+    private int userid;
+    private Date time;
     private String address;
-    private ArrayList<String> showImgs;
     private String content;
-    private int upSize;
+    private ArrayList<String> pictures;
+    private int permission;
+    private String ats;
+    //点赞的人
+    private ArrayList<Integer> liker;
     private int upStatus;
-    private int commentSize;
-    public ShowItem(){
+    //评论
+    private ArrayList<CommentItem> comments;
 
-    }
-    public ShowItem(String name, String headImg, String time, String address, ArrayList<String> showImgs, String content, int upSize, int commentSize, int upStatus) {
-        this.name = name;
-        this.headImg = headImg;
+    public ShowItem(int id, int userid, Date time, String address, String content, ArrayList<String> pictures, int permission, String ats, ArrayList<Integer> liker, int upStatus, ArrayList<CommentItem> comments) {
+        this.id = id;
+        this.userid = userid;
         this.time = time;
         this.address = address;
-        this.showImgs = showImgs;
         this.content = content;
-        this.upSize = upSize;
-        this.commentSize = commentSize;
+        this.pictures = pictures;
+        this.permission = permission;
+        this.ats = ats;
+        this.liker = liker;
         this.upStatus = upStatus;
+        this.comments = comments;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public int getId() {
+        return id;
     }
 
-    public void setHeadImg(String headImg) {
-        this.headImg = headImg;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public int getUserid() {
+        return userid;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setUserid(int userid) {
+        this.userid = userid;
     }
 
-    public void setShowImgs(ArrayList<String> showImgs) {
-        this.showImgs = showImgs;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void setUpSize(int upSize) {
-        this.upSize = upSize;
-    }
-
-    public void setCommentSize(int commentSize) {
-        this.commentSize = commentSize;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getHeadImg() {
-        return headImg;
-    }
-
-    public String getTime() {
+    public Date getTime() {
         return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public ArrayList<String> getShowImgs() {
-        return showImgs;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getContent() {
         return content;
     }
 
-    public int getUpSize() {
-        return upSize;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public int getCommentSize() {
-        return commentSize;
+    public ArrayList<String> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(ArrayList<String> pictures) {
+        this.pictures = pictures;
+    }
+
+    public int getPermission() {
+        return permission;
+    }
+
+    public void setPermission(int permission) {
+        this.permission = permission;
+    }
+
+    public String getAts() {
+        return ats;
+    }
+
+    public void setAts(String ats) {
+        this.ats = ats;
+    }
+
+    public ArrayList<Integer> getLiker() {
+        return liker;
+    }
+
+    public void setLiker(ArrayList<Integer> liker) {
+        this.liker = liker;
+    }
+
+    public int getUpStatus() {
+        return upStatus;
     }
 
     public void setUpStatus(int upStatus) {
         this.upStatus = upStatus;
     }
 
-    public int getUpStatus() {
-        return upStatus;
+    public ArrayList<CommentItem> getComments() {
+        return comments;
+    }
+
+    public void setComments(ArrayList<CommentItem> comments) {
+        this.comments = comments;
     }
 }

@@ -13,6 +13,11 @@ public class Config {
     private String imgUrl = "http://123.59.40.113/imgs/";
     private String vedioUrl = "http://123.59.40.113/httproute/vedios/";
     private String registerUrl = "http://123.59.40.113/httproute/register/";
+    private String getShowUrl = "http://123.59.40.113/httproute/getshow/";
+
+    public String getGetShowUrl() {
+        return getShowUrl;
+    }
 
     public String getWsPath() {
         return wsPath;

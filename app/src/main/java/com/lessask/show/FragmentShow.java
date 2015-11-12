@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -18,13 +20,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lessask.R;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
+import com.lessask.net.PostResponse;
+import com.lessask.net.PostSingle;
+import com.lessask.net.PostSingleEvent;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import me.iwf.photopicker.PhotoPickerActivity;
 import me.iwf.photopicker.utils.PhotoPickerIntent;
@@ -38,10 +50,62 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private View mRootView;
     private ShowListAdapter mShowListAdapter;
     private ListView mShowList;
+    private ArrayList showItems;
+
+    private Gson gson = new Gson();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
 
     private int REQUEST_CODE = 100;
+    private final int HANDLER_GETSHOW_START = 1;
+    private final int HANDLER_GETSHOW_DONE = 2;
 
     private ImageView ivUp;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "register handler:" + msg.what);
+            switch (msg.what) {
+                case HANDLER_GETSHOW_START:
+                    Toast.makeText(getActivity(), "请求数据", Toast.LENGTH_SHORT).show();
+                    break;
+                case HANDLER_GETSHOW_DONE:
+                    int statusCode = msg.arg1;
+                    ArrayList<ShowItem> showdatas = (ArrayList<ShowItem>)msg.obj;
+                    if(statusCode==200){
+                        for(int i=0;i<showdatas.size();i++){
+                            showItems.add(0,showdatas.get(i));
+                        }
+                        mShowListAdapter.notifyDataSetChanged();
+                    }else {
+
+                    }
+                    break;
+            }
+        }
+    };
+
+    private PostSingleEvent postSingleEvent = new PostSingleEvent() {
+        @Override
+        public void onStart() {
+            Message msg = new Message();
+            msg.what = HANDLER_GETSHOW_START;
+            handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onDone(boolean success, PostResponse response) {
+            Message msg = new Message();
+            msg.what = HANDLER_GETSHOW_DONE;
+            msg.arg1 = response.getCode();
+            //to do 动态条目 module类
+            ArrayList<ShowItem> showdatas = gson.fromJson(response.getBody(),  new TypeToken<List<ShowItem>>(){}.getType());
+            msg.obj = showdatas;
+            handler.sendMessage(msg);
+        }
+    };
+    private PostSingle postSingle;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -49,8 +113,15 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         if(mRootView == null){
             mRootView = inflater.inflate(R.layout.fragment_show, null);
             mShowList = (ListView) mRootView.findViewById(R.id.show_list);
+
             //获取数据状态数据
-            ArrayList showItems = getData();
+            postSingle = new PostSingle(config.getRegisterUrl(), postSingleEvent);
+            HashMap<String, String> requestArgs = new HashMap<>();
+            requestArgs.put("userid", ""+globalInfos.getUserid());
+            postSingle.setHeaders(requestArgs);
+            postSingle.start();
+
+            showItems = new ArrayList();
             mShowListAdapter = new ShowListAdapter(getActivity(), showItems);
             mShowList.setAdapter(mShowListAdapter);
 
@@ -59,29 +130,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         }
         return mRootView;
     }
-    private ArrayList getData(){
 
-        ArrayList<ShowItem> showItems = new ArrayList<>();
-        ArrayList<String> showImgs1 = new ArrayList<>();
-        showImgs1.add(""+R.drawable.runnging);
-        showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs1, "今天天气真不错！！！", 89, 23,0));
-        ArrayList<String> showImgs2 = new ArrayList<>();
-        showImgs2.add(""+R.drawable.runnging);
-        showImgs2.add(""+R.drawable.speed);
-        showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs2, "今天天气真不错！！！", 89, 23,0));
-        ArrayList<String> showImgs3 = new ArrayList<>();
-        showImgs3.add(""+R.drawable.runnging);
-        showImgs3.add(""+R.drawable.speed);
-        showImgs3.add(""+R.drawable.comment);
-        showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs3, "今天天气真不错！！！", 89, 23,0));
-        ArrayList<String> showImgs4 = new ArrayList<>();
-        showImgs4.add(""+R.drawable.runnging);
-        showImgs4.add(""+R.drawable.speed);
-        showImgs4.add(""+R.drawable.chat);
-        showImgs4.add(""+R.drawable.runnging);
-        showItems.add(new ShowItem("唐三炮",null,"晚上 20:35", "深圳市 南山区 塘朗山", showImgs4, "今天天气真不错！！！", 89, 23,0));
-        return showItems;
-    }
 
     @Override
     public void onClick(View v) {
