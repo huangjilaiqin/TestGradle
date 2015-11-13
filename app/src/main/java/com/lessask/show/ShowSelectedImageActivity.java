@@ -105,7 +105,7 @@ public class ShowSelectedImageActivity extends FragmentActivity {
             FragmentImageShow fragmentImageShow = (FragmentImageShow)super.instantiateItem(container, position);
 
             fragmentImageShow.setPosition(position);
-            fragmentImageShow.setmImage(photos.get(position));
+            fragmentImageShow.setimageUrl(photos.get(position));
             return fragmentImageShow;
         }
 

@@ -22,6 +22,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.lessask.FriendsAdapter;
 import com.lessask.R;
+import com.lessask.TmpActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
@@ -252,6 +253,7 @@ public class ShowListAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ShowImageActivity.class);
+                //Intent intent = new Intent(context, TmpActivity.class);
                 intent.putExtra("index", index);
                 intent.putStringArrayListExtra("images", item.getPictures());
                 activity.startActivity(intent);

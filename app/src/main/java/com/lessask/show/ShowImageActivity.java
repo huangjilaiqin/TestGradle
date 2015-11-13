@@ -62,7 +62,7 @@ public class ShowImageActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             FragmentImageShow fragmentImageShow = new FragmentImageShow();
             fragmentImageShow.setPosition(position);
-            fragmentImageShow.setmImage(imageUrlPrefix + photos.get(position));
+            fragmentImageShow.setimageUrl(imageUrlPrefix + photos.get(position));
             Log.e(TAG, fragmentImageShow.toString());
             return fragmentImageShow;
         }

@@ -4,10 +4,8 @@
     android:layout_height="match_parent">
     <ImageView
         android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:maxWidth="320dp"
-        android:layout_height="match_parent"
-        android:maxHeight="480dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         />

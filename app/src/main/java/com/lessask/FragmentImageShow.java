@@ -25,22 +25,22 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  */
 public class FragmentImageShow extends Fragment{
     private final String TAG = FragmentImageShow.class.getName();
-    private String mImage;
-    private PhotoViewAttacher mAttacher;
+    private String imageUrl;
     private View rootView;
     private ImageView imageView;
     private int position;
+    private PhotoViewAttacher mAttacher;
     private RequestQueue requestQueue;
     private final LruCache<String, Bitmap> lruCache = new LruCache<String, Bitmap>(20);
     private ImageLoader.ImageCache imageCache;
     private ImageLoader imageLoader;
 
 
-    public void setmImage(String mImage) {
-        this.mImage = mImage;
+    public void setimageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
         if(imageView!=null) {
             ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(imageView, R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-            imageLoader.get(mImage, listener1);
+            imageLoader.get(imageUrl, listener1);
         }
     }
 
@@ -53,7 +53,7 @@ public class FragmentImageShow extends Fragment{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         Bundle bundle = getArguments();
-        //mImage = bundle.getString("image");
+        //imageUrl = bundle.getString("image");
         //position = bundle.getInt("position");
         requestQueue = Volley.newRequestQueue(getActivity());
         imageCache = new ImageLoader.ImageCache() {
@@ -79,9 +79,9 @@ public class FragmentImageShow extends Fragment{
             });
             imageView = (ImageView)rootView.findViewById(R.id.image);
             ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(imageView, R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-            imageLoader.get(mImage, listener1);
+            imageLoader.get(imageUrl, listener1);
 
-            //imageView.setImageDrawable(mImages.get(position));
+            //imageView.setImageDrawable(imageUrls.get(position));
             mAttacher = new PhotoViewAttacher(imageView);
             mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
                 @Override
@@ -100,13 +100,5 @@ public class FragmentImageShow extends Fragment{
         }
         return rootView;
 
-    }
-    public void update(String image){
-        mImage = image;
-        try {
-            imageView.setImageResource(Integer.parseInt(mImage));
-        }catch (Exception e){
-            imageView.setImageBitmap(Utils.optimizeBitmap(mImage));
-        }
     }
 }
