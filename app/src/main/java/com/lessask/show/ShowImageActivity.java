@@ -1,7 +1,6 @@
-package com.lessask;
+package com.lessask.show;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -11,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 
+import com.lessask.FragmentImageShow;
+import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.viewpagerindicator.CirclePageIndicator;

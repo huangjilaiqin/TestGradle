@@ -1,6 +1,7 @@
 package com.lessask;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -101,12 +102,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "onActivityResult");
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Log.e(TAG, "isTaskRoot:"+isTaskRoot());
             moveTaskToBack(false);
             return true;
         }

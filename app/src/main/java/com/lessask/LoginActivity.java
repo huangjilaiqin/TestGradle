@@ -61,6 +61,7 @@ public class LoginActivity extends Activity {
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     //清除 activity栈中的内容
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
                     break;

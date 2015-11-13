@@ -1,14 +1,12 @@
 package com.lessask;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -21,13 +19,14 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 
-import com.lessask.model.Login;
+import com.lessask.show.CreateShowActivity;
 import com.lessask.show.FragmentShow;
 import com.viewpagerindicator.IconPageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
 
 import java.util.ArrayList;
 
+import me.iwf.photopicker.PhotoPickerActivity;
 import me.iwf.photopicker.utils.PhotoPickerIntent;
 
 public class FragmentMain extends Fragment implements ViewPager.OnPageChangeListener,View.OnClickListener {
@@ -36,6 +35,7 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     private int REQUEST_CODE = 100;
     private static final String TAG = FragmentMain.class.getName();
     private View rootView;
+
     private ViewPager mViewPager;
     private ArrayList<Fragment> list = new ArrayList<Fragment>();
     private MainActivity mainActivity;
@@ -142,11 +142,19 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
                 intent.setPhotoCount(4);
                 intent.setShowCamera(true);
                 intent.setShowGif(true);
-                getActivity().startActivityForResult(intent, REQUEST_CODE);
+                startActivityForResult(intent, REQUEST_CODE);
                 break;
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "onActivityResult" + data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
+        Intent intent = new Intent(getActivity(), CreateShowActivity.class);
+        intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
+        startActivity(intent);
+    }
 
     class MyAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
         ArrayList<Fragment> list;

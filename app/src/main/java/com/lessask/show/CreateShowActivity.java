@@ -21,20 +21,16 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.R;
-import com.lessask.ShowSelectedImageActivity;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
-import com.lessask.test.UploadImageTogether;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 import me.iwf.photopicker.PhotoPickerActivity;

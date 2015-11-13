@@ -131,11 +131,11 @@
             android:process=":remote" />
 
         <activity
-            android:name=".ShowImageActivity"
+            android:name=".show.ShowImageActivity"
             android:label="@string/title_activity_show_image" >
         </activity>
         <activity
-            android:name=".ShowSelectedImageActivity"
+            android:name=".show.ShowSelectedImageActivity"
             android:label="@string/title_activity_show_selected_image" >
         </activity>
         <activity

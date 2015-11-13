@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.lessask.ShowImageActivity">
+    tools:context="com.lessask.show.ShowImageActivity">
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="wrap_content"

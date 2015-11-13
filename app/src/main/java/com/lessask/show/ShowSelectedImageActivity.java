@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.show;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.lessask.FragmentImageShow;
+import com.lessask.R;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
 

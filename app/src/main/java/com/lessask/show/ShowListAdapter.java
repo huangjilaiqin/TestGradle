@@ -22,7 +22,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.lessask.FriendsAdapter;
 import com.lessask.R;
-import com.lessask.ShowImageActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
