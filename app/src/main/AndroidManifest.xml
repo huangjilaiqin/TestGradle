@@ -65,44 +65,41 @@
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register" />
         <activity
-            android:name=".TestActivity"
+            android:name=".test.TestActivity"
             android:label="@string/title_activity_test" />
         <activity
-            android:name=".ChatActivity"
+            android:name=".chat.ChatActivity"
             android:label="@string/title_activity_chat"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".StoreFileActivity"
+            android:name=".test.StoreFileActivity"
             android:label="@string/title_activity_store_file" />
         <activity
-            android:name=".ExampleActivity"
+            android:name=".test.ExampleActivity"
             android:label="@string/title_activity_example" />
         <activity
-            android:name=".SharePreferencesActivity"
+            android:name=".test.SharePreferencesActivity"
             android:label="@string/title_activity_share_preferences" />
-        <activity
-            android:name=".HandlerActivity"
-            android:label="@string/title_activity_handler" />
 
         <service
-            android:name=".FirstService"
+            android:name=".test.FirstService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name=".FirstServiceActivity"
+            android:name=".test.FirstServiceActivity"
             android:label="@string/title_activity_first_service" />
         <activity
-            android:name=".SocketIOActivity"
+            android:name=".test.SocketIOActivity"
             android:label="@string/title_activity_socket_io" />
         <activity
-            android:name=".SubThreadActivity"
+            android:name=".test.SubThreadActivity"
             android:label="@string/title_activity_sub_thread" />
         <activity
-            android:name=".HeadImgActivity"
+            android:name=".test.HeadImgActivity"
             android:label="@string/title_activity_head_img" />
         <activity
-            android:name=".FriendsActivity"
+            android:name=".friends.FriendsActivity"
             android:label="@string/title_activity_friends" />
         <activity
             android:name=".FragmentMainActivity"
@@ -186,7 +183,7 @@
             android:label="@string/title_activity_main" >
         </activity>
         <activity
-            android:name=".TmpActivity"
+            android:name=".test.TmpActivity"
             android:label="@string/title_activity_tmp" >
         </activity>
     </application>

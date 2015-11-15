@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.sports;
 
 
 import android.content.Intent;
@@ -11,9 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.lessask.R;
 import com.lessask.lesson.LessonsActivity;
-import com.lessask.sports.SquatsActivity;
-import com.lessask.sports.RunActivity;
 import com.lessask.action.RecordActionActivity;
 
 /**

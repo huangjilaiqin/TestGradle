@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.test;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -6,14 +6,13 @@ import android.support.v4.util.LruCache;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.lessask.R;
 
 import java.util.ArrayList;
 

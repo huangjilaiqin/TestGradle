@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.lessask.FragmentImageShow;
 import com.lessask.R;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -20,7 +19,7 @@ import com.viewpagerindicator.IconPagerAdapter;
 import java.util.ArrayList;
 
 /*
-* 展示选中的图片
+* 展示创建动态时选中的图片
 * */
 public class ShowSelectedImageActivity extends FragmentActivity {
     private final String TAG = ShowSelectedImageActivity.class.getName();

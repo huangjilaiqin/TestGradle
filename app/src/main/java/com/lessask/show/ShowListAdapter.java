@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.util.LruCache;
 import android.util.Log;
@@ -20,15 +22,19 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.lessask.FriendsAdapter;
+import com.lessask.friends.FriendsAdapter;
 import com.lessask.R;
-import com.lessask.TmpActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
+import com.lessask.net.PostResponse;
+import com.lessask.net.PostSingle;
+import com.lessask.net.PostSingleEvent;
+import com.lessask.util.TimeHelper;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -51,8 +57,71 @@ public class ShowListAdapter extends BaseAdapter {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private  String imageUrlPrefix = config.getImgUrl();
+    private final int HANDLER_LIKE_START = 0;
+    private final int HANDLER_LIKE_DONE = 1;
+    private final int HANDLER_UNLIKE_START = 2;
+    private final int HANDLER_UNLIKE_DONE = 3;
 
     private final LayoutInflater inflater;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case HANDLER_LIKE_START:
+                    //Toast.makeText(activity, "like", Toast.LENGTH_SHORT).show();
+                    break;
+                case HANDLER_LIKE_DONE:
+                    //Toast.makeText(activity, "like success", Toast.LENGTH_SHORT).show();
+
+                    break;
+                case HANDLER_UNLIKE_START:
+                    //Toast.makeText(activity, "unlike", Toast.LENGTH_SHORT).show();
+                    break;
+                case HANDLER_UNLIKE_DONE:
+                    //Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
+    private PostSingleEvent likePostSingleEvent = new PostSingleEvent() {
+        @Override
+        public void onStart() {
+            Message msg = new Message();
+            msg.what = HANDLER_LIKE_START;
+            handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onDone(boolean success, PostResponse response) {
+            Message msg = new Message();
+            msg.what = HANDLER_LIKE_DONE;
+            msg.arg1 = response.getCode();
+            //json
+            Log.e(TAG, "like done:"+response.getBody());
+            handler.sendMessage(msg);
+        }
+    };
+    private PostSingleEvent unlikePostSingleEvent = new PostSingleEvent() {
+        @Override
+        public void onStart() {
+            Message msg = new Message();
+            msg.what = HANDLER_UNLIKE_START;
+            handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onDone(boolean success, PostResponse response) {
+            Message msg = new Message();
+            msg.what = HANDLER_UNLIKE_DONE;
+            msg.arg1 = response.getCode();
+            Log.e(TAG, "unlike done:"+response.getBody());
+            //json
+            handler.sendMessage(msg);
+        }
+    };
+    private PostSingle postSingle;
 
     public ShowListAdapter(FragmentActivity activity, ArrayList data){
         this.activity = activity;
@@ -126,11 +195,14 @@ public class ShowListAdapter extends BaseAdapter {
         TextView tvCommentSize = (TextView)convertView.findViewById(R.id.comment_size);
         ImageView ivComment = (ImageView)convertView.findViewById(R.id.comment);
 
-        ivHead.setImageResource(R.drawable.head_default);
-        //to do 根据userid获取用户的名字
+        String headImgUrl = imageUrlPrefix+showItem.getHeadimg();
+        Log.e(TAG, headImgUrl);
+        ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(ivHead ,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+        imageLoader.get(headImgUrl, headImgListener);
+
         showItem.getUserid();
-        tvName.setText("用户名");
-        tvTime.setText(showItem.getTime());
+        tvName.setText(showItem.getNickname());
+        tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showItem.getTime())));
         tvAddress.setText(showItem.getAddress());
         tvContent.setText(showItem.getContent());
         tvUpSize.setText(""+showItem.getLiker().size());
@@ -220,7 +292,7 @@ public class ShowListAdapter extends BaseAdapter {
     }
 
     private void setUp(ShowItem showItem,ImageView ivUp,TextView tvUpSize){
-        if(showItem.getUpStatus()==1){
+        if(showItem.getLikeStatus()==1){
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
         }else {
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
@@ -229,15 +301,32 @@ public class ShowListAdapter extends BaseAdapter {
     }
 
     private void changeUp(ShowItem showItem,ImageView ivUp, TextView tvUpSize){
-        if(showItem.getUpStatus()==1){
-            showItem.setUpStatus(0);
+        if(showItem.getLikeStatus()==1){
+            //获取数据状态数据
+            postSingle = new PostSingle(config.getUnlikeUrl(), unlikePostSingleEvent);
+            HashMap<String, String> requestArgs = new HashMap<>();
+            requestArgs.put("userid", ""+globalInfos.getUserid());
+            requestArgs.put("showid", ""+showItem.getId());
+            postSingle.setHeaders(requestArgs);
+            postSingle.start();
+
+            showItem.setLikeStatus(0);
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
-            int upSize = showItem.getLiker().size()-1;
+            showItem.unlike(globalInfos.getUserid());
+            int upSize = showItem.getLiker().size();
             tvUpSize.setText("" + upSize);
         }else {
-            showItem.setUpStatus(1);
+            postSingle = new PostSingle(config.getLikeUrl(), likePostSingleEvent);
+            HashMap<String, String> requestArgs = new HashMap<>();
+            requestArgs.put("userid", ""+globalInfos.getUserid());
+            requestArgs.put("showid", ""+showItem.getId());
+            postSingle.setHeaders(requestArgs);
+            postSingle.start();
+
+            showItem.setLikeStatus(1);
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
-            int upSize = showItem.getLiker().size()+1;
+            showItem.like(globalInfos.getUserid());
+            int upSize = showItem.getLiker().size();
             tvUpSize.setText("" + upSize);
         }
     }

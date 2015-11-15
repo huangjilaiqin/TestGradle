@@ -9,6 +9,8 @@ import java.util.ArrayList;
 public class ShowItem {
     private int id;
     private int userid;
+    private String nickname;
+    private String headimg;
     private String time;
     private String address;
     private String content;
@@ -17,13 +19,15 @@ public class ShowItem {
     private String ats;
     //点赞的人
     private ArrayList<Integer> liker;
-    private int upStatus;
+    private int likeStatus;
     //评论
     private ArrayList<CommentItem> comments;
 
-    public ShowItem(int id, int userid, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, ArrayList<Integer> liker, int upStatus, ArrayList<CommentItem> comments) {
+    public ShowItem(int id, int userid,String nickname,String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, ArrayList<Integer> liker, int likeStatus, ArrayList<CommentItem> comments) {
         this.id = id;
         this.userid = userid;
+        this.nickname = nickname;
+        this.headimg = headimg;
         this.time = time;
         this.address = address;
         this.content = content;
@@ -31,8 +35,24 @@ public class ShowItem {
         this.permission = permission;
         this.ats = ats;
         this.liker = liker;
-        this.upStatus = upStatus;
+        this.likeStatus = likeStatus;
         this.comments = comments;
+    }
+
+    public String getHeadimg() {
+        return headimg;
+    }
+
+    public void setHeadimg(String headimg) {
+        this.headimg = headimg;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public int getId() {
@@ -107,12 +127,19 @@ public class ShowItem {
         this.liker = liker;
     }
 
-    public int getUpStatus() {
-        return upStatus;
+    public void unlike(int userid){
+        liker.remove(new Integer(userid));
+    }
+    public void like(int userid){
+        liker.add(new Integer(userid));
     }
 
-    public void setUpStatus(int upStatus) {
-        this.upStatus = upStatus;
+    public int getLikeStatus() {
+        return likeStatus;
+    }
+
+    public void setLikeStatus(int likeStatus) {
+        this.likeStatus = likeStatus;
     }
 
     public ArrayList<CommentItem> getComments() {

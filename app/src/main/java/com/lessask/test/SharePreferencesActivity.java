@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.test;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.lessask.R;
 
 
 public class SharePreferencesActivity extends Activity {

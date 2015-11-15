@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.test;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.lessask.R;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

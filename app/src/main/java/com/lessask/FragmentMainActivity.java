@@ -17,9 +17,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.google.gson.Gson;
+import com.lessask.chat.FragmentChat;
 import com.lessask.global.GlobalInfos;
 import com.lessask.me.FragmentMe;
 import com.lessask.show.FragmentShow;
+import com.lessask.sports.FragmentSports;
 import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;

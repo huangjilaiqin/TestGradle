@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.show;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -10,18 +10,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.lessask.model.Utils;
+import com.lessask.R;
+
 import android.support.v4.util.LruCache;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import java.io.File;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Created by huangji on 2015/9/18.
- * viewpager中展示图片的fragment
+ * 查看动态图片的viewpager中展示图片的fragment
  */
 public class FragmentImageShow extends Fragment{
     private final String TAG = FragmentImageShow.class.getName();

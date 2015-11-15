@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.chat;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,7 +21,7 @@ import java.util.Date;
 import android.os.Handler;
 
 import com.google.gson.Gson;
-import com.lessask.chat.Chat;
+import com.lessask.R;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;

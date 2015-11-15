@@ -14,6 +14,16 @@ public class Config {
     private String vedioUrl = "http://123.59.40.113/httproute/vedios/";
     private String registerUrl = "http://123.59.40.113/httproute/register/";
     private String getShowUrl = "http://123.59.40.113/httproute/getshow/";
+    private String likeUrl = "http://123.59.40.113/httproute/like/";
+    private String unlikeUrl = "http://123.59.40.113/httproute/unlike/";
+
+    public String getLikeUrl() {
+        return likeUrl;
+    }
+
+    public String getUnlikeUrl() {
+        return unlikeUrl;
+    }
 
     public String getGetShowUrl() {
         return getShowUrl;

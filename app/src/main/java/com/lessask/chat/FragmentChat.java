@@ -1,7 +1,6 @@
-package com.lessask;
+package com.lessask.chat;
 
 //import android.app.Fragment;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -16,7 +15,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
-import com.lessask.chat.Chat;
+import com.lessask.R;
+import com.lessask.friends.FriendsAdapter;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.User;
 

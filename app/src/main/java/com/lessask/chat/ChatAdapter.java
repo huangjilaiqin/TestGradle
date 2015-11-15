@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.chat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,6 +15,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.*;
 import com.android.volley.toolbox.Volley;
+import com.lessask.R;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 

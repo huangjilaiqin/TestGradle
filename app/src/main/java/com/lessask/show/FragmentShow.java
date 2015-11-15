@@ -38,10 +38,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import me.iwf.photopicker.PhotoPickerActivity;
-import me.iwf.photopicker.utils.PhotoPickerIntent;
 
 /**
  * Created by huangji on 2015/9/16.
+ * 展示动态fragment
  */
 public class FragmentShow extends Fragment implements View.OnClickListener {
 
@@ -97,11 +97,16 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         public void onDone(boolean success, PostResponse response) {
             Message msg = new Message();
             msg.what = HANDLER_GETSHOW_DONE;
-            msg.arg1 = response.getCode();
-            //to do 动态条目 module类
-            Log.e(TAG, response.getBody());
-            ArrayList<ShowItem> showdatas = gson.fromJson(response.getBody(),  new TypeToken<List<ShowItem>>(){}.getType());
-            msg.obj = showdatas;
+            if(response!=null) {
+                msg.arg1 = response.getCode();
+                //to do 动态条目 module类
+                Log.e(TAG, response.getBody());
+                ArrayList<ShowItem> showdatas = gson.fromJson(response.getBody(), new TypeToken<List<ShowItem>>() {
+                }.getType());
+                msg.obj = showdatas;
+            }else {
+                msg.arg1 = -1;
+            }
             handler.sendMessage(msg);
         }
     };

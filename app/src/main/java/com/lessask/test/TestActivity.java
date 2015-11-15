@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.test;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.util.Log;
 import android.widget.Button;
+
+import com.lessask.HandlerActivity;
+import com.lessask.R;
+import com.lessask.chat.ChatActivity;
 
 
 public class TestActivity extends Activity implements View.OnClickListener {

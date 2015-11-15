@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 
-import com.lessask.FragmentImageShow;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -20,7 +19,7 @@ import com.viewpagerindicator.IconPagerAdapter;
 import java.util.ArrayList;
 
 /*
-* 展示show中的图片
+* 查看动态中的图片
 * */
 
 public class ShowImageActivity extends FragmentActivity {

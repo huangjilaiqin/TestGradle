@@ -19,8 +19,10 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 
+import com.lessask.chat.FragmentChat;
 import com.lessask.show.CreateShowActivity;
 import com.lessask.show.FragmentShow;
+import com.lessask.sports.FragmentSports;
 import com.viewpagerindicator.IconPageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
 
@@ -150,10 +152,15 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.e(TAG, "onActivityResult" + data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
-        Intent intent = new Intent(getActivity(), CreateShowActivity.class);
-        intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
-        startActivity(intent);
+        if(data!=null) {
+            ArrayList<String> images = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
+            Log.e(TAG, "onActivityResult" + images);
+            Intent intent = new Intent(getActivity(), CreateShowActivity.class);
+            intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
+            startActivity(intent);
+        }else {
+            //没有选择图片
+        }
     }
 
     class MyAdapter extends FragmentPagerAdapter implements IconPagerAdapter {

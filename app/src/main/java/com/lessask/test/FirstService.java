@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.test;
 
 import android.app.Service;
 import android.content.Intent;
