@@ -13,12 +13,13 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -47,8 +48,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
-    private ShowListAdapter mShowListAdapter;
-    private ListView mShowList;
+    private ShowListAdapter1 mShowListAdapter1;
+    private RecyclerView mShowList;
     private ArrayList showItems;
 
     private Gson gson = new Gson();
@@ -76,7 +77,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         for(int i=0;i<showdatas.size();i++){
                             showItems.add(0,showdatas.get(i));
                         }
-                        mShowListAdapter.notifyDataSetChanged();
+                        mShowListAdapter1.notifyDataSetChanged();
                     }else {
 
                     }
@@ -117,18 +118,20 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         Log.e(TAG, "onCreateView");
         if(mRootView == null){
             mRootView = inflater.inflate(R.layout.fragment_show, null);
-            mShowList = (ListView) mRootView.findViewById(R.id.show_list);
+            mShowList = (RecyclerView) mRootView.findViewById(R.id.show_list);
+            //用线性的方式显示listview
+            mShowList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
             //获取数据状态数据
             postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
             HashMap<String, String> requestArgs = new HashMap<>();
-            requestArgs.put("userid", ""+globalInfos.getUserid());
+            requestArgs.put("userid", "" + globalInfos.getUserid());
             postSingle.setHeaders(requestArgs);
             postSingle.start();
 
             showItems = new ArrayList();
-            mShowListAdapter = new ShowListAdapter(getActivity(), showItems);
-            mShowList.setAdapter(mShowListAdapter);
+            mShowListAdapter1 = new ShowListAdapter1(getActivity(), showItems);
+            mShowList.setAdapter(mShowListAdapter1);
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
 

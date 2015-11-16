@@ -4,17 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ListView
-        android:id="@+id/show_list"
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#f6f6f6"
-        android:divider="#eee"
-        android:dividerHeight="1dp"
-        android:focusable="false"
-        android:listSelector="@android:color/transparent"
-        android:scrollbars="none"
-        >
-    </ListView>
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/show_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#f6f6f6"
+            android:divider="#eee"
+            android:dividerHeight="1dp"
+            android:focusable="false"
+            android:listSelector="@android:color/transparent"
+            android:scrollbars="none"
+            />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>
