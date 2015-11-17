@@ -1,2 +1,2 @@
-include ':app', ':tagview'
+include ':app', ':tagview', ':SwipeRefreshAndLoadMore'
 include ':library'

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
+import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 
 /**
  * Created by huangji on 2015/11/16.
@@ -142,6 +143,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
     private PostSingle postSingle;
 
     public ShowListAdapter(FragmentActivity activity, ArrayList data){
+        appendToList(data);
         this.activity = activity;
         this.context = activity.getApplicationContext();
         inflater = LayoutInflater.from(context);
@@ -164,8 +166,9 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         imageLoader = new ImageLoader(requestQueue, imageCache);
     }
 
+
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
         View view = View.inflate(parent.getContext(), R.layout.show_item, null);
         // 创建一个ViewHolder
         ViewHolder holder = new ViewHolder(view);
@@ -173,7 +176,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindItemViewHolder(ViewHolder holder, int position) {
         final int myPosition = position;
         ShowItem showItem = mShowListData.get(myPosition);
 
@@ -284,8 +287,20 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 holder.showImageLayout.addView(imageLayout);
                 break;
         }
+    }
+
+    /*
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
     }
+    */
+
+    /*
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+    }
+    */
 
     @Override
     public int getItemCount() {

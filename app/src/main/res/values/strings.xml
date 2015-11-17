@@ -59,5 +59,7 @@
     <string name="title_activity_change_person_info">ChangePersonInfoActivity</string>
     <string name="title_activity_startup">StartupActivity</string>
     <string name="title_activity_tmp">TmpActivity</string>
+    <string name="title_activity_swipe_refresh_and_load_more">SwipeRefreshAndLoadMoreActivity
+    </string>
 
 </resources>

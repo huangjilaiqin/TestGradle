@@ -14,6 +14,7 @@ import android.widget.Button;
 import com.lessask.R;
 import com.lessask.lesson.LessonsActivity;
 import com.lessask.action.RecordActionActivity;
+import com.lessask.test.SwipeRefreshAndLoadMoreActivity;
 
 /**
  * Created by huangji on 2015/9/16.
@@ -24,6 +25,7 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
     private Button mSquats;
     private Button mVideo;
     private Button mLesson;
+    private Button mTest;
     private final String TAG = FragmentSports.class.getName();
 
     @Nullable
@@ -40,6 +42,8 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
             mVideo.setOnClickListener(this);
             mLesson = (Button)view.findViewById(R.id.lesson);
             mLesson.setOnClickListener(this);
+            mTest = (Button)view.findViewById(R.id.test);
+            mTest.setOnClickListener(this);
         }
         return view;
     }
@@ -64,6 +68,11 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
                 intent = new Intent(getActivity(), LessonsActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.test:
+                intent = new Intent(getActivity(), SwipeRefreshAndLoadMoreActivity.class);
+                startActivity(intent);
+                break;
+
         }
     }
 }

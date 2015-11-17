@@ -186,6 +186,10 @@
             android:name=".test.TmpActivity"
             android:label="@string/title_activity_tmp" >
         </activity>
+        <activity
+            android:name=".test.SwipeRefreshAndLoadMoreActivity"
+            android:label="@string/title_activity_swipe_refresh_and_load_more" >
+        </activity>
     </application>
 
 </manifest>

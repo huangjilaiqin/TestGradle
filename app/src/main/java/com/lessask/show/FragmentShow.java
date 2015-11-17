@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.R;
@@ -53,6 +54,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private RecyclerView mShowList;
     private ArrayList showItems;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private LinearLayoutManager mLinearLayoutManager;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -122,7 +124,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mRootView = inflater.inflate(R.layout.fragment_show, null);
             mShowList = (RecyclerView) mRootView.findViewById(R.id.show_list);
             //用线性的方式显示listview
-            mShowList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mLinearLayoutManager = new LinearLayoutManager(getActivity());
+            mShowList.setLayoutManager(mLinearLayoutManager);
             mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
 
             //获取数据状态数据
@@ -134,6 +137,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
             showItems = new ArrayList();
             mShowListAdapter = new ShowListAdapter(getActivity(), showItems);
+            mShowListAdapter.setHasMoreData(false);
+            mShowListAdapter.setHasFooter(false);
             mShowList.setAdapter(mShowListAdapter);
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
@@ -141,10 +146,33 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
+                    try{
+                        Thread.sleep(2);
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }catch (Exception e){
 
+                    }
+                    Toast.makeText(getActivity(), "onRefresh", Toast.LENGTH_SHORT).show();
                 }
             });
             mShowListAdapter.setHasMoreData(true);
+            mShowList.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
+                @Override
+                public void onLoadMore(int current_page) {
+                    mShowListAdapter.setHasFooter(true);
+                    try{
+                        Thread.sleep(2);
+                        mShowListAdapter.setHasMoreDataAndFooter(false, true);
+                        int position = mShowListAdapter.getItemCount();
+                        mShowList.scrollToPosition(position);
+
+                    }catch (Exception e){
+
+                    }
+                    //do something
+                    Toast.makeText(getActivity(), "onLoadMore", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         }
         return mRootView;
