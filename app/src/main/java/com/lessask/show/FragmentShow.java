@@ -29,11 +29,13 @@ import com.google.gson.reflect.TypeToken;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.CommentItem;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
+import com.lessask.test.SimpleAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,6 +57,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private ArrayList showItems;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LinearLayoutManager mLinearLayoutManager;
+    private int newShowId;
+    private int oldShowId;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -79,9 +83,15 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     ArrayList<ShowItem> showdatas = (ArrayList<ShowItem>)msg.obj;
                     if(statusCode==200){
                         for(int i=0;i<showdatas.size();i++){
-                            showItems.add(0,showdatas.get(i));
+                            showItems.add(0, showdatas.get(i));
+                            mShowListAdapter.append(showdatas.get(i));
                         }
+                        oldShowId = showdatas.get(showdatas.size()-1).getId();
+                        Log.e(TAG, "oldShowId:"+oldShowId);
                         mShowListAdapter.notifyDataSetChanged();
+                        int position = mShowListAdapter.getItemCount();
+                        mShowList.scrollToPosition(position);
+                        mShowListAdapter.setHasFooter(false);
                     }else {
 
                     }
@@ -116,15 +126,16 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         }
     };
     private PostSingle postSingle;
+    private SimpleAdapter mAdapter;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
-        if(mRootView == null){
+        if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_show, null);
             mShowList = (RecyclerView) mRootView.findViewById(R.id.show_list);
             //用线性的方式显示listview
-            mLinearLayoutManager = new LinearLayoutManager(getActivity());
+            mLinearLayoutManager = new LinearLayoutManager(getContext());
             mShowList.setLayoutManager(mLinearLayoutManager);
             mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
 
@@ -137,7 +148,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
             showItems = new ArrayList();
             mShowListAdapter = new ShowListAdapter(getActivity(), showItems);
-            mShowListAdapter.setHasMoreData(false);
+            mShowListAdapter.setHasMoreData(true);
             mShowListAdapter.setHasFooter(false);
             mShowList.setAdapter(mShowListAdapter);
 
@@ -146,38 +157,67 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    try{
-                        Thread.sleep(2);
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }catch (Exception e){
+                    mSwipeRefreshLayout.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSwipeRefreshLayout.setRefreshing(false);
 
-                    }
-                    Toast.makeText(getActivity(), "onRefresh", Toast.LENGTH_SHORT).show();
+                            mShowListAdapter.appendToTop(new ShowItem(1, 1, "唐三炮", "1.jpg", "2015-10-18T16:00:00.000Z", "shengzhen", "test", new ArrayList<String>(), 1, "adsf", new ArrayList<Integer>(), 0, new ArrayList<CommentItem>()));
+
+                            //mShowListAdapter.notifyItemRangeInserted(0, 1);
+                            Log.e(TAG, "before list size:" + mShowListAdapter.getItemCount());
+                            mShowListAdapter.notifyDataSetChanged();
+                            Log.e(TAG, "after list size:" + mShowListAdapter.getItemCount());
+                            mShowList.scrollToPosition(0);
+                        }
+                    }, 1000);//1秒
                 }
             });
+            //mAdapter.setHasMoreData(true);
             mShowListAdapter.setHasMoreData(true);
             mShowList.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
                 @Override
                 public void onLoadMore(int current_page) {
+                    //mAdapter.setHasFooter(true);
                     mShowListAdapter.setHasFooter(true);
-                    try{
-                        Thread.sleep(2);
-                        mShowListAdapter.setHasMoreDataAndFooter(false, true);
-                        int position = mShowListAdapter.getItemCount();
-                        mShowList.scrollToPosition(position);
 
-                    }catch (Exception e){
+                    postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
+                    HashMap<String, String> requestArgs = new HashMap<>();
+                    requestArgs.put("userid", "" + globalInfos.getUserid());
+                    requestArgs.put("id", ""+oldShowId);
+                    postSingle.setHeaders(requestArgs);
+                    postSingle.start();
 
-                    }
-                    //do something
-                    Toast.makeText(getActivity(), "onLoadMore", Toast.LENGTH_SHORT).show();
+                    /*
+                    mSwipeRefreshLayout.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //int position = mAdapter.getItemCount();
+                            int position = mShowListAdapter.getItemCount();
+                            if (mShowListAdapter.getItemCount() > 50) {
+                                mShowListAdapter.setHasMoreDataAndFooter(false, true);
+                            } else {
+                                mShowListAdapter.append(new ShowItem(1, 1, "唐三炮", "1.jpg", "2015-10-18T16:00:00.000Z", "shengzhen", "test", new ArrayList<String>(), 1, "adsf", new ArrayList<Integer>(), 0, new ArrayList<CommentItem>()));
+                                Log.e(TAG, "before list size:" + mShowListAdapter.getItemCount());
+                                //showItems.add(new ShowItem(1,1,"唐三炮","1.jpg", "2015-10-18T16:00:00.000Z","shengzhen","test",null,1,"adsf",null,0,null));
+
+                            }
+                            //mAdapter.notifyDataSetChanged();
+                            mShowListAdapter.notifyDataSetChanged();
+                            Log.e(TAG, "after list size:" + mShowListAdapter.getItemCount());
+                            //java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder
+                            //mAdapter.notifyItemRangeInserted(mAdapter.getItemCount() - 5, 5);
+                            mShowList.scrollToPosition(position);
+                            mShowListAdapter.setHasFooter(false);
+                        }
+                    }, 2000);
+                    */
+
                 }
             });
-
         }
         return mRootView;
     }
-
 
     @Override
     public void onClick(View v) {

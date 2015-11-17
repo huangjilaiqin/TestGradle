@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
 import com.google.gson.Gson;
 import com.lessask.R;
 import com.lessask.global.Config;
@@ -35,6 +36,7 @@ import com.lessask.util.TimeHelper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
@@ -42,7 +44,7 @@ import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 /**
  * Created by huangji on 2015/11/16.
  */
-public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowListAdapter.ViewHolder>{
+public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowListAdapter.ViewHolder> implements OnRecyclerItemClickListener {
     private static final String TAG = ShowListAdapter.class.getName();
     private RequestQueue requestQueue;
     private final LruCache<String, Bitmap> lruCache = new LruCache<String, Bitmap>(20);
@@ -53,7 +55,6 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
     private Context context;
     private FragmentActivity activity;
-    private ArrayList<ShowItem> mShowListData;
     private File headImgDir;
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -77,7 +78,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 case HANDLER_LIKE_DONE:
                     //Toast.makeText(activity, "like success", Toast.LENGTH_SHORT).show();
                     LikeResponse likeResponse = (LikeResponse)msg.obj;
-                    showItem = mShowListData.get(likeResponse.getPosition());
+                    showItem = getItem(likeResponse.getPosition());
                     if(showItem.getId()==likeResponse.getShowid()){
                         showItem.like(globalInfos.getUserid());
                     }else {
@@ -91,7 +92,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 case HANDLER_UNLIKE_DONE:
                     //Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
                     UnlikeResponse unlikeResponse = (UnlikeResponse)msg.obj;
-                    showItem = mShowListData.get(unlikeResponse.getPosition());
+                    showItem = getItem(unlikeResponse.getPosition());
                     if(showItem.getId()==unlikeResponse.getShowid()){
                         showItem.unlike(globalInfos.getUserid());
                     }else {
@@ -142,13 +143,14 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
     private PostSingle postSingle;
 
-    public ShowListAdapter(FragmentActivity activity, ArrayList data){
+    public ShowListAdapter(FragmentActivity activity, List<ShowItem> data){
+        //数据直接传递给Base...Adapter
+        //获取item通过getItem
         appendToList(data);
         this.activity = activity;
         this.context = activity.getApplicationContext();
         inflater = LayoutInflater.from(context);
 
-        mShowListData = data;
         //to do 这里有时出现NullException
         headImgDir = context.getExternalFilesDir("headImg");
         requestQueue = Volley.newRequestQueue(context);
@@ -169,16 +171,14 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
     @Override
     public ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
-        View view = View.inflate(parent.getContext(), R.layout.show_item, null);
-        // 创建一个ViewHolder
-        ViewHolder holder = new ViewHolder(view);
-        return holder;
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.show_item, parent, false);
+        return new ShowListAdapter.ViewHolder(view);
     }
 
     @Override
     public void onBindItemViewHolder(ViewHolder holder, int position) {
         final int myPosition = position;
-        ShowItem showItem = mShowListData.get(myPosition);
+        ShowItem showItem = getItem(myPosition);
 
         //头像
         String headImgUrl = imageUrlPrefix+showItem.getHeadimg();
@@ -289,22 +289,9 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         }
     }
 
-    /*
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public void onClick(View view, int i) {
 
-    }
-    */
-
-    /*
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-    }
-    */
-
-    @Override
-    public int getItemCount() {
-        return mShowListData.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
@@ -334,7 +321,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         }
     }
     private void changeUp(int position){
-        ShowItem showItem = mShowListData.get(position);
+        ShowItem showItem = getItem(position);
         if(showItem.getLikeStatus()==1){
             //获取数据状态数据
             postSingle = new PostSingle(config.getUnlikeUrl(), unlikePostSingleEvent);

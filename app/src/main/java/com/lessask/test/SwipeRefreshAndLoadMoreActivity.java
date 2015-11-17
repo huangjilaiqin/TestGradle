@@ -5,8 +5,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuItem;
 
 
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
@@ -52,6 +50,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                         mAdapter.appendToTop(mAdapter.getItemCount() + "");
                         mAdapter.appendToTop(mAdapter.getItemCount() + "");
                         mAdapter.notifyItemRangeInserted(0, 5);
+                        mRecyclerView.scrollToPosition(0);
                     }
                 }, 1000);//1秒
             }

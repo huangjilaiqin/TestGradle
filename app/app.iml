@@ -69,6 +69,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/TestGradle/SwipeRefreshAndLoadMore/unspecified/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/design/22.2.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.0.1/jars" />
@@ -125,6 +126,6 @@
     <orderEntry type="library" exported="" name="design-22.2.0" level="project" />
     <orderEntry type="module" module-name="tagview" exported="" />
     <orderEntry type="module" module-name="library" exported="" />
-    <orderEntry type="module" module-name="SwipeRefreshAndLoadMore" exported="" />
+    <orderEntry type="library" exported="" name="SwipeRefreshAndLoadMore-unspecified" level="project" />
   </component>
 </module>
