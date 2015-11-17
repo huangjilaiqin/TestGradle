@@ -129,16 +129,18 @@ public class ShowItem {
 
     public void unlike(int userid){
         liker.remove(new Integer(userid));
+        setLikeStatus(0);
     }
     public void like(int userid){
         liker.add(new Integer(userid));
+        setLikeStatus(1);
     }
 
     public int getLikeStatus() {
         return likeStatus;
     }
 
-    public void setLikeStatus(int likeStatus) {
+    private void setLikeStatus(int likeStatus) {
         this.likeStatus = likeStatus;
     }
 

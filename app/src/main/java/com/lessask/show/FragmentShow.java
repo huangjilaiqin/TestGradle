@@ -13,6 +13,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -48,9 +49,10 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
-    private ShowListAdapter1 mShowListAdapter1;
+    private ShowListAdapter mShowListAdapter;
     private RecyclerView mShowList;
     private ArrayList showItems;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -77,7 +79,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         for(int i=0;i<showdatas.size();i++){
                             showItems.add(0,showdatas.get(i));
                         }
-                        mShowListAdapter1.notifyDataSetChanged();
+                        mShowListAdapter.notifyDataSetChanged();
                     }else {
 
                     }
@@ -121,6 +123,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mShowList = (RecyclerView) mRootView.findViewById(R.id.show_list);
             //用线性的方式显示listview
             mShowList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
 
             //获取数据状态数据
             postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
@@ -130,10 +133,18 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             postSingle.start();
 
             showItems = new ArrayList();
-            mShowListAdapter1 = new ShowListAdapter1(getActivity(), showItems);
-            mShowList.setAdapter(mShowListAdapter1);
+            mShowListAdapter = new ShowListAdapter(getActivity(), showItems);
+            mShowList.setAdapter(mShowListAdapter);
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
+            mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
+            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+
+                }
+            });
+            mShowListAdapter.setHasMoreData(true);
 
         }
         return mRootView;

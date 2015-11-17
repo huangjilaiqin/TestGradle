@@ -310,7 +310,7 @@ public class ShowListAdapter1 extends BaseAdapter {
             postSingle.setHeaders(requestArgs);
             postSingle.start();
 
-            showItem.setLikeStatus(0);
+            showItem.unlike(globalInfos.getUserid());
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
             showItem.unlike(globalInfos.getUserid());
             int upSize = showItem.getLiker().size();
@@ -323,7 +323,7 @@ public class ShowListAdapter1 extends BaseAdapter {
             postSingle.setHeaders(requestArgs);
             postSingle.start();
 
-            showItem.setLikeStatus(1);
+            showItem.like(globalInfos.getUserid());
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
             showItem.like(globalInfos.getUserid());
             int upSize = showItem.getLiker().size();

@@ -7,7 +7,6 @@ import android.view.View;
 import android.util.Log;
 import android.widget.Button;
 
-import com.lessask.HandlerActivity;
 import com.lessask.R;
 import com.lessask.chat.ChatActivity;
 
@@ -55,10 +54,6 @@ public class TestActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.sharePreferencesActivity:
                 intent = new Intent(TestActivity.this, SharePreferencesActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.handlerActivity:
-                intent = new Intent(TestActivity.this, HandlerActivity.class);
                 startActivity(intent);
                 break;
             case R.id.firstServiceActivity:
