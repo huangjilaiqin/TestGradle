@@ -82,6 +82,11 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     int statusCode = msg.arg1;
                     ArrayList<ShowItem> showdatas = (ArrayList<ShowItem>)msg.obj;
                     if(statusCode==200){
+                        if(showdatas.size()==0){
+                            mShowListAdapter.setHasFooter(false);
+                            mShowListAdapter.setHasMoreDataAndFooter(false, true);
+                            return;
+                        }
                         for(int i=0;i<showdatas.size();i++){
                             showItems.add(0, showdatas.get(i));
                             mShowListAdapter.append(showdatas.get(i));
@@ -143,6 +148,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
             HashMap<String, String> requestArgs = new HashMap<>();
             requestArgs.put("userid", "" + globalInfos.getUserid());
+            requestArgs.put("pagenum", "10");
             postSingle.setHeaders(requestArgs);
             postSingle.start();
 
@@ -185,6 +191,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     HashMap<String, String> requestArgs = new HashMap<>();
                     requestArgs.put("userid", "" + globalInfos.getUserid());
                     requestArgs.put("id", ""+oldShowId);
+                    requestArgs.put("direct", "backward");
+                    requestArgs.put("pagenum", "10");
                     postSingle.setHeaders(requestArgs);
                     postSingle.start();
 
