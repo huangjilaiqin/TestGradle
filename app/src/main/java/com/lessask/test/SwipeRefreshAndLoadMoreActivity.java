@@ -40,6 +40,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
     private int newShowId;
     private int oldShowId;
     private int pageNum = 1;
+    private boolean loadBackward = false;
 
     private PostSingleEvent postSingleEvent = new PostSingleEvent() {
         @Override
@@ -53,26 +54,13 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
         public void onDone(boolean success, PostResponse response) {
             Message msg = new Message();
             GetShowResponse getShowResponse = gson.fromJson(response.getBody(), GetShowResponse.class);
+            msg.arg1 = response.getCode();
             msg.obj = getShowResponse;
             msg.what = HANDLER_GETSHOW_DONE;
             handler.sendMessage(msg);
         }
     };
-    private PostSingleEvent postSingleEvent1 = new PostSingleEvent() {
-        @Override
-        public void onStart() {
-            Message msg = new Message();
-            msg.what = HANDLER_GETSHOW_START;
-            handler.sendMessage(msg);
-        }
 
-        @Override
-        public void onDone(boolean success, PostResponse response) {
-            Message msg = new Message();
-            msg.what = HANDLER_GETSHOW_START;
-            handler.sendMessage(msg);
-        }
-    };
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -89,7 +77,8 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                         String direct = getShowResponse.getDirect();
 
                         if(direct.equals("backward")){
-                            mAdapter.setHasFooter(false);
+
+                            loadBackward = false;
                             //历史状态
                             int position = mAdapter.getItemCount();
                             if(showdatas.size()==0){
@@ -97,6 +86,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                                 return;
                             }
                             for(int i=0;i<showdatas.size();i++){
+                                Log.e(TAG, "append");
                                 mAdapter.append("" + i);
                             }
                             if(showdatas.size()>0) {
@@ -115,6 +105,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                             mSwipeRefreshLayout.setRefreshing(false);
                             for(int i=showdatas.size()-1;i>=0;i--){
                                 mAdapter.appendToTop("" + i);
+                                Log.e(TAG, "append2Top");
                             }
                             if(showdatas.size()>0){
                                 newShowId = showdatas.get(0).getId();
@@ -124,10 +115,10 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                             mRecyclerView.scrollToPosition(0);
                         }
                     }else {
-                        Toast.makeText(getApplicationContext(), "网络错误", Toast.LENGTH_SHORT);
+                        Toast.makeText(SwipeRefreshAndLoadMoreActivity.this, "网络错误", Toast.LENGTH_SHORT);
                         Log.e(TAG, "loadMoreStatus is error");
                         mSwipeRefreshLayout.setRefreshing(false);
-                        mAdapter.setHasFooter(false);
+                        loadBackward = false;
                     }
                     break;
             }
@@ -180,15 +171,21 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
             @Override
             public void onLoadMore(int current_page) {
                 mAdapter.setHasFooter(true);
-                postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
-                HashMap<String, String> requestArgs = new HashMap<>();
-                requestArgs.put("userid", "" + globalInfos.getUserid());
-                requestArgs.put("id", "" + oldShowId);
-                requestArgs.put("direct", "backward");
-                requestArgs.put("pagenum", "" + pageNum);
-                Log.e(TAG, requestArgs.toString());
-                postSingle.setHeaders(requestArgs);
-                postSingle.start();
+                if(loadBackward){
+                    Log.e(TAG, "loadBackward ing");
+                    //return;
+                }else {
+                    loadBackward = true;
+                    postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
+                    HashMap<String, String> requestArgs = new HashMap<>();
+                    requestArgs.put("userid", "" + globalInfos.getUserid());
+                    requestArgs.put("id", "" + oldShowId);
+                    requestArgs.put("direct", "backward");
+                    requestArgs.put("pagenum", "" + pageNum);
+                    Log.e(TAG, requestArgs.toString());
+                    postSingle.setHeaders(requestArgs);
+                    postSingle.start();
+                }
             }
         });
     }

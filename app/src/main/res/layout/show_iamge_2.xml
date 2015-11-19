@@ -7,15 +7,15 @@
     >
     <ImageView
         android:id="@+id/show_image1"
-        android:layout_width="178.5dp"
-        android:layout_height="100.41dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:src="@drawable/runnging"
         />
     <View
         android:id="@+id/divider"
         android:layout_alignTop="@id/show_image1"
         android:layout_toRightOf="@id/show_image1"
-        android:layout_height="100.41dp"
+        android:layout_height="100dp"
         android:layout_width="3dp"
         android:background="#f6f6f6"
         ></View>
@@ -23,8 +23,8 @@
         android:id="@+id/show_image2"
         android:layout_alignTop="@id/show_image1"
         android:layout_toRightOf="@id/divider"
-        android:layout_width="178.5dp"
-        android:layout_height="100.41dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:src="@drawable/runnging"
         />
 

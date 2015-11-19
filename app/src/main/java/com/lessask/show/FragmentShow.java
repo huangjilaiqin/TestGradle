@@ -60,7 +60,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private int newShowId;
     private int oldShowId;
     private int pageNum = 1;
-    private boolean loadMoreStatus;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -69,13 +68,13 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private int REQUEST_CODE = 100;
     private final int HANDLER_GETSHOW_START = 1;
     private final int HANDLER_GETSHOW_DONE = 2;
+    private boolean loadBackward = false;
 
     private ImageView ivUp;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Log.d(TAG, "register handler:" + msg.what);
             switch (msg.what) {
                 case HANDLER_GETSHOW_START:
                     break;
@@ -88,7 +87,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         String direct = getShowResponse.getDirect();
 
                         if(direct.equals("backward")){
-                            mRecyclerViewAdapter.setHasFooter(false);
+                            loadBackward = false;
                             //历史状态
                             int position = mRecyclerViewAdapter.getItemCount();
                             if(showdatas.size()==0){
@@ -108,8 +107,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                                 mRecyclerViewAdapter.notifyDataSetChanged();
                                 //mRecyclerView.scrollToPosition(position);
                             }
-                            loadMoreStatus = false;
-                            Log.e(TAG, "loadMoreStatus is back "+showdatas.size());
+                            Log.e(TAG, "loadMore is back "+showdatas.size());
                         }else{
                             //最新状态
                             mSwipeRefreshLayout.setRefreshing(false);
@@ -125,12 +123,12 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         }
                     }else {
                         Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT);
-                        loadMoreStatus = false;
-                        Log.e(TAG, "loadMoreStatus is error");
+                        Log.e(TAG, "loadMore is error");
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        loadBackward = false;
                     }
                     break;
             }
-            Log.e(TAG, "size:"+ mRecyclerViewAdapter.getItemCount());
         }
     };
 
@@ -163,7 +161,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.e(TAG, "onCreateView");
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_show, null);
             mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.show_list);
@@ -196,7 +193,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     requestArgs.put("id", ""+newShowId);
                     requestArgs.put("direct", "forward");
                     requestArgs.put("pagenum", ""+pageNum);
-                    Log.e(TAG, requestArgs.toString());
+                    //Log.e(TAG, requestArgs.toString());
                     postSingle.setHeaders(requestArgs);
                     postSingle.start();
                 }
@@ -205,10 +202,14 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                 @Override
                 public void onLoadMore(int current_page) {
-                    Log.e(TAG, "onLoadMore current_page"+current_page);
-                    if(!loadMoreStatus) {
-
-                        loadMoreStatus = true;
+                    //不用将footer隐藏, 因为这个控件是通过item个数来判断是否进行下一次加载,目前发现好像不是很可靠
+                    //不用担心footer被看见，因为加载成功后footer就在后面了,当它出现时就是进行下一次加载的时候了
+                    //to do 加载失败怎么办
+                    if(loadBackward){
+                        Log.e(TAG, "loadBackward ing");
+                        //return;
+                    }else {
+                        loadBackward = true;
                         mRecyclerViewAdapter.setHasFooter(true);
 
                         postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
@@ -217,11 +218,9 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         requestArgs.put("id", "" + oldShowId);
                         requestArgs.put("direct", "backward");
                         requestArgs.put("pagenum", "" + pageNum);
-                        Log.e(TAG, requestArgs.toString());
+                        //Log.e(TAG, requestArgs.toString());
                         postSingle.setHeaders(requestArgs);
                         postSingle.start();
-                    }else {
-                        Log.e(TAG, "loadMoreStatus is true");
                     }
                 }
             });

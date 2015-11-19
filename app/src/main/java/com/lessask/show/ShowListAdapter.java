@@ -92,8 +92,10 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 case HANDLER_UNLIKE_DONE:
                     //Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
                     UnlikeResponse unlikeResponse = (UnlikeResponse)msg.obj;
+                    //to do 错误处理
                     showItem = getItem(unlikeResponse.getPosition());
                     if(showItem.getId()==unlikeResponse.getShowid()){
+                        Log.e(TAG, "unlike response");
                         showItem.unlike(globalInfos.getUserid());
                     }else {
                         //遍历查找showid
@@ -135,6 +137,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             Message msg = new Message();
             msg.what = HANDLER_UNLIKE_DONE;
             msg.arg1 = response.getCode();
+            Log.e(TAG, response.getBody());
             UnlikeResponse unlikeResponse = gson.fromJson(response.getBody(), UnlikeResponse.class);
             msg.obj = unlikeResponse;
             handler.sendMessage(msg);
@@ -329,6 +332,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             requestArgs.put("userid", "" + globalInfos.getUserid());
             requestArgs.put("showid", "" + showItem.getId());
             requestArgs.put("position", "" + position);
+            Log.e(TAG, "unlike"+requestArgs);
             postSingle.setHeaders(requestArgs);
             postSingle.start();
         }else {
