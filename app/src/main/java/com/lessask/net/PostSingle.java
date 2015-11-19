@@ -48,7 +48,7 @@ public class PostSingle extends Thread{
                     Map.Entry entry = (Map.Entry)iterator.next();
                     String name = (String) entry.getKey();
                     String value = (String) entry.getValue();
-                    Log.e(TAG, "headers: "+name+", "+value);
+                    //Log.e(TAG, "headers: "+name+", "+value);
                     multipartEntity.addStringPart(name, value);
                 }
             }
@@ -58,7 +58,7 @@ public class PostSingle extends Thread{
                     Map.Entry entry = (Map.Entry)iterator.next();
                     String name = (String) entry.getKey();
                     String value = (String) entry.getValue();
-                    Log.e(TAG, "files: " + name + ", " + value);
+                    //Log.e(TAG, "files: " + name + ", " + value);
                     multipartEntity.addFilePart(name, new File(value));
                 }
             }
@@ -68,7 +68,7 @@ public class PostSingle extends Thread{
                     Map.Entry entry = (Map.Entry)iterator.next();
                     String name = (String) entry.getKey();
                     String value = (String) entry.getValue();
-                    Log.e(TAG, "images: "+name+", "+value);
+                    //Log.e(TAG, "images: "+name+", "+value);
                     multipartEntity.addOptimizeImagePart(name, new File(value));
                 }
             }

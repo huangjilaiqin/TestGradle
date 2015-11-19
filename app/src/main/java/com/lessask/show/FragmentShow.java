@@ -30,6 +30,7 @@ import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.CommentItem;
+import com.lessask.model.GetShowResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.PostResponse;
@@ -52,13 +53,14 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
-    private ShowListAdapter mShowListAdapter;
-    private RecyclerView mShowList;
-    private ArrayList showItems;
+    private ShowListAdapter mRecyclerViewAdapter;
+    private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LinearLayoutManager mLinearLayoutManager;
     private int newShowId;
     private int oldShowId;
+    private int pageNum = 1;
+    private boolean loadMoreStatus;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -76,32 +78,59 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             Log.d(TAG, "register handler:" + msg.what);
             switch (msg.what) {
                 case HANDLER_GETSHOW_START:
-                    Toast.makeText(getActivity(), "请求数据", Toast.LENGTH_SHORT).show();
                     break;
                 case HANDLER_GETSHOW_DONE:
                     int statusCode = msg.arg1;
-                    ArrayList<ShowItem> showdatas = (ArrayList<ShowItem>)msg.obj;
-                    if(statusCode==200){
-                        if(showdatas.size()==0){
-                            mShowListAdapter.setHasFooter(false);
-                            mShowListAdapter.setHasMoreDataAndFooter(false, true);
-                            return;
-                        }
-                        for(int i=0;i<showdatas.size();i++){
-                            showItems.add(0, showdatas.get(i));
-                            mShowListAdapter.append(showdatas.get(i));
-                        }
-                        oldShowId = showdatas.get(showdatas.size()-1).getId();
-                        Log.e(TAG, "oldShowId:"+oldShowId);
-                        mShowListAdapter.notifyDataSetChanged();
-                        int position = mShowListAdapter.getItemCount();
-                        mShowList.scrollToPosition(position);
-                        mShowListAdapter.setHasFooter(false);
-                    }else {
 
+                    if(statusCode==200){
+                        GetShowResponse getShowResponse = (GetShowResponse)msg.obj;
+                        ArrayList<ShowItem> showdatas = getShowResponse.getShowdatas();
+                        String direct = getShowResponse.getDirect();
+
+                        if(direct.equals("backward")){
+                            mRecyclerViewAdapter.setHasFooter(false);
+                            //历史状态
+                            int position = mRecyclerViewAdapter.getItemCount();
+                            if(showdatas.size()==0){
+                                mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
+                                return;
+                            }
+                            for(int i=0;i<showdatas.size();i++){
+                                mRecyclerViewAdapter.append(showdatas.get(i));
+                            }
+                            if(showdatas.size()>0) {
+                                ShowItem showItem = showdatas.get(showdatas.size() - 1);
+                                oldShowId = showItem.getId();
+                                showItem = showdatas.get(0);
+                                newShowId = showItem.getId()>newShowId?showItem.getId():newShowId;
+
+                                //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
+                                mRecyclerViewAdapter.notifyDataSetChanged();
+                                //mRecyclerView.scrollToPosition(position);
+                            }
+                            loadMoreStatus = false;
+                            Log.e(TAG, "loadMoreStatus is back "+showdatas.size());
+                        }else{
+                            //最新状态
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            for(int i=showdatas.size()-1;i>=0;i--){
+                                mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                            }
+                            if(showdatas.size()>0){
+                                newShowId = showdatas.get(0).getId();
+                                mRecyclerViewAdapter.notifyDataSetChanged();
+                                //Log.e(TAG, "newShowId:"+newShowId);
+                            }
+                            mRecyclerView.scrollToPosition(0);
+                        }
+                    }else {
+                        Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT);
+                        loadMoreStatus = false;
+                        Log.e(TAG, "loadMoreStatus is error");
                     }
                     break;
             }
+            Log.e(TAG, "size:"+ mRecyclerViewAdapter.getItemCount());
         }
     };
 
@@ -120,10 +149,9 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             if(response!=null) {
                 msg.arg1 = response.getCode();
                 //to do 动态条目 module类
-                Log.e(TAG, response.getBody());
-                ArrayList<ShowItem> showdatas = gson.fromJson(response.getBody(), new TypeToken<List<ShowItem>>() {
-                }.getType());
-                msg.obj = showdatas;
+                //Log.e(TAG, response.getBody());
+                GetShowResponse getShowResponse = gson.fromJson(response.getBody(), GetShowResponse.class);
+                msg.obj = getShowResponse;
             }else {
                 msg.arg1 = -1;
             }
@@ -138,89 +166,63 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         Log.e(TAG, "onCreateView");
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_show, null);
-            mShowList = (RecyclerView) mRootView.findViewById(R.id.show_list);
+            mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.show_list);
             //用线性的方式显示listview
             mLinearLayoutManager = new LinearLayoutManager(getContext());
-            mShowList.setLayoutManager(mLinearLayoutManager);
+            mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
 
-            //获取数据状态数据
+            //获取初始化数据
             postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
             HashMap<String, String> requestArgs = new HashMap<>();
             requestArgs.put("userid", "" + globalInfos.getUserid());
-            requestArgs.put("pagenum", "10");
+            requestArgs.put("pagenum", ""+4);
             postSingle.setHeaders(requestArgs);
             postSingle.start();
 
-            showItems = new ArrayList();
-            mShowListAdapter = new ShowListAdapter(getActivity(), showItems);
-            mShowListAdapter.setHasMoreData(true);
-            mShowListAdapter.setHasFooter(false);
-            mShowList.setAdapter(mShowListAdapter);
+            mRecyclerViewAdapter = new ShowListAdapter(getActivity());
+            mRecyclerViewAdapter.setHasMoreData(true);
+            mRecyclerViewAdapter.setHasFooter(false);
+            mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
             mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    mSwipeRefreshLayout.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSwipeRefreshLayout.setRefreshing(false);
-
-                            mShowListAdapter.appendToTop(new ShowItem(1, 1, "唐三炮", "1.jpg", "2015-10-18T16:00:00.000Z", "shengzhen", "test", new ArrayList<String>(), 1, "adsf", new ArrayList<Integer>(), 0, new ArrayList<CommentItem>()));
-
-                            //mShowListAdapter.notifyItemRangeInserted(0, 1);
-                            Log.e(TAG, "before list size:" + mShowListAdapter.getItemCount());
-                            mShowListAdapter.notifyDataSetChanged();
-                            Log.e(TAG, "after list size:" + mShowListAdapter.getItemCount());
-                            mShowList.scrollToPosition(0);
-                        }
-                    }, 1000);//1秒
-                }
-            });
-            //mAdapter.setHasMoreData(true);
-            mShowListAdapter.setHasMoreData(true);
-            mShowList.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
-                @Override
-                public void onLoadMore(int current_page) {
-                    //mAdapter.setHasFooter(true);
-                    mShowListAdapter.setHasFooter(true);
-
                     postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
                     HashMap<String, String> requestArgs = new HashMap<>();
                     requestArgs.put("userid", "" + globalInfos.getUserid());
-                    requestArgs.put("id", ""+oldShowId);
-                    requestArgs.put("direct", "backward");
-                    requestArgs.put("pagenum", "10");
+                    requestArgs.put("id", ""+newShowId);
+                    requestArgs.put("direct", "forward");
+                    requestArgs.put("pagenum", ""+pageNum);
+                    Log.e(TAG, requestArgs.toString());
                     postSingle.setHeaders(requestArgs);
                     postSingle.start();
+                }
+            });
+            mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
 
-                    /*
-                    mSwipeRefreshLayout.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            //int position = mAdapter.getItemCount();
-                            int position = mShowListAdapter.getItemCount();
-                            if (mShowListAdapter.getItemCount() > 50) {
-                                mShowListAdapter.setHasMoreDataAndFooter(false, true);
-                            } else {
-                                mShowListAdapter.append(new ShowItem(1, 1, "唐三炮", "1.jpg", "2015-10-18T16:00:00.000Z", "shengzhen", "test", new ArrayList<String>(), 1, "adsf", new ArrayList<Integer>(), 0, new ArrayList<CommentItem>()));
-                                Log.e(TAG, "before list size:" + mShowListAdapter.getItemCount());
-                                //showItems.add(new ShowItem(1,1,"唐三炮","1.jpg", "2015-10-18T16:00:00.000Z","shengzhen","test",null,1,"adsf",null,0,null));
+                @Override
+                public void onLoadMore(int current_page) {
+                    Log.e(TAG, "onLoadMore current_page"+current_page);
+                    if(!loadMoreStatus) {
 
-                            }
-                            //mAdapter.notifyDataSetChanged();
-                            mShowListAdapter.notifyDataSetChanged();
-                            Log.e(TAG, "after list size:" + mShowListAdapter.getItemCount());
-                            //java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder
-                            //mAdapter.notifyItemRangeInserted(mAdapter.getItemCount() - 5, 5);
-                            mShowList.scrollToPosition(position);
-                            mShowListAdapter.setHasFooter(false);
-                        }
-                    }, 2000);
-                    */
+                        loadMoreStatus = true;
+                        mRecyclerViewAdapter.setHasFooter(true);
 
+                        postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
+                        HashMap<String, String> requestArgs = new HashMap<>();
+                        requestArgs.put("userid", "" + globalInfos.getUserid());
+                        requestArgs.put("id", "" + oldShowId);
+                        requestArgs.put("direct", "backward");
+                        requestArgs.put("pagenum", "" + pageNum);
+                        Log.e(TAG, requestArgs.toString());
+                        postSingle.setHeaders(requestArgs);
+                        postSingle.start();
+                    }else {
+                        Log.e(TAG, "loadMoreStatus is true");
+                    }
                 }
             });
         }

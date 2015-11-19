@@ -143,10 +143,10 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
     private PostSingle postSingle;
 
-    public ShowListAdapter(FragmentActivity activity, List<ShowItem> data){
+    public ShowListAdapter(FragmentActivity activity){
         //数据直接传递给Base...Adapter
         //获取item通过getItem
-        appendToList(data);
+        //appendToList(data);
         this.activity = activity;
         this.context = activity.getApplicationContext();
         inflater = LayoutInflater.from(context);
@@ -182,7 +182,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
         //头像
         String headImgUrl = imageUrlPrefix+showItem.getHeadimg();
-        Log.e(TAG, headImgUrl);
+        //Log.e(TAG, headImgUrl);
         ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead ,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
         imageLoader.get(headImgUrl, headImgListener);
 
