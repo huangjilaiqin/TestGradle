@@ -11,6 +11,7 @@
         android:maxWidth="200dp"
         android:layout_height="wrap_content"
         android:maxHeight="300dp"
+        android:scaleType="fitXY"
         android:src="@drawable/runnging"
         />
     <!--
