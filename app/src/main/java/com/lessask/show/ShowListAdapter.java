@@ -12,7 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -214,15 +216,15 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         //评论
 
         //设置图片
-        RelativeLayout imageLayout;
+        GridLayout imageLayout;
         ImageView showImage1,showImage2,showImage3,showImage4;
         ArrayList<String> pictures = showItem.getPictures();
         switch (pictures.size()){
             case 1:
                 //加载图片布局xml文件, 获取布局对象
-                imageLayout = (RelativeLayout) inflater.inflate(R.layout.show_iamge_1, null).findViewById(R.id.root_layout);
+                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.show_iamge_1, null).findViewById(R.id.root_layout);
                 //设置图片
-                showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
+                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
                 registerImageEvent(showImage1, showItem, 0);
 
                 String imgUrl1 = imageUrlPrefix+pictures.get(0);
@@ -230,11 +232,11 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 imageLoader.get(imgUrl1, listener1);
 
                 holder.showImageLayout.removeAllViews();
-                holder.showImageLayout.addView(imageLayout);
+                holder.showImageLayout.addView(layout);
                 break;
             case 2:
                 //加载图片布局xml文件, 获取布局对象
-                imageLayout = (RelativeLayout) inflater.inflate(R.layout.show_iamge_2, null).findViewById(R.id.root_layout);
+                imageLayout = (GridLayout) inflater.inflate(R.layout.show_iamge_2, null).findViewById(R.id.root_layout);
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
@@ -252,7 +254,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 break;
             case 3:
                 //加载图片布局xml文件, 获取布局对象
-                imageLayout = (RelativeLayout) inflater.inflate(R.layout.show_iamge_3, null).findViewById(R.id.root_layout);
+                imageLayout = (GridLayout) inflater.inflate(R.layout.show_iamge_3, null).findViewById(R.id.root_layout);
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
@@ -271,7 +273,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 break;
             case 4:
                 //加载图片布局xml文件, 获取布局对象
-                imageLayout = (RelativeLayout) inflater.inflate(R.layout.show_iamge_4, null).findViewById(R.id.root_layout);
+                imageLayout = (GridLayout) inflater.inflate(R.layout.show_iamge_4, null).findViewById(R.id.root_layout);
                 //设置图片
                 showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
                 showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);

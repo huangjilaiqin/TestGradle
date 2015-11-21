@@ -1,48 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:id="@+id/root_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:columnCount="2"
+    android:rowCount="2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/show_image1"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="2dp"
         android:src="@drawable/runnging"
         />
-    <View
-        android:id="@+id/divider_v"
-        android:layout_height="50dp"
-        android:layout_width="3dp"
-        android:background="#f6f6f6"
-        ></View>
     <ImageView
         android:id="@+id/show_image2"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_marginLeft="2dp"
+        android:layout_marginBottom="2dp"
         android:src="@drawable/runnging"
         />
-    <View
-        android:id="@+id/divider_h"
-        android:layout_height="50dp"
-        android:layout_width="3dp"
-        android:background="#f6f6f6"
-        ></View>
     <ImageView
         android:id="@+id/show_image3"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="2dp"
         android:src="@drawable/runnging"
         />
-    <View
-        android:layout_height="50dp"
-        android:layout_width="3dp"
-        android:background="#f6f6f6"
-        ></View>
     <ImageView
         android:id="@+id/show_image4"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="2dp"
         android:src="@drawable/runnging"
         />
-</LinearLayout>
+</GridLayout>
