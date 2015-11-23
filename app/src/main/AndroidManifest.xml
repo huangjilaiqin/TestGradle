@@ -190,6 +190,8 @@
             android:name=".test.SwipeRefreshAndLoadMoreActivity"
             android:label="@string/title_activity_swipe_refresh_and_load_more" >
         </activity>
+        <activity android:name=".video.PlayVideoActiviy"></activity>
+        <activity android:name=".video.RecordVideoActivity"></activity>
     </application>
 
 </manifest>

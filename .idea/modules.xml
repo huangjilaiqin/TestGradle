@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SwipeRefreshAndLoadMore/SwipeRefreshAndLoadMore.iml" filepath="$PROJECT_DIR$/SwipeRefreshAndLoadMore/SwipeRefreshAndLoadMore.iml" />
       <module fileurl="file://$PROJECT_DIR$/TestGradle.iml" filepath="$PROJECT_DIR$/TestGradle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WXLikeVideoRecorderLib/WXLikeVideoRecorderLib.iml" filepath="$PROJECT_DIR$/WXLikeVideoRecorderLib/WXLikeVideoRecorderLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/tagview/tagview.iml" filepath="$PROJECT_DIR$/tagview/tagview.iml" />

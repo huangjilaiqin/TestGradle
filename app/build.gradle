@@ -43,6 +43,7 @@ dependencies {
     compile project(':library')
     compile project(':tagview')
     compile project(':SwipeRefreshAndLoadMore')
+    compile project(':WXLikeVideoRecorderLib')
     compile 'me.iwf.photopicker:PhotoPicker:0.2.7@aar'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.nineoldandroids:library:2.4.0'
@@ -53,4 +54,5 @@ dependencies {
     compile 'com.facebook.fresco:fresco:0.7.0+'
     //该控件只支持14以上的sdk
     compile 'com.hedgehog.ratingbar:app:1.0.2'
+    compile 'com.yqritc:android-scalablevideoview:1.0.1'
 }

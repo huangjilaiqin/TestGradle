@@ -15,6 +15,7 @@ import com.lessask.R;
 import com.lessask.lesson.LessonsActivity;
 import com.lessask.action.RecordActionActivity;
 import com.lessask.test.SwipeRefreshAndLoadMoreActivity;
+import com.lessask.video.RecordVideoActivity;
 
 /**
  * Created by huangji on 2015/9/16.
@@ -61,7 +62,8 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.vedio:
-                intent = new Intent(getActivity(), RecordActionActivity.class);
+                //intent = new Intent(getActivity(), RecordActionActivity.class);
+                intent = new Intent(getActivity(), RecordVideoActivity.class);
                 startActivity(intent);
                 break;
             case R.id.lesson:
