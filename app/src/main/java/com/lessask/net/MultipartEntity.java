@@ -24,6 +24,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
 
+/*
+* 对post请求的封装
+* */
 public class MultipartEntity {
 
     private final String TAG = MultipartEntity.class.getSimpleName();
