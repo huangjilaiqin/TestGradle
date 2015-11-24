@@ -7,7 +7,9 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.lessask.global.GlobalInfos;
 
@@ -229,6 +231,8 @@ public class Utils {
             // 表示加载图像的原始宽高
             options.inJustDecodeBounds = true;
             result = BitmapFactory.decodeFile(pathName, options);
+            long size = result.getByteCount();
+            Log.e(TAG, "file size:"+size);
             // Math.ceil表示获取与它最近的整数（向上取值 如：4.1->5 4.9->5）
             int widthRatio = (int) Math.ceil(options.outWidth / maxWidth);
             int heightRatio = (int) Math.ceil(options.outHeight / maxHeight);
@@ -244,13 +248,18 @@ public class Utils {
             options.inPreferredConfig = Bitmap.Config.RGB_565;
             options.inJustDecodeBounds = false;
             result = BitmapFactory.decodeFile(pathName, options);
+            File file = new File(pathName);
+            long asize = file.length();
+            long bsize =result.getByteCount();
+            float rate = (asize-bsize)/asize;
+            Log.e(TAG, "file size:"+asize+", after compress:"+bsize+", rate:"+options.inSampleSize+", real rate:"+rate);
 
         } catch (Exception e) {
         }
 		return result;
 	}
 
-    public static Bitmap getThumbnail(File originFile,ContentResolver cr){
+    public static Bitmap getThumbnail(File originFile,ContentResolver cr,int width, int height){
 
         //获取缩略图
         //获取原图id
@@ -272,10 +281,13 @@ public class Utils {
             thumbnailBitmap = Utils.getBitmapFromFile(new File(thumbnailPath));
         }else {
             //不存在缩略图,自己进行压缩
-            thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), 100, 100);
+            thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), width, height);
         }
+        long oSize = originFile.length()/1024;
+        int aSize = thumbnailBitmap.getByteCount()/1024;
+        float rate = 1f*(oSize-aSize)/oSize;
+        Log.e(TAG, "getThumbnail:"+oSize+", compressSize:"+aSize+", rate:"+rate);
         cursor.close();
         return thumbnailBitmap;
     }
-
 }

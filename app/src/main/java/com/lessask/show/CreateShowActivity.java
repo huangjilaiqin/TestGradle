@@ -213,11 +213,11 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
 
             View view = inflater.inflate(R.layout.image_gridview_item, null);
             ImageView imageView = (ImageView)view.findViewById(R.id.image);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);//设置刻度的类型
+            //imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);//设置刻度的类型
 
             if(isFull || position<imgs.size()-1){
                 //使用缩略图
-                Bitmap bitmap = Utils.getThumbnail(new File(imgs.get(position)), getContentResolver());
+                Bitmap bitmap = Utils.getThumbnail(new File(imgs.get(position)), getContentResolver(),70,70);
                 imageView.setImageBitmap(bitmap);
                 registerImageEvent(imageView, position);
             }else {

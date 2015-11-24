@@ -34,14 +34,39 @@
                     android:layout_height="wrap_content"
                     android:minHeight="?attr/actionBarSize"
                     />
-                <com.viewpagerindicator.IconPageIndicator
-                    android:id="@+id/main_indicator"
-                    android:layout_height="24dp"
+
+                <LinearLayout
+                    android:id="@+id/main_tool"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="16dp"
                     android:layout_marginTop="@dimen/indicator_margin_top"
-                    />
+                    >
+                    <com.viewpagerindicator.IconPageIndicator
+                        android:id="@+id/main_indicator"
+                        android:layout_height="24dp"
+                        android:layout_width="wrap_content"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/lesson_tool"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:visibility="invisible"
+                    >
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:padding="10dp"
+                        android:src="@drawable/add"
+                        />
+                </LinearLayout>
             </RelativeLayout>
             <FrameLayout
                 android:id="@+id/main_fragment_container"

@@ -211,11 +211,11 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     public void onPageSelected(int index) {
         if (mainActivity == null)
             mainActivity = (MainActivity) getActivity();
-        mainActivity.changeToolbar(index);
+        //mainActivity.changeToolbar(index);
         Log.e(TAG, "onPageSelected " + index);
 
         currentPager = index;
-        mainActivity.changeDrawerMenu(currentPager);
+        //mainActivity.changeDrawerMenu(currentPager);
         /*
         if(onlyOut){
             onlyOutAnimation(index);

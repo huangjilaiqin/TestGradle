@@ -20,12 +20,16 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.lessask.contacts.FragmentContacts;
 import com.lessask.global.GlobalInfos;
+import com.lessask.lesson.FragmentLesson;
+import com.lessask.library.FragmentLibrary;
 import com.lessask.me.FragmentMe;
 import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
@@ -48,8 +52,13 @@ public class MainActivity extends AppCompatActivity {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private ArrayList<Fragment> fragments ;
+    private ArrayList<LinearLayout> toolActons;
     private int currentSelectItem;
     private IconPageIndicator iconPageIndicator;
+    private Fragment currentFragment;
+    private LinearLayout currentToolAction;
+    private LinearLayout mainToolAction;
+    private LinearLayout lessonToolAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +78,26 @@ public class MainActivity extends AppCompatActivity {
         iconPageIndicator = (IconPageIndicator)findViewById(R.id.main_indicator);
         fragmentMain.setIconPageIndicator(iconPageIndicator);
         fragments.add(fragmentMain);
-        fragments.add(fragmentMain);
-        fragments.add(fragmentMain);
+        fragments.add(new FragmentLibrary());
+        fragments.add(new FragmentContacts());
+        fragments.add(new FragmentLesson());
         fragments.add(new FragmentMe());
+
+        //工具栏布局
+        toolActons = new ArrayList<>();
+        toolActons.add((LinearLayout)findViewById(R.id.main_tool));
+        toolActons.add(null);
+        toolActons.add(null);
+        toolActons.add((LinearLayout)findViewById(R.id.lesson_tool));
+        toolActons.add(null);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.inflateMenu(R.menu.menu_main);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mainToolAction = (LinearLayout)findViewById(R.id.main_tool);
+        lessonToolAction = (LinearLayout)findViewById(R.id.lesson_tool);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
@@ -87,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         mDrawerView = (RelativeLayout) findViewById(R.id.drawer_view);
 
         mDrawerList = (ListView) findViewById(R.id.listview_drawer);
+        //获取drawer目录
         datas = getDatas();
         mAdapter = new DrawerAdapter(this, datas);
         mDrawerList.setAdapter(mAdapter);
@@ -97,7 +119,15 @@ public class MainActivity extends AppCompatActivity {
 
         loadData();
     }
-
+    private ArrayList<DrawerItem> getDatas(){
+        ArrayList<DrawerItem> datas = new ArrayList<>();
+        datas.add(new DrawerItem(R.id.head, "首页"));
+        datas.add(new DrawerItem(R.id.head, "图书馆"));
+        datas.add(new DrawerItem(R.id.head, "通讯录"));
+        datas.add(new DrawerItem(R.id.head, "课程"));
+        datas.add(new DrawerItem(R.id.head, "我"));
+        return  datas;
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -141,14 +171,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    private ArrayList<DrawerItem> getDatas(){
-        ArrayList<DrawerItem> datas = new ArrayList<>();
-        datas.add(new DrawerItem(R.id.head, "发现"));
-        datas.add(new DrawerItem(R.id.head, "训练"));
-        datas.add(new DrawerItem(R.id.head, "聊天"));
-        datas.add(new DrawerItem(R.id.head, "我"));
-        return  datas;
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -225,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
     private void selectItemManual(int position) {
         // Create a new fragment and specify the planet to show based on position
         Fragment fragment = fragments.get(position);
+        currentFragment = fragment;
+        currentToolAction = mainToolAction;
 
         FragmentMain f = (FragmentMain)fragment;
         //f.selectViewPagerItem(position);
@@ -256,35 +281,40 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.setSelectItem(position);
         mAdapter.notifyDataSetChanged();
 
-        Fragment fragment = null;
-        if(position<3) {
-            iconPageIndicator.setVisibility(View.VISIBLE);
-            fragment = new FragmentMain();
-            FragmentMain fragmentMain = (FragmentMain)fragment;
-            fragmentMain.setIconPageIndicator(iconPageIndicator);
-            fragmentMain.setCurrentPager(position);
-            Log.e(TAG, "selectItem:"+position);
-            if(currentSelectItem>=3){
-                fragmentMain.setOnlyOut(true);
-            }else {
-                fragmentMain.setOnlyOut(false);
-            }
-        }else if(position==3) {
-            fragment = new FragmentMe();
-            Log.e(TAG, "selectItem:"+position);
-            iconPageIndicator.setVisibility(View.INVISIBLE);
-        }
+
 
         // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-            .replace(R.id.main_fragment_container, fragment)
-            .commit();
-
-        // Highlight the selected item, update the title, and close the drawer
-        mDrawerList.setItemChecked(position, true);
-        setTitle(datas.get(position).getName());
-        mDrawerLayout.closeDrawer(mDrawerView);
-        currentSelectItem = position;
+        Fragment fragment = fragments.get(position);
+        if(currentFragment!=fragment) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            if (!fragment.isAdded()) {
+                fragmentManager.beginTransaction()
+                        .hide(currentFragment)
+                        .add(R.id.main_fragment_container, fragment)
+                        .commit();
+            }else{
+                fragmentManager.beginTransaction()
+                        .hide(currentFragment)
+                        .show(fragment)
+                        .commit();
+            }
+            currentFragment=fragment;
+            //设置fragment对应的toolbar布局
+            LinearLayout toolAction = toolActons.get(position);
+            if(toolAction!=currentToolAction) {
+                if(currentToolAction!=null){
+                    currentToolAction.setVisibility(View.INVISIBLE);
+                }
+                if(toolAction!=null){
+                    toolAction.setVisibility(View.VISIBLE);
+                }
+                currentToolAction=toolAction;
+            }
+            // Highlight the selected item, update the title, and close the drawer
+            mDrawerList.setItemChecked(position, true);
+            setTitle(datas.get(position).getName());
+            mDrawerLayout.closeDrawer(mDrawerView);
+            currentSelectItem = position;
+        }
     }
 }
