@@ -20,14 +20,17 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.contacts.FragmentContacts;
 import com.lessask.global.GlobalInfos;
+import com.lessask.lesson.CreateLessonActivity;
 import com.lessask.lesson.FragmentLesson;
 import com.lessask.library.FragmentLibrary;
 import com.lessask.me.FragmentMe;
@@ -59,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout currentToolAction;
     private LinearLayout mainToolAction;
     private LinearLayout lessonToolAction;
+
+    private int CREATE_LESSON = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,10 +120,23 @@ public class MainActivity extends AppCompatActivity {
         mDrawerList.setAdapter(mAdapter);
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
+        initToolBar();
+
         //设置选中 发现 界面
         selectItemManual(0);
 
         loadData();
+    }
+    private void initToolBar(){
+        ImageView createLesson = (ImageView)findViewById(R.id.create_lesson);
+        createLesson.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CreateLessonActivity.class);
+                startActivityForResult(intent, CREATE_LESSON);
+            }
+        });
+
     }
     private ArrayList<DrawerItem> getDatas(){
         ArrayList<DrawerItem> datas = new ArrayList<>();
@@ -131,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Toast.makeText(this, "mainActivity onResult", Toast.LENGTH_SHORT).show();
         Log.e(TAG, "onActivityResult");
     }
 

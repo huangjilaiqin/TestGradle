@@ -14,29 +14,6 @@
         android:textColor="@color/black"
         android:text="30天无敌减脂"
         />
-    <Button
-        android:id="@+id/edit"
-        android:layout_width="50dp"
-        android:layout_height="25dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/name"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/button_border_main_color"
-        android:textSize="15sp"
-        android:text="编辑"
-        />
-    <Button
-        android:id="@+id/distribute"
-        android:layout_width="50dp"
-        android:layout_height="25dp"
-        android:layout_below="@id/edit"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
-        android:layout_alignLeft="@id/edit"
-        android:background="@drawable/button_border_main_color"
-        android:textSize="15sp"
-        android:text="分配"
-        />
     <ImageView
         android:id="@+id/time_label"
         android:layout_width="16dp"
@@ -57,8 +34,6 @@
         android:layout_marginBottom="10dp"
         android:text="test"
         />
-
-
     <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"

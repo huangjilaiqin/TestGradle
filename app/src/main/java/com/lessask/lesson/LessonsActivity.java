@@ -99,9 +99,6 @@ public class LessonsActivity extends Activity implements View.OnClickListener{
                 intent = new Intent(LessonsActivity.this, CreateLessonActivity.class);
                 startActivityForResult(intent, CREATE_LESSON);
                 break;
-            case R.id.edit:
-                Toast.makeText(this, "edit", Toast.LENGTH_SHORT).show();
-                break;
         }
     }
 
@@ -142,17 +139,12 @@ public class LessonsActivity extends Activity implements View.OnClickListener{
                 convertView = LayoutInflater.from(context).inflate(R.layout.lesson_item, null);
 
                 TextView name = (TextView)convertView.findViewById(R.id.name);
-                Button edit = (Button)convertView.findViewById(R.id.edit);
-                edit.setOnClickListener(LessonsActivity.this);
-                Button distribute = (Button)convertView.findViewById(R.id.distribute);
                 TextView tags = (TextView)convertView.findViewById(R.id.tags);
                 TextView time = (TextView)convertView.findViewById(R.id.time);
                 TextView address = (TextView)convertView.findViewById(R.id.address);
 
                 //不变的控件
                 holder = new LessonViewHolder();
-                holder.edit = edit;
-                holder.distribute = distribute;
                 holder.name = name;
                 holder.time = time;
                 holder.address = address;
@@ -179,8 +171,6 @@ public class LessonsActivity extends Activity implements View.OnClickListener{
 
     class LessonViewHolder{
         TextView name;
-        Button edit;
-        Button distribute;
         TextView tags;
         TextView time;
         TextView address;
