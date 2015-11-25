@@ -61,5 +61,6 @@
     <string name="title_activity_tmp">TmpActivity</string>
     <string name="title_activity_swipe_refresh_and_load_more">SwipeRefreshAndLoadMoreActivity
     </string>
+    <string name="title_activity_slide_menu">SlideMenuActivity</string>
 
 </resources>

@@ -59,7 +59,7 @@ public class FragmentLesson extends Fragment{
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
 
-            mRecyclerViewAdapter = new LessonAdapter();
+            mRecyclerViewAdapter = new LessonAdapter(getContext());
             mRecyclerViewAdapter.setHasMoreData(true);
             mRecyclerViewAdapter.setHasFooter(false);
             //数据

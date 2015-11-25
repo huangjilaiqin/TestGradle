@@ -38,6 +38,7 @@ import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;
 import com.lessask.tag.TagNet;
+import com.lessask.test.FragmentTest;
 import com.viewpagerindicator.IconPageIndicator;
 
 import java.util.ArrayList;
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         fragments.add(new FragmentContacts());
         fragments.add(new FragmentLesson());
         fragments.add(new FragmentMe());
+        fragments.add(new FragmentTest());
 
         //工具栏布局
         toolActons = new ArrayList<>();
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         toolActons.add(null);
         toolActons.add(null);
         toolActons.add((LinearLayout)findViewById(R.id.lesson_tool));
+        toolActons.add(null);
         toolActons.add(null);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -145,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         datas.add(new DrawerItem(R.id.head, "通讯录"));
         datas.add(new DrawerItem(R.id.head, "课程"));
         datas.add(new DrawerItem(R.id.head, "我"));
+        datas.add(new DrawerItem(R.id.head, "测试"));
         return  datas;
     }
     @Override
