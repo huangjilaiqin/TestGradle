@@ -1,5 +1,7 @@
 package com.lessask.lesson;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +19,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
+import com.lessask.DividerItemDecoration;
+import com.lessask.OnItemClickListener;
 import com.lessask.R;
 import com.lessask.model.LessonItem;
 
@@ -32,6 +36,7 @@ public class FragmentLesson extends Fragment{
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private boolean loadBackward;
+    private int EDIT_LESSON = 0;
     private ArrayList<LessonItem> getData(){
         ArrayList<LessonItem> datas = new ArrayList<>();
         for(int i=0;i<20;i++){
@@ -52,14 +57,21 @@ public class FragmentLesson extends Fragment{
             mRecyclerView = (RecyclerView)rootView.findViewById(R.id.lesson_list);
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
-            mRecyclerView.setClickable(true);
-            mRecyclerView.setLongClickable(true);
+            mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
 
             mRecyclerViewAdapter = new LessonAdapter();
             mRecyclerViewAdapter.setHasMoreData(true);
             mRecyclerViewAdapter.setHasFooter(false);
             //数据
             mRecyclerViewAdapter.appendToList(getData());
+            mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    Toast.makeText(getContext(), "onClick:"+position, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getActivity(), CreateLessonActivity.class);
+                    startActivityForResult(intent, EDIT_LESSON);
+                }
+            });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
             mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
                 @Override
@@ -109,4 +121,11 @@ public class FragmentLesson extends Fragment{
         return rootView;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && requestCode == EDIT_LESSON) {
+            Toast.makeText(getContext(), "edit lesson done", Toast.LENGTH_SHORT).show();
+        }
+    }
 }

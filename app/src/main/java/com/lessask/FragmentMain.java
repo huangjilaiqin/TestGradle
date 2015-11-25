@@ -18,6 +18,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.widget.Toast;
 
 import com.lessask.chat.FragmentChat;
 import com.lessask.show.CreateShowActivity;
@@ -155,6 +156,7 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         if(data!=null) {
             ArrayList<String> images = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
             Log.e(TAG, "onActivityResult" + images);
+            Toast.makeText(getContext(), "fragmentMain onActivityResult", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getActivity(), CreateShowActivity.class);
             intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
             startActivity(intent);

@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -167,6 +168,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             //用线性的方式显示listview
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
+            mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
             mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
 
             //获取初始化数据

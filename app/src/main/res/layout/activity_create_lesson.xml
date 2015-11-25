@@ -9,15 +9,16 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#23282B"
+        android:background="#00bb9c"
+        android:minHeight="?attr/actionBarSize"
         >
         <ImageView
             android:id="@+id/back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:padding="16dp"
             android:src="@drawable/back"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
             android:layout_centerVertical="true"
             />
         <View
@@ -37,19 +38,15 @@
             android:textSize="18sp"
             android:text="定制课程"
             />
-        <Button
-            android:id="@+id/save"
-            android:layout_width="53.33dp"
-            android:layout_height="30dp"
-            android:background="@drawable/button_main_color_bg"
-            android:text="保存"
-            android:textColor="#ffffff"
-            android:layout_centerVertical="true"
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:padding="16dp"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:src="@drawable/done"
             />
+
+
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/info_layout"
