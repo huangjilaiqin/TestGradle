@@ -1,8 +1,9 @@
 package com.lessask.test;
 
 import android.content.Context;
-import android.support.v7.app.ActionBarActivity;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -14,11 +15,15 @@ import android.widget.Toast;
 
 import com.lessask.R;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
+import com.lessask.recyclerview.DragItemTouchHelperCallback;
+import com.lessask.recyclerview.ItemTouchHelperAdapter;
+import com.lessask.recyclerview.ItemTouchHelperViewHolder;
+import com.lessask.recyclerview.OnStartDragListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class SlideMenuActivity extends ActionBarActivity {
-
+public class ItemTouchHelperActivity extends ActionBarActivity implements OnStartDragListener{
     private ItemTouchHelper mItemTouchHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,17 +38,27 @@ public class SlideMenuActivity extends ActionBarActivity {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
 
-        MyAdapter myAdapter = new MyAdapter(this);
+        MyAdapter myAdapter = new MyAdapter(this, null);
         recyclerView.setAdapter(myAdapter);
+        ItemTouchHelper.Callback callback = new DragItemTouchHelperCallback(myAdapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    public class MyAdapter extends RecyclerView.Adapter {
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
+    }
+
+    public class MyAdapter extends RecyclerView.Adapter implements ItemTouchHelperAdapter{
 
         private ArrayList<String> stringArrayList;
+        private final OnStartDragListener mDragStartListener;
         private Context context;
 
-        public MyAdapter(Context context) {
+        public MyAdapter(Context context,OnStartDragListener mDragStartListener) {
             this.context = context;
+            this.mDragStartListener = mDragStartListener;
             stringArrayList = new ArrayList<>();
             stringArrayList.add("neo");
             stringArrayList.add("android");
@@ -101,11 +116,26 @@ public class SlideMenuActivity extends ActionBarActivity {
             return stringArrayList.size();
         }
 
+        @Override
+        public boolean onItemMove(int fromPosition, int toPosition) {
+            Collections.swap(stringArrayList, fromPosition, toPosition);
+            notifyItemMoved(fromPosition, toPosition);
+            return true;
+        }
 
-        class MyHolder extends RecyclerViewDragHolder {
+        @Override
+        public void onItemDismiss(int position) {
+            stringArrayList.remove(position);
+            notifyItemRemoved(position);
+
+        }
+
+
+        class MyHolder extends RecyclerViewDragHolder implements ItemTouchHelperViewHolder{
 
             private TextView deleteItem;
             private TextView closeApp;
+            private View itemView;
 
             public MyHolder(Context context, View bgView, View topView) {
                 super(context, bgView, topView);
@@ -117,8 +147,18 @@ public class SlideMenuActivity extends ActionBarActivity {
 
             @Override
             public void initView(View itemView) {
+                this.itemView = itemView;
                 deleteItem = (TextView) itemView.findViewById(R.id.delete);
                 closeApp = (TextView) itemView.findViewById(R.id.closeMenu);
+            }
+            @Override
+            public void onItemSelected() {
+                itemView.setBackgroundColor(Color.LTGRAY);
+            }
+
+            @Override
+            public void onItemClear() {
+                itemView.setBackgroundColor(0);
             }
         }
     }

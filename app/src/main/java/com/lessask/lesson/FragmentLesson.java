@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import com.lessask.DividerItemDecoration;
 import com.lessask.OnItemClickListener;
 import com.lessask.R;
 import com.lessask.model.LessonItem;
+import com.lessask.recyclerview.DragItemTouchHelperCallback;
 
 import java.util.ArrayList;
 
@@ -33,6 +35,7 @@ public class FragmentLesson extends Fragment{
     private View rootView;
     private final String TAG = FragmentLesson.class.getName();
     private LessonAdapter mRecyclerViewAdapter;
+    //private LessonAdapter2 mRecyclerViewAdapter;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private boolean loadBackward;
@@ -58,7 +61,9 @@ public class FragmentLesson extends Fragment{
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
+            mRecyclerView.setClickable(true);
 
+            //mRecyclerViewAdapter = new LessonAdapter(getContext());
             mRecyclerViewAdapter = new LessonAdapter(getContext());
             mRecyclerViewAdapter.setHasMoreData(true);
             mRecyclerViewAdapter.setHasFooter(false);
@@ -67,12 +72,13 @@ public class FragmentLesson extends Fragment{
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), "onClick:"+position, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), "onClick:" + position, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getActivity(), CreateLessonActivity.class);
                     startActivityForResult(intent, EDIT_LESSON);
                 }
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
+
             mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
                 @Override
                 public void onLoadMore(int current_page) {

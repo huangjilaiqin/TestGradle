@@ -204,6 +204,10 @@
             android:name=".test.MainActivity1"
             android:label="activity_main1" >
         </activity>
+        <activity
+            android:name=".test.ItemTouchHelperActivity"
+            android:label="activity_item_touch_helper" >
+        </activity>
     </application>
 
 </manifest>

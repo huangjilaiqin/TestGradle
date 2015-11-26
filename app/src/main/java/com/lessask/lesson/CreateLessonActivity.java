@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -17,16 +17,17 @@ import android.widget.TextView;
 
 import com.lessask.R;
 import com.lessask.action.SelectActionActivity;
-import com.lessask.dialog.LoadingDialog;
+import com.lessask.recyclerview.ItemTouchHelperAdapter;
+import com.lessask.recyclerview.ItemTouchHelperViewHolder;
+import com.lessask.recyclerview.RecyclerViewDragHolder;
 
 import java.util.ArrayList;
-
-import me.kaede.tagview.Tag;
+import java.util.Collections;
 
 public class CreateLessonActivity extends Activity implements View.OnClickListener{
     private String TAG = CreateLessonActivity.class.getSimpleName();
     private ImageView mBack;
-    private Button mSave;
+    private ImageView mSave;
     private EditText mName;
     private ListView mActions;
     private ActionListAdapter actionsAdapter;
@@ -42,7 +43,7 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
         mName = (EditText)findViewById(R.id.name);
         mBack = (ImageView) findViewById(R.id.back);
         mBack.setOnClickListener(this);
-        mSave = (Button) findViewById(R.id.save);
+        mSave = (ImageView) findViewById(R.id.save);
         mSave.setOnClickListener(this);
         mActions = (ListView) findViewById(R.id.actions);
         datas = getData();
@@ -78,7 +79,7 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
         return  datas;
     }
 
-    class ActionListAdapter extends BaseAdapter{
+    class ActionListAdapter extends RecyclerView.Adapter implements ItemTouchHelperAdapter {
         private Context context;
         private ArrayList<LessonActionInfo> datas;
 
@@ -87,20 +88,6 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
             this.datas = datas;
         }
 
-        @Override
-        public int getCount() {
-            return datas.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -108,7 +95,7 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
             if(convertView!=null){
                 holder = (ActionViewHolder)convertView.getTag();
             }else {
-                convertView = LayoutInflater.from(context).inflate(R.layout.action_item_change, null);
+                convertView = LayoutInflater.from(context).inflate(R.layout.create_lesson_action_item, null);
 
                 holder = new ActionViewHolder();
 
@@ -138,6 +125,70 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
             holder.position = position;
 
             return convertView;
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            //获取背景菜单
+            //这个控件的match_parent的大小就是item大小,如果item边缘使用margin会显示bg_menu的底色
+            View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.create_lesson_action_menu, null);
+            mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            //获取item布局
+            //item布局要有两层layout在第二层layout里面放控件,背景色设置为不透明，否则bg_menu会显示出来
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.create_lesson_action_item, null);
+            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            //生成返回RecyclerView.ViewHolder
+            return new MyHolder(context, mybg, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return datas.size();
+        }
+
+        @Override
+        public boolean onItemMove(int fromPosition, int toPosition) {
+            Collections.swap(datas, fromPosition, toPosition);
+            notifyItemMoved(fromPosition, toPosition);
+            return true;
+        }
+
+        @Override
+        public void onItemDismiss(int position) {
+
+        }
+
+        class MyHolder extends RecyclerViewDragHolder implements ItemTouchHelperViewHolder {
+
+            TextView deleteItem;
+
+            @Override
+            public void onItemSelected() {
+
+            }
+
+            @Override
+            public void onItemClear() {
+
+            }
+
+            public MyHolder(Context context, View bgView, View topView,int mTrackingEdges) {
+                super(context, bgView, topView,mTrackingEdges);
+            }
+
+
+            @Override
+            public void initView(View itemView) {
+                deleteItem = (TextView)itemView.findViewById(R.id.delete);
+
+            }
         }
     }
 

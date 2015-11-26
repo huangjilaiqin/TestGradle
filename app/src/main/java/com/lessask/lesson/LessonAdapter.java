@@ -2,21 +2,16 @@ package com.lessask.lesson;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
-import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
-import com.lessask.MainActivity;
 import com.lessask.OnItemClickListener;
 import com.lessask.R;
-import com.lessask.RecyclerViewDragHolder;
+import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.model.LessonItem;
 
 import java.util.ArrayList;
@@ -24,7 +19,7 @@ import java.util.ArrayList;
 /**
  * Created by JHuang on 2015/11/24.
  */
-public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, RecyclerView.ViewHolder> implements OnRecyclerItemClickListener,AdapterView.OnItemLongClickListener{
+public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, RecyclerView.ViewHolder> {
 
     private static final String TAG=LessonAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
@@ -36,7 +31,7 @@ public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, Recyc
     }
     @Override
     public RecyclerView.ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
-        View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.bg_menu, null);
+        View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.lesson_menu, null);
         mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.lesson_item, parent, false);
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -53,16 +48,19 @@ public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, Recyc
         LessonItem data = getItem(position);
         myHolder.name.setText(data.getName()+"分钟");
         myHolder.address.setText(data.getAddress());
-        /*
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        myHolder.getTopView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(v, position);
+                if(myHolder.isOpen()){
+                    myHolder.close();
+                }else {
+                    Toast.makeText(context, "real click", Toast.LENGTH_SHORT).show();
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onItemClick(v, position);
+                    }
                 }
             }
         });
-        */
         myHolder.deleteItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,11 +69,10 @@ public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, Recyc
                 notifyItemRangeChanged(position, getItemCount());
             }
         });
-        myHolder.closeApp.setOnClickListener(new View.OnClickListener() {
+        myHolder.distributeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "关闭菜单", Toast.LENGTH_SHORT).show();
-                myHolder.close();
+                Toast.makeText(context, "分配", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -87,17 +84,7 @@ public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, Recyc
             builder.append("  ");
         }
         myHolder.tags.setText(builder.toString());
-        myHolder.time.setText(""+data.getTime());
-    }
-
-    @Override
-    public void onClick(View v, int position) {
-
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        return false;
+        myHolder.time.setText("" + data.getTime());
     }
 
     public static class MyViewHolder extends RecyclerViewDragHolder{
@@ -108,7 +95,7 @@ public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, Recyc
 
         //左滑菜单
         TextView deleteItem;
-        TextView closeApp;
+        TextView distributeItem;
 
         public MyViewHolder(Context context, View bgView, View topView) {
             super(context, bgView, topView);
@@ -125,7 +112,7 @@ public class LessonAdapter extends BaseLoadMoreRecyclerAdapter<LessonItem, Recyc
             address = (TextView)itemView.findViewById(R.id.address);
             tags = (TextView)itemView.findViewById(R.id.tags);
             deleteItem = (TextView) itemView.findViewById(R.id.delete);
-            closeApp = (TextView) itemView.findViewById(R.id.closeMenu);
+            distributeItem = (TextView) itemView.findViewById(R.id.distribute);
         }
     }
 }

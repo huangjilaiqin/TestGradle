@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.recyclerview;
 
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
@@ -61,6 +61,10 @@ public abstract class RecyclerViewDragHolder {
         this.topView = topView;
         this.context = context;
         init();
+    }
+
+    public View getTopView(){
+        return topView;
     }
 
     private void init() {
