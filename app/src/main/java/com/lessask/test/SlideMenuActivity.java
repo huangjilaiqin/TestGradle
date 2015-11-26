@@ -60,10 +60,12 @@ public class SlideMenuActivity extends ActionBarActivity {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             //获取背景菜单
+            //这个控件的match_parent的大小就是item大小,如果item边缘使用margin会显示bg_menu的底色
             View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.bg_menu, null);
             mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
             //获取item布局
+            //item布局要有两层layout在第二层layout里面放控件,背景色设置为不透明，否则bg_menu会显示出来
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, null);
             view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -102,24 +104,25 @@ public class SlideMenuActivity extends ActionBarActivity {
         }
 
 
+        class MyHolder extends RecyclerViewDragHolder {
+
+            private TextView deleteItem;
+            private TextView closeApp;
+
+            public MyHolder(Context context, View bgView, View topView) {
+                super(context, bgView, topView);
+            }
+
+            public MyHolder(Context context, View bgView, View topView, int mTrackingEdges) {
+                super(context, bgView, topView, mTrackingEdges);
+            }
+
+            @Override
+            public void initView(View itemView) {
+                deleteItem = (TextView) itemView.findViewById(R.id.delete);
+                closeApp = (TextView) itemView.findViewById(R.id.closeMenu);
+            }
+        }
     }
-    class MyHolder extends RecyclerViewDragHolder {
 
-        private TextView deleteItem;
-        private TextView closeApp;
-
-        public MyHolder(Context context, View bgView, View topView) {
-            super(context, bgView, topView);
-        }
-
-        public MyHolder(Context context, View bgView, View topView, int mTrackingEdges) {
-            super(context, bgView, topView, mTrackingEdges);
-        }
-
-        @Override
-        public void initView(View itemView) {
-            deleteItem = (TextView) itemView.findViewById(R.id.delete);
-            closeApp = (TextView) itemView.findViewById(R.id.closeMenu);
-        }
-    }
 }

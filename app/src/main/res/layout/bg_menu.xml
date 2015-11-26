@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_gravity="right"
     android:background="@android:color/holo_red_light"
     android:orientation="horizontal">
@@ -9,7 +9,7 @@
     <TextView
         android:id="@+id/delete"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
@@ -25,13 +25,11 @@
     <TextView
         android:id="@+id/closeMenu"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:text="关闭菜单"
         android:textColor="#fff"
         android:textSize="18sp" />
-
-
 </LinearLayout>

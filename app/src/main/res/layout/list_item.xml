@@ -1,18 +1,68 @@
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:paddingTop="8dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/tv_content"
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        android:layout_centerVertical="true"
-        android:textColor="@color/gray"
-        android:text="test"
-        />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_green_dark"
+        android:padding="8dp"
+        >
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:text="30天无敌减脂"
+            />
+        <ImageView
+            android:id="@+id/time_label"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/time_grey"
+            android:layout_below="@id/name"
+            android:layout_marginTop="10dp"
+            />
+        <TextView
+            android:id="@+id/tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/main_color"
+            android:layout_below="@id/time_label"
+            android:layout_alignLeft="@id/time_label"
+            android:layout_marginTop="8dp"
+            android:text="test"
+            />
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/time_label"
+            android:layout_alignBottom="@id/time_label"
+            android:layout_marginLeft="5dp"
+            android:text="30分钟"
+            />
+        <ImageView
+            android:id="@+id/address_label"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_toRightOf="@id/time"
+            android:layout_marginLeft="10dp"
+            android:layout_alignBottom="@id/time_label"
+            android:src="@drawable/address"
+            />
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/address_label"
+            android:layout_marginLeft="5dp"
+            android:layout_alignBottom="@id/time_label"
+            android:text="家里"
+            />
+
+    </RelativeLayout>
 </RelativeLayout>

@@ -196,6 +196,14 @@
             android:name=".test.SlideMenuActivity"
             android:label="@string/title_activity_slide_menu" >
         </activity>
+        <activity
+            android:name=".test.SlideMenu1Activity"
+            android:label="title_activity_slide_menu1" >
+        </activity>
+        <activity
+            android:name=".test.MainActivity1"
+            android:label="activity_main1" >
+        </activity>
     </application>
 
 </manifest>

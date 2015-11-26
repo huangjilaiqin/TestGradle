@@ -25,9 +25,10 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+        Intent intent = null;
         switch (v.getId()){
             case R.id.slider_menu:
-                Intent intent = new Intent(getActivity(), SlideMenuActivity.class);
+                intent = new Intent(getActivity(), SlideMenuActivity.class);
                 startActivity(intent);
                 break;
         }
