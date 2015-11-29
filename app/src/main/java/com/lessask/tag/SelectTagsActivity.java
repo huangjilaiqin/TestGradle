@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -33,14 +36,14 @@ import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class SelectTagsActivity extends Activity implements View.OnClickListener{
+public class SelectTagsActivity extends AppCompatActivity implements View.OnClickListener{
 
     private final String TAG = SelectTagsActivity.class.getSimpleName();
     private final int SELECT_TAGS = 1;
     private final int ON_GETTAGS =2;
     private final int ON_CREATETAGS =3;
 
-    private Button mSave;
+    private ImageView mSave;
     private EditText mSelectContent;
     private TagView mTagView;
     private ListView mTagsListView;
@@ -53,8 +56,8 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     private TagNet mTagNet;
     private Gson gson;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
-    private ArrayList<TagData> selectedTagDatas;
-    private ArrayList<TagData> originSelectedTagDatas;
+    private ArrayList<Integer> selectedTagDatas;
+    private ArrayList<Integer> originSelectedTagDatas;
     private ActionTagsHolder actionTagsHolder = globalInfos.getActionTagsHolder();
 
     private Handler handler = new Handler() {
@@ -73,7 +76,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
                     //更新选中视图
                     mTagView.addTag(getTag(tagId));
                     //更新选中数据
-                    selectedTagDatas.add(new TagData(tagId, tagName));
+                    selectedTagDatas.add(tagId);
                     loadingDialog.dismiss();
                     break;
                 default:
@@ -87,6 +90,15 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_tags);
 
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
         loadingDialog = new LoadingDialog(this);
 
         gson = new Gson();
@@ -95,7 +107,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         //mTagNet.setGetTagsListener(getTagsListener);
         intent = getIntent();
 
-        mSave = (Button) findViewById(R.id.save);
+        mSave = (ImageView) findViewById(R.id.save);
         mSave.setOnClickListener(this);
         mSelectContent = (EditText) findViewById(R.id.select_content);
         mSelectContent.clearFocus();
@@ -103,26 +115,22 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
         mTagView.setOnTagDeleteListener(new OnTagDeleteListener() {
             @Override
             public void onTagDeleted(Tag tag, int position) {
-                String tagName = actionTagsHolder.getActionTagNameById(tag.id);
-                Log.e(TAG, "tagName "+tagName);
-                TagData tagData = new TagData(tag.id, tagName);
                 Log.e(TAG, "before "+selectedTagDatas.size());
                 for (int i=0;i< selectedTagDatas.size();i++){
-                    if(selectedTagDatas.get(i).getName().equals(tagName)){
+                    if(selectedTagDatas.get(i) == tag.id){
                         selectedTagDatas.remove(i);
                         break;
                     }
                 }
                 Log.e(TAG, "after "+selectedTagDatas.size());
-                //selectedTagDatas.remove(tagData);
             }
         });
         //初始化tagview
-        selectedTagDatas = intent.getParcelableArrayListExtra("tagDatas");
-        originSelectedTagDatas = (ArrayList<TagData>)selectedTagDatas.clone();
+        selectedTagDatas = intent.getIntegerArrayListExtra("tagDatas");
+        originSelectedTagDatas = (ArrayList<Integer>)selectedTagDatas.clone();
 
         for(int i=0;i<selectedTagDatas.size();i++){
-            mTagView.addTag(getTag(selectedTagDatas.get(i).getId()));
+            mTagView.addTag(getTag(selectedTagDatas.get(i)));
         }
 
         mTagsListView = (ListView) findViewById(R.id.tags);
@@ -203,17 +211,22 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.save:
-                intent.putParcelableArrayListExtra("tagDatas", selectedTagDatas);
+                intent.putIntegerArrayListExtra("tagDatas", selectedTagDatas);
                 Log.e(TAG, "save "+selectedTagDatas);
                 this.setResult(SELECT_TAGS, intent);
                 finish();
                 break;
             case R.id.back:
-                intent.putParcelableArrayListExtra("tagDatas", originSelectedTagDatas);
-                this.setResult(SELECT_TAGS, intent);
-                finish();
+                onBackPressed();
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        intent.putIntegerArrayListExtra("tagDatas", originSelectedTagDatas);
+        this.setResult(SELECT_TAGS, intent);
+        finish();
     }
 
     private int tagSeq = 0;
@@ -241,7 +254,7 @@ public class SelectTagsActivity extends Activity implements View.OnClickListener
             }else {
                 TagData tag = tags.get(position);
                 mTagView.addTag(getTag(tag.getId()));
-                selectedTagDatas.add(new TagData(tag.getId(), tag.getName()));
+                selectedTagDatas.add(tag.getId());
             }
             filterTags(filteredTags, "");
             mSelectContent.setText("");

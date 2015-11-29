@@ -28,23 +28,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.lessask.action.CreateActionActivity;
+import com.lessask.action.FragmentAction;
 import com.lessask.contacts.FragmentContacts;
 import com.lessask.global.GlobalInfos;
 import com.lessask.lesson.CreateLessonActivity;
 import com.lessask.lesson.FragmentLesson;
 import com.lessask.library.FragmentLibrary;
 import com.lessask.me.FragmentMe;
+import com.lessask.model.ActionItem;
 import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;
 import com.lessask.tag.TagNet;
 import com.lessask.test.FragmentTest;
+import com.lessask.video.RecordVideoActivity;
 import com.viewpagerindicator.IconPageIndicator;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private String TAG = MainActivity.class.getSimpleName();
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
@@ -63,8 +67,11 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout currentToolAction;
     private LinearLayout mainToolAction;
     private LinearLayout lessonToolAction;
+    private LinearLayout actionToolAction;
 
-    private int CREATE_LESSON = 0;
+    private static final int CREATE_LESSON = 0;
+    public static final int EDIT_ACTION = 1;
+    public static final int CREATE_ACTION = 2;
 
 
     @Override
@@ -88,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         fragments.add(new FragmentLibrary());
         fragments.add(new FragmentContacts());
         fragments.add(new FragmentLesson());
+        fragments.add(new FragmentAction());
         fragments.add(new FragmentMe());
         fragments.add(new FragmentTest());
 
@@ -97,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         toolActons.add(null);
         toolActons.add(null);
         toolActons.add((LinearLayout)findViewById(R.id.lesson_tool));
+        toolActons.add((LinearLayout)findViewById(R.id.action_tool));
         toolActons.add(null);
         toolActons.add(null);
 
@@ -107,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         mainToolAction = (LinearLayout)findViewById(R.id.main_tool);
         lessonToolAction = (LinearLayout)findViewById(R.id.lesson_tool);
+        actionToolAction = (LinearLayout)findViewById(R.id.action_tool);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
@@ -131,15 +141,8 @@ public class MainActivity extends AppCompatActivity {
         loadData();
     }
     private void initToolBar(){
-        ImageView createLesson = (ImageView)findViewById(R.id.create_lesson);
-        createLesson.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CreateLessonActivity.class);
-                startActivityForResult(intent, CREATE_LESSON);
-            }
-        });
-
+        findViewById(R.id.create_lesson).setOnClickListener(this);
+        findViewById(R.id.create_action).setOnClickListener(this);
     }
     private ArrayList<DrawerItem> getDatas(){
         ArrayList<DrawerItem> datas = new ArrayList<>();
@@ -147,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         datas.add(new DrawerItem(R.id.head, "图书馆"));
         datas.add(new DrawerItem(R.id.head, "通讯录"));
         datas.add(new DrawerItem(R.id.head, "课程"));
+        datas.add(new DrawerItem(R.id.head, "动作库"));
         datas.add(new DrawerItem(R.id.head, "我"));
         datas.add(new DrawerItem(R.id.head, "测试"));
         return  datas;
@@ -156,6 +160,13 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Toast.makeText(this, "mainActivity onResult", Toast.LENGTH_SHORT).show();
         Log.e(TAG, "onActivityResult");
+        //to do 创建动作之后返回
+        switch (resultCode){
+            case CREATE_ACTION:
+                ActionItem actionItem = (ActionItem)data.getParcelableExtra("actionItem");
+                Toast.makeText(this, "mainActivity onResult action:"+actionItem.getName() , Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 
     @Override
@@ -210,6 +221,22 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent;
+        switch (v.getId()){
+            case R.id.create_lesson:
+                intent = new Intent(MainActivity.this, CreateLessonActivity.class);
+                startActivityForResult(intent, CREATE_LESSON);
+                break;
+            case R.id.create_action:
+                intent = new Intent(MainActivity.this, RecordVideoActivity.class);
+                intent.putExtra("className", CreateActionActivity.class.getName());
+                startActivityForResult(intent, CREATE_ACTION);
+                break;
+        }
     }
 
     class DrawerAdapter extends BaseAdapter{

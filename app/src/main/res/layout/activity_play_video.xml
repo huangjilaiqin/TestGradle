@@ -16,7 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"
-        android:onClick="onClick"
         />
 
     <ImageView
@@ -24,7 +23,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
-        android:onClick="onClick"
         android:src="@drawable/video_play"
         />
 

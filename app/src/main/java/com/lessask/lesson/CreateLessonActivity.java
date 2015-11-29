@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +26,12 @@ import com.lessask.recyclerview.RecyclerViewDragHolder;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class CreateLessonActivity extends Activity implements View.OnClickListener{
+public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener{
     private String TAG = CreateLessonActivity.class.getSimpleName();
     private ImageView mBack;
     private ImageView mSave;
     private EditText mName;
-    private ListView mActions;
+    private RecyclerView mActions;
     private ActionListAdapter actionsAdapter;
     private ArrayList<LessonActionInfo> datas;
 
@@ -40,12 +42,19 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_lesson);
 
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         mName = (EditText)findViewById(R.id.name);
-        mBack = (ImageView) findViewById(R.id.back);
-        mBack.setOnClickListener(this);
         mSave = (ImageView) findViewById(R.id.save);
         mSave.setOnClickListener(this);
-        mActions = (ListView) findViewById(R.id.actions);
+        mActions = (RecyclerView) findViewById(R.id.actions);
         datas = getData();
         actionsAdapter = new ActionListAdapter(this, datas);
         mActions.setAdapter(actionsAdapter);
@@ -89,7 +98,7 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
         }
 
 
-        @Override
+        /* to do 合并到createView
         public View getView(int position, View convertView, ViewGroup parent) {
             ActionViewHolder holder;
             if(convertView!=null){
@@ -102,7 +111,7 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
                 ImageView vedio = (ImageView)convertView.findViewById(R.id.vedio);
                 vedio.setBackgroundResource(R.drawable.vedio);
                 TextView name = (TextView)convertView.findViewById(R.id.name);
-                EditText times = (EditText)convertView.findViewById(R.id.times);
+                EditText tmes = (EditText)convertView.findViewById(R.id.times);
                 EditText groups = (EditText)convertView.findViewById(R.id.groups);
                 EditText costTime = (EditText)convertView.findViewById(R.id.cost_time);
                 Button change = (Button)convertView.findViewById(R.id.change);
@@ -126,6 +135,7 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
 
             return convertView;
         }
+        */
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -203,13 +213,7 @@ public class CreateLessonActivity extends Activity implements View.OnClickListen
         @Override
         public void onClick(View v) {
             Intent intent;
-            switch (v.getId()){
-                case R.id.change:
-                    Log.e(TAG, "change action:"+position);
-                    intent = new Intent(CreateLessonActivity.this, SelectActionActivity.class);
-                    startActivityForResult(intent, SELECT_ACTION);
-                    break;
-            }
+
         }
     }
 }

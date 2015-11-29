@@ -54,5 +54,5 @@ public class TagData implements Parcelable{
          public TagData[] newArray(int size) {
              return new TagData[size];
          }
-     };
+    };
 }

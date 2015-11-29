@@ -4,19 +4,18 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.SurfaceTexture;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -27,7 +26,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,47 +34,52 @@ import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ActionItem;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
 import com.lessask.tag.SelectTagsActivity;
 import com.lessask.tag.TagData;
+import com.yqritc.scalablevideoview.ScalableVideoView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class CreateActionActivity extends Activity implements TextureView.SurfaceTextureListener
-        ,OnClickListener,OnCompletionListener{
+public class CreateActionActivity extends AppCompatActivity implements OnClickListener{
 
     private final int SELECT_TAGS = 1;
     private final String TAG = CreateActionActivity.class.getSimpleName();
     private String path;
-    private TextureView surfaceView;
-    private MediaPlayer mediaPlayer;
-    private ImageView imagePlay;
+    private ScalableVideoView mScalableVideoView;
     private EditText mName;
     private ImageView mEditTags;
     private TagView mTagView;
     private ImageView mNotice;
     private ImageView mUpload;
     private DisplayMetrics displaymetrics;
+    private float widthDivideHeightRatio;
+    private Toolbar mToolbar;
 
-    private ArrayList<TagData> tagDatas;
+    private ArrayList<Integer> tagDatas;
     private ArrayList<String> noticeDatas;
 
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private Config config = globalInfos.getConfig();
+    private ActionTagsHolder actionTagsHolder = globalInfos.getActionTagsHolder();
 
     private final int ON_UPLOAD_START = 1;
     private final int ON_UPLOAD_DONE = 2;
     private LoadingDialog loadingDialog;
+    private Intent mIntent;
 
     private Handler handler = new Handler(){
         @Override
@@ -90,10 +93,15 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
                 case ON_UPLOAD_DONE:
                     loadingDialog.cancel();
                     if(msg.arg1==1){
+                        UploadActionResponse response = (UploadActionResponse)msg.obj;
+                        int videoId = response.getVedioid();
+                        ActionItem actionItem = new ActionItem(mName.getText().toString(),tagDatas, noticeDatas);
+                        mIntent.putExtra("actionItem", actionItem);
                         Toast.makeText(CreateActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
                     }else {
                         Toast.makeText(CreateActionActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
                     }
+                    finish();
                     break;
             }
         }
@@ -102,7 +110,27 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mIntent = getIntent();
+        path = mIntent.getStringExtra("path");
+        widthDivideHeightRatio = mIntent.getFloatExtra("ratio", 0.5f);
+        Log.e(TAG, "video path:" + path);
+        if (TextUtils.isEmpty(path)) {
+            Toast.makeText(this, "视频路径错误", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_create_action);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
 
         tagDatas = new ArrayList<>();
         noticeDatas = new ArrayList<>();
@@ -120,32 +148,43 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
 
         displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        surfaceView = (TextureView) findViewById(R.id.preview_video);
+
+        mScalableVideoView = (ScalableVideoView) findViewById(R.id.preview_video);
+        mScalableVideoView.setOnClickListener(this);
+
+        try {
+            // 这个调用是为了初始化mediaplayer并让它能及时和surface绑定
+            mScalableVideoView.setDataSource("");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //修改控件大小
-        RelativeLayout preview_video_parent = (RelativeLayout)findViewById(R.id.preview_video_parent);
-        LayoutParams layoutParams = (LayoutParams) preview_video_parent.getLayoutParams();
-        layoutParams.width = displaymetrics.widthPixels/2;
-        layoutParams.height = displaymetrics.heightPixels/2;
-        preview_video_parent.setLayoutParams(layoutParams);
 
-        surfaceView.setSurfaceTextureListener(this);
-        surfaceView.setOnClickListener(this);
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)mScalableVideoView.getLayoutParams();
+        layoutParams.width = displaymetrics.widthPixels;
+        layoutParams.height = (int)(displaymetrics.widthPixels/widthDivideHeightRatio);
+        mScalableVideoView.setLayoutParams(layoutParams);
 
-        path = getIntent().getStringExtra("path");
 
-        imagePlay = (ImageView) findViewById(R.id.preview_play);
-        imagePlay.setOnClickListener(this);
-
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setOnCompletionListener(this);
+        //在低端的手机中不用线程会显示不出来
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    mScalableVideoView.setDataSource(path);
+                    mScalableVideoView.setLooping(true);
+                    mScalableVideoView.prepare();
+                    mScalableVideoView.start();
+                } catch (IOException e) {
+                    Log.e(TAG, e.getLocalizedMessage());
+                    Toast.makeText(getBaseContext(), "播放视频异常", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.start();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mName.clearFocus();
-    }
+
 
     private void editTextView2AttentionListItem(String content, View v){
         TextView textView = (TextView)v;
@@ -187,82 +226,23 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
 
     @Override
     protected void onStop() {
-        if(mediaPlayer.isPlaying()){
-            mediaPlayer.pause();
-            imagePlay.setVisibility(View.GONE);
-        }
+        //停止播放视频
+        mScalableVideoView.stop();
         super.onStop();
     }
-
-    private void prepare(Surface surface) {
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            // 设置需要播放的视频
-            mediaPlayer.setDataSource(path);
-            // 把视频画面输出到Surface
-            mediaPlayer.setSurface(surface);
-            //mediaPlayer.setLooping(true);
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    Log.e(TAG, "prepared");
-                    //mediaPlayer.start();
-                }
-            });
-            mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    Log.e(TAG, "error:" + mp + ", what:" + what + ", extra:" + extra);
-                    return false;
-                }
-            });
-            mediaPlayer.prepareAsync();
-            mediaPlayer.seekTo(0);
-
-        } catch (Exception e) {
-        }
-    }
-
     @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture arg0, int arg1,
-                                          int arg2) {
-        Log.e(TAG, "onSurfaceTextureAvailable prepare");
-        Surface surface = new Surface(arg0);
-        prepare(surface);
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture arg0) {
-        return false;
-    }
-
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture arg0, int arg1,int arg2) {
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture arg0) {
+    protected void onResume() {
+        super.onResume();
+        mScalableVideoView.start();
+        mName.clearFocus();
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.preview_play:
-                if(!mediaPlayer.isPlaying()){
-                    mediaPlayer.start();
-                }
-                imagePlay.setVisibility(View.GONE);
-                break;
-            case R.id.preview_video:
-                if(mediaPlayer.isPlaying()){
-                    mediaPlayer.pause();
-                    imagePlay.setVisibility(View.VISIBLE);
-                }
-                break;
             case R.id.edit_tags:
                 Intent intent = new Intent(this,SelectTagsActivity.class);
-                intent.putParcelableArrayListExtra("tagDatas", tagDatas);
+                intent.putIntegerArrayListExtra("tagDatas", tagDatas);
                 startActivityForResult(intent, SELECT_TAGS);
                 break;
             case R.id.notice:
@@ -289,18 +269,23 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
 
             @Override
             public void onDone(boolean success, PostResponse postResponse) {
-                int resCode = postResponse.getCode();
-                String body = postResponse.getBody();
-                UploadActionResponse response = gson.fromJson(body, UploadActionResponse.class);
-                int vedioId = response.getVedioid();
-
                 Message msg = new Message();
                 msg.what = ON_UPLOAD_DONE;
-                if(success)
-                    msg.arg1 = 1;
-                else
+                if(postResponse!=null) {
+                    int resCode = postResponse.getCode();
+                    String body = postResponse.getBody();
+                    UploadActionResponse response = gson.fromJson(body, UploadActionResponse.class);
+                    msg.obj = response;
+
+                    if (success)
+                        msg.arg1 = 1;
+                    else
+                        msg.arg1 = 0;
+                    handler.sendMessage(msg);
+                }else {
                     msg.arg1 = 0;
-                handler.sendMessage(msg);
+                    handler.sendMessage(msg);
+                }
             }
         };
         PostSingle postSingle = new PostSingle(config.getUploadVedioUrl(), event);
@@ -324,7 +309,7 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
         int tagSize = tagDatas.size();
         int lastIndex = tagSize-1;
         for(int i=0;i<tagSize;i++){
-            builder.append(tagDatas.get(i).getId());
+            builder.append(actionTagsHolder.getActionTagNameById(tagDatas.get(i)));
             if(i!=lastIndex){
                 builder.append(",");
             }
@@ -400,8 +385,8 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
             }
         },100);
     }
-    private Tag getTag(String name){
-        Tag tag = new Tag(name);
+    private Tag getTag(int id){
+        Tag tag = new Tag(actionTagsHolder.getActionTagNameById(id));
         tag.tagTextColor = R.color.main_color;
         tag.layoutColor =  Color.parseColor("#DDDDDD");
         //tag.layoutColorPress = Color.parseColor("#555555");
@@ -417,31 +402,47 @@ public class CreateActionActivity extends Activity implements TextureView.Surfac
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case SELECT_TAGS:
-                tagDatas = data.getParcelableArrayListExtra("tagDatas");
+                tagDatas = data.getIntegerArrayListExtra("tagDatas");
                 Log.e(TAG, "on result:"+tagDatas);
                 mTagView.removeAllTags();
                 for(int i=0;i<tagDatas.size();i++){
-                    mTagView.addTag(getTag(tagDatas.get(i).getName()));
+                    mTagView.addTag(getTag(tagDatas.get(i)));
                 }
                 break;
         }
     }
 
-    private void stop(){
-        mediaPlayer.stop();
-        Intent intent = new Intent(this,RecordActionActivity.class);
-        startActivity(intent);
+    @Override
+    public void onBackPressed() {
+        //stop();
+        //Intent intent = new Intent(this,RecordVideoActivity.class);
+        //startActivity(intent);
         finish();
     }
 
-    @Override
-    public void onBackPressed() {
-        stop();
+    /**
+     * 获取视频缩略图（这里获取第一帧）
+     * @param filePath
+     * @return
+     */
+    public Bitmap getVideoThumbnail(String filePath) {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(filePath);
+            bitmap = retriever.getFrameAtTime(TimeUnit.MILLISECONDS.toMicros(1));
+        }
+        catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                retriever.release();
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }
+        return bitmap;
     }
 
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.e(TAG, "onCompletion");
-        imagePlay.setVisibility(View.VISIBLE);
-    }
 }

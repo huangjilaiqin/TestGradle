@@ -96,7 +96,7 @@ public class RecordProgressBar extends View {
      * @param runningTime
      */
     public void setRunningTime(int runningTime) {
-        this.mRunningTime = runningTime;
+        this.mRunningTime = (int)(runningTime/1000f);
     }
 
     /**

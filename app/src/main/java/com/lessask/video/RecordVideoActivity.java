@@ -38,6 +38,8 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
     // 宽高比
     private static final float RATIO = 1f * OUTPUT_WIDTH / OUTPUT_HEIGHT;
 
+    private int maxRecordTime = 10000;
+
     private Camera mCamera;
 
     private WXLikeVideoRecorder mRecorder;
@@ -46,10 +48,13 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
     private static final int CANCEL_RECORD_OFFSET = -100;
     private float mDownX, mDownY;
     private boolean isCancelRecord = false;
+    private String targetActivityName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        targetActivityName = getIntent().getStringExtra("className");
         int cameraId = CameraHelper.getDefaultCameraID();
         // Create an instance of Camera
         mCamera = CameraHelper.getCameraInstance(cameraId);
@@ -59,8 +64,10 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
             return;
         }
         // 初始化录像机
-        mRecorder = new WXLikeVideoRecorder(this, FileUtil.MEDIA_FILE_DIR);
+        mRecorder = new WXLikeVideoRecorder(this, "/com.lessask");
+        //strFinalPath = FileUtil.createFilePath(mFolder, null, Long.toString(System.currentTimeMillis()));
         mRecorder.setOutputSize(OUTPUT_WIDTH, OUTPUT_HEIGHT);
+        mRecorder.setMaxRecordTime(maxRecordTime);
 
         setContentView(R.layout.activity_recorder_video);
         CameraPreviewView preview = (CameraPreviewView) findViewById(R.id.camera_preview);
@@ -68,6 +75,7 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
 
         mRecorder.setCameraPreviewView(preview);
         mRecordProgressBar = (RecordProgressBar) findViewById(R.id.progress_bar);
+        mRecordProgressBar.setRunningTime(maxRecordTime);
 
         findViewById(R.id.button_start).setOnTouchListener(this);
 
@@ -151,10 +159,22 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
             // 告诉宿主页面录制视频的路径
             //startActivity(new Intent(this, PlayVideoActiviy.class).putExtra(PlayVideoActiviy.KEY_FILE_PATH, videoPath));
             Log.e(TAG, "videoPath:" + videoPath);
-            Intent intent = new Intent(this, CreateActionActivity.class);
+            //Intent intent = new Intent(this, CreateActionActivity.class);
+            Class targetActivity;
+            try {
+                targetActivity = Class.forName(targetActivityName);
+            }catch (ClassNotFoundException e){
+                Toast.makeText(this, "跳转Activity不存在:"+targetActivityName, Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            Intent intent = new Intent(this, targetActivity);
+            intent.putExtra("ratio", RATIO);
             intent.putExtra("path", videoPath);
             intent.putExtra("imagePath", "");
             startActivity(intent);
+            finish();
         }
     }
 

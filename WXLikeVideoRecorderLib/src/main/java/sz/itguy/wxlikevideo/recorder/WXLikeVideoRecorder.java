@@ -31,7 +31,7 @@ public class WXLikeVideoRecorder implements Camera.PreviewCallback, CameraPrevie
     private static final String TAG = "InstantVideoRecorder";
 
     // 最长录制时间6秒
-    private static final long MAX_RECORD_TIME = 6000;
+    private static long MAX_RECORD_TIME = 6000;
     // 帧率
     private static final int FRAME_RATE = 30;
     // 声音采样率
@@ -90,6 +90,10 @@ public class WXLikeVideoRecorder implements Camera.PreviewCallback, CameraPrevie
     public WXLikeVideoRecorder(Context context, String folder) {
         mContext = context;
         mFolder = folder;
+    }
+
+    public void setMaxRecordTime(long time){
+        MAX_RECORD_TIME = time;
     }
 
     public boolean isRecording() {

@@ -7,16 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
@@ -24,7 +18,6 @@ import com.lessask.DividerItemDecoration;
 import com.lessask.OnItemClickListener;
 import com.lessask.R;
 import com.lessask.model.LessonItem;
-import com.lessask.recyclerview.DragItemTouchHelperCallback;
 
 import java.util.ArrayList;
 
@@ -91,18 +84,6 @@ public class FragmentLesson extends Fragment{
                     } else {
                         loadBackward = true;
                         mRecyclerViewAdapter.setHasFooter(true);
-
-                        /*
-                        postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
-                        HashMap<String, String> requestArgs = new HashMap<>();
-                        requestArgs.put("userid", "" + globalInfos.getUserid());
-                        requestArgs.put("id", "" + oldShowId);
-                        requestArgs.put("direct", "backward");
-                        requestArgs.put("pagenum", "" + pageNum);
-                        //Log.e(TAG, requestArgs.toString());
-                        postSingle.setHeaders(requestArgs);
-                        postSingle.start();
-                        */
                     }
                 }
             });
