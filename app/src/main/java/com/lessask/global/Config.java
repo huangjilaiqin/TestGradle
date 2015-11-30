@@ -16,6 +16,11 @@ public class Config {
     private String getShowUrl = "http://123.59.40.113/httproute/getshow/";
     private String likeUrl = "http://123.59.40.113/httproute/like/";
     private String unlikeUrl = "http://123.59.40.113/httproute/unlike/";
+    private String getActioinsUrl = "http://123.59.40.113/httproute/getactions/";
+
+    public String getGetActioinsUrl() {
+        return getActioinsUrl;
+    }
 
     public String getLikeUrl() {
         return likeUrl;

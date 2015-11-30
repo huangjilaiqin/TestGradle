@@ -2,6 +2,8 @@ package com.lessask.action;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,13 +14,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
 import com.lessask.MainActivity;
 import com.lessask.OnItemClickListener;
 import com.lessask.R;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
+import com.lessask.model.GetActionResponse;
+import com.lessask.model.ShowItem;
+import com.lessask.net.PostResponse;
+import com.lessask.net.PostSingle;
+import com.lessask.net.PostSingleEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by JHuang on 2015/11/28.
@@ -31,26 +42,78 @@ public class FragmentAction extends Fragment{
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
 
-    private ArrayList<ActionItem> getData(){
-        ArrayList<ActionItem> datas = new ArrayList<>();
-        for(int i=0;i<10;i++){
-            ArrayList<Integer> tags = new ArrayList();
-            tags.add(i);
-            //Log.e(TAG, "tags size:" + tags.size());
+    private Gson gson = new Gson();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
 
-            ArrayList<String> notices = new ArrayList<>();
-            notices.add("与肩同宽"+i);
-            notices.add("背部挺直"+i);
-            datas.add(new ActionItem("臀桥" + i, tags, notices));
+    private final int HANDLER_GETACTION_START = 0;
+    private final int HANDLER_GETACTION_DONE = 1;
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+        super.handleMessage(msg);
+        switch (msg.what) {
+            case HANDLER_GETACTION_START:
+                break;
+            case HANDLER_GETACTION_DONE:
+                int statusCode = msg.arg1;
+
+                Log.e(TAG, "statusCode"+statusCode);
+                if(statusCode==200){
+                    GetActionResponse getActionResponse = (GetActionResponse)msg.obj;
+                    ArrayList<ActionItem> actiondatas = getActionResponse.getActionDatas();
+                    Log.e(TAG, "actiondatas length:"+actiondatas.size());
+
+                    mRecyclerViewAdapter.appendToList(actiondatas);
+                    //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    //mRecyclerView.scrollToPosition(position);
+                }else {
+                    Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT);
+                    Log.e(TAG, "loadMore is error");
+                }
+                break;
         }
-        return  datas;
-    }
+        }
+    };
+    private PostSingleEvent postSingleEvent = new PostSingleEvent() {
+        @Override
+        public void onStart() {
+            Message msg = new Message();
+            msg.what = HANDLER_GETACTION_START;
+            handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onDone(boolean success, PostResponse response) {
+            Message msg = new Message();
+            msg.what = HANDLER_GETACTION_DONE;
+            if(response!=null) {
+                msg.arg1 = response.getCode();
+                Log.e(TAG, "body:"+response.getBody());
+                GetActionResponse getActionResponse = gson.fromJson(response.getBody(), GetActionResponse.class);
+                msg.obj = getActionResponse;
+            }else {
+                msg.arg1 = -1;
+            }
+            handler.sendMessage(msg);
+        }
+    };
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null) {
             rootView = inflater.inflate(R.layout.fragment_action, null);
+
+            //加载数据
+            PostSingle postSingle = new PostSingle(config.getGetActioinsUrl(), postSingleEvent);
+            HashMap<String, String> requestArgs = new HashMap<>();
+            requestArgs.put("userid", "" + globalInfos.getUserid());
+            postSingle.setHeaders(requestArgs);
+            postSingle.start();
+
             mRecyclerView = (RecyclerView)rootView.findViewById(R.id.lesson_list);
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -59,10 +122,8 @@ public class FragmentAction extends Fragment{
 
             //mRecyclerViewAdapter = new LessonAdapter(getContext());
             mRecyclerViewAdapter = new ActionAdapter(getContext());
-            mRecyclerViewAdapter.setHasMoreData(true);
-            mRecyclerViewAdapter.setHasFooter(false);
             //数据
-            mRecyclerViewAdapter.appendToList(getData());
+            //mRecyclerViewAdapter.appendToList(getData());
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
@@ -74,7 +135,6 @@ public class FragmentAction extends Fragment{
                 }
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
-
 
             mRecyclerView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -147,8 +147,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             msg.what = HANDLER_GETSHOW_DONE;
             if(response!=null) {
                 msg.arg1 = response.getCode();
-                //to do 动态条目 module类
-                //Log.e(TAG, response.getBody());
                 GetShowResponse getShowResponse = gson.fromJson(response.getBody(), GetShowResponse.class);
                 msg.obj = getShowResponse;
             }else {

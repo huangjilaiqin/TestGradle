@@ -95,7 +95,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     if(msg.arg1==1){
                         UploadActionResponse response = (UploadActionResponse)msg.obj;
                         int videoId = response.getVedioid();
-                        ActionItem actionItem = new ActionItem(mName.getText().toString(),tagDatas, noticeDatas);
+                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
                         Toast.makeText(CreateActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
                     }else {
@@ -311,7 +311,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         for(int i=0;i<tagSize;i++){
             builder.append(actionTagsHolder.getActionTagNameById(tagDatas.get(i)));
             if(i!=lastIndex){
-                builder.append(",");
+                builder.append(";");
             }
         }
         return builder.toString();

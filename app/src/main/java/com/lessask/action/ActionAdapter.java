@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 import com.lessask.OnItemClickListener;
 import com.lessask.R;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
+import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 /**
  * Created by JHuang on 2015/11/24.
  */
-public class ActionAdapter extends BaseLoadMoreRecyclerAdapter<ActionItem, RecyclerView.ViewHolder> {
+public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.ViewHolder> {
 
     private static final String TAG=ActionAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
@@ -33,8 +33,13 @@ public class ActionAdapter extends BaseLoadMoreRecyclerAdapter<ActionItem, Recyc
     public ActionAdapter(Context context){
         this.context = context;
     }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
     @Override
-    public RecyclerView.ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.action_menu, null);
         mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.action_item, parent, false);
@@ -42,12 +47,8 @@ public class ActionAdapter extends BaseLoadMoreRecyclerAdapter<ActionItem, Recyc
         return new MyViewHolder(context, mybg, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
-    }
-
     @Override
-    public void onBindItemViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final MyViewHolder myHolder = (MyViewHolder)RecyclerViewDragHolder.getHolder(holder);
         ActionItem data = getItem(position);
         myHolder.name.setText(data.getName()+"分钟");
@@ -90,6 +91,7 @@ public class ActionAdapter extends BaseLoadMoreRecyclerAdapter<ActionItem, Recyc
             builder.append(" ");
         }
         myHolder.tags.setText(builder.toString());
+
     }
 
     public static class MyViewHolder extends RecyclerViewDragHolder{

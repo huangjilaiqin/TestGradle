@@ -9,14 +9,24 @@ import java.util.ArrayList;
  * Created by JHuang on 2015/11/28.
  */
 public class ActionItem implements Parcelable {
+    private int id;
     private String name;
     private ArrayList<Integer> tags;
     private ArrayList<String> notices;
 
-    public ActionItem(String name, ArrayList<Integer> tags, ArrayList<String> notices) {
+    public ActionItem(int id,String name, ArrayList<Integer> tags, ArrayList<String> notices) {
+        this.id = id;
         this.name = name;
         this.tags = tags;
         this.notices = notices;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -50,6 +60,7 @@ public class ActionItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(name);
         dest.writeList(tags);
         dest.writeList(notices);
