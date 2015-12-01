@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lessask.R;
-import com.lessask.action.CreateActionActivity;
 
 import java.lang.ref.WeakReference;
 

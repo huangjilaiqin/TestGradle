@@ -161,7 +161,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(this, "mainActivity onResult", Toast.LENGTH_SHORT).show();
         Log.e(TAG, "onActivityResult");
         //to do 创建动作之后返回
+        Toast.makeText(this, "MainActivity resultCode:"+requestCode, Toast.LENGTH_SHORT).show();
         switch (resultCode){
+
             case CREATE_ACTION:
                 ActionItem actionItem = (ActionItem)data.getParcelableExtra("actionItem");
                 Toast.makeText(this, "mainActivity onResult action:"+actionItem.getName() , Toast.LENGTH_SHORT).show();

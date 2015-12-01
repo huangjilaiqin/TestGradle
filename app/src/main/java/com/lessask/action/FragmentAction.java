@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
 import com.lessask.MainActivity;
 import com.lessask.OnItemClickListener;
+import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -132,6 +133,21 @@ public class FragmentAction extends Fragment{
                     Intent intent = new Intent(getActivity(), EditActionActivity.class);
                     startActivityForResult(intent, MainActivity.EDIT_ACTION);
                     */
+                }
+            });
+            mRecyclerViewAdapter.setOnItemMenuClickListener(new OnItemMenuClickListener() {
+                @Override
+                public void onItemMenuClick(View view, int position) {
+                    ActionItem actionItem = mRecyclerViewAdapter.getItem(position);
+                    switch (view.getId()){
+                        case R.id.delete:
+                            break;
+                        case R.id.edit:
+                            Intent intent = new Intent(FragmentAction.this.getActivity(), EditActionActivity.class);
+                            intent.putExtra("actionItem", actionItem);
+                            startActivityForResult(intent, 110);
+                            break;
+                    }
                 }
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);

@@ -5,9 +5,19 @@ package com.lessask.action;
  */
 public class UploadActionResponse {
     int vedioid;
+    private String vedioName;
 
-    public UploadActionResponse(int vedioid) {
+    public UploadActionResponse(int vedioid,String vedioName) {
         this.vedioid = vedioid;
+        this.vedioName = vedioName;
+    }
+
+    public String getVedioName() {
+        return vedioName;
+    }
+
+    public void setVedioName(String vedioName) {
+        this.vedioName = vedioName;
     }
 
     public int getVedioid() {

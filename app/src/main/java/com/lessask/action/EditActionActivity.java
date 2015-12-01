@@ -1,6 +1,5 @@
 package com.lessask.action;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -39,7 +38,6 @@ import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
 import com.lessask.tag.SelectTagsActivity;
-import com.lessask.tag.TagData;
 import com.yqritc.scalablevideoview.ScalableVideoView;
 
 import java.io.IOException;
@@ -53,10 +51,10 @@ import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class CreateActionActivity extends AppCompatActivity implements OnClickListener{
+public class EditActionActivity extends AppCompatActivity implements OnClickListener{
 
     private final int SELECT_TAGS = 1;
-    private final String TAG = CreateActionActivity.class.getSimpleName();
+    private final String TAG = EditActionActivity.class.getSimpleName();
     private String path;
     private ScalableVideoView mScalableVideoView;
     private EditText mName;
@@ -65,7 +63,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
     private ImageView mNotice;
     private ImageView mUpload;
     private DisplayMetrics displaymetrics;
-    private float widthDivideHeightRatio;
+    private float widthDivideHeightRatio = 320/240f;
     private Toolbar mToolbar;
 
     private ArrayList<Integer> tagDatas;
@@ -95,12 +93,11 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     if(msg.arg1==1){
                         UploadActionResponse response = (UploadActionResponse)msg.obj;
                         int videoId = response.getVedioid();
-                        String vedioName = response.getVedioName();
-                        ActionItem actionItem = new ActionItem(videoId,vedioName,mName.getText().toString(),tagDatas, noticeDatas);
+                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
-                        Toast.makeText(CreateActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
                     }else {
-                        Toast.makeText(CreateActionActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditActionActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
                     }
                     finish();
                     break;
@@ -113,14 +110,11 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         super.onCreate(savedInstanceState);
 
         mIntent = getIntent();
-        path = mIntent.getStringExtra("path");
-        widthDivideHeightRatio = mIntent.getFloatExtra("ratio", 0.5f);
-        Log.e(TAG, "video path:" + path);
-        if (TextUtils.isEmpty(path)) {
-            Toast.makeText(this, "视频路径错误", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        ActionItem actionItem = mIntent.getParcelableExtra("actionItem");
+        String vedioName = actionItem.getVedio();
+
+        //to do volley请求动作视频
+
         setContentView(R.layout.activity_create_action);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -168,6 +162,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         mScalableVideoView.setLayoutParams(layoutParams);
 
 
+        //to do 下载文件后启动
         //在低端的手机中不用线程会显示不出来
         new Thread(){
             @Override
@@ -258,7 +253,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
     }
 
     private void uploadVedio(){
-        loadingDialog = new LoadingDialog(CreateActionActivity.this);
+        loadingDialog = new LoadingDialog(EditActionActivity.this);
         PostSingleEvent event = new PostSingleEvent() {
 
             @Override

@@ -11,14 +11,24 @@ import java.util.ArrayList;
 public class ActionItem implements Parcelable {
     private int id;
     private String name;
+    private String vedio;
     private ArrayList<Integer> tags;
     private ArrayList<String> notices;
 
-    public ActionItem(int id,String name, ArrayList<Integer> tags, ArrayList<String> notices) {
+    public ActionItem(int id,String name,String vedio, ArrayList<Integer> tags, ArrayList<String> notices) {
         this.id = id;
         this.name = name;
+        this.vedio = vedio;
         this.tags = tags;
         this.notices = notices;
+    }
+
+    public String getVedio() {
+        return vedio;
+    }
+
+    public void setVedio(String vedio) {
+        this.vedio = vedio;
     }
 
     public int getId() {

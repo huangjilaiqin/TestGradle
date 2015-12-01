@@ -1,6 +1,7 @@
 package com.lessask.action;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lessask.OnItemClickListener;
+import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
@@ -25,6 +27,7 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
 
     private static final String TAG=ActionAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
+    private OnItemMenuClickListener onItemMenuClickListener;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private ActionTagsHolder actionTagsHolder = globalInfos.getActionTagsHolder();
 
@@ -36,6 +39,10 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
+    }
+
+    public void setOnItemMenuClickListener(OnItemMenuClickListener onItemMenuClickListener) {
+        this.onItemMenuClickListener = onItemMenuClickListener;
     }
 
     @Override
@@ -69,6 +76,9 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
             @Override
             public void onClick(View v) {
                 //stringArrayList.remove(position);
+                if(onItemMenuClickListener!=null){
+                    onItemMenuClickListener.onItemMenuClick(v, position);
+                }
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position, getItemCount());
             }
@@ -76,7 +86,9 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
         myHolder.editItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "分配", Toast.LENGTH_SHORT).show();
+                if(onItemMenuClickListener!=null){
+                    onItemMenuClickListener.onItemMenuClick(v, position);
+                }
             }
         });
 
