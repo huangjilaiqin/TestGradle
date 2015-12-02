@@ -20,6 +20,7 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView = inflater.inflate(R.layout.fragment_test, null);
             rootView.findViewById(R.id.slider_menu).setOnClickListener(this);
             rootView.findViewById(R.id.item_touch_helper).setOnClickListener(this);
+            rootView.findViewById(R.id.storage).setOnClickListener(this);
         }
         return rootView;
     }

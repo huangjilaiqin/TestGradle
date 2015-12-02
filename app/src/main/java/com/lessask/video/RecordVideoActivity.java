@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lessask.R;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
 
 import java.lang.ref.WeakReference;
 
@@ -29,6 +31,8 @@ import sz.itguy.wxlikevideo.views.RecordProgressBar;
 public class RecordVideoActivity extends Activity implements View.OnTouchListener {
 
     private static final String TAG = "RecordVideoActivity";
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
 
     // 输出宽度
     private static final int OUTPUT_WIDTH = 320;
@@ -63,7 +67,7 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
             return;
         }
         // 初始化录像机
-        mRecorder = new WXLikeVideoRecorder(this, "/com.lessask");
+        mRecorder = new WXLikeVideoRecorder(this, config.getVideoCachePath());
         //strFinalPath = FileUtil.createFilePath(mFolder, null, Long.toString(System.currentTimeMillis()));
         mRecorder.setOutputSize(OUTPUT_WIDTH, OUTPUT_HEIGHT);
         mRecorder.setMaxRecordTime(maxRecordTime);

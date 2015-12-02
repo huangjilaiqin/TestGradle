@@ -84,14 +84,9 @@ public class FileUtil {
         return true;
     }
 
-    public static String createFilePath(String folder, String subfolder, String uniqueId) {
-        File dir = new File(Environment.getExternalStorageDirectory(), folder);
-        if (subfolder != null) {
-            dir = new File(dir, subfolder);
-        }
-        dir.mkdirs();
+    public static String createFilePath(File folder, String uniqueId) {
         String fileName = Constants.FILE_START_NAME + uniqueId + Constants.VIDEO_EXTENSION;
-        return new File(dir,fileName).getAbsolutePath();
+        return new File(folder,fileName).getAbsolutePath();
     }
 
 }

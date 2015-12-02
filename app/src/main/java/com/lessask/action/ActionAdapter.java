@@ -15,12 +15,14 @@ import android.widget.Toast;
 import com.lessask.OnItemClickListener;
 import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
+import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.video.PlayVideoActiviy;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -32,6 +34,7 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
     private OnItemClickListener onItemClickListener;
     private OnItemMenuClickListener onItemMenuClickListener;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
     private ActionTagsHolder actionTagsHolder = globalInfos.getActionTagsHolder();
 
     private Context context;
@@ -66,7 +69,9 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayVideoActiviy.class);
-                intent.putExtra("video", data.getVedio());
+                intent.putExtra("video_path", new File(config.getVideoCachePath(), data.getVedio()).getAbsolutePath());
+                intent.putExtra("video_url", config.getVedioUrl()+data.getVedio());
+                context.startActivity(intent);
             }
         });
         myHolder.getTopView().setOnClickListener(new View.OnClickListener() {

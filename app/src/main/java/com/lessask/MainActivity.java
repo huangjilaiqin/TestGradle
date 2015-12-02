@@ -31,6 +31,7 @@ import com.google.gson.Gson;
 import com.lessask.action.CreateActionActivity;
 import com.lessask.action.FragmentAction;
 import com.lessask.contacts.FragmentContacts;
+import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.lesson.CreateLessonActivity;
 import com.lessask.lesson.FragmentLesson;
@@ -58,10 +59,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<DrawerItem> datas;
     private RelativeLayout mDrawerView;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
     private Gson gson = new Gson();
     private ArrayList<Fragment> fragments ;
     private ArrayList<LinearLayout> toolActons;
-    private int currentSelectItem;
     private IconPageIndicator iconPageIndicator;
     private Fragment currentFragment;
     private LinearLayout currentToolAction;
@@ -78,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        config.setVideoCachePath(getBaseContext().getExternalFilesDir("video"));
 
         WindowManager wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -318,7 +321,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         setTitle(datas.get(position).getName());
-        currentSelectItem = position;
         mAdapter.setSelectItem(position);
         mAdapter.notifyDataSetChanged();
     }
@@ -367,7 +369,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mDrawerList.setItemChecked(position, true);
             setTitle(datas.get(position).getName());
             mDrawerLayout.closeDrawer(mDrawerView);
-            currentSelectItem = position;
         }
     }
 }

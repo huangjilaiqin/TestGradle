@@ -15,6 +15,7 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameFilter;
 import org.bytedeco.javacv.FrameRecorder;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 
@@ -39,7 +40,7 @@ public class WXLikeVideoRecorder implements Camera.PreviewCallback, CameraPrevie
 
     private final Context mContext;
     // 输出文件目录
-    private final String mFolder;
+    private final File mFolder;
     // 输出文件路径
     private String strFinalPath;
     // 图片帧宽、高
@@ -87,7 +88,7 @@ public class WXLikeVideoRecorder implements Camera.PreviewCallback, CameraPrevie
      */
     private String mFilters;
 
-    public WXLikeVideoRecorder(Context context, String folder) {
+    public WXLikeVideoRecorder(Context context, File folder) {
         mContext = context;
         mFolder = folder;
     }
@@ -156,7 +157,7 @@ public class WXLikeVideoRecorder implements Camera.PreviewCallback, CameraPrevie
         }
 
         RecorderParameters recorderParameters = RecorderParameters.getRecorderParameter(Constants.RESOLUTION_MEDIUM_VALUE);
-        strFinalPath = FileUtil.createFilePath(mFolder, null, Long.toString(System.currentTimeMillis()));
+        strFinalPath = FileUtil.createFilePath(mFolder, Long.toString(System.currentTimeMillis()));
 //        recorder = new FFmpegFrameRecorder(strFinalPath, imageWidth, imageHeight, 1);
         // 初始化时设置录像机的目标视频大小
         recorder = new FFmpegFrameRecorder(strFinalPath, outputWidth, outputHeight, 1);

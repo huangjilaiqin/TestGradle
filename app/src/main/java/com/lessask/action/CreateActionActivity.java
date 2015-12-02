@@ -310,7 +310,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         int tagSize = tagDatas.size();
         int lastIndex = tagSize-1;
         for(int i=0;i<tagSize;i++){
-            builder.append(actionTagsHolder.getActionTagNameById(tagDatas.get(i)));
+            builder.append(tagDatas.get(i));
             if(i!=lastIndex){
                 builder.append(";");
             }

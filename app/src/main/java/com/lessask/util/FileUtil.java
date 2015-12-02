@@ -84,7 +84,7 @@ public class FileUtil {
         return true;
     }
 
-    public static String createFilePath(String folder, String subfolder, String uniqueId) {
+    public static String createVideoPath(String folder, String subfolder, String uniqueId) {
         File dir = new File(Environment.getExternalStorageDirectory(), folder);
         if (subfolder != null) {
             dir = new File(dir, subfolder);
