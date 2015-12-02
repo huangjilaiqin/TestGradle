@@ -69,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="18sp"
                     android:text="动作名字"
-                    android:layout_below="@id/re_recorder"
+                    android:layout_below="@id/re_record"
                     android:layout_alignLeft="@id/re_record"
                     android:layout_marginTop="8dp"
                     android:layout_centerInParent="true"

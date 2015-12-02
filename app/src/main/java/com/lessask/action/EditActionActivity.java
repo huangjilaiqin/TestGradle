@@ -93,7 +93,8 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                     if(msg.arg1==1){
                         UploadActionResponse response = (UploadActionResponse)msg.obj;
                         int videoId = response.getVedioid();
-                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),tagDatas, noticeDatas);
+                        String videoName = response.getVedioName();
+                        ActionItem actionItem = new ActionItem(videoId,videoName,mName.getText().toString(),tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
                         Toast.makeText(EditActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
                     }else {

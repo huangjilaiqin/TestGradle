@@ -208,6 +208,10 @@
             android:name=".test.ItemTouchHelperActivity"
             android:label="activity_item_touch_helper" >
         </activity>
+        <activity
+            android:name=".test.StorageActivity"
+            android:label="@string/title_activity_storage" >
+        </activity>
     </application>
 
 </manifest>

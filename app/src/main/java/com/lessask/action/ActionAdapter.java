@@ -2,11 +2,13 @@ package com.lessask.action;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +19,7 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
+import com.lessask.video.PlayVideoActiviy;
 
 import java.util.ArrayList;
 
@@ -57,8 +60,15 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final MyViewHolder myHolder = (MyViewHolder)RecyclerViewDragHolder.getHolder(holder);
-        ActionItem data = getItem(position);
+        final ActionItem data = getItem(position);
         myHolder.name.setText(data.getName()+"分钟");
+        myHolder.video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, PlayVideoActiviy.class);
+                intent.putExtra("video", data.getVedio());
+            }
+        });
         myHolder.getTopView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,6 +117,7 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
     }
 
     public static class MyViewHolder extends RecyclerViewDragHolder{
+        ImageView video;
         TextView name;
         TextView tags;
 
@@ -124,6 +135,7 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
 
         @Override
         public void initView(View itemView) {
+            video = (ImageView)itemView.findViewById(R.id.video);
             name = (TextView)itemView.findViewById(R.id.name);
             tags = (TextView)itemView.findViewById(R.id.tags);
 
