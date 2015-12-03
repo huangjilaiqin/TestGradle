@@ -93,10 +93,10 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                 case ON_UPLOAD_DONE:
                     loadingDialog.cancel();
                     if(msg.arg1==1){
-                        UploadActionResponse response = (UploadActionResponse)msg.obj;
-                        int videoId = response.getVedioid();
-                        String vedioName = response.getVedioName();
-                        ActionItem actionItem = new ActionItem(videoId,vedioName,mName.getText().toString(),tagDatas, noticeDatas);
+                        HandleActionResponse response = (HandleActionResponse)msg.obj;
+                        int videoId = response.getVideoId();
+                        String videoName = response.getVideoName();
+                        ActionItem actionItem = new ActionItem(videoId,videoName,mName.getText().toString(),tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
                         Toast.makeText(CreateActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
                     }else {
@@ -275,7 +275,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                 if(postResponse!=null) {
                     int resCode = postResponse.getCode();
                     String body = postResponse.getBody();
-                    UploadActionResponse response = gson.fromJson(body, UploadActionResponse.class);
+                    HandleActionResponse response = gson.fromJson(body, HandleActionResponse.class);
                     msg.obj = response;
 
                     if (success)
@@ -289,7 +289,8 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                 }
             }
         };
-        PostSingle postSingle = new PostSingle(config.getUploadVedioUrl(), event);
+
+        PostSingle postSingle = new PostSingle(config.getAddVedioUrl(), event);
 
         HashMap<String, String> headers = new HashMap<>();
         headers.put("userid", globalInfos.getUserid()+"");
@@ -299,11 +300,10 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         postSingle.setHeaders(headers);
 
         HashMap<String, String> files = new HashMap<>();
-        files.put("vediofile", path);
+        files.put("videofile", path);
         postSingle.setFiles(files);
 
         postSingle.start();
-
     }
     private String getTagsString(){
         StringBuilder builder = new StringBuilder();

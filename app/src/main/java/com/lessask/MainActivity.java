@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int EDIT_ACTION = 1;
     public static final int CREATE_ACTION = 2;
 
+    private FragmentAction fragmentAction;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +100,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fragments.add(new FragmentLibrary());
         fragments.add(new FragmentContacts());
         fragments.add(new FragmentLesson());
-        fragments.add(new FragmentAction());
+        fragmentAction = new FragmentAction();
+        fragments.add(fragmentAction);
         fragments.add(new FragmentMe());
         fragments.add(new FragmentTest());
 
@@ -163,9 +166,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         Log.e(TAG, "onActivityResult resultCode:"+resultCode);
         switch (resultCode){
+            case EDIT_ACTION:
             case CREATE_ACTION:
-                ActionItem actionItem = (ActionItem)data.getParcelableExtra("actionItem");
-                Toast.makeText(this, "mainActivity onResult action:"+actionItem.getName() , Toast.LENGTH_SHORT).show();
+                fragmentAction.onActivityResult(requestCode, resultCode, data);
                 break;
         }
     }

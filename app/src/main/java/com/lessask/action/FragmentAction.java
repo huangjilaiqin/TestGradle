@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
+import com.lessask.MainActivity;
+import com.lessask.OnFragmentResult;
 import com.lessask.OnItemClickListener;
 import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
@@ -155,7 +157,7 @@ public class FragmentAction extends Fragment{
             rootView = inflater.inflate(R.layout.fragment_action, null);
 
             //加载数据
-            PostSingle postSingle = new PostSingle(config.getGetActioinsUrl(), postSingleEvent);
+            PostSingle postSingle = new PostSingle(config.getActioinsUrl(), postSingleEvent);
             HashMap<String, String> requestArgs = new HashMap<>();
             requestArgs.put("userid", "" + globalInfos.getUserid());
             postSingle.setHeaders(requestArgs);
@@ -199,7 +201,7 @@ public class FragmentAction extends Fragment{
 
                                     HashMap<String, String> headers = new HashMap<>();
                                     headers.put("userid", globalInfos.getUserid()+"");
-                                    headers.put("name", actionItem.getVedio());
+                                    headers.put("name", actionItem.getVideo());
                                     headers.put("id", actionItem.getId() + "");
                                     postSingle.setHeaders(headers);
 
@@ -207,13 +209,13 @@ public class FragmentAction extends Fragment{
 
                                     mRecyclerViewAdapter.remove(position);
                                     mRecyclerViewAdapter.notifyItemRemoved(position);
-                                    mRecyclerViewAdapter.notifyItemRangeChanged(position, mRecyclerViewAdapter.getItemCount());
+                                    //mRecyclerViewAdapter.notifyItemRangeChanged(position, mRecyclerViewAdapter.getItemCount());
                                 }
                             });
                             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                     dialog.dismiss();
+                                 dialog.dismiss();
                                 }
                             });
                             builder.create().show();
@@ -222,7 +224,7 @@ public class FragmentAction extends Fragment{
                         case R.id.edit:
                             Intent intent = new Intent(FragmentAction.this.getActivity(), EditActionActivity.class);
                             intent.putExtra("actionItem", actionItem);
-                            startActivityForResult(intent, 110);
+                            startActivityForResult(intent, MainActivity.EDIT_ACTION);
                             break;
                     }
                 }
@@ -233,18 +235,35 @@ public class FragmentAction extends Fragment{
                 @Override
                 public void onClick(View v) {
                     Log.e(TAG, "click");
-                    Toast.makeText(getContext(), "click", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), "click", Toast.LENGTH_SHORT).show();
                 }
             });
             mRecyclerView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     Log.e(TAG, "onLongClick");
-                    Toast.makeText(getActivity(), "longClick", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getActivity(), "longClick", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             });
         }
         return rootView;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode){
+            case MainActivity.EDIT_ACTION:
+                Log.e(TAG, "onActivityResult EDIT_ACTION");
+                break;
+            case MainActivity.CREATE_ACTION:
+                ActionItem actionItem = (ActionItem)data.getParcelableExtra("actionItem");
+                mRecyclerViewAdapter.append(actionItem);
+                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
+                Toast.makeText(this.getContext(), "FragmentAction onActivityResult:"+actionItem.getName() , Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
 }
+

@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.lessask.MainActivity;
 import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
@@ -126,7 +127,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
 
         mIntent = getIntent();
         ActionItem actionItem = mIntent.getParcelableExtra("actionItem");
-        videoName = actionItem.getVedio();
+        videoName = actionItem.getVideo();
 
         setContentView(R.layout.activity_edit_action);
 
@@ -353,7 +354,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 }
             }
         };
-        PostSingle postSingle = new PostSingle(config.getSaveActionUrl(), event);
+        PostSingle postSingle = new PostSingle(config.getUpdateActionUrl(), event);
 
         HashMap<String, String> headers = new HashMap<>();
         headers.put("userid", globalInfos.getUserid()+"");
@@ -485,9 +486,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
 
     @Override
     public void onBackPressed() {
-        //stop();
-        //Intent intent = new Intent(this,RecordVideoActivity.class);
-        //startActivity(intent);
+        this.setResult(MainActivity.EDIT_ACTION);
         finish();
     }
 
@@ -515,5 +514,4 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         }
         return bitmap;
     }
-
 }

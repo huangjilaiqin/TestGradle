@@ -69,8 +69,8 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayVideoActiviy.class);
-                intent.putExtra("video_path", new File(config.getVideoCachePath(), data.getVedio()).getAbsolutePath());
-                intent.putExtra("video_url", config.getVedioUrl()+data.getVedio());
+                intent.putExtra("video_path", new File(config.getVideoCachePath(), data.getVideo()).getAbsolutePath());
+                intent.putExtra("video_url", config.getVedioUrl()+data.getVideo());
                 context.startActivity(intent);
             }
         });
@@ -90,12 +90,9 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
         myHolder.deleteItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //stringArrayList.remove(position);
                 if(onItemMenuClickListener!=null){
                     onItemMenuClickListener.onItemMenuClick(v, position);
                 }
-                //notifyItemRemoved(position);
-                //notifyItemRangeChanged(position, getItemCount());
             }
         });
         myHolder.editItem.setOnClickListener(new View.OnClickListener() {

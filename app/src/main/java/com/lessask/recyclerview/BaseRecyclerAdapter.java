@@ -45,7 +45,7 @@ public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder
 
 
     public void remove(int position) {
-        if (position < mList.size() - 1 && position >= 0) {
+        if (position < mList.size() && position >= 0) {
             mList.remove(position);
         }
     }

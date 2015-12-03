@@ -2,24 +2,14 @@ package com.lessask.net;
 
 
 import android.graphics.Bitmap;
-import android.text.TextUtils;
-import android.util.Log;
-
 import com.lessask.model.Utils;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
@@ -65,13 +55,13 @@ public class MultipartEntity {
     private BufferedOutputStream netOutput;
     private HttpURLConnection con;
 
-    public MultipartEntity(String url) throws Exception{
+    public MultipartEntity(String url) throws IOException{
         this.mBoundary = generateBoundary();
         this.url = url;
         initNet();
     }
 
-    public void initNet() throws Exception{
+    public void initNet() throws IOException{
         URL url = new URL(this.url);
         con = (HttpURLConnection) url.openConnection();
         // 发送POST请求必须设置如下两行
@@ -107,7 +97,7 @@ public class MultipartEntity {
     }
 
 
-    public void addStringPart(final String paramName, final String value) throws Exception{
+    public void addStringPart(final String paramName, final String value) throws IOException{
         writeFirstBoundary();
         //
         netOutput.write(getContentDisposition(paramName, ""));
@@ -126,7 +116,7 @@ public class MultipartEntity {
      */
     private void writeToOutputStream(String paramName, byte[] rawData, String type,
                                      byte[] encodingBytes,
-                                     String fileName)throws Exception{
+                                     String fileName)throws IOException{
         writeFirstBoundary();
         //
         byte[] types = (CONTENT_TYPE + type + NEW_LINE_STR).getBytes();
@@ -142,14 +132,14 @@ public class MultipartEntity {
     /**
      * 添加二进制参数, 例如Bitmap的字节流参数
      */
-    public void addBinaryPart(String paramName, final byte[] rawData) throws Exception{
+    public void addBinaryPart(String paramName, final byte[] rawData) throws IOException{
         writeToOutputStream(paramName, rawData, TYPE_OCTET_STREAM, BINARY_ENCODING, "no-file");
     }
 
     /**
      * 添加文件参数,可以实现文件上传功能
      */
-    public void addFilePart(final String key, final File file) throws Exception{
+    public void addFilePart(final String key, final File file) throws IOException{
         BufferedInputStream fin = new BufferedInputStream(new FileInputStream(file));
         writeFirstBoundary();
         //Content-Type
@@ -169,7 +159,7 @@ public class MultipartEntity {
         netOutput.flush();
     }
 
-    public void addOptimizeImagePart(final String key, final File file) throws Exception{
+    public void addOptimizeImagePart(final String key, final File file) throws IOException{
         //压缩图片
         Bitmap bitmap = Utils.optimizeBitmap(file);
         BufferedInputStream fin = Utils.bitmat2BufferedInputStream(bitmap);

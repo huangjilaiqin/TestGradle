@@ -3,6 +3,7 @@ package com.lessask.net;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class PostSingle extends Thread{
                 }
             }
             postResponse = multipartEntity.end();
-        }catch (Exception e){
+        }catch (IOException e){
             Log.e(TAG, "MultipartEntity Exception:" + e.toString());
             isSuccess = false;
         }finally {

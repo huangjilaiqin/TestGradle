@@ -12,24 +12,24 @@ import java.util.List;
 public class ActionItem implements Parcelable {
     private int id;
     private String name;        //动作名字
-    private String vedio;       //视频文件名字
+    private String video;       //视频文件名字
     private ArrayList<Integer> tags;
     private ArrayList<String> notices;
 
-    public ActionItem(int id,String name,String vedio, ArrayList<Integer> tags, ArrayList<String> notices) {
+    public ActionItem(int id,String name,String video, ArrayList<Integer> tags, ArrayList<String> notices) {
         this.id = id;
         this.name = name;
-        this.vedio = vedio;
+        this.video = video;
         this.tags = tags;
         this.notices = notices;
     }
 
-    public String getVedio() {
-        return vedio;
+    public String getVideo() {
+        return video;
     }
 
-    public void setVedio(String vedio) {
-        this.vedio = vedio;
+    public void setVideo(String video) {
+        this.video = video;
     }
 
     public int getId() {
@@ -73,7 +73,7 @@ public class ActionItem implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(name);
-        dest.writeString(vedio);
+        dest.writeString(video);
         dest.writeList(tags);
         dest.writeList(notices);
     }
