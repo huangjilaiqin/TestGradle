@@ -4,14 +4,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by JHuang on 2015/11/28.
  */
 public class ActionItem implements Parcelable {
     private int id;
-    private String name;
-    private String vedio;
+    private String name;        //动作名字
+    private String vedio;       //视频文件名字
     private ArrayList<Integer> tags;
     private ArrayList<String> notices;
 
@@ -72,19 +73,23 @@ public class ActionItem implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(name);
+        dest.writeString(vedio);
         dest.writeList(tags);
         dest.writeList(notices);
     }
-    /*
     public static final Parcelable.Creator<ActionItem> CREATOR
              = new Parcelable.Creator<ActionItem>() {
          public ActionItem createFromParcel(Parcel in) {
-             return new ActionItem(in.readString(), in.readArrayList());
+             int id = in.readInt();
+             String name = in.readString();
+             String video = in.readString();
+             ArrayList<Integer> tags = in.readArrayList(null);
+             ArrayList<String> notices = in.readArrayList(null);
+             return new ActionItem(id,name,video,tags,notices);
          }
 
          public ActionItem[] newArray(int size) {
              return new ActionItem[size];
          }
     };
-    */
 }

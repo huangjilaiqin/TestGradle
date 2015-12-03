@@ -94,8 +94,8 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
                 if(onItemMenuClickListener!=null){
                     onItemMenuClickListener.onItemMenuClick(v, position);
                 }
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, getItemCount());
+                //notifyItemRemoved(position);
+                //notifyItemRangeChanged(position, getItemCount());
             }
         });
         myHolder.editItem.setOnClickListener(new View.OnClickListener() {

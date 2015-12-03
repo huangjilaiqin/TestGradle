@@ -111,6 +111,18 @@ public class PlayVideoActiviy extends Activity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        Log.e(TAG, "onStop");
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume");
+    }
+
     private void play(){
         new Thread(){
             @Override

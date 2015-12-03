@@ -212,7 +212,6 @@ public class SelectTagsActivity extends AppCompatActivity implements View.OnClic
         switch (v.getId()){
             case R.id.save:
                 intent.putIntegerArrayListExtra("tagDatas", selectedTagDatas);
-                Log.e(TAG, "save "+selectedTagDatas);
                 this.setResult(SELECT_TAGS, intent);
                 finish();
                 break;

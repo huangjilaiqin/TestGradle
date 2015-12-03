@@ -212,6 +212,11 @@
             android:name=".test.StorageActivity"
             android:label="@string/title_activity_storage" >
         </activity>
+        <activity
+            android:name=".action.EditActionActivity"
+            android:label="EditActionActivity" >
+        </activity>
+
     </application>
 
 </manifest>

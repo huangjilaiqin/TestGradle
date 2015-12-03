@@ -53,11 +53,14 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
     private boolean isCancelRecord = false;
     private String targetActivityName;
 
+    private Intent mIntent;
+    private final int RECORD_ACTION = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        targetActivityName = getIntent().getStringExtra("className");
+        mIntent = getIntent();
+        targetActivityName = mIntent.getStringExtra("className");
         int cameraId = CameraHelper.getDefaultCameraID();
         // Create an instance of Camera
         mCamera = CameraHelper.getCameraInstance(cameraId);
@@ -160,24 +163,30 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
             FileUtil.deleteFile(videoPath);
         } else {
             // 告诉宿主页面录制视频的路径
-            //startActivity(new Intent(this, PlayVideoActiviy.class).putExtra(PlayVideoActiviy.KEY_FILE_PATH, videoPath));
-            Log.e(TAG, "videoPath:" + videoPath);
-            //Intent intent = new Intent(this, CreateActionActivity.class);
-            Class targetActivity;
-            try {
-                targetActivity = Class.forName(targetActivityName);
-            }catch (ClassNotFoundException e){
-                Toast.makeText(this, "跳转Activity不存在:"+targetActivityName, Toast.LENGTH_SHORT).show();
+            if(mIntent.getBooleanExtra("startActivityForResult", false)){
+                mIntent.putExtra("ratio", RATIO);
+                mIntent.putExtra("path", videoPath);
+                mIntent.putExtra("imagePath", "");
+                this.setResult(RECORD_ACTION, mIntent);
                 finish();
-                return;
-            }
+            }else {
+                Log.e(TAG, "videoPath:" + videoPath);
+                Class targetActivity;
+                try {
+                    targetActivity = Class.forName(targetActivityName);
+                } catch (ClassNotFoundException e) {
+                    Toast.makeText(this, "跳转Activity不存在:" + targetActivityName, Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
 
-            Intent intent = new Intent(this, targetActivity);
-            intent.putExtra("ratio", RATIO);
-            intent.putExtra("path", videoPath);
-            intent.putExtra("imagePath", "");
-            startActivity(intent);
-            finish();
+                Intent intent = new Intent(this, targetActivity);
+                intent.putExtra("ratio", RATIO);
+                intent.putExtra("path", videoPath);
+                intent.putExtra("imagePath", "");
+                startActivity(intent);
+                finish();
+            }
         }
     }
 

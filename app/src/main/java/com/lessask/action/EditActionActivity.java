@@ -34,12 +34,15 @@ import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
+import com.lessask.net.HttpHelper;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
 import com.lessask.tag.SelectTagsActivity;
+import com.lessask.video.RecordVideoActivity;
 import com.yqritc.scalablevideoview.ScalableVideoView;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +56,6 @@ import me.kaede.tagview.TagView;
 
 public class EditActionActivity extends AppCompatActivity implements OnClickListener{
 
-    private final int SELECT_TAGS = 1;
     private final String TAG = EditActionActivity.class.getSimpleName();
     private String path;
     private ScalableVideoView mScalableVideoView;
@@ -61,7 +63,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private ImageView mEditTags;
     private TagView mTagView;
     private ImageView mNotice;
-    private ImageView mUpload;
+    private Button mRerecord;
     private DisplayMetrics displaymetrics;
     private float widthDivideHeightRatio = 320/240f;
     private Toolbar mToolbar;
@@ -74,33 +76,45 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private Config config = globalInfos.getConfig();
     private ActionTagsHolder actionTagsHolder = globalInfos.getActionTagsHolder();
 
-    private final int ON_UPLOAD_START = 1;
-    private final int ON_UPLOAD_DONE = 2;
+    private final int SELECT_TAGS = 1;
+    private final int RECORD_ACTION = 2;
+
+    private int ON_UPLOAD_START = 0;
+    private int ON_UPLOAD_DONE = 1;
+    private final int EDITE_CTION_START= 1;
+    private final int EDITE_ACTION_DONE = 2;
+    private final int EDITE_ACTION_ERROR = 3;
     private LoadingDialog loadingDialog;
     private Intent mIntent;
+
+    private String videoName;
 
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Log.d(TAG, "login handler:" + msg.what);
+            HandleActionResponse response = (HandleActionResponse)msg.obj;;
             switch (msg.what) {
-                case ON_UPLOAD_START:
-                    loadingDialog.show();
+                case EDITE_CTION_START:
                     break;
-                case ON_UPLOAD_DONE:
-                    loadingDialog.cancel();
+                case EDITE_ACTION_DONE:
                     if(msg.arg1==1){
-                        UploadActionResponse response = (UploadActionResponse)msg.obj;
-                        int videoId = response.getVedioid();
-                        String videoName = response.getVedioName();
+                        int videoId = response.getVideoId();
+                        String videoName = response.getVideoName();
                         ActionItem actionItem = new ActionItem(videoId,videoName,mName.getText().toString(),tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
-                        Toast.makeText(EditActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditActionActivity.this, "load video success", Toast.LENGTH_SHORT).show();
                     }else {
-                        Toast.makeText(EditActionActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditActionActivity.this, "load video failed", Toast.LENGTH_SHORT).show();
                     }
                     finish();
+                    break;
+                case EDITE_ACTION_ERROR:
+                    if(response!=null)
+                        Toast.makeText(EditActionActivity.this, "load video failed:"+response.getError(), Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(EditActionActivity.this, "load video failed", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -112,11 +126,9 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
 
         mIntent = getIntent();
         ActionItem actionItem = mIntent.getParcelableExtra("actionItem");
-        String vedioName = actionItem.getVedio();
+        videoName = actionItem.getVedio();
 
-        //to do volley请求动作视频
-
-        setContentView(R.layout.activity_create_action);
+        setContentView(R.layout.activity_edit_action);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -128,19 +140,30 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         });
 
 
-        tagDatas = new ArrayList<>();
-        noticeDatas = new ArrayList<>();
+        tagDatas = actionItem.getTags();
+        noticeDatas = actionItem.getNotices();
         mName = (EditText) findViewById(R.id.name);
+        mName.setText(actionItem.getName());
         mName.clearFocus();
+
+        mRerecord = (Button)findViewById(R.id.re_record);
+        mRerecord.setOnClickListener(this);
 
         mEditTags = (ImageView) findViewById(R.id.edit_tags);
         mEditTags.setOnClickListener(this);
         mTagView = (TagView) findViewById(R.id.selected_tags);
+        for(int i=0;i<tagDatas.size();i++){
+            Log.e(TAG, "add tag:"+i);
+            mTagView.addTag(getTag(tagDatas.get(i)));
+        }
 
         mNotice = (ImageView) findViewById(R.id.notice);
         mNotice.setOnClickListener(this);
-        mUpload = (ImageView) findViewById(R.id.upload);
-        mUpload.setOnClickListener(this);
+        ArrayList<String> originNotices = (ArrayList<String>)noticeDatas.clone();
+        for(int i=0;i<originNotices.size();i++){
+            Log.e(TAG, "add notice:"+i);
+            addTextView2AttentionListItem(noticeDatas.get(i));
+        }
 
         displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -165,6 +188,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
 
         //to do 下载文件后启动
         //在低端的手机中不用线程会显示不出来
+        /*
         new Thread(){
             @Override
             public void run() {
@@ -179,9 +203,50 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 }
             }
         }.start();
+        */
+        final File videoFile = new File(config.getVideoCachePath(), videoName);
+        final String videoUrl = config.getVedioUrl()+videoName;
+
+        if(!videoFile.exists()){
+            new Thread(new Runnable() {
+                Message msg = new Message();
+                @Override
+                public void run() {
+                    msg.what = EDITE_CTION_START;
+                    handler.sendMessage(msg);
+
+                    if(HttpHelper.httpDownload(videoUrl, videoFile.getAbsolutePath())) {
+                        Log.e(TAG, "download success");
+                        msg.what = EDITE_ACTION_DONE;
+                        handler.sendMessage(msg);
+                    }else {
+                        Log.e(TAG, "download failed");
+                        msg.what = EDITE_ACTION_ERROR;
+                        handler.sendMessage(msg);
+                    }
+                }
+            }).start();
+        }else {
+            play(new File(config.getVideoCachePath(), videoName).getAbsolutePath());
+        }
     }
 
-
+    private void play(final String path){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    mScalableVideoView.setDataSource(path);
+                    mScalableVideoView.setLooping(true);
+                    mScalableVideoView.prepare();
+                    mScalableVideoView.start();
+                } catch (IOException e) {
+                    Log.e(TAG, e.getLocalizedMessage());
+                    Toast.makeText(EditActionActivity.this, "播放视频异常", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.start();
+    }
 
     private void editTextView2AttentionListItem(String content, View v){
         TextView textView = (TextView)v;
@@ -193,6 +258,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
             noticeDatas.remove(beforeEditContent);
         }
     }
+
     private String beforeEditContent;
     private void addTextView2AttentionListItem(final String content){
         if(content.length()==0)
@@ -245,8 +311,10 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
             case R.id.notice:
                 showEditNoticeDialog();
                 break;
-            case R.id.upload:
-                uploadVedio();
+            case R.id.re_record:
+                intent = new Intent(EditActionActivity.this, RecordVideoActivity.class);
+                intent.putExtra("startActivityForResult", true);
+                startActivityForResult(intent, RECORD_ACTION);
                 break;
             default:
                 break;
@@ -271,7 +339,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 if(postResponse!=null) {
                     int resCode = postResponse.getCode();
                     String body = postResponse.getBody();
-                    UploadActionResponse response = gson.fromJson(body, UploadActionResponse.class);
+                    HandleActionResponse response = gson.fromJson(body, HandleActionResponse.class);
                     msg.obj = response;
 
                     if (success)
@@ -285,7 +353,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 }
             }
         };
-        PostSingle postSingle = new PostSingle(config.getUploadVedioUrl(), event);
+        PostSingle postSingle = new PostSingle(config.getSaveActionUrl(), event);
 
         HashMap<String, String> headers = new HashMap<>();
         headers.put("userid", globalInfos.getUserid()+"");
@@ -405,6 +473,12 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 for(int i=0;i<tagDatas.size();i++){
                     mTagView.addTag(getTag(tagDatas.get(i)));
                 }
+                break;
+            case RECORD_ACTION:
+                String videoPath = data.getStringExtra("path");
+                float ratio = data.getFloatExtra("ratio", 1.33f);
+                String image = data.getStringExtra("imagePath");
+                play(videoPath);
                 break;
         }
     }

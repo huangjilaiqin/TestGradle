@@ -20,8 +20,22 @@ public class Config {
     private String likeUrl = "http://123.59.40.113/httproute/like/";
     private String unlikeUrl = "http://123.59.40.113/httproute/unlike/";
     private String getActioinsUrl = "http://123.59.40.113/httproute/getactions/";
+    private String deleteActionUrl = "http://123.59.40.113/httproute/action/delete/";
+    private String saveActionUrl = "http://123.59.40.113/httproute/action/save/";
 
     private File videoCachePath;
+
+    public String getSaveActionUrl() {
+        return saveActionUrl;
+    }
+
+    public String getDeleteActionUrl() {
+        return deleteActionUrl;
+    }
+
+    public void setDeleteActionUrl(String deleteActionUrl) {
+        this.deleteActionUrl = deleteActionUrl;
+    }
 
     public File getVideoCachePath() {
         return videoCachePath;
