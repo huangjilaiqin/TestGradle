@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int CREATE_LESSON = 0;
     public static final int EDIT_ACTION = 1;
     public static final int CREATE_ACTION = 2;
+    public static final int RECORD_ACTION = 3;
 
     private FragmentAction fragmentAction;
 
@@ -164,12 +165,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.e(TAG, "onActivityResult resultCode:"+resultCode);
-        switch (resultCode){
-            case EDIT_ACTION:
-            case CREATE_ACTION:
-                fragmentAction.onActivityResult(requestCode, resultCode, data);
-                break;
+        Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
+        if(data==null){
+            Log.e(TAG, "intent is null");
+        }
+        if(resultCode==RESULT_OK) {
+            switch (requestCode) {
+                case EDIT_ACTION:
+                case CREATE_ACTION:
+                    fragmentAction.onActivityResult(requestCode, resultCode, data);
+                    Log.e(TAG, "CREATE_ACTION back");
+                    break;
+                case RECORD_ACTION:
+                    Intent intent = new Intent(MainActivity.this, CreateActionActivity.class);
+                    intent.putExtra("path", data.getStringExtra("path"));
+                    intent.putExtra("ratio", data.getFloatExtra("ratio", 0.5f));
+                    intent.putExtra("imagePath", data.getStringExtra("imagePath"));
+                    startActivityForResult(intent, CREATE_ACTION);
+                    Log.e(TAG, "RECORD_ACTION back");
+                    break;
+            }
         }
     }
 
@@ -238,7 +253,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.create_action:
                 intent = new Intent(MainActivity.this, RecordVideoActivity.class);
                 intent.putExtra("className", CreateActionActivity.class.getName());
-                startActivityForResult(intent, CREATE_ACTION);
+                intent.putExtra("startActivityForResult", true);
+                startActivityForResult(intent, RECORD_ACTION);
                 break;
         }
     }

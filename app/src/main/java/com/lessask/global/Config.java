@@ -21,7 +21,7 @@ public class Config {
     private String deleteActionUrl = "http://123.59.40.113/httproute/action/delete/";
     private String updateActionUrl = "http://123.59.40.113/httproute/action/update/";
     private String actioinsUrl = "http://123.59.40.113/httproute/actions/";
-    private String vedioUrl = "http://123.59.40.113/vedios/";
+    private String videoUrl = "http://123.59.40.113/videos/";
 
     private File videoCachePath;
 
@@ -69,8 +69,8 @@ public class Config {
         return wsPath;
     }
 
-    public String getVedioUrl() {
-        return vedioUrl;
+    public String getVideoUrl() {
+        return videoUrl;
     }
 
 

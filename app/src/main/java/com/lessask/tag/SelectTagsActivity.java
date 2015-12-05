@@ -145,15 +145,6 @@ public class SelectTagsActivity extends AppCompatActivity implements View.OnClic
         mTagsListView.setOnItemClickListener(new OnTagItemClick(filteredTags));
     }
 
-    private ArrayList<TagData> getData(){
-        ArrayList<TagData> list = new ArrayList<>();
-        for (int i=0;i<5;i++){
-            list.add(new TagData(i, "测试"+i));
-        }
-        return list;
-    }
-
-
     private TagNet.CreateTagListener createTagListener = new TagNet.CreateTagListener() {
         @Override
         public void createTagResponse(CreateTagResponse response) {
@@ -212,7 +203,7 @@ public class SelectTagsActivity extends AppCompatActivity implements View.OnClic
         switch (v.getId()){
             case R.id.save:
                 intent.putIntegerArrayListExtra("tagDatas", selectedTagDatas);
-                this.setResult(SELECT_TAGS, intent);
+                setResult(SELECT_TAGS, intent);
                 finish();
                 break;
             case R.id.back:
@@ -224,7 +215,7 @@ public class SelectTagsActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onBackPressed() {
         intent.putIntegerArrayListExtra("tagDatas", originSelectedTagDatas);
-        this.setResult(SELECT_TAGS, intent);
+        setResult(SELECT_TAGS, intent);
         finish();
     }
 

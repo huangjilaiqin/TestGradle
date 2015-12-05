@@ -186,27 +186,8 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         layoutParams.height = (int)(displaymetrics.widthPixels/widthDivideHeightRatio);
         mScalableVideoView.setLayoutParams(layoutParams);
 
-
-        //to do 下载文件后启动
-        //在低端的手机中不用线程会显示不出来
-        /*
-        new Thread(){
-            @Override
-            public void run() {
-                try {
-                    mScalableVideoView.setDataSource(path);
-                    mScalableVideoView.setLooping(true);
-                    mScalableVideoView.prepare();
-                    mScalableVideoView.start();
-                } catch (IOException e) {
-                    Log.e(TAG, e.getLocalizedMessage());
-                    Toast.makeText(getBaseContext(), "播放视频异常", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.start();
-        */
         final File videoFile = new File(config.getVideoCachePath(), videoName);
-        final String videoUrl = config.getVedioUrl()+videoName;
+        final String videoUrl = config.getVideoUrl()+videoName;
 
         if(!videoFile.exists()){
             new Thread(new Runnable() {
@@ -249,6 +230,8 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         }.start();
     }
 
+
+
     private void editTextView2AttentionListItem(String content, View v){
         TextView textView = (TextView)v;
         if(content.length()>0){
@@ -289,16 +272,38 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause");
+    }
+
+    @Override
     protected void onStop() {
+        Log.e(TAG, "onStop");
         //停止播放视频
         mScalableVideoView.stop();
         super.onStop();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.e(TAG, "onStart");
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
         mScalableVideoView.start();
         mName.clearFocus();
+        Log.e(TAG, "onResume");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.e(TAG, "onRestart");
     }
 
     @Override

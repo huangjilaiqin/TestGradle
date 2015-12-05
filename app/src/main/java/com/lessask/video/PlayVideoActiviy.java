@@ -89,19 +89,20 @@ public class PlayVideoActiviy extends Activity {
 
         if(!videoFile.exists()){
             new Thread(new Runnable() {
-                Message msg = new Message();
                 @Override
                 public void run() {
+                    Message msg = new Message();
                     msg.what = HANDLER_GETACTION_START;
                     handler.sendMessage(msg);
 
+                    Message msgDone = new Message();
                     if(HttpHelper.httpDownload(videoUrl, videoFile.getAbsolutePath())) {
                         Log.e(TAG, "download success");
-                        msg.what = HANDLER_GETACTION_DONE;
-                        handler.sendMessage(msg);
+                        msgDone.what = HANDLER_GETACTION_DONE;
+                        handler.sendMessage(msgDone);
                     }else {
-                        msg.what = HANDLER_GETACTION_ERROR;
-                        handler.sendMessage(msg);
+                        msgDone.what = HANDLER_GETACTION_ERROR;
+                        handler.sendMessage(msgDone);
                         Log.e(TAG, "download failed");
                     }
                 }
