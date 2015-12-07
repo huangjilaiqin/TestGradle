@@ -21,12 +21,4 @@
         android:singleLine="true"
         android:visibility="gone"/>
 
-<<<<<<< Updated upstream
-</LinearLayout><!-- From: file:/D:/git/Android/TestGradle/tagview/src/main/res/layout/tagview_item.xml -->
-=======
-<<<<<<< HEAD
-</LinearLayout><!-- From: file:/Users/laiqin/git/TestGradle/tagview/src/main/res/layout/tagview_item.xml -->
-=======
-</LinearLayout><!-- From: file:/D:/git/Android/TestGradle/tagview/src/main/res/layout/tagview_item.xml -->
->>>>>>> 0ee47072e8562c7f5b277d7fbe21b1319224fa83
->>>>>>> Stashed changes
+</LinearLayout><!-- From: file:/E:/git/Android/testGit/TestGradle/tagview/src/main/res/layout/tagview_item.xml -->

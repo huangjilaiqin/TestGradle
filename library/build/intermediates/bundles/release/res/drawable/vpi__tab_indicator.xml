@@ -32,12 +32,4 @@
     <item android:state_focused="true" android:state_selected="false" android:state_pressed="true" android:drawable="@drawable/vpi__tab_unselected_pressed_holo" />
     <item android:state_focused="true" android:state_selected="true"  android:state_pressed="true" android:drawable="@drawable/vpi__tab_selected_pressed_holo" />
 </selector>
-<<<<<<< Updated upstream
-<!-- From: file:/D:/git/Android/TestGradle/library/src/main/res/drawable/vpi__tab_indicator.xml -->
-=======
-<<<<<<< HEAD
-<!-- From: file:/Users/laiqin/git/TestGradle/library/src/main/res/drawable/vpi__tab_indicator.xml -->
-=======
-<!-- From: file:/D:/git/Android/TestGradle/library/src/main/res/drawable/vpi__tab_indicator.xml -->
->>>>>>> 0ee47072e8562c7f5b277d7fbe21b1319224fa83
->>>>>>> Stashed changes
+<!-- From: file:/E:/git/Android/testGit/TestGradle/library/src/main/res/drawable/vpi__tab_indicator.xml -->

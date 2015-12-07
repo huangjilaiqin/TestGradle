@@ -23,9 +23,5 @@
         android:repeatCount="3"
         />
 
-<<<<<<< Updated upstream
 
-</set><!-- From: file:/D:/git/Android/TestGradle/WXLikeVideoRecorderLib/src/main/res/anim/focus_animation.xml -->
-=======
-</set><!-- From: file:/Users/laiqin/git/TestGradle/WXLikeVideoRecorderLib/src/main/res/anim/focus_animation.xml -->
->>>>>>> Stashed changes
+</set><!-- From: file:/E:/git/Android/testGit/TestGradle/WXLikeVideoRecorderLib/src/main/res/anim/focus_animation.xml -->

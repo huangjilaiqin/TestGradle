@@ -22,12 +22,4 @@
     <!--item android:state_activated="true" android:color="@color/vpi__bright_foreground_holo_dark"/-->
     <item android:color="@color/vpi__bright_foreground_holo_dark"/> <!-- not selected -->
 </selector>
-<<<<<<< Updated upstream
-<!-- From: file:/D:/git/Android/TestGradle/library/src/main/res/color/vpi__dark_theme.xml -->
-=======
-<<<<<<< HEAD
-<!-- From: file:/Users/laiqin/git/TestGradle/library/src/main/res/color/vpi__dark_theme.xml -->
-=======
-<!-- From: file:/D:/git/Android/TestGradle/library/src/main/res/color/vpi__dark_theme.xml -->
->>>>>>> 0ee47072e8562c7f5b277d7fbe21b1319224fa83
->>>>>>> Stashed changes
+<!-- From: file:/E:/git/Android/testGit/TestGradle/library/src/main/res/color/vpi__dark_theme.xml -->
