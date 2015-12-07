@@ -1,2 +1,0 @@
-
-聊天仍然用arraylist, 每条信息都带有一个seq, 本地使用map缓存 Unresponse消息<seq, list中的item>, 更新带个item
