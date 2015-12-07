@@ -2,6 +2,7 @@ package com.lessask.action;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -9,6 +10,7 @@ import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -68,6 +70,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private DisplayMetrics displaymetrics;
     private float widthDivideHeightRatio = 320/240f;
     private Toolbar mToolbar;
+    private ImageView mSave;
 
     private ArrayList<Integer> tagDatas;
     private ArrayList<String> noticeDatas;
@@ -89,6 +92,12 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private Intent mIntent;
 
     private String videoName;
+
+    private ActionItem oldActionItem;
+    private ActionItem newActionItem;
+    private boolean isReRecord;
+    private boolean isEdit;
+    private String newVideoPath;
 
     private Handler handler = new Handler(){
         @Override
@@ -126,8 +135,8 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         super.onCreate(savedInstanceState);
 
         mIntent = getIntent();
-        ActionItem actionItem = mIntent.getParcelableExtra("actionItem");
-        videoName = actionItem.getVideo();
+        oldActionItem = mIntent.getParcelableExtra("actionItem");
+        videoName = oldActionItem.getVideo();
 
         setContentView(R.layout.activity_edit_action);
 
@@ -136,19 +145,21 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         mToolbar.setNavigationOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                onBackPressed();
             }
         });
 
-
-        tagDatas = actionItem.getTags();
-        noticeDatas = actionItem.getNotices();
+        tagDatas = oldActionItem.getTags();
+        noticeDatas = oldActionItem.getNotices();
         mName = (EditText) findViewById(R.id.name);
-        mName.setText(actionItem.getName());
+        mName.setText(oldActionItem.getName());
         mName.clearFocus();
 
         mRerecord = (Button)findViewById(R.id.re_record);
         mRerecord.setOnClickListener(this);
+
+        mSave = (ImageView)findViewById(R.id.save);
+        mSave.setOnClickListener(this);
 
         mEditTags = (ImageView) findViewById(R.id.edit_tags);
         mEditTags.setOnClickListener(this);
@@ -262,8 +273,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         textView.setText(content);
         textView.setTextSize(18);
         textView.setBackgroundResource(R.drawable.text_white_bg);
-        //setBackground(getResources().getDrawable(R.drawable.text_white_bg));
-        //textView.setBackgroundColor(getResources().getLayout(R.drawable.text_white_bg));
         textView.setPadding(5, 3, 5, 3);
         linearLayout.addView(textView);
         tvLayoutParams = (LinearLayout.LayoutParams)textView.getLayoutParams();
@@ -318,16 +327,32 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 showEditNoticeDialog();
                 break;
             case R.id.re_record:
+                if(isReRecord){
+                    File file = new File(newVideoPath);
+                    if(file.exists() && file.isFile())
+                        file.delete();
+                }
                 intent = new Intent(EditActionActivity.this, RecordVideoActivity.class);
                 intent.putExtra("startActivityForResult", true);
                 startActivityForResult(intent, RECORD_ACTION);
+                break;
+            case R.id.save:
+                String videoPath = oldActionItem.getVideo();
+                if(isReRecord)
+                    videoPath = newVideoPath;
+                ActionItem newAction = new ActionItem(0, mName.getText().toString().trim(), videoPath, tagDatas, noticeDatas);
+                if(checkChange(oldActionItem, newAction)){
+                    updateAction();
+                }else {
+                    finish();
+                }
                 break;
             default:
                 break;
         }
     }
 
-    private void uploadVedio(){
+    private void updateAction(){
         loadingDialog = new LoadingDialog(EditActionActivity.this);
         PostSingleEvent event = new PostSingleEvent() {
 
@@ -366,12 +391,15 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         headers.put("name", mName.getText().toString().trim());
         headers.put("tags", getTagsString());
         headers.put("notice", getNoticeString());
+        if(isReRecord)
+            headers.put("oldVideoName", new File(newVideoPath).getName());
         postSingle.setHeaders(headers);
 
-        HashMap<String, String> files = new HashMap<>();
-        files.put("vediofile", path);
-        postSingle.setFiles(files);
-
+        if(isReRecord) {
+            HashMap<String, String> files = new HashMap<>();
+            files.put("vediofile", path);
+            postSingle.setFiles(files);
+        }
         postSingle.start();
 
     }
@@ -481,18 +509,44 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 }
                 break;
             case RECORD_ACTION:
-                String videoPath = data.getStringExtra("path");
+                newVideoPath = data.getStringExtra("path");
                 float ratio = data.getFloatExtra("ratio", 1.33f);
                 String image = data.getStringExtra("imagePath");
-                play(videoPath);
+                isReRecord = true;
+                play(newVideoPath);
                 break;
         }
     }
 
     @Override
     public void onBackPressed() {
-        this.setResult(MainActivity.EDIT_ACTION);
-        finish();
+        String videoPath = oldActionItem.getVideo();
+        if(isReRecord)
+            videoPath = newVideoPath;
+        ActionItem newAction = new ActionItem(0, mName.getText().toString().trim(), videoPath, tagDatas, noticeDatas);
+        if(checkChange(oldActionItem, newAction)){
+            this.setResult(MainActivity.EDIT_ACTION);
+            AlertDialog.Builder builder = new AlertDialog.Builder(EditActionActivity.this);
+            builder.setMessage("确认放弃修改吗？");
+            builder.setTitle("提示");
+            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    EditActionActivity.this.finish();
+                }
+            });
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.create().show();
+        }else {
+            Log.e(TAG, "not change");
+            finish();
+        }
     }
 
     /**
@@ -518,5 +572,9 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
             }
         }
         return bitmap;
+    }
+
+    private boolean checkChange(ActionItem newOne, ActionItem oldOne){
+        return !newOne.equals(oldOne);
     }
 }

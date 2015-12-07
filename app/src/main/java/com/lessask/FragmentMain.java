@@ -132,6 +132,9 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
         FragmentChat fgFriends = new FragmentChat();
         list.add(fgFriends);
         mViewPager.setAdapter(new MyAdapter(getChildFragmentManager(), list));
+        /*
+        * to do 长时间后台后点进去这里会报nullpoin, onCreateView->initPager
+        * */
         iconPageIndicator.setViewPager(mViewPager);
         iconPageIndicator.setOnPageChangeListener(this);
     }

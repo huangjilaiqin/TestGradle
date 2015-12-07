@@ -2,6 +2,7 @@ package com.lessask.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
  * Created by JHuang on 2015/11/28.
  */
 public class ActionItem implements Parcelable {
+    private String TAG = ActionItem.class.getSimpleName();
     private int id;
     private String name;        //动作名字
     private String video;       //视频文件名字
@@ -22,6 +24,25 @@ public class ActionItem implements Parcelable {
         this.video = video;
         this.tags = tags;
         this.notices = notices;
+    }
+
+    //只比较action的内容,不比较id
+    @Override
+    public boolean equals(Object o) {
+        ActionItem item = (ActionItem)o;
+
+        if(!name.equals(item.getName()) || !video.equals(item.getVideo()) || tags.size()!=item.getTags().size() || notices.size()!=item.getNotices().size())
+            return false;
+        ArrayList<Integer> itemTags = item.getTags();
+        for(int i=0;i<tags.size();i++)
+            if(tags.get(i)!=itemTags.get(i))
+                return false;
+
+        ArrayList<String> itemNotices = item.getNotices();
+        for (int i=0;i<notices.size();i++)
+            if(!notices.get(i).equals(itemNotices.get(i)))
+                return false;
+        return true;
     }
 
     public String getVideo() {

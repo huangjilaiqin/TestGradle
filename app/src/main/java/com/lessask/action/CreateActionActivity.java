@@ -411,7 +411,6 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         Timer timer = new Timer();
         timer.schedule(new TimerTask()
         {
-
             public void run() {
                 InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.showSoftInput(content, 0);
