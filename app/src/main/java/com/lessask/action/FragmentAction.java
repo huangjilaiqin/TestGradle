@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
 import com.lessask.MainActivity;
-import com.lessask.OnFragmentResult;
 import com.lessask.OnItemClickListener;
 import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
@@ -30,6 +28,7 @@ import com.lessask.model.GetActionResponse;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
+import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,8 +40,8 @@ public class FragmentAction extends Fragment{
     private View rootView;
     private final String TAG = FragmentAction.class.getName();
     private ActionAdapter mRecyclerViewAdapter;
-    //private LessonAdapter2 mRecyclerViewAdapter;
-    private RecyclerView mRecyclerView;
+    //private RecyclerView mRecyclerView;
+    private RecyclerViewStatusSupport mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
 
     private Gson gson = new Gson();
@@ -68,12 +67,11 @@ public class FragmentAction extends Fragment{
                     if(statusCode==200){
                         GetActionResponse getActionResponse = (GetActionResponse)msg.obj;
                         ArrayList<ActionItem> actiondatas = getActionResponse.getActionDatas();
-                        Log.e(TAG, "actiondatas length:"+actiondatas.size());
+                        Log.e(TAG, "actiondatas length:" + actiondatas.size());
 
                         mRecyclerViewAdapter.appendToList(actiondatas);
                         //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
                         mRecyclerViewAdapter.notifyDataSetChanged();
-                        //mRecyclerView.scrollToPosition(position);
                     }else {
                         Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT);
                         Log.e(TAG, "loadMore is error");
@@ -163,16 +161,18 @@ public class FragmentAction extends Fragment{
             postSingle.setHeaders(requestArgs);
             postSingle.start();
 
-            mRecyclerView = (RecyclerView)rootView.findViewById(R.id.lesson_list);
+            //mRecyclerView = (RecyclerView)rootView.findViewById(R.id.lesson_list);
+            mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.action_list);
+            mRecyclerView.setEmptyView(rootView.findViewById(R.id.empty_view));
+            mRecyclerView.setLoadingView(rootView.findViewById(R.id.loading_view));
+            mRecyclerView.setErrorView(rootView.findViewById(R.id.error_view));
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
             mRecyclerView.setClickable(true);
 
-            //mRecyclerViewAdapter = new LessonAdapter(getContext());
             mRecyclerViewAdapter = new ActionAdapter(getContext());
             //数据
-            //mRecyclerViewAdapter.appendToList(getData());
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
@@ -187,10 +187,11 @@ public class FragmentAction extends Fragment{
                 @Override
                 public void onItemMenuClick(View view, final int position) {
                     final ActionItem actionItem = mRecyclerViewAdapter.getItem(position);
+                    Log.e(TAG, "onItemMenuClick count:+"+mRecyclerViewAdapter.getItemCount()+" position:"+position);
                     switch (view.getId()){
                         case R.id.delete:
                             AlertDialog.Builder builder = new AlertDialog.Builder(FragmentAction.this.getContext());
-                            builder.setMessage("确认删除吗？");
+                            builder.setMessage("确认删除吗？position:"+position+", name:"+actionItem.getName());
                             builder.setTitle("提示");
                             builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
                                 @Override
@@ -209,7 +210,7 @@ public class FragmentAction extends Fragment{
 
                                     mRecyclerViewAdapter.remove(position);
                                     mRecyclerViewAdapter.notifyItemRemoved(position);
-                                    //mRecyclerViewAdapter.notifyItemRangeChanged(position, mRecyclerViewAdapter.getItemCount());
+                                    mRecyclerViewAdapter.notifyItemRangeChanged(position, mRecyclerViewAdapter.getItemCount());
                                 }
                             });
                             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -252,16 +253,20 @@ public class FragmentAction extends Fragment{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode){
+        switch (requestCode){
             case MainActivity.EDIT_ACTION:
                 Log.e(TAG, "onActivityResult EDIT_ACTION");
                 break;
             case MainActivity.CREATE_ACTION:
-                ActionItem actionItem = (ActionItem)data.getParcelableExtra("actionItem");
-                mRecyclerViewAdapter.append(actionItem);
-                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
-                Toast.makeText(this.getContext(), "FragmentAction onActivityResult:"+actionItem.getName() , Toast.LENGTH_SHORT).show();
+                if(data==null){
+                    Log.e(TAG, "intent is null");
+                }
+                ActionItem actionItem = data.getParcelableExtra("actionItem");
+                if(actionItem!=null) {
+                    mRecyclerViewAdapter.append(actionItem);
+                    mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
+                    Log.e(TAG, "create action success notifyItemInserted");
+                }
                 break;
         }
     }

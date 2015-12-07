@@ -167,7 +167,8 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
                 mIntent.putExtra("ratio", RATIO);
                 mIntent.putExtra("path", videoPath);
                 mIntent.putExtra("imagePath", "");
-                this.setResult(RECORD_ACTION, mIntent);
+                setResult(RESULT_OK, mIntent);
+                Log.e(TAG, "finish and back");
                 finish();
             }else {
                 Log.e(TAG, "videoPath:" + videoPath);

@@ -2,7 +2,6 @@ package com.lessask.action;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,15 +61,17 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+
+        Log.e(TAG, "onBindViewHolder:"+position);
         final MyViewHolder myHolder = (MyViewHolder)RecyclerViewDragHolder.getHolder(holder);
         final ActionItem data = getItem(position);
-        myHolder.name.setText(data.getName()+"分钟");
+        myHolder.name.setText(data.getName());
         myHolder.video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayVideoActiviy.class);
                 intent.putExtra("video_path", new File(config.getVideoCachePath(), data.getVideo()).getAbsolutePath());
-                intent.putExtra("video_url", config.getVedioUrl()+data.getVideo());
+                intent.putExtra("video_url", config.getVideoUrl()+data.getVideo());
                 context.startActivity(intent);
             }
         });

@@ -1,12 +1,8 @@
-.gradle
-.idea
+/.gradle
+/.idea
 /local.properties
-.idea/workspace.xml
-/.idea/libraries
 .DS_Store
 /build
 /captures
-/.idea/misc.xml
-/.idea/copyright/profiles_settings.xml
 *.swp
-/.idea/misc.xml
+*.iml

@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.lessask.MainActivity;
 import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
@@ -80,6 +81,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
     private final int ON_UPLOAD_DONE = 2;
     private LoadingDialog loadingDialog;
     private Intent mIntent;
+    private int currentPlayPositon;
 
     private Handler handler = new Handler(){
         @Override
@@ -96,17 +98,39 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                         HandleActionResponse response = (HandleActionResponse)msg.obj;
                         int videoId = response.getVideoId();
                         String videoName = response.getVideoName();
-                        ActionItem actionItem = new ActionItem(videoId,videoName,mName.getText().toString(),tagDatas, noticeDatas);
+                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
-                        Toast.makeText(CreateActionActivity.this, "upload success", Toast.LENGTH_SHORT).show();
+                        //CreateActionActivity.this.setResult(MainActivity.CREATE_ACTION, mIntent);
+                        CreateActionActivity.this.setResult(RESULT_OK, mIntent);
+                        Log.e(TAG, "upload success");
                     }else {
                         Toast.makeText(CreateActionActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
+                        CreateActionActivity.this.setResult(RESULT_OK, mIntent);
+                        Log.e(TAG, "upload failed");
                     }
                     finish();
                     break;
             }
         }
     };
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        currentPlayPositon = mScalableVideoView.getCurrentPosition();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mName.clearFocus();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        play(path, 0);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +193,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
 
 
         //在低端的手机中不用线程会显示不出来
+        /*
         new Thread(){
             @Override
             public void run() {
@@ -176,6 +201,26 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     mScalableVideoView.setDataSource(path);
                     mScalableVideoView.setLooping(true);
                     mScalableVideoView.prepare();
+                    mScalableVideoView.start();
+                } catch (IOException e) {
+                    Log.e(TAG, e.getLocalizedMessage());
+                    Toast.makeText(getBaseContext(), "播放视频异常", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.start();
+        */
+        play(path, 0);
+    }
+
+    private void play(final String path, final int position){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    mScalableVideoView.setDataSource(path);
+                    mScalableVideoView.setLooping(true);
+                    mScalableVideoView.prepare();
+                    mScalableVideoView.seekTo(position);
                     mScalableVideoView.start();
                 } catch (IOException e) {
                     Log.e(TAG, e.getLocalizedMessage());
@@ -223,19 +268,6 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         tvLayoutParams = (LinearLayout.LayoutParams)textView.getLayoutParams();
         tvLayoutParams.bottomMargin = 3;
         textView.setLayoutParams(tvLayoutParams);
-    }
-
-    @Override
-    protected void onStop() {
-        //停止播放视频
-        mScalableVideoView.stop();
-        super.onStop();
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mScalableVideoView.start();
-        mName.clearFocus();
     }
 
     @Override
@@ -411,14 +443,6 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                 }
                 break;
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        //stop();
-        //Intent intent = new Intent(this,RecordVideoActivity.class);
-        //startActivity(intent);
-        finish();
     }
 
     /**

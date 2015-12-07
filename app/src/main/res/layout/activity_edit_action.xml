@@ -7,8 +7,9 @@
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="#00bb9c"
+        android:minHeight="?attr/actionBarSize"
         android:paddingTop="@dimen/toolbar_padding_top"
         >
         <android.support.v7.widget.Toolbar
@@ -60,7 +61,6 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginTop="20dp"
                     android:text="重拍"
                     />
                 <TextView
