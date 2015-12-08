@@ -1,5 +1,6 @@
 package com.lessask.action;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -225,6 +226,7 @@ public class FragmentAction extends Fragment{
                         case R.id.edit:
                             Intent intent = new Intent(FragmentAction.this.getActivity(), EditActionActivity.class);
                             intent.putExtra("actionItem", actionItem);
+                            intent.putExtra("position", position);
                             startActivityForResult(intent, MainActivity.EDIT_ACTION);
                             break;
                     }
@@ -253,21 +255,32 @@ public class FragmentAction extends Fragment{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode){
-            case MainActivity.EDIT_ACTION:
-                Log.e(TAG, "onActivityResult EDIT_ACTION");
-                break;
-            case MainActivity.CREATE_ACTION:
-                if(data==null){
-                    Log.e(TAG, "intent is null");
-                }
-                ActionItem actionItem = data.getParcelableExtra("actionItem");
-                if(actionItem!=null) {
-                    mRecyclerViewAdapter.append(actionItem);
-                    mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
-                    Log.e(TAG, "create action success notifyItemInserted");
-                }
-                break;
+        ActionItem actionItem = null;
+        if(resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case MainActivity.EDIT_ACTION:
+                    actionItem = data.getParcelableExtra("actionItem");
+                    int position = data.getIntExtra("position", -1);
+                    Log.e(TAG, "onActivityResult EDIT_ACTION position:"+position);
+                    ActionItem oldOne = mRecyclerViewAdapter.getItem(position);
+                    oldOne.setName(actionItem.getName());
+                    oldOne.setVideo(actionItem.getVideo());
+                    oldOne.setTags(actionItem.getTags());
+                    oldOne.setNotices(actionItem.getNotices());
+                    mRecyclerViewAdapter.notifyItemChanged(position);
+                    break;
+                case MainActivity.CREATE_ACTION:
+                    if (data == null) {
+                        Log.e(TAG, "intent is null");
+                    }
+                    actionItem = data.getParcelableExtra("actionItem");
+                    if (actionItem != null) {
+                        mRecyclerViewAdapter.append(actionItem);
+                        mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
+                        Log.e(TAG, "create action success notifyItemInserted");
+                    }
+                    break;
+            }
         }
     }
 }

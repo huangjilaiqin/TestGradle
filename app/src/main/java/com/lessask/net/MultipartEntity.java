@@ -64,6 +64,8 @@ public class MultipartEntity {
     public void initNet() throws IOException{
         URL url = new URL(this.url);
         con = (HttpURLConnection) url.openConnection();
+        con.setConnectTimeout(10000);
+        con.setReadTimeout(1000);
         // 发送POST请求必须设置如下两行
         con.setDoInput(true);
         con.setDoOutput(true);

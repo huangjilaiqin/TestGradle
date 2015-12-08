@@ -39,7 +39,6 @@ public class PostSingle extends Thread{
 
     @Override
     public void run() {
-        boolean isSuccess = true;
         postSingleEvent.onStart();
         try {
             MultipartEntity multipartEntity = new MultipartEntity(host);
@@ -76,9 +75,15 @@ public class PostSingle extends Thread{
             postResponse = multipartEntity.end();
         }catch (IOException e){
             Log.e(TAG, "MultipartEntity Exception:" + e.toString());
-            isSuccess = false;
+            postSingleEvent.onError(e.toString());
         }finally {
-            postSingleEvent.onDone(isSuccess, postResponse);
+            if(postResponse!=null){
+                int code = postResponse.getCode();
+                if(postResponse.getCode()!=200){
+                    postSingleEvent.onError("error code:"+code);
+                }
+                postSingleEvent.onDone(postResponse);
+            }
         }
     }
 }

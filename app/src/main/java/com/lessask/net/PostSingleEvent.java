@@ -7,5 +7,6 @@ import java.util.HashMap;
  */
 public interface PostSingleEvent {
     void onStart();
-    void onDone(boolean success, PostResponse response);
+    void onDone(PostResponse response);
+    void onError(String err);
 }
