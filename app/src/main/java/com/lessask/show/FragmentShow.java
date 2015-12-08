@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,15 +24,14 @@ import android.widget.Toast;
 
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.CommentItem;
 import com.lessask.model.GetShowResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
+import com.lessask.net.NetFragment;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
@@ -41,8 +39,7 @@ import com.lessask.test.SimpleAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 import me.iwf.photopicker.PhotoPickerActivity;
 
@@ -50,7 +47,7 @@ import me.iwf.photopicker.PhotoPickerActivity;
  * Created by huangji on 2015/9/16.
  * 展示动态fragment
  */
-public class FragmentShow extends Fragment implements View.OnClickListener {
+public class FragmentShow extends NetFragment implements View.OnClickListener {
 
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
@@ -69,92 +66,15 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private int REQUEST_CODE = 100;
     private final int HANDLER_GETSHOW_START = 1;
     private final int HANDLER_GETSHOW_DONE = 2;
+
+    private final int GETSHOWS_INIT = 1;
+    private final int GETSHOWS_FORWARD = 2;
+    private final int GETSHOWS_BACKWORD = 3;
+
     private boolean loadBackward = false;
 
     private ImageView ivUp;
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case HANDLER_GETSHOW_START:
-                    break;
-                case HANDLER_GETSHOW_DONE:
-                    int statusCode = msg.arg1;
 
-                    if(statusCode==200){
-                        GetShowResponse getShowResponse = (GetShowResponse)msg.obj;
-                        ArrayList<ShowItem> showdatas = getShowResponse.getShowdatas();
-                        String direct = getShowResponse.getDirect();
-
-                        if(direct.equals("backward")){
-                            loadBackward = false;
-                            //历史状态
-                            int position = mRecyclerViewAdapter.getItemCount();
-                            if(showdatas.size()==0){
-                                mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
-                                return;
-                            }
-                            for(int i=0;i<showdatas.size();i++){
-                                mRecyclerViewAdapter.append(showdatas.get(i));
-                            }
-                            if(showdatas.size()>0) {
-                                ShowItem showItem = showdatas.get(showdatas.size() - 1);
-                                oldShowId = showItem.getId();
-                                showItem = showdatas.get(0);
-                                newShowId = showItem.getId()>newShowId?showItem.getId():newShowId;
-
-                                //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
-                                mRecyclerViewAdapter.notifyDataSetChanged();
-                                //mRecyclerView.scrollToPosition(position);
-                            }
-                            Log.e(TAG, "loadMore is back "+showdatas.size());
-                        }else{
-                            //最新状态
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            for(int i=showdatas.size()-1;i>=0;i--){
-                                mRecyclerViewAdapter.appendToTop(showdatas.get(i));
-                            }
-                            if(showdatas.size()>0){
-                                newShowId = showdatas.get(0).getId();
-                                mRecyclerViewAdapter.notifyDataSetChanged();
-                                //Log.e(TAG, "newShowId:"+newShowId);
-                            }
-                            mRecyclerView.scrollToPosition(0);
-                        }
-                    }else {
-                        Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT);
-                        Log.e(TAG, "loadMore is error");
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        loadBackward = false;
-                    }
-                    break;
-            }
-        }
-    };
-
-    private PostSingleEvent postSingleEvent = new PostSingleEvent() {
-        @Override
-        public void onStart() {
-            Message msg = new Message();
-            msg.what = HANDLER_GETSHOW_START;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onDone(boolean success, PostResponse response) {
-            Message msg = new Message();
-            msg.what = HANDLER_GETSHOW_DONE;
-            if(response!=null) {
-                msg.arg1 = response.getCode();
-                GetShowResponse getShowResponse = gson.fromJson(response.getBody(), GetShowResponse.class);
-                msg.obj = getShowResponse;
-            }else {
-                msg.arg1 = -1;
-            }
-            handler.sendMessage(msg);
-        }
-    };
     private PostSingle postSingle;
     private SimpleAdapter mAdapter;
     @Nullable
@@ -169,39 +89,27 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
             mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
 
-            //获取初始化数据
-            postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
-            HashMap<String, String> requestArgs = new HashMap<>();
-            requestArgs.put("userid", "" + globalInfos.getUserid());
-            requestArgs.put("pagenum", ""+4);
-            postSingle.setHeaders(requestArgs);
-            postSingle.start();
-
             mRecyclerViewAdapter = new ShowListAdapter(getActivity());
             mRecyclerViewAdapter.setHasMoreData(true);
             mRecyclerViewAdapter.setHasFooter(false);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
+            //获取初始化数据
+            startPost(config.getGetShowUrl(), GETSHOWS_INIT, GetShowResponse.class);
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
             mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
-                    HashMap<String, String> requestArgs = new HashMap<>();
-                    requestArgs.put("userid", "" + globalInfos.getUserid());
-                    requestArgs.put("id", ""+newShowId);
-                    requestArgs.put("direct", "forward");
-                    requestArgs.put("pagenum", ""+pageNum);
-                    //Log.e(TAG, requestArgs.toString());
-                    postSingle.setHeaders(requestArgs);
-                    postSingle.start();
+                    //下拉刷新
+                    startPost(config.getGetShowUrl(), GETSHOWS_FORWARD, GetShowResponse.class);
                 }
             });
             mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
 
                 @Override
                 public void onLoadMore(int current_page) {
+                    //上拉加载
                     //不用将footer隐藏, 因为这个控件是通过item个数来判断是否进行下一次加载,目前发现好像不是很可靠
                     //不用担心footer被看见，因为加载成功后footer就在后面了,当它出现时就是进行下一次加载的时候了
                     //to do 加载失败怎么办
@@ -212,15 +120,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         loadBackward = true;
                         mRecyclerViewAdapter.setHasFooter(true);
 
-                        postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
-                        HashMap<String, String> requestArgs = new HashMap<>();
-                        requestArgs.put("userid", "" + globalInfos.getUserid());
-                        requestArgs.put("id", "" + oldShowId);
-                        requestArgs.put("direct", "backward");
-                        requestArgs.put("pagenum", "" + pageNum);
-                        //Log.e(TAG, requestArgs.toString());
-                        postSingle.setHeaders(requestArgs);
-                        postSingle.start();
+                        startPost(config.getGetShowUrl(), GETSHOWS_BACKWORD, GetShowResponse.class);
                     }
                 }
             });
@@ -290,6 +190,87 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                 intent.putStringArrayListExtra("images", photos);
                 startActivity(intent);
             }
+        }
+    }
+
+    @Override
+    public void onStart(int requestCode) {
+
+    }
+
+    @Override
+    public void onDone(int requestCode, Object response) {
+        GetShowResponse getShowResponse = (GetShowResponse)response;
+        ArrayList<ShowItem> showdatas = getShowResponse.getShowdatas();
+        String direct = getShowResponse.getDirect();
+        switch (requestCode){
+            case GETSHOWS_INIT:
+            case GETSHOWS_FORWARD:
+                //最新状态
+                mSwipeRefreshLayout.setRefreshing(false);
+                for(int i=showdatas.size()-1;i>=0;i--){
+                    mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                }
+                if(showdatas.size()>0){
+                    newShowId = showdatas.get(0).getId();
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    //Log.e(TAG, "newShowId:"+newShowId);
+                }
+                mRecyclerView.scrollToPosition(0);
+                break;
+            case GETSHOWS_BACKWORD:
+                loadBackward = false;
+                //历史状态
+                int position = mRecyclerViewAdapter.getItemCount();
+                if(showdatas.size()==0){
+                    mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
+                    return;
+                }
+                for(int i=0;i<showdatas.size();i++){
+                    mRecyclerViewAdapter.append(showdatas.get(i));
+                }
+                if(showdatas.size()>0) {
+                    ShowItem showItem = showdatas.get(showdatas.size() - 1);
+                    oldShowId = showItem.getId();
+                    showItem = showdatas.get(0);
+                    newShowId = showItem.getId()>newShowId?showItem.getId():newShowId;
+
+                    //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    //mRecyclerView.scrollToPosition(position);
+                }
+                Log.e(TAG, "loadMore is back "+showdatas.size());
+                break;
+        }
+    }
+
+    @Override
+    public void onError(int requestCode, String error) {
+        Toast.makeText(getContext(), "网络错误"+error, Toast.LENGTH_SHORT);
+        Log.e(TAG, "loadMore is error");
+        mSwipeRefreshLayout.setRefreshing(false);
+        loadBackward = false;
+    }
+
+    @Override
+    public void postData(int requestCode, Map headers, Map files) {
+        switch (requestCode){
+            case GETSHOWS_INIT:
+                headers.put("userid", "" + globalInfos.getUserid());
+                headers.put("pagenum", ""+4);
+                break;
+            case GETSHOWS_FORWARD:
+                headers.put("userid", "" + globalInfos.getUserid());
+                headers.put("id", ""+newShowId);
+                headers.put("direct", "forward");
+                headers.put("pagenum", ""+pageNum);
+                break;
+            case GETSHOWS_BACKWORD:
+                headers.put("userid", "" + globalInfos.getUserid());
+                headers.put("id", "" + oldShowId);
+                headers.put("direct", "backward");
+                headers.put("pagenum", "" + pageNum);
+                break;
         }
     }
 }

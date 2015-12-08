@@ -8,9 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -30,22 +27,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.lessask.MainActivity;
 import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
-import com.lessask.net.PostResponse;
-import com.lessask.net.PostSingle;
-import com.lessask.net.PostSingleEvent;
+import com.lessask.net.NetActivity;
 import com.lessask.tag.SelectTagsActivity;
-import com.lessask.tag.TagData;
 import com.yqritc.scalablevideoview.ScalableVideoView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +47,7 @@ import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class CreateActionActivity extends AppCompatActivity implements OnClickListener{
+public class CreateActionActivity extends NetActivity implements OnClickListener{
 
     private final int SELECT_TAGS = 1;
     private final String TAG = CreateActionActivity.class.getSimpleName();
@@ -77,47 +70,13 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
     private Config config = globalInfos.getConfig();
     private ActionTagsHolder actionTagsHolder = globalInfos.getActionTagsHolder();
 
-    private final int ON_UPLOAD_START = 1;
-    private final int ON_UPLOAD_DONE = 2;
+    private int ADD_ACTION = 1;
     private LoadingDialog loadingDialog;
     private Intent mIntent;
-    private int currentPlayPositon;
-
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "login handler:" + msg.what);
-            switch (msg.what) {
-                case ON_UPLOAD_START:
-                    loadingDialog.show();
-                    break;
-                case ON_UPLOAD_DONE:
-                    loadingDialog.cancel();
-                    if(msg.arg1==1){
-                        HandleActionResponse response = (HandleActionResponse)msg.obj;
-                        int videoId = response.getVideoId();
-                        String videoName = response.getVideoName();
-                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
-                        mIntent.putExtra("actionItem", actionItem);
-                        //CreateActionActivity.this.setResult(MainActivity.CREATE_ACTION, mIntent);
-                        CreateActionActivity.this.setResult(RESULT_OK, mIntent);
-                        Log.e(TAG, "upload success");
-                    }else {
-                        Toast.makeText(CreateActionActivity.this, "upload failed", Toast.LENGTH_SHORT).show();
-                        CreateActionActivity.this.setResult(RESULT_OK, mIntent);
-                        Log.e(TAG, "upload failed");
-                    }
-                    finish();
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onPause() {
         super.onPause();
-        currentPlayPositon = mScalableVideoView.getCurrentPosition();
     }
 
     @Override
@@ -191,24 +150,6 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         layoutParams.height = (int)(displaymetrics.widthPixels/widthDivideHeightRatio);
         mScalableVideoView.setLayoutParams(layoutParams);
 
-
-        //在低端的手机中不用线程会显示不出来
-        /*
-        new Thread(){
-            @Override
-            public void run() {
-                try {
-                    mScalableVideoView.setDataSource(path);
-                    mScalableVideoView.setLooping(true);
-                    mScalableVideoView.prepare();
-                    mScalableVideoView.start();
-                } catch (IOException e) {
-                    Log.e(TAG, e.getLocalizedMessage());
-                    Toast.makeText(getBaseContext(), "播放视频异常", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.start();
-        */
         play(path, 0);
     }
 
@@ -282,61 +223,13 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                 showEditNoticeDialog();
                 break;
             case R.id.upload:
-                uploadVedio();
+                startPost(config.getAddVedioUrl(), ADD_ACTION, HandleActionResponse.class);
                 break;
             default:
                 break;
         }
     }
 
-    private void uploadVedio(){
-        loadingDialog = new LoadingDialog(CreateActionActivity.this);
-        PostSingleEvent event = new PostSingleEvent() {
-
-            @Override
-            public void onStart() {
-                Message msg = new Message();
-                msg.what = ON_UPLOAD_START;
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onDone(boolean success, PostResponse postResponse) {
-                Message msg = new Message();
-                msg.what = ON_UPLOAD_DONE;
-                if(postResponse!=null) {
-                    int resCode = postResponse.getCode();
-                    String body = postResponse.getBody();
-                    HandleActionResponse response = gson.fromJson(body, HandleActionResponse.class);
-                    msg.obj = response;
-
-                    if (success)
-                        msg.arg1 = 1;
-                    else
-                        msg.arg1 = 0;
-                    handler.sendMessage(msg);
-                }else {
-                    msg.arg1 = 0;
-                    handler.sendMessage(msg);
-                }
-            }
-        };
-
-        PostSingle postSingle = new PostSingle(config.getAddVedioUrl(), event);
-
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("userid", globalInfos.getUserid()+"");
-        headers.put("name", mName.getText().toString().trim());
-        headers.put("tags", getTagsString());
-        headers.put("notice", getNoticeString());
-        postSingle.setHeaders(headers);
-
-        HashMap<String, String> files = new HashMap<>();
-        files.put("videofile", path);
-        postSingle.setFiles(files);
-
-        postSingle.start();
-    }
     private String getTagsString(){
         StringBuilder builder = new StringBuilder();
         int tagSize = tagDatas.size();
@@ -469,4 +362,41 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         return bitmap;
     }
 
+    @Override
+    public void onStart(int requestCode) {
+        loadingDialog = new LoadingDialog(CreateActionActivity.this);
+        loadingDialog.show();
+
+    }
+
+    @Override
+    public void onDone(int requestCode, Object response) {
+        loadingDialog.cancel();
+        HandleActionResponse handleActionResponse = (HandleActionResponse)response;
+        int videoId = handleActionResponse.getVideoId();
+        String videoName = handleActionResponse.getVideoName();
+        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
+        mIntent.putExtra("actionItem", actionItem);
+        //CreateActionActivity.this.setResult(MainActivity.CREATE_ACTION, mIntent);
+        CreateActionActivity.this.setResult(RESULT_OK, mIntent);
+        Log.e(TAG, "upload success");
+        finish();
+    }
+
+    @Override
+    public void onError(int requestCode, String error) {
+        loadingDialog.cancel();
+        Log.e(TAG, "upload failed");
+        finish();
+    }
+
+    @Override
+    public void postData(int requestCode, Map headers, Map files) {
+        headers.put("userid", globalInfos.getUserid()+"");
+        headers.put("name", mName.getText().toString().trim());
+        headers.put("tags", getTagsString());
+        headers.put("notice", getNoticeString());
+
+        files.put("videofile", path);
+    }
 }

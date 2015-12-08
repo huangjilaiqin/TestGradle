@@ -8,12 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,10 +33,7 @@ import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
-import com.lessask.net.HttpHelper;
-import com.lessask.net.PostResponse;
-import com.lessask.net.PostSingle;
-import com.lessask.net.PostSingleEvent;
+import com.lessask.net.NetActivity;
 import com.lessask.tag.SelectTagsActivity;
 import com.lessask.video.RecordVideoActivity;
 import com.yqritc.scalablevideoview.ScalableVideoView;
@@ -48,7 +41,7 @@ import com.yqritc.scalablevideoview.ScalableVideoView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +50,7 @@ import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class EditActionActivity extends AppCompatActivity implements OnClickListener{
+public class EditActionActivity extends NetActivity implements OnClickListener{
 
     private final String TAG = EditActionActivity.class.getSimpleName();
     private String path;
@@ -83,15 +76,10 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private final int SELECT_TAGS = 1;
     private final int RECORD_ACTION = 2;
 
-    private final int EDITE_CTION_START= 1;
-    private final int EDITE_ACTION_DONE = 2;
-    private final int EDITE_ACTION_ERROR = 3;
-    private final int DOWNLOAD_CTION_START= 4;
-    private final int DOWNLOAD_ACTION_DONE = 5;
-    private final int DOWNLOAD_ACTION_ERROR = 6;
+    private int REQUEST_VIDEO = 1;
+    private int UPDATE_ACTION = 1;
     private LoadingDialog loadingDialog;
     private Intent mIntent;
-
 
     private ActionItem oldActionItem;
     private ActionItem newActionItem;
@@ -101,50 +89,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private String newVideoLocalName;
     private String oldVideoName;
     private int itemPosition;
-
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "login handler:" + msg.what);
-            switch (msg.what) {
-                case EDITE_CTION_START:
-                    break;
-                case EDITE_ACTION_DONE:
-                    HandleActionResponse response = (HandleActionResponse)msg.obj;
-                    if(msg.arg1==1){
-                        int videoId = response.getVideoId();
-                        String videoName = response.getVideoName();
-                        //删除旧video文件
-                        File oldVideoFile = new File(config.getVideoCachePath(), oldVideoName);
-                        if(oldVideoFile.exists() && oldVideoFile.isFile()) {
-                            oldVideoFile.delete();
-                            Log.e(TAG, "delete:"+oldVideoFile.getAbsolutePath());
-                        }
-
-                        //重命名新video文件
-                        File newVideoFile = new File(config.getVideoCachePath(), newVideoLocalName);
-                        if(newVideoFile.exists() && newVideoFile.isFile()) {
-                            newVideoFile.renameTo(new File(config.getVideoCachePath(), videoName));
-                            Log.e(TAG, "rename:" + videoName);
-                        }
-
-                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
-                        mIntent.putExtra("actionItem", actionItem);
-                        mIntent.putExtra("position", itemPosition);
-                        Toast.makeText(EditActionActivity.this, "load video success", Toast.LENGTH_SHORT).show();
-                    }else {
-                        Toast.makeText(EditActionActivity.this, "load video failed", Toast.LENGTH_SHORT).show();
-                    }
-                    finish();
-                    break;
-                case EDITE_ACTION_ERROR:
-                    String error = (String)msg.obj;
-                    Toast.makeText(EditActionActivity.this, "更新动作错误,"+error, Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,24 +162,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         final String videoUrl = config.getVideoUrl()+oldVideoName;
 
         if(!videoFile.exists()){
-            new Thread(new Runnable() {
-                Message msg = new Message();
-                @Override
-                public void run() {
-                    msg.what = DOWNLOAD_CTION_START;
-                    handler.sendMessage(msg);
-
-                    if(HttpHelper.httpDownload(videoUrl, videoFile.getAbsolutePath())) {
-                        Log.e(TAG, "download success");
-                        msg.what = DOWNLOAD_ACTION_DONE;
-                        handler.sendMessage(msg);
-                    }else {
-                        Log.e(TAG, "download failed");
-                        msg.what = DOWNLOAD_ACTION_ERROR;
-                        handler.sendMessage(msg);
-                    }
-                }
-            }).start();
+            startGetFile(videoUrl, REQUEST_VIDEO, videoFile.getAbsolutePath());
         }else {
             play(new File(config.getVideoCachePath(), oldVideoName).getAbsolutePath());
         }
@@ -298,12 +225,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        Log.e(TAG, "onPause");
-    }
-
-    @Override
     protected void onStop() {
         Log.e(TAG, "onStop");
         //停止播放视频
@@ -312,24 +233,11 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        Log.e(TAG, "onStart");
-    }
-
-
-    @Override
     protected void onResume() {
         super.onResume();
         mScalableVideoView.start();
         mName.clearFocus();
         Log.e(TAG, "onResume");
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.e(TAG, "onRestart");
     }
 
     @Override
@@ -359,7 +267,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                     videoName = newVideoLocalName;
                 ActionItem newAction = new ActionItem(0, mName.getText().toString().trim(), videoName, tagDatas, noticeDatas);
                 if(checkChange(oldActionItem, newAction)){
-                    updateAction();
+                    startPost(config.getUpdateActionUrl(), UPDATE_ACTION, HandleActionResponse.class);
                 }else {
                     finish();
                 }
@@ -369,54 +277,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         }
     }
 
-    private void updateAction(){
-        loadingDialog = new LoadingDialog(EditActionActivity.this);
-        PostSingleEvent event = new PostSingleEvent() {
-            @Override
-            public void onStart() {
-                Message msg = new Message();
-                msg.what = EDITE_CTION_START;
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onDone(PostResponse postResponse) {
-                Message msg = new Message();
-                msg.what = EDITE_ACTION_DONE;
-                String body = postResponse.getBody();
-                HandleActionResponse response = gson.fromJson(body, HandleActionResponse.class);
-                msg.obj = response;
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onError(String err) {
-                Message msg = new Message();
-                msg.what = EDITE_ACTION_ERROR;
-                msg.obj = err;
-                handler.sendMessage(msg);
-            }
-        };
-        PostSingle postSingle = new PostSingle(config.getUpdateActionUrl(), event);
-
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("id",oldActionItem.getId()+"");
-        headers.put("userid", globalInfos.getUserid()+"");
-        headers.put("name", mName.getText().toString().trim());
-        headers.put("tags", getTagsString());
-        headers.put("notice", getNoticeString());
-        if(isReRecord)
-            headers.put("oldVideoName", new File(newVideoPath).getName());
-        postSingle.setHeaders(headers);
-
-        if(isReRecord) {
-            HashMap<String, String> files = new HashMap<>();
-            files.put("vediofile", path);
-            postSingle.setFiles(files);
-        }
-        postSingle.start();
-
-    }
     private String getTagsString(){
         StringBuilder builder = new StringBuilder();
         int tagSize = tagDatas.size();
@@ -593,5 +453,74 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
 
     private boolean checkChange(ActionItem newOne, ActionItem oldOne){
         return !newOne.equals(oldOne);
+    }
+
+    @Override
+    public void onStart(int requestCode) {
+        if(requestCode==UPDATE_ACTION) {
+            loadingDialog = new LoadingDialog(EditActionActivity.this);
+            loadingDialog.show();
+        }else if(requestCode==REQUEST_VIDEO){
+
+        }
+    }
+
+    @Override
+    public void onDone(int requestCode, Object response) {
+        if(requestCode==UPDATE_ACTION) {
+            HandleActionResponse handleActionResponse = (HandleActionResponse) response;
+            int videoId = handleActionResponse.getVideoId();
+            String videoName = handleActionResponse.getVideoName();
+            //删除旧video文件
+            File oldVideoFile = new File(config.getVideoCachePath(), oldVideoName);
+            if (oldVideoFile.exists() && oldVideoFile.isFile()) {
+                oldVideoFile.delete();
+                Log.e(TAG, "delete:" + oldVideoFile.getAbsolutePath());
+            }
+
+            //重命名新video文件
+            File newVideoFile = new File(config.getVideoCachePath(), newVideoLocalName);
+            if (newVideoFile.exists() && newVideoFile.isFile()) {
+                newVideoFile.renameTo(new File(config.getVideoCachePath(), videoName));
+                Log.e(TAG, "rename:" + videoName);
+            }
+
+            ActionItem actionItem = new ActionItem(videoId, mName.getText().toString(), videoName, tagDatas, noticeDatas);
+            mIntent.putExtra("actionItem", actionItem);
+            mIntent.putExtra("position", itemPosition);
+            loadingDialog.cancel();
+            Toast.makeText(EditActionActivity.this, "load video success", Toast.LENGTH_SHORT).show();
+            finish();
+        }else if(requestCode==REQUEST_VIDEO){
+
+        }
+
+    }
+
+    @Override
+    public void onError(int requestCode, String error) {
+        if(requestCode==UPDATE_ACTION) {
+            loadingDialog.cancel();
+            Toast.makeText(EditActionActivity.this, "更新动作错误," + error, Toast.LENGTH_SHORT).show();
+        }else if(requestCode==REQUEST_VIDEO){
+
+        }
+    }
+
+    @Override
+    public void postData(int requestCode, Map headers, Map files) {
+        if(requestCode==UPDATE_ACTION){
+            headers.put("id",oldActionItem.getId()+"");
+            headers.put("userid", globalInfos.getUserid()+"");
+            headers.put("name", mName.getText().toString().trim());
+            headers.put("tags", getTagsString());
+            headers.put("notice", getNoticeString());
+            if(isReRecord){
+                headers.put("oldVideoName", new File(newVideoPath).getName());
+                files.put("vediofile", path);
+            }
+        }else if(requestCode==REQUEST_VIDEO){
+
+        }
     }
 }

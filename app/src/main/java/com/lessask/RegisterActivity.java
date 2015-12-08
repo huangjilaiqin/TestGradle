@@ -97,12 +97,17 @@ public class RegisterActivity extends Activity {
             handler.sendMessage(msg);
         }
         @Override
-        public void onDone(boolean success, PostResponse response) {
+        public void onDone(PostResponse response) {
             Message msg = new Message();
             msg.what = HANDLER_REGISTER_DONE;
             msg.arg1 = response.getCode();
             msg.obj = gson.fromJson(response.getBody(), RegisterResponse.class);
             handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onError(String err) {
+
         }
     };
     @Override

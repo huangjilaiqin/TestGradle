@@ -51,13 +51,18 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onDone(boolean success, PostResponse response) {
+        public void onDone(PostResponse response) {
             Message msg = new Message();
             GetShowResponse getShowResponse = gson.fromJson(response.getBody(), GetShowResponse.class);
             msg.arg1 = response.getCode();
             msg.obj = getShowResponse;
             msg.what = HANDLER_GETSHOW_DONE;
             handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onError(String err) {
+
         }
     };
 

@@ -46,6 +46,7 @@ import com.lessask.test.FragmentTest;
 import com.lessask.video.RecordVideoActivity;
 import com.viewpagerindicator.IconPageIndicator;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -83,7 +84,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        config.setVideoCachePath(getBaseContext().getExternalFilesDir("video"));
+        File videoFile = getBaseContext().getExternalFilesDir("video");
+        if(videoFile==null)
+            videoFile = this.getFileStreamPath("file1");
+        config.setVideoCachePath(videoFile);
 
         WindowManager wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();

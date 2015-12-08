@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -26,6 +25,8 @@ import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
 import com.lessask.model.GetActionResponse;
+import com.lessask.model.GetShowResponse;
+import com.lessask.net.NetFragment;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
@@ -33,11 +34,12 @@ import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by JHuang on 2015/11/28.
  */
-public class FragmentAction extends Fragment{
+public class FragmentAction extends NetFragment {
     private View rootView;
     private final String TAG = FragmentAction.class.getName();
     private ActionAdapter mRecyclerViewAdapter;
@@ -49,105 +51,10 @@ public class FragmentAction extends Fragment{
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
-    private final int HANDLER_GETACTION_START = 0;
-    private final int HANDLER_GETACTION_DONE = 1;
-    private final int ON_DELETE_START = 2;
-    private final int ON_DELETE_DONE = 3;
+    private int deletePostion;
 
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case HANDLER_GETACTION_START:
-                    break;
-                case HANDLER_GETACTION_DONE:
-                    int statusCode = msg.arg1;
-
-                    Log.e(TAG, "statusCode"+statusCode);
-                    if(statusCode==200){
-                        GetActionResponse getActionResponse = (GetActionResponse)msg.obj;
-                        ArrayList<ActionItem> actiondatas = getActionResponse.getActionDatas();
-                        Log.e(TAG, "actiondatas length:" + actiondatas.size());
-
-                        mRecyclerViewAdapter.appendToList(actiondatas);
-                        //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
-                        mRecyclerViewAdapter.notifyDataSetChanged();
-                    }else {
-                        Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT);
-                        Log.e(TAG, "loadMore is error");
-                    }
-                    break;
-                case ON_DELETE_START:
-                    break;
-                case ON_DELETE_DONE:
-                    HandleActionResponse response = (HandleActionResponse)msg.obj;
-                    if(msg.arg1==1) {
-                        Toast.makeText(FragmentAction.this.getContext(), "delete action:" + response.getVideoName(), Toast.LENGTH_SHORT).show();
-                    }else {
-                        if(response!=null)
-                            Toast.makeText(FragmentAction.this.getContext(), "delete action error:"+response.getError(), Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(FragmentAction.this.getContext(), "delete action error", Toast.LENGTH_SHORT).show();
-
-                    }
-                    break;
-            }
-        }
-    };
-
-
-    private PostSingleEvent postSingleEvent = new PostSingleEvent() {
-        @Override
-        public void onStart() {
-            Message msg = new Message();
-            msg.what = HANDLER_GETACTION_START;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onDone(boolean success, PostResponse response) {
-            Message msg = new Message();
-            msg.what = HANDLER_GETACTION_DONE;
-            if(response!=null) {
-                msg.arg1 = response.getCode();
-                Log.e(TAG, "body:"+response.getBody());
-                GetActionResponse getActionResponse = gson.fromJson(response.getBody(), GetActionResponse.class);
-                msg.obj = getActionResponse;
-            }else {
-                msg.arg1 = -1;
-            }
-            handler.sendMessage(msg);
-        }
-    };
-    PostSingleEvent deleteActionEvent = new PostSingleEvent() {
-        @Override
-        public void onStart() {
-            Message msg = new Message();
-            msg.what = ON_DELETE_START;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onDone(boolean success, PostResponse postResponse) {
-            Message msg = new Message();
-            msg.what = ON_DELETE_DONE;
-            if(postResponse!=null) {
-                int resCode = postResponse.getCode();
-                String body = postResponse.getBody();
-                HandleActionResponse response = gson.fromJson(body, HandleActionResponse.class);
-                msg.obj = response;
-                if (success)
-                    msg.arg1 = 1;
-                else
-                    msg.arg1 = 0;
-                handler.sendMessage(msg);
-            }else {
-                msg.arg1 = 0;
-                handler.sendMessage(msg);
-            }
-        }
-    };
+    private final int GET_ACTIONS = 0;
+    private final int DELETE_ACTION = 1;
 
     @Nullable
     @Override
@@ -156,11 +63,7 @@ public class FragmentAction extends Fragment{
             rootView = inflater.inflate(R.layout.fragment_action, null);
 
             //加载数据
-            PostSingle postSingle = new PostSingle(config.getActioinsUrl(), postSingleEvent);
-            HashMap<String, String> requestArgs = new HashMap<>();
-            requestArgs.put("userid", "" + globalInfos.getUserid());
-            postSingle.setHeaders(requestArgs);
-            postSingle.start();
+            startPost(config.getActioinsUrl(), GET_ACTIONS, GetShowResponse.class);
 
             //mRecyclerView = (RecyclerView)rootView.findViewById(R.id.lesson_list);
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.action_list);
@@ -199,25 +102,14 @@ public class FragmentAction extends Fragment{
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     //网络协议
-                                    PostSingle postSingle = new PostSingle(config.getDeleteActionUrl(), deleteActionEvent);
-
-                                    HashMap<String, String> headers = new HashMap<>();
-                                    headers.put("userid", globalInfos.getUserid()+"");
-                                    headers.put("name", actionItem.getVideo());
-                                    headers.put("id", actionItem.getId() + "");
-                                    postSingle.setHeaders(headers);
-
-                                    postSingle.start();
-
-                                    mRecyclerViewAdapter.remove(position);
-                                    mRecyclerViewAdapter.notifyItemRemoved(position);
-                                    mRecyclerViewAdapter.notifyItemRangeChanged(position, mRecyclerViewAdapter.getItemCount());
+                                    deletePostion = position;
+                                    startPost(config.getDeleteActionUrl(), DELETE_ACTION, HandleActionResponse.class);
                                 }
                             });
                             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                 dialog.dismiss();
+                                    dialog.dismiss();
                                 }
                             });
                             builder.create().show();
@@ -282,6 +174,59 @@ public class FragmentAction extends Fragment{
                     break;
             }
         }
+    }
+
+    @Override
+    public void onStart(int requestCode) {
+        switch (requestCode){
+            case DELETE_ACTION:
+                //to do 弹窗阻止其他操作
+                break;
+        }
+    }
+
+    @Override
+    public void onDone(int requestCode, Object response) {
+        switch (requestCode){
+            case DELETE_ACTION:
+                HandleActionResponse handleActionResponse = (HandleActionResponse)response;
+                mRecyclerViewAdapter.remove(deletePostion);
+                mRecyclerViewAdapter.notifyItemRemoved(deletePostion);
+                mRecyclerViewAdapter.notifyItemRangeChanged(deletePostion, mRecyclerViewAdapter.getItemCount());
+                break;
+            case GET_ACTIONS:
+                GetActionResponse getActionResponse = (GetActionResponse)response;
+                ArrayList<ActionItem> actiondatas = getActionResponse.getActionDatas();
+                Log.e(TAG, "actiondatas length:" + actiondatas.size());
+                mRecyclerViewAdapter.appendToList(actiondatas);
+                //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
+                mRecyclerViewAdapter.notifyDataSetChanged();
+                break;
+        }
+    }
+
+    @Override
+    public void onError(int requestCode, String error) {
+        switch (requestCode) {
+            case DELETE_ACTION:
+                break;
+        }
+    }
+
+    @Override
+    public void postData(int requestCode, Map headers, Map files) {
+        switch (requestCode){
+            case DELETE_ACTION:
+                ActionItem actionItem = mRecyclerViewAdapter.getItem(deletePostion);
+                headers.put("userid", globalInfos.getUserid()+"");
+                headers.put("name", actionItem.getVideo());
+                headers.put("id", actionItem.getId() + "");
+                break;
+            case GET_ACTIONS:
+                headers.put("userid", "" + globalInfos.getUserid());
+                break;
+        }
+
     }
 }
 

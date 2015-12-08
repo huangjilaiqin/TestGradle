@@ -137,7 +137,7 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             }
 
             @Override
-            public void onDone(boolean success, PostResponse postResponse) {
+            public void onDone(PostResponse postResponse) {
                 int resCode = postResponse.getCode();
                 String body = postResponse.getBody();
                 CreateShowResponse response = gson.fromJson(body, CreateShowResponse.class);
@@ -146,11 +146,12 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 msg.arg2 = resCode;
                 msg.obj = response;
                 msg.what = ON_CREATESHOW_DONE;
-                if(success)
-                    msg.arg1 = 1;
-                else
-                    msg.arg1 = 0;
                 handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onError(String err) {
+
             }
         };
         PostSingle postSingle = new PostSingle(config.getCreateShowUrl(), event);

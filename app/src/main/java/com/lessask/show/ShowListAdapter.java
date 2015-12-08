@@ -117,13 +117,18 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         }
 
         @Override
-        public void onDone(boolean success, PostResponse response) {
+        public void onDone(PostResponse response) {
             Message msg = new Message();
             msg.what = HANDLER_LIKE_DONE;
             msg.arg1 = response.getCode();
             LikeResponse likeResponse = gson.fromJson(response.getBody(), LikeResponse.class);
             msg.obj = likeResponse;
             handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onError(String err) {
+
         }
     };
     private PostSingleEvent unlikePostSingleEvent = new PostSingleEvent() {
@@ -135,7 +140,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         }
 
         @Override
-        public void onDone(boolean success, PostResponse response) {
+        public void onDone(PostResponse response) {
             Message msg = new Message();
             msg.what = HANDLER_UNLIKE_DONE;
             msg.arg1 = response.getCode();
@@ -143,6 +148,11 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             UnlikeResponse unlikeResponse = gson.fromJson(response.getBody(), UnlikeResponse.class);
             msg.obj = unlikeResponse;
             handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onError(String err) {
+
         }
     };
 
