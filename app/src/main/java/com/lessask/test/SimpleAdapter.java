@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.StringRequest;
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 import com.github.captain_miao.recyclerviewutils.common.ClickableViewHolder;
 import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
@@ -26,7 +27,7 @@ public class SimpleAdapter extends BaseLoadMoreRecyclerAdapter<String, SimpleAda
     public SimpleAdapter(List<String> items) {
         appendToList(items);
     }
-
+    StringRequest stringRequest;
 
     @Override
     public ItemViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
