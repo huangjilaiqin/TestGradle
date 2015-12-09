@@ -106,6 +106,21 @@ public class RegisterActivity extends Activity {
         }
 
         @Override
+        public HashMap<String, String> getHeaders() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getFiles() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getImages() {
+            return null;
+        }
+
+        @Override
         public void onError(String err) {
 
         }
@@ -143,7 +158,7 @@ public class RegisterActivity extends Activity {
                 requestArgs.put("nickname", nickname);
                 requestArgs.put("passwd", passwd);
                 PostSingle postSingle = new PostSingle(config.getRegisterUrl(), postSingleEvent);
-                postSingle.setHeaders(requestArgs);
+                //postSingle.setHeaders(requestArgs);
                 postSingle.start();
             }
         });

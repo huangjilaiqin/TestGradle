@@ -130,6 +130,21 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         public void onError(String err) {
 
         }
+
+        @Override
+        public HashMap<String, String> getHeaders() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getFiles() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getImages() {
+            return null;
+        }
     };
     private PostSingleEvent unlikePostSingleEvent = new PostSingleEvent() {
         @Override
@@ -153,6 +168,21 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         @Override
         public void onError(String err) {
 
+        }
+
+        @Override
+        public HashMap<String, String> getHeaders() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getFiles() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getImages() {
+            return null;
         }
     };
 
@@ -345,7 +375,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             requestArgs.put("showid", "" + showItem.getId());
             requestArgs.put("position", "" + position);
             Log.e(TAG, "unlike"+requestArgs);
-            postSingle.setHeaders(requestArgs);
+            //postSingle.setHeaders(requestArgs);
             postSingle.start();
         }else {
             postSingle = new PostSingle(config.getLikeUrl(), likePostSingleEvent);
@@ -353,7 +383,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             requestArgs.put("userid", "" + globalInfos.getUserid());
             requestArgs.put("showid", "" + showItem.getId());
             requestArgs.put("position", "" + position);
-            postSingle.setHeaders(requestArgs);
+            //postSingle.setHeaders(requestArgs);
             postSingle.start();
         }
     }

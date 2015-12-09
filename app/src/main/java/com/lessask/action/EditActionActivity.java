@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -34,6 +35,7 @@ import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
 import com.lessask.net.NetActivity;
+import com.lessask.net.NetworkFileHelper;
 import com.lessask.tag.SelectTagsActivity;
 import com.lessask.video.RecordVideoActivity;
 import com.yqritc.scalablevideoview.ScalableVideoView;
@@ -41,6 +43,7 @@ import com.yqritc.scalablevideoview.ScalableVideoView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -50,7 +53,7 @@ import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class EditActionActivity extends NetActivity implements OnClickListener{
+public class EditActionActivity extends AppCompatActivity implements OnClickListener{
 
     private final String TAG = EditActionActivity.class.getSimpleName();
     private String path;
@@ -89,6 +92,7 @@ public class EditActionActivity extends NetActivity implements OnClickListener{
     private String newVideoLocalName;
     private String oldVideoName;
     private int itemPosition;
+    private NetworkFileHelper networkFileHelper = NetworkFileHelper.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +166,8 @@ public class EditActionActivity extends NetActivity implements OnClickListener{
         final String videoUrl = config.getVideoUrl()+oldVideoName;
 
         if(!videoFile.exists()){
-            startGetFile(videoUrl, REQUEST_VIDEO, videoFile.getAbsolutePath());
+            //startGetFile(videoUrl, REQUEST_VIDEO, videoFile.getAbsolutePath());
+            networkFileHelper.startGetFile(videoUrl, videoFile.getAbsolutePath(), getVideoRequest);
         }else {
             play(new File(config.getVideoCachePath(), oldVideoName).getAbsolutePath());
         }
@@ -267,7 +272,8 @@ public class EditActionActivity extends NetActivity implements OnClickListener{
                     videoName = newVideoLocalName;
                 ActionItem newAction = new ActionItem(0, mName.getText().toString().trim(), videoName, tagDatas, noticeDatas);
                 if(checkChange(oldActionItem, newAction)){
-                    startPost(config.getUpdateActionUrl(), UPDATE_ACTION, HandleActionResponse.class);
+                    //startPost(config.getUpdateActionUrl(), UPDATE_ACTION, HandleActionResponse.class);
+                    networkFileHelper.startPost(config.getUpdateActionUrl(), HandleActionResponse.class, updateActionRequest);
                 }else {
                     finish();
                 }
@@ -455,19 +461,15 @@ public class EditActionActivity extends NetActivity implements OnClickListener{
         return !newOne.equals(oldOne);
     }
 
-    @Override
-    public void onStart(int requestCode) {
-        if(requestCode==UPDATE_ACTION) {
+    private NetworkFileHelper.PostFileRequest updateActionRequest = new NetworkFileHelper.PostFileRequest() {
+        @Override
+        public void onStart() {
             loadingDialog = new LoadingDialog(EditActionActivity.this);
             loadingDialog.show();
-        }else if(requestCode==REQUEST_VIDEO){
-
         }
-    }
 
-    @Override
-    public void onDone(int requestCode, Object response) {
-        if(requestCode==UPDATE_ACTION) {
+        @Override
+        public void onResponse(Object response) {
             HandleActionResponse handleActionResponse = (HandleActionResponse) response;
             int videoId = handleActionResponse.getVideoId();
             String videoName = handleActionResponse.getVideoName();
@@ -491,36 +493,56 @@ public class EditActionActivity extends NetActivity implements OnClickListener{
             loadingDialog.cancel();
             Toast.makeText(EditActionActivity.this, "load video success", Toast.LENGTH_SHORT).show();
             finish();
-        }else if(requestCode==REQUEST_VIDEO){
 
         }
 
-    }
-
-    @Override
-    public void onError(int requestCode, String error) {
-        if(requestCode==UPDATE_ACTION) {
+        @Override
+        public void onError(String error) {
             loadingDialog.cancel();
             Toast.makeText(EditActionActivity.this, "更新动作错误," + error, Toast.LENGTH_SHORT).show();
-        }else if(requestCode==REQUEST_VIDEO){
-
         }
-    }
 
-    @Override
-    public void postData(int requestCode, Map headers, Map files) {
-        if(requestCode==UPDATE_ACTION){
+        @Override
+        public HashMap<String, String> getHeaders() {
+            HashMap<String, String> headers = new HashMap<>();
             headers.put("id",oldActionItem.getId()+"");
             headers.put("userid", globalInfos.getUserid()+"");
             headers.put("name", mName.getText().toString().trim());
             headers.put("tags", getTagsString());
             headers.put("notice", getNoticeString());
-            if(isReRecord){
+            if(isReRecord)
                 headers.put("oldVideoName", new File(newVideoPath).getName());
+            return headers;
+        }
+
+        @Override
+        public HashMap<String, String> getFiles() {
+            HashMap<String, String> files = new HashMap<>();
+            if(isReRecord){
                 files.put("vediofile", path);
             }
-        }else if(requestCode==REQUEST_VIDEO){
+            return files;
+        }
+
+        @Override
+        public HashMap<String, String> getImages() {
+            return null;
+        }
+    };
+    private NetworkFileHelper.GetFileRequest getVideoRequest = new NetworkFileHelper.GetFileRequest() {
+        @Override
+        public void onStart() {
 
         }
-    }
+
+        @Override
+        public void onResponse(Object response) {
+
+        }
+
+        @Override
+        public void onError(String error) {
+
+        }
+    };
 }

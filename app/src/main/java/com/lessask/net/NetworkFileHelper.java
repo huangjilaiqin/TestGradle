@@ -2,6 +2,7 @@ package com.lessask.net;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -19,44 +20,70 @@ public class NetworkFileHelper {
     private final int REQUEST_ERROR=3;
     private Gson gson = new Gson();
     private Map<Integer, PostFileRequest> postFileRequests = new HashMap<>();
+    private Map<Integer, GetFileRequest> getFileRequests = new HashMap<>();
+    private int POST_FILE = 0;
+    private int GET_FILE = 1;
 
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            int tag = msg.arg1;
-            PostFileRequest postFileRequest = postFileRequests.get(tag);
-            switch (msg.what){
-                case REQUEST_START:
-                    postFileRequest.onStart();
-                    break;
-                case REQUEST_DONE:
-                    postFileRequest.onResponse(msg.obj);
-                    postFileRequests.remove(tag);
-                    break;
-                case REQUEST_ERROR:
-                    postFileRequest.onError((String)msg.obj);
-                    postFileRequests.remove(tag);
-                    break;
+            if(msg.arg1==POST_FILE) {
+                int tag = msg.arg2;
+                PostFileRequest postFileRequest = postFileRequests.get(tag);
+                switch (msg.what) {
+                    case REQUEST_START:
+                        postFileRequest.onStart();
+                        break;
+                    case REQUEST_DONE:
+                        postFileRequest.onResponse(msg.obj);
+                        postFileRequests.remove(tag);
+                        break;
+                    case REQUEST_ERROR:
+                        postFileRequest.onError((String) msg.obj);
+                        postFileRequests.remove(tag);
+                        break;
+                }
+            }else if(msg.arg1==GET_FILE){
+                int tag = msg.arg2;
+                GetFileRequest getFileRequest = getFileRequests.get(tag);
+                switch (msg.what) {
+                    case REQUEST_START:
+                        getFileRequest.onStart();
+                        break;
+                    case REQUEST_DONE:
+                        getFileRequest.onResponse(msg.obj);
+                        getFileRequests.remove(tag);
+                        break;
+                    case REQUEST_ERROR:
+                        getFileRequest.onError((String) msg.obj);
+                        getFileRequests.remove(tag);
+                        break;
+                }
             }
-
         }
     };
     private NetworkFileHelper(){
 
+    }
+    public static NetworkFileHelper getInstance(){
+        return LazyHolder.INSTANCE;
     }
     private static class LazyHolder {
         private static final NetworkFileHelper INSTANCE = new NetworkFileHelper();
     }
 
     public interface PostFileRequest{
-        HashMap<String, String> headers = new HashMap<>();
-        HashMap<String, String> files = new HashMap<>();
         void onStart();
-        void onResponse(Object obj);
+        void onResponse(Object response);
         void onError(String error);
         HashMap<String, String> getHeaders();
         HashMap<String, String> getFiles();
         HashMap<String, String> getImages();
+    }
+    public interface GetFileRequest{
+        void onStart();
+        void onResponse(Object response);
+        void onError(String error);
     }
 
     public void startPost(String url, final Class responseClass, final PostFileRequest postFile){
@@ -67,7 +94,8 @@ public class NetworkFileHelper {
             public void onStart() {
                 Message msg = new Message();
                 msg.what = REQUEST_START;
-                msg.arg1 = tag;
+                msg.arg1 = POST_FILE;
+                msg.arg2 = tag;
                 handler.sendMessage(msg);
             }
 
@@ -75,7 +103,8 @@ public class NetworkFileHelper {
             public void onDone(PostResponse postResponse) {
                 Message msg = new Message();
                 msg.what = REQUEST_DONE;
-                msg.arg1 = tag;
+                msg.arg1 = POST_FILE;
+                msg.arg2 = tag;
                 String body = postResponse.getBody();
                 msg.obj  = gson.fromJson(body, responseClass);
                 handler.sendMessage(msg);
@@ -85,7 +114,8 @@ public class NetworkFileHelper {
             public void onError(String err) {
                 Message msg = new Message();
                 msg.what = REQUEST_ERROR;
-                msg.arg1 = tag;
+                msg.arg1 = POST_FILE;
+                msg.arg2 = tag;
                 msg.obj = err;
                 handler.sendMessage(msg);
             }
@@ -107,5 +137,31 @@ public class NetworkFileHelper {
         };
         PostSingle postSingle = new PostSingle(url, event);
         postSingle.start();
+    }
+
+    public void startGetFile(final String url, final String path, GetFileRequest getFileRequest){
+        final int tag = getFileRequests.size();
+        getFileRequests.put(tag, getFileRequest);
+        new Thread(new Runnable() {
+            Message msg = new Message();
+            @Override
+            public void run() {
+                msg.arg1 = GET_FILE;
+                msg.arg2 = tag;
+                msg.what = REQUEST_START;
+                handler.sendMessage(msg);
+                Log.e(TAG, "download file start");
+
+                if(HttpHelper.httpDownload(url, path)) {
+                    Log.e(TAG, "download success");
+                    msg.what = REQUEST_DONE;
+                    handler.sendMessage(msg);
+                }else {
+                    Log.e(TAG, "download failed");
+                    msg.what = REQUEST_ERROR;
+                    handler.sendMessage(msg);
+                }
+            }
+        }).start();
     }
 }

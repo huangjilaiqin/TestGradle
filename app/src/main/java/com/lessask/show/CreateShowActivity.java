@@ -153,6 +153,21 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             public void onError(String err) {
 
             }
+
+            @Override
+            public HashMap<String, String> getHeaders() {
+                return null;
+            }
+
+            @Override
+            public HashMap<String, String> getFiles() {
+                return null;
+            }
+
+            @Override
+            public HashMap<String, String> getImages() {
+                return null;
+            }
         };
         PostSingle postSingle = new PostSingle(config.getCreateShowUrl(), event);
         HashMap<String, String> headers = new HashMap<>();
@@ -178,8 +193,8 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             images.put(file.getName(), photos.get(i));
         }
         headers.put("pictures", builder.toString());
-        postSingle.setHeaders(headers);
-        postSingle.setImages(images);
+        //postSingle.setHeaders(headers);
+        //postSingle.setImages(images);
         postSingle.start();
     }
     //自定义适配器

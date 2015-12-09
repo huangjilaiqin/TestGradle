@@ -107,6 +107,21 @@ public class ShowListAdapter1 extends BaseAdapter {
         public void onError(String err) {
 
         }
+
+        @Override
+        public HashMap<String, String> getHeaders() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getFiles() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getImages() {
+            return null;
+        }
     };
     private PostSingleEvent unlikePostSingleEvent = new PostSingleEvent() {
         @Override
@@ -129,6 +144,21 @@ public class ShowListAdapter1 extends BaseAdapter {
         @Override
         public void onError(String err) {
 
+        }
+
+        @Override
+        public HashMap<String, String> getHeaders() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getFiles() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getImages() {
+            return null;
         }
     };
     private PostSingle postSingle;
@@ -317,7 +347,7 @@ public class ShowListAdapter1 extends BaseAdapter {
             HashMap<String, String> requestArgs = new HashMap<>();
             requestArgs.put("userid", ""+globalInfos.getUserid());
             requestArgs.put("showid", ""+showItem.getId());
-            postSingle.setHeaders(requestArgs);
+            //postSingle.setHeaders(requestArgs);
             postSingle.start();
 
             showItem.unlike(globalInfos.getUserid());
@@ -330,7 +360,7 @@ public class ShowListAdapter1 extends BaseAdapter {
             HashMap<String, String> requestArgs = new HashMap<>();
             requestArgs.put("userid", ""+globalInfos.getUserid());
             requestArgs.put("showid", ""+showItem.getId());
-            postSingle.setHeaders(requestArgs);
+            //postSingle.setHeaders(requestArgs);
             postSingle.start();
 
             showItem.like(globalInfos.getUserid());

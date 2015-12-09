@@ -64,6 +64,21 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
         public void onError(String err) {
 
         }
+
+        @Override
+        public HashMap<String, String> getHeaders() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getFiles() {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> getImages() {
+            return null;
+        }
     };
 
     private Handler handler = new Handler() {
@@ -149,7 +164,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
         HashMap<String, String> requestArgs = new HashMap<>();
         requestArgs.put("userid", "" + globalInfos.getUserid());
         requestArgs.put("pagenum", ""+4);
-        postSingle.setHeaders(requestArgs);
+        //postSingle.setHeaders(requestArgs);
         postSingle.start();
 
 
@@ -165,7 +180,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                 requestArgs.put("direct", "forward");
                 requestArgs.put("pagenum", ""+pageNum);
                 Log.e(TAG, requestArgs.toString());
-                postSingle.setHeaders(requestArgs);
+                //postSingle.setHeaders(requestArgs);
                 postSingle.start();
             }
         });
@@ -188,7 +203,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                     requestArgs.put("direct", "backward");
                     requestArgs.put("pagenum", "" + pageNum);
                     Log.e(TAG, requestArgs.toString());
-                    postSingle.setHeaders(requestArgs);
+                    //postSingle.setHeaders(requestArgs);
                     postSingle.start();
                 }
             }

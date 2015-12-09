@@ -73,14 +73,27 @@ public abstract class NetActivity extends AppCompatActivity {
                 msg.obj = err;
                 handler.sendMessage(msg);
             }
+
+            @Override
+            public HashMap<String, String> getHeaders() {
+                return null;
+            }
+
+            @Override
+            public HashMap<String, String> getFiles() {
+                return null;
+            }
+
+            @Override
+            public HashMap<String, String> getImages() {
+                return null;
+            }
         };
         PostSingle postSingle = new PostSingle(url, event);
 
         HashMap<String, String> headers = new HashMap<>();
         HashMap<String, String> files = new HashMap<>();
         postData(requestCode, headers, files);
-        postSingle.setHeaders(headers);
-        postSingle.setFiles(files);
 
         postSingle.start();
 
