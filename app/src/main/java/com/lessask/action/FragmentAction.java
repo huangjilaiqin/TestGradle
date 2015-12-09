@@ -63,7 +63,7 @@ public class FragmentAction extends NetFragment {
             rootView = inflater.inflate(R.layout.fragment_action, null);
 
             //加载数据
-            startPost(config.getActioinsUrl(), GET_ACTIONS, GetShowResponse.class);
+            startPost(config.getActioinsUrl(), GET_ACTIONS, GetActionResponse.class);
 
             //mRecyclerView = (RecyclerView)rootView.findViewById(R.id.lesson_list);
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.action_list);

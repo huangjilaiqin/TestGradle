@@ -18,5 +18,12 @@
         android:layout_height="wrap_content"
         android:text="start"
         />
+    <TextView
+        android:id="@+id/show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/start"
+        android:text="nothing"
+        />
 
 </RelativeLayout>

@@ -6,8 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.lessask.action.HandleActionResponse;
-import com.lessask.model.ResponseError;
 
 import java.util.HashMap;
 import java.util.Map;

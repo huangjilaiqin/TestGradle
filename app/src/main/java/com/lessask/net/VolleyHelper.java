@@ -39,7 +39,7 @@ public class VolleyHelper {
     }
 
     public static void setmCtx(Context mCtx) {
-        VolleyHelper.mCtx = mCtx;
+        VolleyHelper.mCtx = mCtx.getApplicationContext();
     }
 
     public static VolleyHelper getInstance() {
