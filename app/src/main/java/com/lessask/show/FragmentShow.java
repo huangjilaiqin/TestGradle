@@ -8,8 +8,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -35,10 +33,7 @@ import com.lessask.model.GetShowResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.GsonRequest;
-import com.lessask.net.NetFragment;
-import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
-import com.lessask.net.PostSingleEvent;
 import com.lessask.net.VolleyHelper;
 import com.lessask.test.SimpleAdapter;
 
@@ -180,26 +175,29 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                                     mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
                                     return;
                                 }
+                                mRecyclerViewAdapter.appendToList(showdatas);
+                                /*
                                 for(int i=0;i<showdatas.size();i++){
                                     mRecyclerViewAdapter.append(showdatas.get(i));
                                 }
+                                */
                                 if(showdatas.size()>0) {
                                     ShowItem showItem = showdatas.get(showdatas.size() - 1);
                                     oldShowId = showItem.getId();
                                     showItem = showdatas.get(0);
                                     newShowId = showItem.getId()>newShowId?showItem.getId():newShowId;
 
-                                    //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
                                     mRecyclerViewAdapter.notifyDataSetChanged();
-                                    //mRecyclerView.scrollToPosition(position);
                                 }
                                 Log.e(TAG, "loadMore is back "+showdatas.size());
-
                             }
 
                             @Override
                             public void onError(VolleyError error) {
-
+                                Toast.makeText(getContext(), "网络错误"+error, Toast.LENGTH_SHORT);
+                                Log.e(TAG, "loadMore is error");
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                loadBackward = false;
                             }
 
                             @Override
@@ -226,11 +224,15 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                     ArrayList<ShowItem> showdatas = response.getShowdatas();
                     mSwipeRefreshLayout.setRefreshing(false);
+                    mRecyclerViewAdapter.appendToTopList(showdatas);
+                    /*
                     for(int i=showdatas.size()-1;i>=0;i--){
                         mRecyclerViewAdapter.appendToTop(showdatas.get(i));
                     }
+                    */
                     if(showdatas.size()>0){
                         newShowId = showdatas.get(0).getId();
+                        oldShowId = showdatas.get(showdatas.size()-1).getId();
                         mRecyclerViewAdapter.notifyDataSetChanged();
                         //Log.e(TAG, "newShowId:"+newShowId);
                     }
@@ -317,87 +319,4 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             }
         }
     }
-
-    /*
-    @Override
-    public void onStart(int requestCode) {
-
-    }
-
-    @Override
-    public void onDone(int requestCode, Object response) {
-        GetShowResponse getShowResponse = (GetShowResponse)response;
-        ArrayList<ShowItem> showdatas = getShowResponse.getShowdatas();
-        String direct = getShowResponse.getDirect();
-        switch (requestCode){
-            case GETSHOWS_INIT:
-            case GETSHOWS_FORWARD:
-                //最新状态
-                mSwipeRefreshLayout.setRefreshing(false);
-                for(int i=showdatas.size()-1;i>=0;i--){
-                    mRecyclerViewAdapter.appendToTop(showdatas.get(i));
-                }
-                if(showdatas.size()>0){
-                    newShowId = showdatas.get(0).getId();
-                    mRecyclerViewAdapter.notifyDataSetChanged();
-                    //Log.e(TAG, "newShowId:"+newShowId);
-                }
-                mRecyclerView.scrollToPosition(0);
-                break;
-            case GETSHOWS_BACKWORD:
-                loadBackward = false;
-                //历史状态
-                int position = mRecyclerViewAdapter.getItemCount();
-                if(showdatas.size()==0){
-                    mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
-                    return;
-                }
-                for(int i=0;i<showdatas.size();i++){
-                    mRecyclerViewAdapter.append(showdatas.get(i));
-                }
-                if(showdatas.size()>0) {
-                    ShowItem showItem = showdatas.get(showdatas.size() - 1);
-                    oldShowId = showItem.getId();
-                    showItem = showdatas.get(0);
-                    newShowId = showItem.getId()>newShowId?showItem.getId():newShowId;
-
-                    //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
-                    mRecyclerViewAdapter.notifyDataSetChanged();
-                    //mRecyclerView.scrollToPosition(position);
-                }
-                Log.e(TAG, "loadMore is back "+showdatas.size());
-                break;
-        }
-    }
-
-    @Override
-    public void onError(int requestCode, String error) {
-        Toast.makeText(getContext(), "网络错误"+error, Toast.LENGTH_SHORT);
-        Log.e(TAG, "loadMore is error");
-        mSwipeRefreshLayout.setRefreshing(false);
-        loadBackward = false;
-    }
-
-    @Override
-    public void postData(int requestCode, Map headers, Map files) {
-        switch (requestCode){
-            case GETSHOWS_INIT:
-                headers.put("userid", "" + globalInfos.getUserid());
-                headers.put("pagenum", ""+4);
-                break;
-            case GETSHOWS_FORWARD:
-                headers.put("userid", "" + globalInfos.getUserid());
-                headers.put("id", ""+newShowId);
-                headers.put("direct", "forward");
-                headers.put("pagenum", ""+pageNum);
-                break;
-            case GETSHOWS_BACKWORD:
-                headers.put("userid", "" + globalInfos.getUserid());
-                headers.put("id", "" + oldShowId);
-                headers.put("direct", "backward");
-                headers.put("pagenum", "" + pageNum);
-                break;
-        }
-    }
-    */
 }

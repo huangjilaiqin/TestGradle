@@ -19,7 +19,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
@@ -30,15 +32,18 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.LikeResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.model.UnlikeResponse;
+import com.lessask.net.GsonRequest;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
+import com.lessask.net.VolleyHelper;
 import com.lessask.util.TimeHelper;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
@@ -48,10 +53,6 @@ import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
  */
 public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowListAdapter.ViewHolder> implements OnRecyclerItemClickListener {
     private static final String TAG = ShowListAdapter.class.getName();
-    private RequestQueue requestQueue;
-    private final LruCache<String, Bitmap> lruCache = new LruCache<String, Bitmap>(20);
-    private ImageLoader.ImageCache imageCache;
-    private ImageLoader imageLoader;
 
     PhotoViewAttacher mAttacher;
 
@@ -198,19 +199,6 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
         //to do 这里有时出现NullException
         headImgDir = context.getExternalFilesDir("headImg");
-        requestQueue = Volley.newRequestQueue(context);
-        imageCache = new ImageLoader.ImageCache() {
-            @Override
-            public void putBitmap(String key, Bitmap bitmap) {
-                lruCache.put(key, bitmap);
-            }
-
-            @Override
-            public Bitmap getBitmap(String key) {
-                return lruCache.get(key);
-            }
-        };
-        imageLoader = new ImageLoader(requestQueue, imageCache);
     }
 
 
@@ -229,7 +217,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         String headImgUrl = imageUrlPrefix+showItem.getHeadimg();
         //Log.e(TAG, headImgUrl);
         ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead ,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-        imageLoader.get(headImgUrl, headImgListener);
+        //imageLoader.get(headImgUrl, headImgListener);
+        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener);
 
         showItem.getUserid();
         holder.tvName.setText(showItem.getNickname());
@@ -249,7 +238,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         holder.ivUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeUp(myPosition);
+                changeUp(v, myPosition);
             }
         });
 
@@ -269,7 +258,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
                 String imgUrl1 = imageUrlPrefix+pictures.get(0);
                 ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(showImage1,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                imageLoader.get(imgUrl1, listener1);
+                //imageLoader.get(imgUrl1, listener1);
+                VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1);
 
                 holder.showImageLayout.removeAllViews();
                 holder.showImageLayout.addView(layout);
@@ -285,7 +275,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i);
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews2[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                    imageLoader.get(imgUrl, listener);
+                    //imageLoader.get(imgUrl, listener);
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener);
                     registerImageEvent(imageViews2[i], showItem, i);
                 }
 
@@ -304,7 +295,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i);
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews3[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                    imageLoader.get(imgUrl, listener);
+                    //imageLoader.get(imgUrl, listener);
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener);
                     registerImageEvent(imageViews3[i], showItem, i);
                 }
 
@@ -324,7 +316,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i);
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews4[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                    imageLoader.get(imgUrl, listener);
+                    //imageLoader.get(imgUrl, listener);
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener);
                     registerImageEvent(imageViews4[i], showItem, i);
                 }
 
@@ -365,26 +358,84 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             showImageLayout = (RelativeLayout)itemView.findViewById(R.id.show_image_layout);
         }
     }
-    private void changeUp(int position){
-        ShowItem showItem = getItem(position);
+    private void changeUp(final View view,final int position){
+
+        final ShowItem showItem = getItem(position);
+        final ImageView likeView = (ImageView)view;
         if(showItem.getLikeStatus()==1){
-            //获取数据状态数据
-            postSingle = new PostSingle(config.getUnlikeUrl(), unlikePostSingleEvent);
-            HashMap<String, String> requestArgs = new HashMap<>();
-            requestArgs.put("userid", "" + globalInfos.getUserid());
-            requestArgs.put("showid", "" + showItem.getId());
-            requestArgs.put("position", "" + position);
-            Log.e(TAG, "unlike"+requestArgs);
-            //postSingle.setHeaders(requestArgs);
-            postSingle.start();
+            GsonRequest unlikeRequest = new GsonRequest<>(Request.Method.POST, config.getUnlikeUrl(), UnlikeResponse.class, new GsonRequest.PostGsonRequest<UnlikeResponse>() {
+                @Override
+                public void onStart() {
+                    Toast.makeText(activity, "unlike", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResponse(UnlikeResponse response) {
+                    if(response.getError()==null && response.getErrno()==0){
+                        Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
+                        if(showItem.getId()==response.getShowid()){
+                            Log.e(TAG, "unlike response");
+                            showItem.unlike(globalInfos.getUserid());
+                        }else {
+                            //遍历查找showid
+                        }
+                        likeView.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
+                        notifyDataSetChanged();
+                    }else {
+                        Toast.makeText(activity, "unlike fail"+response.getError()+", "+response.getErrno(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(VolleyError error) {
+                    Log.e(TAG, error.getMessage());
+                }
+
+                @Override
+                public void setPostData(Map datas) {
+                    datas.put("userid", "" + globalInfos.getUserid());
+                    datas.put("showid", "" + showItem.getId());
+                    datas.put("position", "" + position);
+                }
+            });
+            VolleyHelper.getInstance().addToRequestQueue(unlikeRequest);
         }else {
-            postSingle = new PostSingle(config.getLikeUrl(), likePostSingleEvent);
-            HashMap<String, String> requestArgs = new HashMap<>();
-            requestArgs.put("userid", "" + globalInfos.getUserid());
-            requestArgs.put("showid", "" + showItem.getId());
-            requestArgs.put("position", "" + position);
-            //postSingle.setHeaders(requestArgs);
-            postSingle.start();
+            GsonRequest likeRequest = new GsonRequest<>(Request.Method.POST, config.getLikeUrl(), LikeResponse.class, new GsonRequest.PostGsonRequest<LikeResponse>() {
+                @Override
+                public void onStart() {
+
+                }
+
+                @Override
+                public void onResponse(LikeResponse response) {
+                    if(response.getError()==null && response.getErrno()==0) {
+                        Toast.makeText(activity, "like success", Toast.LENGTH_SHORT).show();
+                        if (showItem.getId() == response.getShowid()) {
+                            showItem.like(globalInfos.getUserid());
+                        } else {
+                            //遍历查找showid
+                        }
+                        likeView.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
+                        notifyDataSetChanged();
+                    }else {
+                        Toast.makeText(activity, "like fail"+response.getError()+", "+response.getErrno(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(VolleyError error) {
+                    Log.e(TAG, "like "+error.getMessage());
+                }
+
+                @Override
+                public void setPostData(Map datas) {
+                    datas.put("userid", "" + globalInfos.getUserid());
+                    datas.put("showid", "" + showItem.getId());
+                    datas.put("position", "" + position);
+
+                }
+            });
+            VolleyHelper.getInstance().addToRequestQueue(likeRequest);
         }
     }
     private void registerImageEvent(ImageView image, final ShowItem item, final int index){
