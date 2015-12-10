@@ -73,11 +73,11 @@ public class GsonRequest<T> extends Request<T> {
     @Override
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
         try {
-            Log.e(TAG, "charset:"+HttpHeaderParser.parseCharset(response.headers));
+            //Log.e(TAG, "charset:"+HttpHeaderParser.parseCharset(response.headers));
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
-            Log.e(TAG, "data:"+json);
+            //Log.e(TAG, "data:"+json);
             return Response.success(
                     gson.fromJson(json, clazz),
                     HttpHeaderParser.parseCacheHeaders(response));

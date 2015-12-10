@@ -2,11 +2,7 @@ package com.lessask.show;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.util.LruCache;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,12 +16,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
 import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
-import com.google.gson.Gson;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -33,16 +26,10 @@ import com.lessask.model.LikeResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.model.UnlikeResponse;
 import com.lessask.net.GsonRequest;
-import com.lessask.net.PostResponse;
-import com.lessask.net.PostSingle;
-import com.lessask.net.PostSingleEvent;
 import com.lessask.net.VolleyHelper;
 import com.lessask.util.TimeHelper;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -58,136 +45,11 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
     private Context context;
     private FragmentActivity activity;
-    private File headImgDir;
-    private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private  String imageUrlPrefix = config.getImgUrl();
-    private final int HANDLER_LIKE_START = 0;
-    private final int HANDLER_LIKE_DONE = 1;
-    private final int HANDLER_UNLIKE_START = 2;
-    private final int HANDLER_UNLIKE_DONE = 3;
 
     private final LayoutInflater inflater;
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            ShowItem showItem = null;
-            switch (msg.what) {
-                case HANDLER_LIKE_START:
-                    Toast.makeText(activity, "like", Toast.LENGTH_SHORT).show();
-                    break;
-                case HANDLER_LIKE_DONE:
-                    //Toast.makeText(activity, "like success", Toast.LENGTH_SHORT).show();
-                    LikeResponse likeResponse = (LikeResponse)msg.obj;
-                    showItem = getItem(likeResponse.getPosition());
-                    if(showItem.getId()==likeResponse.getShowid()){
-                        showItem.like(globalInfos.getUserid());
-                    }else {
-                        //遍历查找showid
-                    }
-                    notifyDataSetChanged();
-                    break;
-                case HANDLER_UNLIKE_START:
-                    Toast.makeText(activity, "unlike", Toast.LENGTH_SHORT).show();
-                    break;
-                case HANDLER_UNLIKE_DONE:
-                    //Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
-                    UnlikeResponse unlikeResponse = (UnlikeResponse)msg.obj;
-                    //to do 错误处理
-                    showItem = getItem(unlikeResponse.getPosition());
-                    if(showItem.getId()==unlikeResponse.getShowid()){
-                        Log.e(TAG, "unlike response");
-                        showItem.unlike(globalInfos.getUserid());
-                    }else {
-                        //遍历查找showid
-                    }
-                    notifyDataSetChanged();
-                    break;
-            }
-        }
-    };
-
-    private PostSingleEvent likePostSingleEvent = new PostSingleEvent() {
-        @Override
-        public void onStart() {
-            Message msg = new Message();
-            msg.what = HANDLER_LIKE_START;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onDone(PostResponse response) {
-            Message msg = new Message();
-            msg.what = HANDLER_LIKE_DONE;
-            msg.arg1 = response.getCode();
-            LikeResponse likeResponse = gson.fromJson(response.getBody(), LikeResponse.class);
-            msg.obj = likeResponse;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onError(String err) {
-
-        }
-
-        @Override
-        public HashMap<String, String> getHeaders() {
-            return null;
-        }
-
-        @Override
-        public HashMap<String, String> getFiles() {
-            return null;
-        }
-
-        @Override
-        public HashMap<String, String> getImages() {
-            return null;
-        }
-    };
-    private PostSingleEvent unlikePostSingleEvent = new PostSingleEvent() {
-        @Override
-        public void onStart() {
-            Message msg = new Message();
-            msg.what = HANDLER_UNLIKE_START;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onDone(PostResponse response) {
-            Message msg = new Message();
-            msg.what = HANDLER_UNLIKE_DONE;
-            msg.arg1 = response.getCode();
-            Log.e(TAG, response.getBody());
-            UnlikeResponse unlikeResponse = gson.fromJson(response.getBody(), UnlikeResponse.class);
-            msg.obj = unlikeResponse;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onError(String err) {
-
-        }
-
-        @Override
-        public HashMap<String, String> getHeaders() {
-            return null;
-        }
-
-        @Override
-        public HashMap<String, String> getFiles() {
-            return null;
-        }
-
-        @Override
-        public HashMap<String, String> getImages() {
-            return null;
-        }
-    };
-
-    private PostSingle postSingle;
 
     public ShowListAdapter(FragmentActivity activity){
         //数据直接传递给Base...Adapter
@@ -197,10 +59,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         this.context = activity.getApplicationContext();
         inflater = LayoutInflater.from(context);
 
-        //to do 这里有时出现NullException
-        headImgDir = context.getExternalFilesDir("headImg");
     }
-
 
     @Override
     public ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
@@ -209,7 +68,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
     }
 
     @Override
-    public void onBindItemViewHolder(ViewHolder holder, int position) {
+    public void onBindItemViewHolder(final ViewHolder holder, int position) {
         final int myPosition = position;
         ShowItem showItem = getItem(myPosition);
 
@@ -358,7 +217,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             showImageLayout = (RelativeLayout)itemView.findViewById(R.id.show_image_layout);
         }
     }
-    private void changeUp(final View view,final int position){
+    private void changeUp(final View view, final int position){
 
         final ShowItem showItem = getItem(position);
         final ImageView likeView = (ImageView)view;
