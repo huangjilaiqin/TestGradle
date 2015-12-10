@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 
 import com.lessask.model.User;
+import com.lessask.net.VolleyHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class MyApplication extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
+        VolleyHelper.setmCtx(getApplicationContext());
     }
 
     public ArrayList<User> getFriends() {

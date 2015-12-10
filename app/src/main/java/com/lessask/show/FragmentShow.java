@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,6 +23,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
 import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
@@ -31,10 +34,12 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.GetShowResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
+import com.lessask.net.GsonRequest;
 import com.lessask.net.NetFragment;
 import com.lessask.net.PostResponse;
 import com.lessask.net.PostSingle;
 import com.lessask.net.PostSingleEvent;
+import com.lessask.net.VolleyHelper;
 import com.lessask.test.SimpleAdapter;
 
 import java.io.File;
@@ -47,7 +52,7 @@ import me.iwf.photopicker.PhotoPickerActivity;
  * Created by huangji on 2015/9/16.
  * 展示动态fragment
  */
-public class FragmentShow extends NetFragment implements View.OnClickListener {
+public class FragmentShow extends Fragment implements View.OnClickListener {
 
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
@@ -93,8 +98,7 @@ public class FragmentShow extends NetFragment implements View.OnClickListener {
             mRecyclerViewAdapter.setHasMoreData(true);
             mRecyclerViewAdapter.setHasFooter(false);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
-            //获取初始化数据
-            startPost(config.getGetShowUrl(), GETSHOWS_INIT, GetShowResponse.class);
+
 
             ivUp = (ImageView) mRootView.findViewById(R.id.up);
             mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
@@ -102,7 +106,45 @@ public class FragmentShow extends NetFragment implements View.OnClickListener {
                 @Override
                 public void onRefresh() {
                     //下拉刷新
-                    startPost(config.getGetShowUrl(), GETSHOWS_FORWARD, GetShowResponse.class);
+                    GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), GetShowResponse.class, new GsonRequest.PostGsonRequest<GetShowResponse>() {
+                        @Override
+                        public void onStart() {
+
+                        }
+
+                        @Override
+                        public void onResponse(GetShowResponse response) {
+                            ArrayList<ShowItem> showdatas = response.getShowdatas();
+                            //最新状态
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            for(int i=showdatas.size()-1;i>=0;i--){
+                                mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                            }
+                            if(showdatas.size()>0){
+                                newShowId = showdatas.get(0).getId();
+                                mRecyclerViewAdapter.notifyDataSetChanged();
+                                //Log.e(TAG, "newShowId:"+newShowId);
+                            }
+                            mRecyclerView.scrollToPosition(0);
+
+                        }
+
+                        @Override
+                        public void onError(VolleyError error) {
+
+                        }
+
+                        @Override
+                        public void setPostData(Map datas) {
+                            datas.put("userid", "" + globalInfos.getUserid());
+                            datas.put("id", "" + newShowId);
+                            datas.put("direct", "forward");
+                            datas.put("pagenum", "" + pageNum);
+
+                        }
+                    });
+                    VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+                    //startPost(config.getGetShowUrl(), GETSHOWS_FORWARD, GetShowResponse.class);
                 }
             });
             mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
@@ -120,10 +162,93 @@ public class FragmentShow extends NetFragment implements View.OnClickListener {
                         loadBackward = true;
                         mRecyclerViewAdapter.setHasFooter(true);
 
-                        startPost(config.getGetShowUrl(), GETSHOWS_BACKWORD, GetShowResponse.class);
+                        //startPost(config.getGetShowUrl(), GETSHOWS_BACKWORD, GetShowResponse.class);
+                        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), GetShowResponse.class, new GsonRequest.PostGsonRequest<GetShowResponse>() {
+                            @Override
+                            public void onStart() {
+
+                            }
+
+                            @Override
+                            public void onResponse(GetShowResponse response) {
+                                loadBackward = false;
+
+                                ArrayList<ShowItem> showdatas = response.getShowdatas();
+                                //历史状态
+                                int position = mRecyclerViewAdapter.getItemCount();
+                                if(showdatas.size()==0){
+                                    mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
+                                    return;
+                                }
+                                for(int i=0;i<showdatas.size();i++){
+                                    mRecyclerViewAdapter.append(showdatas.get(i));
+                                }
+                                if(showdatas.size()>0) {
+                                    ShowItem showItem = showdatas.get(showdatas.size() - 1);
+                                    oldShowId = showItem.getId();
+                                    showItem = showdatas.get(0);
+                                    newShowId = showItem.getId()>newShowId?showItem.getId():newShowId;
+
+                                    //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
+                                    mRecyclerViewAdapter.notifyDataSetChanged();
+                                    //mRecyclerView.scrollToPosition(position);
+                                }
+                                Log.e(TAG, "loadMore is back "+showdatas.size());
+
+                            }
+
+                            @Override
+                            public void onError(VolleyError error) {
+
+                            }
+
+                            @Override
+                            public void setPostData(Map datas) {
+                                datas.put("userid", "" + globalInfos.getUserid());
+                                datas.put("id", "" + oldShowId);
+                                datas.put("direct", "backward");
+                                datas.put("pagenum", "" + pageNum);
+                            }
+                        });
+                        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
                     }
                 }
             });
+            //获取初始化数据
+            GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), GetShowResponse.class, new GsonRequest.PostGsonRequest<GetShowResponse>() {
+                @Override
+                public void onStart() {
+
+                }
+
+                @Override
+                public void onResponse(GetShowResponse response) {
+
+                    ArrayList<ShowItem> showdatas = response.getShowdatas();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    for(int i=showdatas.size()-1;i>=0;i--){
+                        mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                    }
+                    if(showdatas.size()>0){
+                        newShowId = showdatas.get(0).getId();
+                        mRecyclerViewAdapter.notifyDataSetChanged();
+                        //Log.e(TAG, "newShowId:"+newShowId);
+                    }
+                    mRecyclerView.scrollToPosition(0);
+                }
+
+                @Override
+                public void onError(VolleyError error) {
+
+                }
+
+                @Override
+                public void setPostData(Map datas) {
+                    datas.put("userid", "" + globalInfos.getUserid());
+                    datas.put("pagenum", ""+4);
+                }
+            });
+            VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
         }
         return mRootView;
     }
@@ -193,6 +318,7 @@ public class FragmentShow extends NetFragment implements View.OnClickListener {
         }
     }
 
+    /*
     @Override
     public void onStart(int requestCode) {
 
@@ -273,4 +399,5 @@ public class FragmentShow extends NetFragment implements View.OnClickListener {
                 break;
         }
     }
+    */
 }
