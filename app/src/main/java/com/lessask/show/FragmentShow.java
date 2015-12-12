@@ -311,6 +311,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     startActivityForResult(intent, CREATE_SHOW);
                     break;
                 case CREATE_SHOW:
+                    Log.e(TAG, "发布状态成功");
                     Toast.makeText(getContext(), "发布状态成功", Toast.LENGTH_SHORT).show();
                     break;
             }

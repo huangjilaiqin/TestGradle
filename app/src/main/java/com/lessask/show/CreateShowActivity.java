@@ -1,11 +1,14 @@
 package com.lessask.show;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
@@ -25,6 +27,7 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.NetworkFileHelper;
+import com.lessask.test.TestVolleyActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ import me.iwf.photopicker.utils.PhotoPickerIntent;
 /*
 * 发布状态
 * */
-public class CreateShowActivity extends Activity implements View.OnClickListener{
+public class CreateShowActivity extends AppCompatActivity implements View.OnClickListener{
 
     private final String TAG = CreateShowActivity.class.getName();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -71,15 +74,41 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
             isFull = true;
         }
 
-        mBack = (ImageView) findViewById(R.id.back);
-        mBack.setOnClickListener(this);
-        mSend = (Button) findViewById(R.id.send);
-        mSend.setOnClickListener(this);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        findViewById(R.id.send).setOnClickListener(this);
         mtvContent = (TextView) findViewById(R.id.content);
         mGridView = (GridView) findViewById(R.id.image_grid);
         mGridViewAdapter = new MyAdapter(this, photos);
         mGridView.setAdapter(mGridViewAdapter);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("确认放弃向世界展示的机会吗？");
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
     }
 
     @Override
@@ -105,10 +134,10 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
 
             @Override
             public void onResponse(Object response) {
+                loadingDialog.cancel();
                 CreateShowResponse createShowResponse = (CreateShowResponse)response;
                 int showId = createShowResponse.getShowid();
                 String time = createShowResponse.getTime();
-                loadingDialog.cancel();
                 Toast.makeText(CreateShowActivity.this, "create success", Toast.LENGTH_SHORT).show();
                 //跳转到动态
 
@@ -118,20 +147,24 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
                 showItem.setContent(mtvContent.getText().toString().trim());
                 showItem.setHeadimg(globalInfos.getUser().getHeadImg().getAbsolutePath());
                 showItem.setPictures(photos);
+                showItem.setTime(time);
                 Intent intent = new Intent();
                 intent.putExtra("showItem", showItem);
                 Log.e(TAG, "create show success:"+mIntent.getIntExtra("forResultCode", -1));
                 setResult(mIntent.getIntExtra("forResultCode", -1), intent);
+                finish();
             }
 
             @Override
             public void onError(String error) {
+                loadingDialog.cancel();
+                Log.e(TAG, "创建动态:"+error);
                 Toast.makeText(CreateShowActivity.this, "创建动态,"+error, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public HashMap<String, String> getHeaders() {
-                HashMap<String, String> headers = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<>();
                 headers.put("userid", globalInfos.getUserid()+"");
                 headers.put("address", "深圳市 南山区");
                 headers.put("content", mtvContent.getText().toString().trim());
@@ -161,7 +194,7 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
 
             @Override
             public HashMap<String, String> getImages() {
-                HashMap<String,String> images = new HashMap<String, String>();
+                HashMap<String,String> images = new HashMap<>();
                 int photosSize=0;
                 if(!isFull)
                     photosSize = photos.size()-1;

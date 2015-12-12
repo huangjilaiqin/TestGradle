@@ -1,6 +1,7 @@
 package com.lessask.model;
 
 import android.content.ContentResolver;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -224,15 +225,18 @@ public class Utils {
         return optimizeBitmap(pathName, globalInfos.getScreenWidth(), globalInfos.getScreenHeight());
     }
     public static Bitmap optimizeBitmap(String pathName, int maxWidth, int maxHeight) {
+        File file = new File(pathName);
+        if(!file.exists() || !file.isFile()) {
+            throw new Resources.NotFoundException();
+        }
+        Log.e(TAG, "optimizeBitmap path:"+pathName);
 		Bitmap result = null;
 		try {
             // 图片配置对象，该对象可以配置图片加载的像素获取个数
             BitmapFactory.Options options = new BitmapFactory.Options();
             // 表示加载图像的原始宽高
             options.inJustDecodeBounds = true;
-            result = BitmapFactory.decodeFile(pathName, options);
-            long size = result.getByteCount();
-            Log.e(TAG, "file size:"+size);
+            BitmapFactory.decodeFile(pathName, options);
             // Math.ceil表示获取与它最近的整数（向上取值 如：4.1->5 4.9->5）
             int widthRatio = (int) Math.ceil(options.outWidth / maxWidth);
             int heightRatio = (int) Math.ceil(options.outHeight / maxHeight);
@@ -248,7 +252,6 @@ public class Utils {
             options.inPreferredConfig = Bitmap.Config.RGB_565;
             options.inJustDecodeBounds = false;
             result = BitmapFactory.decodeFile(pathName, options);
-            File file = new File(pathName);
             long asize = file.length();
             long bsize =result.getByteCount();
             float rate = (asize-bsize)/asize;
