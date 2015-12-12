@@ -72,6 +72,12 @@ public class NetworkFileHelper {
         private static final NetworkFileHelper INSTANCE = new NetworkFileHelper();
     }
 
+    /*
+    * 自定义post接口
+    * 支持post字段
+    * 文件
+    * 图片(压缩过的图片)
+    * */
     public interface PostFileRequest{
         void onStart();
         void onResponse(Object response);

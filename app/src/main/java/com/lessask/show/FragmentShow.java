@@ -33,9 +33,7 @@ import com.lessask.model.GetShowResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.GsonRequest;
-import com.lessask.net.PostSingle;
 import com.lessask.net.VolleyHelper;
-import com.lessask.test.SimpleAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -63,20 +61,13 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
-    private int REQUEST_CODE = 100;
-    private final int HANDLER_GETSHOW_START = 1;
-    private final int HANDLER_GETSHOW_DONE = 2;
+    private final int GETPICTURE_REQUEST = 100;
+    private final int CREATE_SHOW = 101;
 
-    private final int GETSHOWS_INIT = 1;
-    private final int GETSHOWS_FORWARD = 2;
-    private final int GETSHOWS_BACKWORD = 3;
 
     private boolean loadBackward = false;
 
-    private ImageView ivUp;
 
-    private PostSingle postSingle;
-    private SimpleAdapter mAdapter;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -95,7 +86,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
 
-            ivUp = (ImageView) mRootView.findViewById(R.id.up);
             mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
@@ -266,56 +256,63 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
-            if (data != null) {
-                ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
-                for(int i=0;i<photos.size();i++) {
-                    String originFileStr = photos.get(i);
-                    File originFile = new File(originFileStr);
+        //super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "resultCode:"+resultCode);
+        if (resultCode == Activity.RESULT_OK){
+            switch (requestCode){
+                case GETPICTURE_REQUEST:
+                    ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
+                    for(int i=0;i<photos.size();i++) {
+                        String originFileStr = photos.get(i);
+                        File originFile = new File(originFileStr);
 
-                    //获取缩略图
-                    ContentResolver cr = getActivity().getContentResolver();
-                    //获取原图id
-                    String columns[] = new String[] { MediaStore.Images.Media._ID};
-                    Cursor cursor = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "_data=?", new String[]{originFileStr}, null);
-                    int originImgId = 0;
-                    if(cursor.moveToFirst()){
-                        originImgId = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
+                        //获取缩略图
+                        ContentResolver cr = getActivity().getContentResolver();
+                        //获取原图id
+                        String columns[] = new String[] { MediaStore.Images.Media._ID};
+                        Cursor cursor = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "_data=?", new String[]{originFileStr}, null);
+                        int originImgId = 0;
+                        if(cursor.moveToFirst()){
+                            originImgId = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
+                        }
+
+
+                        String[] projection = { MediaStore.Images.Thumbnails.DATA};
+                        cursor = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection, "image_id=?", new String[]{originImgId+""}, null);
+                        String thumbnailPath = "";
+                        String thumbData = "";
+                        Bitmap thumbnailBitmap = null;
+                        if(cursor.moveToFirst()){
+                            thumbnailPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
+                            thumbnailBitmap = Utils.getBitmapFromFile(new File(thumbnailPath));
+                        }else {
+                            //不存在缩略图
+                            //int width = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getWidth();
+                            //int height = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getHeight();
+                            thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), 100, 100);
+                        }
+
+                        String fileName = originFile.getName();
+                        String name = fileName.substring(0, fileName.indexOf("."));
+                        String ex = fileName.substring(fileName.indexOf(".") + 1);
+                        String newName = name+"_cmp1."+ex;
+
+                        File dir = Environment.getExternalStorageDirectory();
+                        dir = new File(dir, "testImage");
+                        if(!dir.exists())
+                            dir.mkdir();
+
+                        Utils.setBitmapToFile(new File(dir, newName), thumbnailBitmap);
+
                     }
-
-
-                    String[] projection = { MediaStore.Images.Thumbnails.DATA};
-                    cursor = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection, "image_id=?", new String[]{originImgId+""}, null);
-                    String thumbnailPath = "";
-                    String thumbData = "";
-                    Bitmap thumbnailBitmap = null;
-                    if(cursor.moveToFirst()){
-                        thumbnailPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
-                        thumbnailBitmap = Utils.getBitmapFromFile(new File(thumbnailPath));
-                    }else {
-                        //不存在缩略图
-                        //int width = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getWidth();
-                        //int height = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getHeight();
-                        thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), 100, 100);
-                    }
-
-                    String fileName = originFile.getName();
-                    String name = fileName.substring(0, fileName.indexOf("."));
-                    String ex = fileName.substring(fileName.indexOf(".") + 1);
-                    String newName = name+"_cmp1."+ex;
-
-                    File dir = Environment.getExternalStorageDirectory();
-                    dir = new File(dir, "testImage");
-                    if(!dir.exists())
-                        dir.mkdir();
-
-                    Utils.setBitmapToFile(new File(dir, newName), thumbnailBitmap);
-
-                }
-                Intent intent = new Intent(getActivity(), CreateShowActivity.class);
-                intent.putStringArrayListExtra("images", photos);
-                startActivity(intent);
+                    Intent intent = new Intent(getActivity(), CreateShowActivity.class);
+                    intent.putStringArrayListExtra("images", photos);
+                    intent.putExtra("forResultCode", CREATE_SHOW);
+                    startActivityForResult(intent, CREATE_SHOW);
+                    break;
+                case CREATE_SHOW:
+                    Toast.makeText(getContext(), "发布状态成功", Toast.LENGTH_SHORT).show();
+                    break;
             }
         }
     }

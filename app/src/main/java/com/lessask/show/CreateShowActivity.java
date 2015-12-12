@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +22,9 @@ import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
-import com.lessask.net.PostResponse;
-import com.lessask.net.PostSingle;
-import com.lessask.net.PostSingleEvent;
+import com.lessask.net.NetworkFileHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,47 +48,19 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
     private boolean isFull;
     private static final int REQUEST_ADD_IMAGE = 100;
     private static final int REQUEST_DELETE_IMAGE = 101;
-    private static final int ON_CREATESHOW_START= 102;
-    private static final int ON_CREATESHOW_DONE= 103;
     private MyAdapter mGridViewAdapter;
-    private ProgressDialog uploadDialog;
     private LoadingDialog loadingDialog;
+    private Intent mIntent;
 
-    private Gson gson = new Gson();
     private Config config = globalInfos.getConfig();
-
-    private final int HANDLER_SHOW_SEND = 0;
-
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "login handler:" + msg.what);
-            switch (msg.what) {
-                case ON_CREATESHOW_START:
-                    loadingDialog.show();
-                    break;
-                case ON_CREATESHOW_DONE:
-                    CreateShowResponse response = (CreateShowResponse)msg.obj;
-                    int success = msg.arg1;
-                    int resCode = msg.arg2;
-                    int showId = response.getShowid();
-                    String time = response.getTime();
-                    loadingDialog.cancel();
-                    Toast.makeText(CreateShowActivity.this, "create success", Toast.LENGTH_SHORT).show();
-                    //跳转到动态
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_show);
 
-        Intent intent = getIntent();
-        photos = intent.getStringArrayListExtra("images");
+        mIntent = getIntent();
+        photos = mIntent.getStringArrayListExtra("images");
 
         Log.e(TAG, "onCreate:"+ photos.size());
         //未选满四张图片
@@ -127,36 +96,62 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
 
     private void createShow(){
         loadingDialog = new LoadingDialog(CreateShowActivity.this);
-        PostSingleEvent event = new PostSingleEvent() {
 
+        NetworkFileHelper.getInstance().startPost(config.getCreateShowUrl(), CreateShowResponse.class, new NetworkFileHelper.PostFileRequest() {
             @Override
             public void onStart() {
-                Message msg = new Message();
-                msg.what = ON_CREATESHOW_START;
-                handler.sendMessage(msg);
+                loadingDialog.show();
             }
 
             @Override
-            public void onDone(PostResponse postResponse) {
-                int resCode = postResponse.getCode();
-                String body = postResponse.getBody();
-                CreateShowResponse response = gson.fromJson(body, CreateShowResponse.class);
+            public void onResponse(Object response) {
+                CreateShowResponse createShowResponse = (CreateShowResponse)response;
+                int showId = createShowResponse.getShowid();
+                String time = createShowResponse.getTime();
+                loadingDialog.cancel();
+                Toast.makeText(CreateShowActivity.this, "create success", Toast.LENGTH_SHORT).show();
+                //跳转到动态
 
-                Message msg = new Message();
-                msg.arg2 = resCode;
-                msg.obj = response;
-                msg.what = ON_CREATESHOW_DONE;
-                handler.sendMessage(msg);
+                ShowItem showItem = new ShowItem();
+                showItem.setId(showId);
+                showItem.setAddress("深圳 南山");
+                showItem.setContent(mtvContent.getText().toString().trim());
+                showItem.setHeadimg(globalInfos.getUser().getHeadImg().getAbsolutePath());
+                showItem.setPictures(photos);
+                Intent intent = new Intent();
+                intent.putExtra("showItem", showItem);
+                Log.e(TAG, "create show success:"+mIntent.getIntExtra("forResultCode", -1));
+                setResult(mIntent.getIntExtra("forResultCode", -1), intent);
             }
 
             @Override
-            public void onError(String err) {
-
+            public void onError(String error) {
+                Toast.makeText(CreateShowActivity.this, "创建动态,"+error, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public HashMap<String, String> getHeaders() {
-                return null;
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("userid", globalInfos.getUserid()+"");
+                headers.put("address", "深圳市 南山区");
+                headers.put("content", mtvContent.getText().toString().trim());
+                headers.put("permission", "1");
+                headers.put("ats", "");
+
+                StringBuilder builder = new StringBuilder();
+                int photosSize=0;
+                if(!isFull)
+                    photosSize = photos.size()-1;
+                int lastIndex = photosSize-1;
+                for (int i=0;i<photosSize;i++){
+                    File file = new File(photos.get(i));
+                    builder.append(file.getName());
+                    if(i!=lastIndex){
+                        builder.append("##");
+                    }
+                }
+                headers.put("pictures", builder.toString());
+                return headers;
             }
 
             @Override
@@ -166,36 +161,17 @@ public class CreateShowActivity extends Activity implements View.OnClickListener
 
             @Override
             public HashMap<String, String> getImages() {
-                return null;
+                HashMap<String,String> images = new HashMap<String, String>();
+                int photosSize=0;
+                if(!isFull)
+                    photosSize = photos.size()-1;
+                for (int i=0;i<photosSize;i++){
+                    File file = new File(photos.get(i));
+                    images.put(file.getName(), photos.get(i));
+                }
+                return images;
             }
-        };
-        PostSingle postSingle = new PostSingle(config.getCreateShowUrl(), event);
-        HashMap<String, String> headers = new HashMap<>();
-        HashMap<String, String> images = new HashMap<>();
-
-        headers.put("userid", globalInfos.getUserid()+"");
-        headers.put("address", "深圳市 南山区");
-        headers.put("content", mtvContent.getText().toString().trim());
-        headers.put("permission", "1");
-        headers.put("ats", "");
-
-        StringBuilder builder = new StringBuilder();
-        int photosSize=0;
-        if(!isFull)
-            photosSize = photos.size()-1;
-        int lastIndex = photosSize-1;
-        for (int i=0;i<photosSize;i++){
-            File file = new File(photos.get(i));
-            builder.append(file.getName());
-            if(i!=lastIndex){
-                builder.append("##");
-            }
-            images.put(file.getName(), photos.get(i));
-        }
-        headers.put("pictures", builder.toString());
-        //postSingle.setHeaders(headers);
-        //postSingle.setImages(images);
-        postSingle.start();
+        });
     }
     //自定义适配器
     class MyAdapter extends BaseAdapter {

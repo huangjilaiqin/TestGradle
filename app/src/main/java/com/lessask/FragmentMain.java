@@ -1,5 +1,6 @@
 package com.lessask;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,7 +36,8 @@ import me.iwf.photopicker.utils.PhotoPickerIntent;
 public class FragmentMain extends Fragment implements ViewPager.OnPageChangeListener,View.OnClickListener {
 
     private LayoutInflater layoutInflater;
-    private int REQUEST_CODE = 100;
+    private final int GETPICTURE_REQUEST = 100;
+    private final int CREATE_SHOW = 102;
     private static final String TAG = FragmentMain.class.getName();
     private View rootView;
 
@@ -148,23 +150,25 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
                 intent.setPhotoCount(4);
                 intent.setShowCamera(true);
                 intent.setShowGif(true);
-                startActivityForResult(intent, REQUEST_CODE);
+                startActivityForResult(intent, GETPICTURE_REQUEST);
                 break;
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(data!=null) {
-            ArrayList<String> images = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
-            Log.e(TAG, "onActivityResult" + images);
-            Toast.makeText(getContext(), "fragmentMain onActivityResult", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getActivity(), CreateShowActivity.class);
-            intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
-            startActivity(intent);
-        }else {
-            //没有选择图片
+        //super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK){
+            switch (requestCode){
+                case GETPICTURE_REQUEST:
+                    ArrayList<String> images = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
+                    Log.e(TAG, "onActivityResult" + images);
+                    Toast.makeText(getContext(), "fragmentMain onActivityResult", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getActivity(), CreateShowActivity.class);
+                    intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
+                    startActivityForResult(intent, CREATE_SHOW);
+                    break;
+            }
         }
     }
 

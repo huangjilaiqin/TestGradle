@@ -255,6 +255,8 @@ public class Utils {
             Log.e(TAG, "file size:"+asize+", after compress:"+bsize+", rate:"+options.inSampleSize+", real rate:"+rate);
 
         } catch (Exception e) {
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
         }
 		return result;
 	}
@@ -279,8 +281,10 @@ public class Utils {
         if(cursor.moveToFirst()) {
             thumbnailPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
             thumbnailBitmap = Utils.getBitmapFromFile(new File(thumbnailPath));
-        }else {
+        }
+        if(thumbnailBitmap==null){
             //不存在缩略图,自己进行压缩
+            Log.e(TAG, "originFile:"+originFile.getAbsolutePath());
             thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), width, height);
         }
         long oSize = originFile.length()/1024;

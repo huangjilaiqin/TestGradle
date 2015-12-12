@@ -1,12 +1,15 @@
 package com.lessask.model;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by JHuang on 2015/9/16.
  */
-public class ShowItem {
+public class ShowItem implements Parcelable {
     private int id;
     private int userid;
     private String nickname;
@@ -22,6 +25,8 @@ public class ShowItem {
     private int likeStatus;
     //评论
     private ArrayList<CommentItem> comments;
+
+    public ShowItem(){}
 
     public ShowItem(int id, int userid,String nickname,String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, ArrayList<Integer> liker, int likeStatus, ArrayList<CommentItem> comments) {
         this.id = id;
@@ -150,5 +155,25 @@ public class ShowItem {
 
     public void setComments(ArrayList<CommentItem> comments) {
         this.comments = comments;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(nickname);
+        parcel.writeString(headimg);
+        parcel.writeString(time);
+        parcel.writeString(address);
+        parcel.writeString(content);
+        parcel.writeList(pictures);
+        parcel.writeInt(permission);
+        parcel.writeString(ats);
+        parcel.writeList(liker);
+        parcel.writeInt(likeStatus);
+        parcel.writeList(comments);
     }
 }
