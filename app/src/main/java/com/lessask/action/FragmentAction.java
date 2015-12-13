@@ -41,7 +41,6 @@ public class FragmentAction extends Fragment {
     private View rootView;
     private final String TAG = FragmentAction.class.getName();
     private ActionAdapter mRecyclerViewAdapter;
-    //private RecyclerView mRecyclerView;
     private RecyclerViewStatusSupport mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
 
@@ -90,7 +89,6 @@ public class FragmentAction extends Fragment {
             });
             volleyHelper.addToRequestQueue(getActionsRequest);
 
-            //mRecyclerView = (RecyclerView)rootView.findViewById(R.id.lesson_list);
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.action_list);
             mRecyclerView.setEmptyView(rootView.findViewById(R.id.empty_view));
             mRecyclerView.setLoadingView(rootView.findViewById(R.id.loading_view));

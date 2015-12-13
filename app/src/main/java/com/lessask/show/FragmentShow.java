@@ -2,23 +2,18 @@ package com.lessask.show;
 
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -26,20 +21,21 @@ import com.android.volley.VolleyError;
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
 import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
+import com.lessask.MainActivity;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.GetShowResponse;
 import com.lessask.model.ShowItem;
-import com.lessask.model.Utils;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
-import java.io.File;
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Map;
 
-import me.iwf.photopicker.PhotoPickerActivity;
 
 /**
  * Created by huangji on 2015/9/16.
@@ -50,22 +46,21 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
     private ShowListAdapter mRecyclerViewAdapter;
-    private RecyclerView mRecyclerView;
+    private RecyclerViewStatusSupport mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LinearLayoutManager mLinearLayoutManager;
     private int newShowId;
     private int oldShowId;
-    private int pageNum = 1;
+    private int pageNum = 10;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
     private final int GETPICTURE_REQUEST = 100;
-    private final int CREATE_SHOW = 101;
-
 
     private boolean loadBackward = false;
+    private String getShowsError = "";
 
 
     @Nullable
@@ -73,7 +68,17 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_show, null);
-            mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.show_list);
+            mRecyclerView = (RecyclerViewStatusSupport) mRootView.findViewById(R.id.show_list);
+            mRecyclerView.setOnErrorListener(new RecyclerViewStatusSupport.OnErrorListener() {
+                @Override
+                public void setErrorText(View view) {
+                    TextView errorText = (TextView)view.findViewById(R.id.error_text);
+                    errorText.setText(getShowsError);
+                }
+            });
+            mRecyclerView.setEmptyView(mRootView.findViewById(R.id.empty_view));
+            mRecyclerView.setLoadingView(mRootView.findViewById(R.id.loading_view));
+            mRecyclerView.setErrorView(mRootView.findViewById(R.id.error_view));
             //用线性的方式显示listview
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -116,7 +121,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                         @Override
                         public void onError(VolleyError error) {
-
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(FragmentShow.this.getContext(), error.toString(), Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
@@ -184,10 +190,10 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                             @Override
                             public void onError(VolleyError error) {
-                                Toast.makeText(getContext(), "网络错误"+error, Toast.LENGTH_SHORT);
-                                Log.e(TAG, "loadMore is error");
-                                mSwipeRefreshLayout.setRefreshing(false);
                                 loadBackward = false;
+                                Toast.makeText(getContext(), "网络错误"+error, Toast.LENGTH_SHORT);
+                                mRecyclerViewAdapter.setHasFooter(false);
+                                mRecyclerViewAdapter.setHasFooter(true);
                             }
 
                             @Override
@@ -231,7 +237,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                 @Override
                 public void onError(VolleyError error) {
-
+                    getShowsError = error.toString();
+                    mRecyclerView.showErrorView();
                 }
 
                 @Override
@@ -256,10 +263,10 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
-        Log.e(TAG, "resultCode:"+resultCode);
+        Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
         if (resultCode == Activity.RESULT_OK){
             switch (requestCode){
+                /*
                 case GETPICTURE_REQUEST:
                     ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
                     for(int i=0;i<photos.size();i++) {
@@ -310,9 +317,17 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     intent.putExtra("forResultCode", CREATE_SHOW);
                     startActivityForResult(intent, CREATE_SHOW);
                     break;
-                case CREATE_SHOW:
+                    */
+                case MainActivity.CREATE_SHOW:
                     Log.e(TAG, "发布状态成功");
                     Toast.makeText(getContext(), "发布状态成功", Toast.LENGTH_SHORT).show();
+                    ShowItem showItem = data.getParcelableExtra("showItem");
+                    for(int i=0;i<showItem.getPictures().size();i++){
+                        Log.e(TAG, showItem.getPictures().get(i));
+                    }
+                    mRecyclerViewAdapter.appendToTop(showItem);
+                    mRecyclerViewAdapter.notifyItemInserted(0);
+                    mRecyclerViewAdapter.notifyDataSetChanged();
                     break;
             }
         }

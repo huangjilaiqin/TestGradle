@@ -2,6 +2,9 @@ package com.lessask.net;
 
 
 import android.graphics.Bitmap;
+import android.util.Log;
+
+import com.lessask.dialog.LoadingDialog;
 import com.lessask.model.Utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -65,7 +68,7 @@ public class MultipartEntity {
         URL url = new URL(this.url);
         con = (HttpURLConnection) url.openConnection();
         con.setConnectTimeout(10000);
-        con.setReadTimeout(1000);
+        con.setReadTimeout(10000);
         // 发送POST请求必须设置如下两行
         con.setDoInput(true);
         con.setDoOutput(true);
@@ -213,5 +216,14 @@ public class MultipartEntity {
             builder.append(line);
         }
         return new PostResponse(resCode, builder.toString());
+    }
+
+    public void close() {
+        try {
+            netOutput.close();
+            con.disconnect();
+        }catch (IOException e){
+            Log.e(TAG, "close error, "+e.toString());
+        }
     }
 }

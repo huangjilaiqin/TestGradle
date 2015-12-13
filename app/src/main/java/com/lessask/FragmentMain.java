@@ -36,8 +36,6 @@ import me.iwf.photopicker.utils.PhotoPickerIntent;
 public class FragmentMain extends Fragment implements ViewPager.OnPageChangeListener,View.OnClickListener {
 
     private LayoutInflater layoutInflater;
-    private final int GETPICTURE_REQUEST = 100;
-    private final int CREATE_SHOW = 102;
     private static final String TAG = FragmentMain.class.getName();
     private View rootView;
 
@@ -50,6 +48,9 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     private FloatingActionButton mCreate;
 
     private final int CAHNGE_FAB_COLOR = 1;
+    private FragmentShow fragmentShow;
+    private FragmentSports fragmentSports;
+    private FragmentChat fragmentChat;
 
     private Handler handler = new Handler() {
         @Override
@@ -127,12 +128,12 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     }
 
     private void initPager() {
-        FragmentShow fgShow = new FragmentShow();
-        list.add(fgShow);
-        FragmentSports fgSports = new FragmentSports();
-        list.add(fgSports);
-        FragmentChat fgFriends = new FragmentChat();
-        list.add(fgFriends);
+        fragmentShow = new FragmentShow();
+        list.add(fragmentShow);
+        fragmentSports = new FragmentSports();
+        list.add(fragmentSports);
+        fragmentChat = new FragmentChat();
+        list.add(fragmentChat);
         mViewPager.setAdapter(new MyAdapter(getChildFragmentManager(), list));
         /*
         * to do 长时间后台后点进去这里会报nullpoin, onCreateView->initPager
@@ -150,7 +151,7 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
                 intent.setPhotoCount(4);
                 intent.setShowCamera(true);
                 intent.setShowGif(true);
-                startActivityForResult(intent, GETPICTURE_REQUEST);
+                startActivityForResult(intent, MainActivity.GETPICTURE_REQUEST);
                 break;
         }
     }
@@ -158,15 +159,19 @@ public class FragmentMain extends Fragment implements ViewPager.OnPageChangeList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
         if(resultCode == Activity.RESULT_OK){
             switch (requestCode){
-                case GETPICTURE_REQUEST:
+                case MainActivity.GETPICTURE_REQUEST:
                     ArrayList<String> images = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
                     Log.e(TAG, "onActivityResult" + images);
                     Toast.makeText(getContext(), "fragmentMain onActivityResult", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getActivity(), CreateShowActivity.class);
                     intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
-                    startActivityForResult(intent, CREATE_SHOW);
+                    startActivityForResult(intent, MainActivity.CREATE_SHOW);
+                    break;
+                case MainActivity.CREATE_SHOW:
+                    fragmentShow.onActivityResult(requestCode, resultCode, data);
                     break;
             }
         }

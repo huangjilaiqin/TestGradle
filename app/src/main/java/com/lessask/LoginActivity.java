@@ -98,7 +98,7 @@ public class LoginActivity extends Activity {
                     userid =loginResponse.getUserid();
                     globalInfos.setUserid(userid);
                     //to do 服务器端返回 昵称,客户端发生 状态(在线)
-                    globalInfos.setUser(userid, new User(userid, loginResponse.getMail(), loginResponse.getNickname(), loginResponse.getStatus(), loginResponse.getPasswd()));
+                    globalInfos.setUser(userid, new User(userid, loginResponse.getMail(), loginResponse.getNickname(), loginResponse.getStatus(), loginResponse.getPasswd(), loginResponse.getHeadimg()));
                     handler.sendEmptyMessage(HANDLER_LOGING_SUCCESS);
                 }
             }

@@ -1,6 +1,7 @@
 package com.lessask.show;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -9,10 +10,20 @@ import java.util.Date;
 public class CreateShowResponse {
     int showid;
     String time;
+    ArrayList<String> pictures;
 
-    public CreateShowResponse(int showid, String time) {
+    public CreateShowResponse(int showid, String time, ArrayList<String> pictures) {
         this.showid = showid;
         this.time = time;
+        this.pictures = pictures;
+    }
+
+    public ArrayList<String> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(ArrayList<String> pictures) {
+        this.pictures = pictures;
     }
 
     public int getShowid() {

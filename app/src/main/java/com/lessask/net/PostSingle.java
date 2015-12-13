@@ -29,15 +29,16 @@ public class PostSingle extends Thread{
         HashMap<String, String> headers = postSingleEvent.getHeaders();
         HashMap<String, String> files = postSingleEvent.getFiles();
         HashMap<String, String> images = postSingleEvent.getImages();
+        MultipartEntity multipartEntity = null;
         try {
-            MultipartEntity multipartEntity = new MultipartEntity(host);
+            multipartEntity = new MultipartEntity(host);
             if(headers!=null){
                 Iterator iterator = headers.entrySet().iterator();
                 while (iterator.hasNext()){
                     Map.Entry entry = (Map.Entry)iterator.next();
                     String name = (String) entry.getKey();
                     String value = (String) entry.getValue();
-                    //Log.e(TAG, "headers: "+name+", "+value);
+                    Log.e(TAG, "headers: "+name+", "+value);
                     multipartEntity.addStringPart(name, value);
                 }
             }
@@ -57,7 +58,7 @@ public class PostSingle extends Thread{
                     Map.Entry entry = (Map.Entry)iterator.next();
                     String name = (String) entry.getKey();
                     String value = (String) entry.getValue();
-                    //Log.e(TAG, "images: "+name+", "+value);
+                    Log.e(TAG, "images: "+name+", "+value);
                     multipartEntity.addOptimizeImagePart(name, new File(value));
                 }
             }
@@ -73,6 +74,8 @@ public class PostSingle extends Thread{
                 }
                 postSingleEvent.onDone(postResponse);
             }
+            if(multipartEntity!=null)
+                multipartEntity.close();
         }
     }
 }

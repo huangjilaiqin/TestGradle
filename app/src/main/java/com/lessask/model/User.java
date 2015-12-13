@@ -13,7 +13,7 @@ public class User {
     private String nickname;
     private int status;
     private String passwd;
-    private File headImg;
+    private String headImg;
 
     public User(int userid, String mail, String nickname, int status, String passwd) {
         this.userid = userid;
@@ -23,7 +23,7 @@ public class User {
         this.passwd = passwd;
         this.headImg = null;
     }
-    public User(int userid, String mail, String nickname, int status, String passwd, File headImg) {
+    public User(int userid, String mail, String nickname, int status, String passwd, String headImg) {
         this.userid = userid;
         this.mail = mail;
         this.nickname = nickname;
@@ -45,11 +45,11 @@ public class User {
         this.passwd = passwd;
     }
 
-    public File getHeadImg() {
+    public String getHeadImg() {
         return headImg;
     }
 
-    public void setHeadImg(File headImg) {
+    public void setHeadImg(String headImg) {
         this.headImg = headImg;
     }
 

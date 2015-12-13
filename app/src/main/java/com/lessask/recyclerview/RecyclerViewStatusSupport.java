@@ -16,9 +16,13 @@ public class RecyclerViewStatusSupport extends RecyclerView{
     private View emptyView;
     private View loadingView;
     private View errorView;
+    private OnErrorListener onErrorListener;
 
     public RecyclerViewStatusSupport(Context context) {
         super(context);
+    }
+    public void setOnErrorListener (OnErrorListener onErrorListener ) {
+        this.onErrorListener = onErrorListener;
     }
 
     public RecyclerViewStatusSupport(Context context, @Nullable AttributeSet attrs) {
@@ -47,7 +51,19 @@ public class RecyclerViewStatusSupport extends RecyclerView{
     public void showErrorView(){
         if(errorView!=null){
             loadingView.setVisibility(INVISIBLE);
+            RecyclerViewStatusSupport.this.setVisibility(INVISIBLE);
             errorView.setVisibility(VISIBLE);
+            if(onErrorListener!=null){
+                onErrorListener.setErrorText(errorView);
+            }
+        }
+    }
+
+    public void showLoadingView(){
+        if(loadingView!=null){
+            errorView.setVisibility(INVISIBLE);
+            RecyclerViewStatusSupport.this.setVisibility(INVISIBLE);
+            loadingView.setVisibility(VISIBLE);
         }
     }
 
@@ -69,9 +85,11 @@ public class RecyclerViewStatusSupport extends RecyclerView{
                 Log.e(TAG, "onChanged count:"+adapter.getItemCount());
                 if(adapter.getItemCount()==0){
                     RecyclerViewStatusSupport.this.setVisibility(INVISIBLE);
+                    errorView.setVisibility(INVISIBLE);
                     emptyView.setVisibility(VISIBLE);
                 }else {
                     emptyView.setVisibility(INVISIBLE);
+                    errorView.setVisibility(INVISIBLE);
                     RecyclerViewStatusSupport.this.setVisibility(VISIBLE);
                 }
             }
@@ -91,4 +109,7 @@ public class RecyclerViewStatusSupport extends RecyclerView{
             }
         }
     };
+    public interface OnErrorListener{
+        void setErrorText(View view);
+    }
 }

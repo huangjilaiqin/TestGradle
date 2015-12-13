@@ -130,6 +130,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onStart() {
                 loadingDialog.show();
+                Log.e(TAG, "start create show");
             }
 
             @Override
@@ -138,6 +139,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 CreateShowResponse createShowResponse = (CreateShowResponse)response;
                 int showId = createShowResponse.getShowid();
                 String time = createShowResponse.getTime();
+                ArrayList<String> pictures = createShowResponse.getPictures();
                 Toast.makeText(CreateShowActivity.this, "create success", Toast.LENGTH_SHORT).show();
                 //跳转到动态
 
@@ -145,13 +147,13 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 showItem.setId(showId);
                 showItem.setAddress("深圳 南山");
                 showItem.setContent(mtvContent.getText().toString().trim());
-                showItem.setHeadimg(globalInfos.getUser().getHeadImg().getAbsolutePath());
-                showItem.setPictures(photos);
+                showItem.setHeadimg(globalInfos.getUser().getHeadImg());
+                showItem.setPictures(pictures);
                 showItem.setTime(time);
-                Intent intent = new Intent();
-                intent.putExtra("showItem", showItem);
-                Log.e(TAG, "create show success:"+mIntent.getIntExtra("forResultCode", -1));
-                setResult(mIntent.getIntExtra("forResultCode", -1), intent);
+                mIntent.putExtra("showItem", showItem);
+                Log.e(TAG, "create show success:" + mIntent.getIntExtra("forResultCode", -1));
+                //setResult(mIntent.getIntExtra("forResultCode", -1), intent);
+                setResult(Activity.RESULT_OK, mIntent);
                 finish();
             }
 
@@ -265,7 +267,8 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        //super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
         if (resultCode == Activity.RESULT_OK) {
             Log.e(TAG, "requestCode:"+requestCode);
             switch (requestCode) {

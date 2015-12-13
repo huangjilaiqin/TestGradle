@@ -229,7 +229,7 @@ public class Utils {
         if(!file.exists() || !file.isFile()) {
             throw new Resources.NotFoundException();
         }
-        Log.e(TAG, "optimizeBitmap path:"+pathName);
+        //Log.e(TAG, "optimizeBitmap path:"+pathName);
 		Bitmap result = null;
 		try {
             // 图片配置对象，该对象可以配置图片加载的像素获取个数
@@ -255,7 +255,7 @@ public class Utils {
             long asize = file.length();
             long bsize =result.getByteCount();
             float rate = (asize-bsize)/asize;
-            Log.e(TAG, "file size:"+asize+", after compress:"+bsize+", rate:"+options.inSampleSize+", real rate:"+rate);
+            //Log.e(TAG, "file size:"+asize+", after compress:"+bsize+", rate:"+options.inSampleSize+", real rate:"+rate);
 
         } catch (Exception e) {
             Log.e(TAG, e.toString());
@@ -287,13 +287,13 @@ public class Utils {
         }
         if(thumbnailBitmap==null){
             //不存在缩略图,自己进行压缩
-            Log.e(TAG, "originFile:"+originFile.getAbsolutePath());
+            //Log.e(TAG, "originFile:"+originFile.getAbsolutePath());
             thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), width, height);
         }
         long oSize = originFile.length()/1024;
         int aSize = thumbnailBitmap.getByteCount()/1024;
         float rate = 1f*(oSize-aSize)/oSize;
-        Log.e(TAG, "getThumbnail:"+oSize+", compressSize:"+aSize+", rate:"+rate);
+        //Log.e(TAG, "getThumbnail:"+oSize+", compressSize:"+aSize+", rate:"+rate);
         cursor.close();
         return thumbnailBitmap;
     }

@@ -137,6 +137,8 @@ public class ShowItem implements Parcelable {
         setLikeStatus(0);
     }
     public void like(int userid){
+        if(liker==null)
+            liker = new ArrayList<>();
         liker.add(new Integer(userid));
         setLikeStatus(1);
     }
@@ -164,6 +166,7 @@ public class ShowItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
+        parcel.writeInt(userid);
         parcel.writeString(nickname);
         parcel.writeString(headimg);
         parcel.writeString(time);
@@ -176,4 +179,27 @@ public class ShowItem implements Parcelable {
         parcel.writeInt(likeStatus);
         parcel.writeList(comments);
     }
+    public static final Parcelable.Creator<ShowItem> CREATOR
+             = new Parcelable.Creator<ShowItem>() {
+         public ShowItem createFromParcel(Parcel in) {
+             int id = in.readInt();
+             int userid = in.readInt();
+             String nickname = in.readString();
+             String headimg = in.readString();
+             String time = in.readString();
+             String adress = in.readString();
+             String content = in.readString();
+             ArrayList<String> pictures = in.readArrayList(null);
+             int permission = in.readInt();
+             String ats = in.readString();
+             ArrayList<Integer> liker = in.readArrayList(null);
+             int likeStatus = in.readInt();
+             ArrayList<CommentItem> comments = in.readArrayList(null);
+             return new ShowItem(id,userid,nickname,headimg,time,adress,content,pictures,permission,ats,liker,likeStatus,comments);
+         }
+
+         public ShowItem[] newArray(int size) {
+             return new ShowItem[size];
+         }
+    };
 }

@@ -84,8 +84,16 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         holder.tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showItem.getTime())));
         holder.tvAddress.setText(showItem.getAddress());
         holder.tvContent.setText(showItem.getContent());
-        holder.tvUpSize.setText("" + showItem.getLiker().size());
-        holder.tvCommentSize.setText("" + showItem.getComments().size());
+        int likeSize = 0;
+        if(showItem.getLiker()!=null){
+            likeSize = showItem.getLiker().size();
+        }
+        holder.tvUpSize.setText("" + likeSize);
+        int commentSize = 0;
+        if(showItem.getComments()!=null){
+            commentSize = showItem.getComments().size();
+        }
+        holder.tvCommentSize.setText("" + commentSize);
 
         //点赞
         if(showItem.getLikeStatus()==1){
@@ -93,7 +101,6 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         }else {
             holder.ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
         }
-        holder.tvUpSize.setText(""+showItem.getLiker().size());
         holder.ivUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

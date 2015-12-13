@@ -1,5 +1,6 @@
 package com.lessask;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -75,8 +76,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int EDIT_ACTION = 1;
     public static final int CREATE_ACTION = 2;
     public static final int RECORD_ACTION = 3;
+    public static final int CREATE_SHOW = 4;
+    public static final int GETPICTURE_REQUEST = 5;
+
 
     private FragmentAction fragmentAction;
+    private FragmentMain fragmentMain;
 
 
     @Override
@@ -98,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         globalInfos.setScreenHeight(height);
 
         fragments = new ArrayList<>();
-        FragmentMain fragmentMain = new FragmentMain();
+        fragmentMain = new FragmentMain();
         iconPageIndicator = (IconPageIndicator)findViewById(R.id.main_indicator);
         fragmentMain.setIconPageIndicator(iconPageIndicator);
         fragments.add(fragmentMain);
@@ -168,11 +173,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //父类处理fragment的startActivityForresult
         super.onActivityResult(requestCode, resultCode, data);
         Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
-        if(data==null){
-            Log.e(TAG, "intent is null");
-        }
         if(resultCode==RESULT_OK) {
             switch (requestCode) {
                 case EDIT_ACTION:
@@ -187,6 +190,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     intent.putExtra("imagePath", data.getStringExtra("imagePath"));
                     startActivityForResult(intent, CREATE_ACTION);
                     Log.e(TAG, "RECORD_ACTION back");
+                    break;
+                default:
+                    Log.e(TAG, "not match requestCode:"+requestCode);
                     break;
             }
         }
