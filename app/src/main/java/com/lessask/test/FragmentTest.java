@@ -22,6 +22,7 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView.findViewById(R.id.item_touch_helper).setOnClickListener(this);
             rootView.findViewById(R.id.storage).setOnClickListener(this);
             rootView.findViewById(R.id.volley).setOnClickListener(this);
+            rootView.findViewById(R.id.view_group).setOnClickListener(this);
         }
         return rootView;
     }
@@ -44,6 +45,10 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 break;
             case R.id.volley:
                 intent = new Intent(getActivity(), TestVolleyActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.view_group:
+                intent = new Intent(getActivity(), TestViewGroupActivity.class);
                 startActivity(intent);
                 break;
 

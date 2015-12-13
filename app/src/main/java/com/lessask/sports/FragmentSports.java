@@ -1,6 +1,7 @@
 package com.lessask.sports;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,6 +28,7 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
     private Button mVideo;
     private Button mLesson;
     private Button mTest;
+    private MyButton myButton;
     private final String TAG = FragmentSports.class.getName();
 
     @Nullable
@@ -45,6 +47,9 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
             mLesson.setOnClickListener(this);
             mTest = (Button)view.findViewById(R.id.test);
             mTest.setOnClickListener(this);
+            myButton = (MyButton)view.findViewById(R.id.mybutton);
+            myButton.setOnClickListener(this);
+            myButton.setStatusView(mTest, myButton);
         }
         return view;
     }
@@ -71,10 +76,13 @@ public class FragmentSports extends Fragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.test:
-                intent = new Intent(getActivity(), SwipeRefreshAndLoadMoreActivity.class);
-                startActivity(intent);
+                myButton.change();
                 break;
-
+            case R.id.mybutton:
+                myButton.change1();
+                break;
         }
     }
+
+
 }
