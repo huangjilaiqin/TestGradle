@@ -96,7 +96,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mRecyclerViewAdapter.setHasFooter(false);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
-
             mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override

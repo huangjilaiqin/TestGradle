@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lessask.R;
+
 /**
  * Created by JHuang on 2015/12/5.
  */
@@ -41,7 +43,7 @@ public class RecyclerViewStatusSupport extends RecyclerView{
 
     public void setLoadingView(View loadingView) {
         this.loadingView = loadingView;
-        this.loadingView.setVisibility(VISIBLE);
+        this.loadingView.setVisibility(INVISIBLE);
     }
 
     public void setErrorView(View errorView) {
@@ -58,8 +60,8 @@ public class RecyclerViewStatusSupport extends RecyclerView{
 
     public void showErrorView(){
         if(errorView!=null){
-            loadingView.setVisibility(GONE);
-            RecyclerViewStatusSupport.this.setVisibility(GONE);
+            loadingView.setVisibility(INVISIBLE);
+            RecyclerViewStatusSupport.this.setVisibility(INVISIBLE);
             errorView.setVisibility(VISIBLE);
             if(onErrorListener!=null){
                 onErrorListener.setErrorText(errorView);

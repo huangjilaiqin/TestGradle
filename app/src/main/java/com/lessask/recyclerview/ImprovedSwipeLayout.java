@@ -54,5 +54,4 @@ public class ImprovedSwipeLayout extends SwipeRefreshLayout {
             mScrollableChild = findViewById(mScrollableChildId);
         }
     }
-
 }
