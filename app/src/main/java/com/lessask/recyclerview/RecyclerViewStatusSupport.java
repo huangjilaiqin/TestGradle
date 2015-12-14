@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Created by JHuang on 2015/12/5.
@@ -48,10 +49,17 @@ public class RecyclerViewStatusSupport extends RecyclerView{
         this.errorView.setVisibility(INVISIBLE);
     }
 
+    public void setStatusViews(View loadingView, View emptyView, View errorView){
+        this.loadingView = loadingView;
+        this.emptyView = emptyView;
+        this.errorView = errorView;
+        showLoadingView();
+    }
+
     public void showErrorView(){
         if(errorView!=null){
-            loadingView.setVisibility(INVISIBLE);
-            RecyclerViewStatusSupport.this.setVisibility(INVISIBLE);
+            loadingView.setVisibility(GONE);
+            RecyclerViewStatusSupport.this.setVisibility(GONE);
             errorView.setVisibility(VISIBLE);
             if(onErrorListener!=null){
                 onErrorListener.setErrorText(errorView);

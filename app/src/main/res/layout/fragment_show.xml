@@ -1,44 +1,68 @@
-<android.support.v4.widget.SwipeRefreshLayout
+<com.lessask.recyclerview.ImprovedSwipeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:isl="http://schemas.android.com/apk/res-auto"
     android:id="@+id/swiperefresh"
     android:layout_width="match_parent"
-    android:layout_height="400dp">
-
-        <TextView
-            android:id="@+id/empty_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="empty"
-            />
-        <TextView
-            android:id="@+id/loading_view"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:text="loading"
-            />
+    android:layout_height="match_parent"
+    isl:scrollableChildId="@+id/show_list"
+    >
         <RelativeLayout
-            android:id="@+id/error_view"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="@color/main_color"
-            >
-            <TextView
-                android:id="@+id/error_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="error"
+            android:layout_height="match_parent">
+            <com.lessask.recyclerview.RecyclerViewStatusSupport
+                android:id="@+id/show_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#f6f6f6"
+                android:focusable="false"
+                android:scrollbars="none"
+                android:gravity="center"
                 />
+            <RelativeLayout
+                android:id="@+id/empty_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+                <TextView
+                    android:id="@+id/empty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="数据为空, 下拉刷新"
+                    />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/loading_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+                <TextView
+                    android:id="@+id/loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="loading"
+                    />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/error_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+                <TextView
+                    android:id="@+id/error_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="error"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/error_text"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="8dp"
+                    android:text="下拉重新请求"
+                    />
+            </RelativeLayout>
         </RelativeLayout>
-        <com.lessask.recyclerview.RecyclerViewInSwipeRefreshStatusSupport
-            android:id="@+id/show_list"
-            android:layout_width="100dp"
-            android:layout_height="200dp"
-            android:background="#f6f6f6"
-            android:focusable="false"
-            android:scrollbars="none"
-            android:gravity="center"
-            />
-
-
-</android.support.v4.widget.SwipeRefreshLayout>
+</com.lessask.recyclerview.ImprovedSwipeLayout>

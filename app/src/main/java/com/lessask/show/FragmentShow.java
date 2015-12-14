@@ -30,6 +30,7 @@ import com.lessask.model.GetShowResponse;
 import com.lessask.model.ShowItem;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.recyclerview.ImprovedSwipeLayout;
 import com.lessask.recyclerview.RecyclerViewInSwipeRefreshStatusSupport;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
@@ -48,8 +49,10 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
     private ShowListAdapter mRecyclerViewAdapter;
-    private RecyclerViewInSwipeRefreshStatusSupport mRecyclerView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    //private RecyclerViewInSwipeRefreshStatusSupport mRecyclerView;
+    private RecyclerViewStatusSupport mRecyclerView;
+    //private SwipeRefreshLayout mSwipeRefreshLayout;
+    private ImprovedSwipeLayout mSwipeRefreshLayout;
     private LinearLayoutManager mLinearLayoutManager;
     private int newShowId;
     private int oldShowId;
@@ -70,8 +73,9 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_show, null);
-            mRecyclerView = (RecyclerViewInSwipeRefreshStatusSupport) mRootView.findViewById(R.id.show_list);
-            mRecyclerView.setOnErrorListener(new RecyclerViewInSwipeRefreshStatusSupport.OnErrorListener() {
+            //mRecyclerView = (RecyclerViewInSwipeRefreshStatusSupport) mRootView.findViewById(R.id.show_list);
+            mRecyclerView = (RecyclerViewStatusSupport) mRootView.findViewById(R.id.show_list);
+            mRecyclerView.setOnErrorListener(new RecyclerViewStatusSupport.OnErrorListener() {
                 @Override
                 public void setErrorText(View view) {
                     TextView errorText = (TextView) view.findViewById(R.id.error_text);
@@ -79,17 +83,13 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     Log.e(TAG, "showError:" + getShowsError);
                 }
             });
-            TextView em = (TextView)mRootView.findViewById(R.id.empty_view);
-            ViewGroup.LayoutParams layoutParams = em.getLayoutParams();
-            Log.e(TAG, "em h"+layoutParams.height+", w"+layoutParams.width);
             mRecyclerView.setStatusViews(mRootView.findViewById(R.id.loading_view), mRootView.findViewById(R.id.empty_view), mRootView.findViewById(R.id.error_view));
             //用线性的方式显示listview
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
-            mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
-            ViewGroup.LayoutParams ml = mSwipeRefreshLayout.getLayoutParams();
-            Log.e(TAG, "ml h"+ml.height+", w"+ml.width);
+            //mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
+            mSwipeRefreshLayout = (ImprovedSwipeLayout) mRootView.findViewById(R.id.swiperefresh);
 
             mRecyclerViewAdapter = new ShowListAdapter(getActivity());
             mRecyclerViewAdapter.setHasMoreData(true);
