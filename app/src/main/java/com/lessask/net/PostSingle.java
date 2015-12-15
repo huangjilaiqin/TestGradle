@@ -26,9 +26,9 @@ public class PostSingle extends Thread{
     @Override
     public void run() {
         postSingleEvent.onStart();
-        HashMap<String, String> headers = postSingleEvent.getHeaders();
-        HashMap<String, String> files = postSingleEvent.getFiles();
-        HashMap<String, String> images = postSingleEvent.getImages();
+        Map<String, String> headers = postSingleEvent.getHeaders();
+        Map<String, String> files = postSingleEvent.getFiles();
+        Map<String, String> images = postSingleEvent.getImages();
         MultipartEntity multipartEntity = null;
         try {
             multipartEntity = new MultipartEntity(host);

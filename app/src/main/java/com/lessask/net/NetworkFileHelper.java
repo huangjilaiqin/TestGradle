@@ -82,9 +82,9 @@ public class NetworkFileHelper {
         void onStart();
         void onResponse(Object response);
         void onError(String error);
-        HashMap<String, String> getHeaders();
-        HashMap<String, String> getFiles();
-        HashMap<String, String> getImages();
+        Map<String, String> getHeaders();
+        Map<String, String> getFiles();
+        Map<String, String> getImages();
     }
     public interface GetFileRequest{
         void onStart();
@@ -127,17 +127,17 @@ public class NetworkFileHelper {
             }
 
             @Override
-            public HashMap<String, String> getFiles() {
+            public Map<String, String> getFiles() {
                 return postFile.getFiles();
             }
 
             @Override
-            public HashMap<String, String> getHeaders() {
+            public Map<String, String> getHeaders() {
                 return postFile.getHeaders();
             }
 
             @Override
-            public HashMap<String, String> getImages() {
+            public Map<String, String> getImages() {
                 return postFile.getImages();
             }
         };

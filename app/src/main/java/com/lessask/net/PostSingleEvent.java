@@ -10,7 +10,7 @@ public interface PostSingleEvent {
     void onStart();
     void onDone(PostResponse response);
     void onError(String err);
-    HashMap<String, String> getHeaders();
-    HashMap<String, String> getFiles();
-    HashMap<String, String> getImages();
+    Map<String, String> getHeaders();
+    Map<String, String> getFiles();
+    Map<String, String> getImages();
 }

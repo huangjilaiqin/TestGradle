@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -32,12 +33,15 @@ import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
+import com.lessask.net.HttpHelper;
 import com.lessask.net.NetActivity;
+import com.lessask.net.NetworkFileHelper;
 import com.lessask.tag.SelectTagsActivity;
 import com.yqritc.scalablevideoview.ScalableVideoView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,7 +51,7 @@ import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
 
 
-public class CreateActionActivity extends NetActivity implements OnClickListener{
+public class CreateActionActivity extends AppCompatActivity implements OnClickListener{
 
     private final int SELECT_TAGS = 1;
     private final String TAG = CreateActionActivity.class.getSimpleName();
@@ -223,7 +227,57 @@ public class CreateActionActivity extends NetActivity implements OnClickListener
                 showEditNoticeDialog();
                 break;
             case R.id.upload:
-                startPost(config.getAddVedioUrl(), ADD_ACTION, HandleActionResponse.class);
+                //startPost(config.getAddVedioUrl(), ADD_ACTION, HandleActionResponse.class);
+                NetworkFileHelper.getInstance().startPost(config.getAddVedioUrl(), HandleActionResponse.class, new NetworkFileHelper.PostFileRequest() {
+                    @Override
+                    public void onStart() {
+                        loadingDialog = new LoadingDialog(CreateActionActivity.this);
+                        loadingDialog.show();
+                    }
+
+                    @Override
+                    public void onResponse(Object response) {
+                        loadingDialog.cancel();
+                        HandleActionResponse handleActionResponse = (HandleActionResponse)response;
+                        int videoId = handleActionResponse.getVideoId();
+                        String videoName = handleActionResponse.getVideoName();
+                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
+                        mIntent.putExtra("actionItem", actionItem);
+                        //CreateActionActivity.this.setResult(MainActivity.CREATE_ACTION, mIntent);
+                        CreateActionActivity.this.setResult(RESULT_OK, mIntent);
+                        Log.e(TAG, "upload success");
+                        finish();
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        loadingDialog.cancel();
+                        Log.e(TAG, "upload failed");
+                        finish();
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String,String> headers = new HashMap<String, String>();
+                        headers.put("userid", globalInfos.getUserid()+"");
+                        headers.put("name", mName.getText().toString().trim());
+                        headers.put("tags", getTagsString());
+                        headers.put("notice", getNoticeString());
+                        return headers;
+                    }
+
+                    @Override
+                    public Map<String, String> getFiles() {
+                        Map<String,String> files = new HashMap<String, String>();
+                        files.put("videofile", path);
+                        return files;
+                    }
+
+                    @Override
+                    public Map<String, String> getImages() {
+                        return null;
+                    }
+                });
                 break;
             default:
                 break;
@@ -360,43 +414,5 @@ public class CreateActionActivity extends NetActivity implements OnClickListener
             }
         }
         return bitmap;
-    }
-
-    @Override
-    public void onStart(int requestCode) {
-        loadingDialog = new LoadingDialog(CreateActionActivity.this);
-        loadingDialog.show();
-
-    }
-
-    @Override
-    public void onDone(int requestCode, Object response) {
-        loadingDialog.cancel();
-        HandleActionResponse handleActionResponse = (HandleActionResponse)response;
-        int videoId = handleActionResponse.getVideoId();
-        String videoName = handleActionResponse.getVideoName();
-        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
-        mIntent.putExtra("actionItem", actionItem);
-        //CreateActionActivity.this.setResult(MainActivity.CREATE_ACTION, mIntent);
-        CreateActionActivity.this.setResult(RESULT_OK, mIntent);
-        Log.e(TAG, "upload success");
-        finish();
-    }
-
-    @Override
-    public void onError(int requestCode, String error) {
-        loadingDialog.cancel();
-        Log.e(TAG, "upload failed");
-        finish();
-    }
-
-    @Override
-    public void postData(int requestCode, Map headers, Map files) {
-        headers.put("userid", globalInfos.getUserid()+"");
-        headers.put("name", mName.getText().toString().trim());
-        headers.put("tags", getTagsString());
-        headers.put("notice", getNoticeString());
-
-        files.put("videofile", path);
     }
 }
