@@ -14,7 +14,7 @@ import java.util.Objects;
  * Created by JHuang on 2015/12/9.
  */
 public class NetworkFileHelper {
-    private final String TAG = NetActivity.class.getSimpleName();
+    private final String TAG = NetworkFileHelper.class.getSimpleName();
     private final int REQUEST_START=1;
     private final int REQUEST_DONE=2;
     private final int REQUEST_ERROR=3;
@@ -146,6 +146,7 @@ public class NetworkFileHelper {
     }
 
     public void startGetFile(final String url, final String path, GetFileRequest getFileRequest){
+        //加入文件请求队列
         final int tag = getFileRequests.size();
         getFileRequests.put(tag, getFileRequest);
         new Thread(new Runnable() {
@@ -156,14 +157,11 @@ public class NetworkFileHelper {
                 msg.arg2 = tag;
                 msg.what = REQUEST_START;
                 handler.sendMessage(msg);
-                Log.e(TAG, "download file start");
 
                 if(HttpHelper.httpDownload(url, path)) {
-                    Log.e(TAG, "download success");
                     msg.what = REQUEST_DONE;
                     handler.sendMessage(msg);
                 }else {
-                    Log.e(TAG, "download failed");
                     msg.what = REQUEST_ERROR;
                     handler.sendMessage(msg);
                 }

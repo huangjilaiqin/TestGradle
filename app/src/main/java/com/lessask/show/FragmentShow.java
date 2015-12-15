@@ -65,7 +65,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private final int GETPICTURE_REQUEST = 100;
 
     private boolean loadBackward = false;
-    private String getShowsError = "";
 
 
     @Nullable
@@ -75,14 +74,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mRootView = inflater.inflate(R.layout.fragment_show, null);
             //mRecyclerView = (RecyclerViewInSwipeRefreshStatusSupport) mRootView.findViewById(R.id.show_list);
             mRecyclerView = (RecyclerViewStatusSupport) mRootView.findViewById(R.id.show_list);
-            mRecyclerView.setOnErrorListener(new RecyclerViewStatusSupport.OnErrorListener() {
-                @Override
-                public void setErrorText(View view) {
-                    TextView errorText = (TextView) view.findViewById(R.id.error_text);
-                    errorText.setText(getShowsError);
-                    Log.e(TAG, "showError:" + getShowsError);
-                }
-            });
             mRecyclerView.setStatusViews(mRootView.findViewById(R.id.loading_view), mRootView.findViewById(R.id.empty_view), mRootView.findViewById(R.id.error_view));
             //用线性的方式显示listview
             mLinearLayoutManager = new LinearLayoutManager(getContext());
@@ -242,9 +233,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                 @Override
                 public void onError(VolleyError error) {
-                    Log.e(TAG, "init onError");
-                    getShowsError = error.toString();
-                    mRecyclerView.showErrorView();
+                    mRecyclerView.showErrorView(error.toString());
                 }
 
                 @Override
@@ -272,6 +261,17 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
         Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
         if (resultCode == Activity.RESULT_OK){
             switch (requestCode){
+                case MainActivity.CREATE_SHOW:
+                    Log.e(TAG, "发布状态成功");
+                    Toast.makeText(getContext(), "发布状态成功", Toast.LENGTH_SHORT).show();
+                    ShowItem showItem = data.getParcelableExtra("showItem");
+                    for(int i=0;i<showItem.getPictures().size();i++){
+                        Log.e(TAG, showItem.getPictures().get(i));
+                    }
+                    mRecyclerViewAdapter.appendToTop(showItem);
+                    mRecyclerViewAdapter.notifyItemInserted(0);
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    break;
                 /*
                 case GETPICTURE_REQUEST:
                     ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
@@ -324,17 +324,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     startActivityForResult(intent, CREATE_SHOW);
                     break;
                     */
-                case MainActivity.CREATE_SHOW:
-                    Log.e(TAG, "发布状态成功");
-                    Toast.makeText(getContext(), "发布状态成功", Toast.LENGTH_SHORT).show();
-                    ShowItem showItem = data.getParcelableExtra("showItem");
-                    for(int i=0;i<showItem.getPictures().size();i++){
-                        Log.e(TAG, showItem.getPictures().get(i));
-                    }
-                    mRecyclerViewAdapter.appendToTop(showItem);
-                    mRecyclerViewAdapter.notifyItemInserted(0);
-                    mRecyclerViewAdapter.notifyDataSetChanged();
-                    break;
+
             }
         }
     }

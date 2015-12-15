@@ -34,7 +34,6 @@ import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
-import com.lessask.net.NetActivity;
 import com.lessask.net.NetworkFileHelper;
 import com.lessask.tag.SelectTagsActivity;
 import com.lessask.video.RecordVideoActivity;
@@ -44,7 +43,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -79,8 +77,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private final int SELECT_TAGS = 1;
     private final int RECORD_ACTION = 2;
 
-    private int REQUEST_VIDEO = 1;
-    private int UPDATE_ACTION = 1;
     private LoadingDialog loadingDialog;
     private Intent mIntent;
 
@@ -102,6 +98,8 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         itemPosition = mIntent.getIntExtra("position", -1);
         oldActionItem = mIntent.getParcelableExtra("actionItem");
         oldVideoName = oldActionItem.getVideo();
+
+        loadingDialog = new LoadingDialog(EditActionActivity.this);
 
         setContentView(R.layout.activity_edit_action);
 
@@ -166,8 +164,28 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         final String videoUrl = config.getVideoUrl()+oldVideoName;
 
         if(!videoFile.exists()){
-            //startGetFile(videoUrl, REQUEST_VIDEO, videoFile.getAbsolutePath());
-            networkFileHelper.startGetFile(videoUrl, videoFile.getAbsolutePath(), getVideoRequest);
+            NetworkFileHelper.getInstance().startGetFile(videoUrl, videoFile.getAbsolutePath(), new NetworkFileHelper.GetFileRequest() {
+                @Override
+                public void onStart() {
+                    //显示加载中
+                    Log.e(TAG, "download "+videoFile.getAbsolutePath());
+                }
+
+                @Override
+                public void onResponse(Object response) {
+                    play(videoFile.getAbsolutePath());
+                    HandleActionResponse handleActionResponse = (HandleActionResponse)response;
+                    ActionItem actionItem = new ActionItem(oldActionItem.getId(),mName.getText().toString(),handleActionResponse.getVideoName(),tagDatas, noticeDatas);
+                    mIntent.putExtra("actionItem", actionItem);
+                    EditActionActivity.this.setResult(RESULT_OK, mIntent);
+                    finish();
+                }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(EditActionActivity.this, "下载文件错误:"+error, Toast.LENGTH_SHORT).show();
+                }
+            });
         }else {
             play(new File(config.getVideoCachePath(), oldVideoName).getAbsolutePath());
         }
@@ -272,7 +290,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                     videoName = newVideoLocalName;
                 ActionItem newAction = new ActionItem(0, mName.getText().toString().trim(), videoName, tagDatas, noticeDatas);
                 if(checkChange(oldActionItem, newAction)){
-                    //startPost(config.getUpdateActionUrl(), UPDATE_ACTION, HandleActionResponse.class);
                     networkFileHelper.startPost(config.getUpdateActionUrl(), HandleActionResponse.class, updateActionRequest);
                 }else {
                     finish();
@@ -288,13 +305,15 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         int tagSize = tagDatas.size();
         int lastIndex = tagSize-1;
         for(int i=0;i<tagSize;i++){
-            builder.append(actionTagsHolder.getActionTagNameById(tagDatas.get(i)));
+            builder.append(tagDatas.get(i));
             if(i!=lastIndex){
                 builder.append(";");
             }
         }
         return builder.toString();
     }
+
+    // to do 字段越来越长
     private String getNoticeString(){
         StringBuilder builder = new StringBuilder();
         int noticeSize = noticeDatas.size();
@@ -464,7 +483,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private NetworkFileHelper.PostFileRequest updateActionRequest = new NetworkFileHelper.PostFileRequest() {
         @Override
         public void onStart() {
-            loadingDialog = new LoadingDialog(EditActionActivity.this);
             loadingDialog.show();
         }
 
@@ -477,14 +495,17 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
             File oldVideoFile = new File(config.getVideoCachePath(), oldVideoName);
             if (oldVideoFile.exists() && oldVideoFile.isFile()) {
                 oldVideoFile.delete();
-                Log.e(TAG, "delete:" + oldVideoFile.getAbsolutePath());
+                Log.e(TAG, "delete old file:" + oldVideoFile.getAbsolutePath());
             }
 
             //重命名新video文件
             File newVideoFile = new File(config.getVideoCachePath(), newVideoLocalName);
             if (newVideoFile.exists() && newVideoFile.isFile()) {
-                newVideoFile.renameTo(new File(config.getVideoCachePath(), videoName));
-                Log.e(TAG, "rename:" + videoName);
+                Log.e(TAG, config.getVideoCachePath()+", "+videoName);
+                File newFile = new File(config.getVideoCachePath(), videoName);
+                Log.e(TAG, "before rename new file:" + newFile.getAbsolutePath());
+                newVideoFile.renameTo(newFile);
+                Log.e(TAG, "rename new file:" + videoName);
             }
 
             ActionItem actionItem = new ActionItem(videoId, mName.getText().toString(), videoName, tagDatas, noticeDatas);
@@ -499,7 +520,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         @Override
         public void onError(String error) {
             loadingDialog.cancel();
-            Toast.makeText(EditActionActivity.this, "更新动作错误," + error, Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditActionActivity.this, "更新动作错误:" + error, Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -510,8 +531,10 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
             headers.put("name", mName.getText().toString().trim());
             headers.put("tags", getTagsString());
             headers.put("notice", getNoticeString());
-            if(isReRecord)
+            if(isReRecord) {
                 headers.put("oldVideoName", new File(newVideoPath).getName());
+                Log.e(TAG, "update video:"+newVideoPath);
+            }
             return headers;
         }
 
@@ -519,7 +542,8 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         public HashMap<String, String> getFiles() {
             HashMap<String, String> files = new HashMap<>();
             if(isReRecord){
-                files.put("vediofile", path);
+                files.put("videofile", newVideoPath);
+                Log.e(TAG, "post file:"+newVideoPath);
             }
             return files;
         }
@@ -527,22 +551,6 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         @Override
         public HashMap<String, String> getImages() {
             return null;
-        }
-    };
-    private NetworkFileHelper.GetFileRequest getVideoRequest = new NetworkFileHelper.GetFileRequest() {
-        @Override
-        public void onStart() {
-
-        }
-
-        @Override
-        public void onResponse(Object response) {
-
-        }
-
-        @Override
-        public void onError(String error) {
-
         }
     };
 }

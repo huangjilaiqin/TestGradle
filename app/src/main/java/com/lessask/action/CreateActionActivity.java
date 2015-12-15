@@ -1,6 +1,5 @@
 package com.lessask.action;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +32,6 @@ import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
-import com.lessask.net.HttpHelper;
-import com.lessask.net.NetActivity;
 import com.lessask.net.NetworkFileHelper;
 import com.lessask.tag.SelectTagsActivity;
 import com.yqritc.scalablevideoview.ScalableVideoView;
@@ -227,7 +224,6 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                 showEditNoticeDialog();
                 break;
             case R.id.upload:
-                //startPost(config.getAddVedioUrl(), ADD_ACTION, HandleActionResponse.class);
                 NetworkFileHelper.getInstance().startPost(config.getAddVedioUrl(), HandleActionResponse.class, new NetworkFileHelper.PostFileRequest() {
                     @Override
                     public void onStart() {
@@ -243,7 +239,6 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                         String videoName = handleActionResponse.getVideoName();
                         ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
-                        //CreateActionActivity.this.setResult(MainActivity.CREATE_ACTION, mIntent);
                         CreateActionActivity.this.setResult(RESULT_OK, mIntent);
                         Log.e(TAG, "upload success");
                         finish();

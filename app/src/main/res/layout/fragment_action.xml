@@ -11,22 +11,52 @@
         android:scrollbars="none"
         android:gravity="center"
         />
-    <TextView
+    <RelativeLayout
         android:id="@+id/empty_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="empty"
-        />
-    <TextView
+        android:background="@color/background_white_not_transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="empty"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/loading_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="loading"
-        />
-    <TextView
+        android:background="@color/background_white_not_transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="loading"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/error_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="error"
-        />
+        android:background="@color/background_white_not_transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/error_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="error"
+            />
+        <Button
+            android:id="@+id/refresh"
+            android:layout_below="@id/error_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="刷新"
+            />
+    </RelativeLayout>
+
 </RelativeLayout>

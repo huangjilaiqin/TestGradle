@@ -30,6 +30,7 @@ public class PostSingle extends Thread{
         Map<String, String> files = postSingleEvent.getFiles();
         Map<String, String> images = postSingleEvent.getImages();
         MultipartEntity multipartEntity = null;
+        //Log.e(TAG, "postSingle url:"+host);
         try {
             multipartEntity = new MultipartEntity(host);
             if(headers!=null){

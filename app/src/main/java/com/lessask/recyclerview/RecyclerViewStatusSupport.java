@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.lessask.R;
 
@@ -19,6 +20,7 @@ public class RecyclerViewStatusSupport extends RecyclerView{
     private View emptyView;
     private View loadingView;
     private View errorView;
+    private TextView errorTextView;
     private OnErrorListener onErrorListener;
 
     public RecyclerViewStatusSupport(Context context) {
@@ -36,36 +38,20 @@ public class RecyclerViewStatusSupport extends RecyclerView{
         super(context, attrs, defStyle);
     }
 
-    public void setEmptyView(View emptyView) {
-        this.emptyView = emptyView;
-        this.emptyView.setVisibility(INVISIBLE);
-    }
-
-    public void setLoadingView(View loadingView) {
-        this.loadingView = loadingView;
-        this.loadingView.setVisibility(INVISIBLE);
-    }
-
-    public void setErrorView(View errorView) {
-        this.errorView = errorView;
-        this.errorView.setVisibility(INVISIBLE);
-    }
-
     public void setStatusViews(View loadingView, View emptyView, View errorView){
         this.loadingView = loadingView;
         this.emptyView = emptyView;
         this.errorView = errorView;
+        this.errorTextView = (TextView)errorView.findViewById(R.id.error_text);
         showLoadingView();
     }
 
-    public void showErrorView(){
+    public void showErrorView(String error){
         if(errorView!=null){
             loadingView.setVisibility(INVISIBLE);
             RecyclerViewStatusSupport.this.setVisibility(INVISIBLE);
+            errorTextView.setText(error);
             errorView.setVisibility(VISIBLE);
-            if(onErrorListener!=null){
-                onErrorListener.setErrorText(errorView);
-            }
         }
     }
 

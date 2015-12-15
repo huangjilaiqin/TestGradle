@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -50,8 +51,6 @@ public class FragmentAction extends Fragment {
 
     private int deletePostion;
 
-    private final int GET_ACTIONS = 0;
-    private final int DELETE_ACTION = 1;
     private VolleyHelper volleyHelper = VolleyHelper.getInstance();
 
     @Nullable
@@ -60,39 +59,16 @@ public class FragmentAction extends Fragment {
         if(rootView==null) {
             rootView = inflater.inflate(R.layout.fragment_action, null);
 
-            //加载数据
-            //startPost(config.getActioinsUrl(), GET_ACTIONS, GetActionResponse.class);
-            GsonRequest getActionsRequest = new GsonRequest<>(Request.Method.POST, config.getActioinsUrl(), GetActionResponse.class, new GsonRequest.PostGsonRequest<GetActionResponse>() {
+            rootView.findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onStart() {
-
-                }
-
-                @Override
-                public void onResponse(GetActionResponse response) {
-                    ArrayList<ActionItem> actiondatas = response.getActionDatas();
-                    Log.e(TAG, "actiondatas length:" + actiondatas.size());
-                    mRecyclerViewAdapter.appendToList(actiondatas);
-                    //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
-                    mRecyclerViewAdapter.notifyDataSetChanged();
-                }
-
-                @Override
-                public void onError(VolleyError error) {
-
-                }
-
-                @Override
-                public void setPostData(Map datas) {
-                    datas.put("userid", "" + globalInfos.getUserid());
+                public void onClick(View v) {
+                    loadAtions();
                 }
             });
-            volleyHelper.addToRequestQueue(getActionsRequest);
+
 
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.action_list);
-            mRecyclerView.setEmptyView(rootView.findViewById(R.id.empty_view));
-            mRecyclerView.setLoadingView(rootView.findViewById(R.id.loading_view));
-            mRecyclerView.setErrorView(rootView.findViewById(R.id.error_view));
+            mRecyclerView.setStatusViews(rootView.findViewById(R.id.loading_view), rootView.findViewById(R.id.empty_view), rootView.findViewById(R.id.error_view));
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
@@ -126,35 +102,7 @@ public class FragmentAction extends Fragment {
                                     dialog.dismiss();
                                     //网络协议
                                     deletePostion = position;
-                                    GsonRequest deleteActionRequest = new GsonRequest<>(Request.Method.POST, config.getDeleteActionUrl(), HandleActionResponse.class, new GsonRequest.PostGsonRequest<HandleActionResponse>() {
-                                        @Override
-                                        public void onStart() {
-
-                                        }
-
-                                        @Override
-                                        public void onResponse(HandleActionResponse response) {
-                                            mRecyclerViewAdapter.remove(deletePostion);
-                                            mRecyclerViewAdapter.notifyItemRemoved(deletePostion);
-                                            mRecyclerViewAdapter.notifyItemRangeChanged(deletePostion, mRecyclerViewAdapter.getItemCount());
-                                        }
-
-                                        @Override
-                                        public void onError(VolleyError error) {
-
-                                        }
-
-                                        @Override
-                                        public void setPostData(Map datas) {
-                                            ActionItem actionItem = mRecyclerViewAdapter.getItem(deletePostion);
-                                            datas.put("userid", globalInfos.getUserid() + "");
-                                            datas.put("name", actionItem.getVideo());
-                                            datas.put("id", actionItem.getId() + "");
-
-                                        }
-                                    });
-
-                                    volleyHelper.addToRequestQueue(deleteActionRequest);
+                                    deleteAction();
                                 }
                             });
                             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -192,8 +140,71 @@ public class FragmentAction extends Fragment {
                     return false;
                 }
             });
+            //加载数据
+            loadAtions();
         }
         return rootView;
+    }
+
+    private void deleteAction(){
+        GsonRequest deleteActionRequest = new GsonRequest<>(Request.Method.POST, config.getDeleteActionUrl(), HandleActionResponse.class, new GsonRequest.PostGsonRequest<HandleActionResponse>() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onResponse(HandleActionResponse response) {
+                mRecyclerViewAdapter.remove(deletePostion);
+                mRecyclerViewAdapter.notifyItemRemoved(deletePostion);
+                mRecyclerViewAdapter.notifyItemRangeChanged(deletePostion, mRecyclerViewAdapter.getItemCount());
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                ActionItem actionItem = mRecyclerViewAdapter.getItem(deletePostion);
+                datas.put("userid", globalInfos.getUserid() + "");
+                datas.put("name", actionItem.getVideo());
+                datas.put("id", actionItem.getId() + "");
+
+            }
+        });
+
+        volleyHelper.addToRequestQueue(deleteActionRequest);
+    }
+
+    private void loadAtions(){
+        GsonRequest getActionsRequest = new GsonRequest<>(Request.Method.POST, config.getActioinsUrl(), GetActionResponse.class, new GsonRequest.PostGsonRequest<GetActionResponse>() {
+            @Override
+            public void onStart() {
+                mRecyclerView.showLoadingView();
+            }
+
+            @Override
+            public void onResponse(GetActionResponse response) {
+                ArrayList<ActionItem> actiondatas = response.getActionDatas();
+                Log.e(TAG, "actiondatas length:" + actiondatas.size());
+                mRecyclerViewAdapter.appendToList(actiondatas);
+                //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
+                mRecyclerViewAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                mRecyclerView.showErrorView(error.toString());
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userid", "" + globalInfos.getUserid());
+            }
+        });
+        volleyHelper.addToRequestQueue(getActionsRequest);
     }
 
     @Override
