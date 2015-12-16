@@ -169,7 +169,7 @@ public class FragmentAction extends Fragment {
             public void setPostData(Map datas) {
                 ActionItem actionItem = mRecyclerViewAdapter.getItem(deletePostion);
                 datas.put("userid", globalInfos.getUserid() + "");
-                datas.put("name", actionItem.getVideo());
+                datas.put("name", actionItem.getVideoName());
                 datas.put("id", actionItem.getId() + "");
 
             }
@@ -218,7 +218,7 @@ public class FragmentAction extends Fragment {
                     Log.e(TAG, "onActivityResult EDIT_ACTION position:"+position);
                     ActionItem oldOne = mRecyclerViewAdapter.getItem(position);
                     oldOne.setName(actionItem.getName());
-                    oldOne.setVideo(actionItem.getVideo());
+                    oldOne.setVideoName(actionItem.getVideoName());
                     oldOne.setTags(actionItem.getTags());
                     oldOne.setNotices(actionItem.getNotices());
                     mRecyclerViewAdapter.notifyItemChanged(position);
@@ -230,7 +230,7 @@ public class FragmentAction extends Fragment {
                     actionItem = data.getParcelableExtra("actionItem");
                     if (actionItem != null) {
                         mRecyclerViewAdapter.append(actionItem);
-                        mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
+                        mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
                         Log.e(TAG, "create action success notifyItemInserted");
                     }
                     break;

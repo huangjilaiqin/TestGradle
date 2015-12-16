@@ -14,16 +14,14 @@ public class ActionItem implements Parcelable {
     private String TAG = ActionItem.class.getSimpleName();
     private int id;
     private String name;        //动作名字
-    private String video;       //视频文件名字
+    private String videoName;       //视频文件名字
     private ArrayList<Integer> tags;
     private ArrayList<String> notices;
 
-    public ActionItem(){}
-
-    public ActionItem(int id,String name,String video, ArrayList<Integer> tags, ArrayList<String> notices) {
+    public ActionItem(int id,String name,String videoName, ArrayList<Integer> tags, ArrayList<String> notices) {
         this.id = id;
         this.name = name;
-        this.video = video;
+        this.videoName = videoName;
         this.tags = tags;
         this.notices = notices;
     }
@@ -33,7 +31,7 @@ public class ActionItem implements Parcelable {
     public boolean equals(Object o) {
         ActionItem item = (ActionItem)o;
 
-        if(!name.equals(item.getName()) || !video.equals(item.getVideo()) || tags.size()!=item.getTags().size() || notices.size()!=item.getNotices().size())
+        if(!name.equals(item.getName()) || !videoName.equals(item.getVideoName()) || tags.size()!=item.getTags().size() || notices.size()!=item.getNotices().size())
             return false;
         ArrayList<Integer> itemTags = item.getTags();
         for(int i=0;i<tags.size();i++)
@@ -47,12 +45,12 @@ public class ActionItem implements Parcelable {
         return true;
     }
 
-    public String getVideo() {
-        return video;
+    public String getVideoName() {
+        return videoName;
     }
 
-    public void setVideo(String video) {
-        this.video = video;
+    public void setVideoName(String videoName) {
+        this.videoName = videoName;
     }
 
     public int getId() {
@@ -96,7 +94,7 @@ public class ActionItem implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(name);
-        dest.writeString(video);
+        dest.writeString(videoName);
         dest.writeList(tags);
         dest.writeList(notices);
     }
@@ -105,10 +103,10 @@ public class ActionItem implements Parcelable {
          public ActionItem createFromParcel(Parcel in) {
              int id = in.readInt();
              String name = in.readString();
-             String video = in.readString();
+             String videoName = in.readString();
              ArrayList<Integer> tags = in.readArrayList(null);
              ArrayList<String> notices = in.readArrayList(null);
-             return new ActionItem(id,name,video,tags,notices);
+             return new ActionItem(id,name,videoName,tags,notices);
          }
 
          public ActionItem[] newArray(int size) {

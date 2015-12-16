@@ -70,8 +70,15 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayVideoActiviy.class);
-                intent.putExtra("video_path", new File(config.getVideoCachePath(), data.getVideo()).getAbsolutePath());
-                intent.putExtra("video_url", config.getVideoUrl()+data.getVideo());
+                if(data.getVideoName()==null){
+                    Log.e(TAG, "videoFile is null:"+data.getVideoName());
+                    Toast.makeText(context, "file is not exist", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                File videoFile = new File(config.getVideoCachePath(), data.getVideoName());
+
+                intent.putExtra("video_path", videoFile.getAbsolutePath());
+                intent.putExtra("video_url", config.getVideoUrl()+data.getVideoName());
                 context.startActivity(intent);
             }
         });

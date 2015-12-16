@@ -235,9 +235,9 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     public void onResponse(Object response) {
                         loadingDialog.cancel();
                         HandleActionResponse handleActionResponse = (HandleActionResponse)response;
-                        int videoId = handleActionResponse.getVideoId();
+                        int actionId = handleActionResponse.getActionId();
                         String videoName = handleActionResponse.getVideoName();
-                        ActionItem actionItem = new ActionItem(videoId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
+                        ActionItem actionItem = new ActionItem(actionId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
                         CreateActionActivity.this.setResult(RESULT_OK, mIntent);
                         Log.e(TAG, "upload success");
@@ -247,6 +247,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     @Override
                     public void onError(String error) {
                         loadingDialog.cancel();
+                        Toast.makeText(CreateActionActivity.this, "上传失败:"+error, Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "upload failed");
                         finish();
                     }
@@ -254,10 +255,10 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String,String> headers = new HashMap<String, String>();
-                        headers.put("userid", globalInfos.getUserid()+"");
-                        headers.put("name", mName.getText().toString().trim());
-                        headers.put("tags", getTagsString());
-                        headers.put("notice", getNoticeString());
+                        headers.put("userId", globalInfos.getUserid()+"");
+
+                        ActionItem actionItem = new ActionItem(0,mName.getText().toString().trim(),"", tagDatas, noticeDatas);
+                        headers.put("actionItem", gson.toJson(actionItem));
                         return headers;
                     }
 

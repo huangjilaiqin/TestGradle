@@ -6,26 +6,26 @@ import com.lessask.model.ResponseError;
  * Created by JHuang on 2015/10/18.
  */
 public class HandleActionResponse extends ResponseError {
-    int videoId;
+    int actionId;
     private String videoName;
 
-    public HandleActionResponse(int videoId, String videoName) {
-        this.videoId = videoId;
+    public HandleActionResponse(int actionId, String videoName) {
+        this.actionId = actionId;
         this.videoName = videoName;
     }
 
-    public HandleActionResponse(int errno, String error, int videoId, String videoName) {
+    public HandleActionResponse(int errno, String error, int actionId, String videoName) {
         super(errno, error);
-        this.videoId = videoId;
+        this.actionId = actionId;
         this.videoName = videoName;
     }
 
-    public int getVideoId() {
-        return videoId;
+    public int getActionId() {
+        return actionId;
     }
 
-    public void setVideoId(int videoId) {
-        this.videoId = videoId;
+    public void setActionId(int actionId) {
+        this.actionId = actionId;
     }
 
     public String getVideoName() {

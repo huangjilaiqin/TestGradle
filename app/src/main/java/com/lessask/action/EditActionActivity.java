@@ -97,7 +97,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         mIntent = getIntent();
         itemPosition = mIntent.getIntExtra("position", -1);
         oldActionItem = mIntent.getParcelableExtra("actionItem");
-        oldVideoName = oldActionItem.getVideo();
+        oldVideoName = oldActionItem.getVideoName();
 
         loadingDialog = new LoadingDialog(EditActionActivity.this);
 
@@ -489,7 +489,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         @Override
         public void onResponse(Object response) {
             HandleActionResponse handleActionResponse = (HandleActionResponse) response;
-            int videoId = handleActionResponse.getVideoId();
+            int actionId = handleActionResponse.getActionId();
             String videoName = handleActionResponse.getVideoName();
             //删除旧video文件
             File oldVideoFile = new File(config.getVideoCachePath(), oldVideoName);
@@ -508,9 +508,10 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 Log.e(TAG, "rename new file:" + videoName);
             }
 
-            ActionItem actionItem = new ActionItem(videoId, mName.getText().toString(), videoName, tagDatas, noticeDatas);
+            ActionItem actionItem = new ActionItem(actionId, mName.getText().toString(), videoName, tagDatas, noticeDatas);
             mIntent.putExtra("actionItem", actionItem);
             mIntent.putExtra("position", itemPosition);
+            EditActionActivity.this.setResult(RESULT_OK, mIntent);
             loadingDialog.cancel();
             Toast.makeText(EditActionActivity.this, "load video success", Toast.LENGTH_SHORT).show();
             finish();
