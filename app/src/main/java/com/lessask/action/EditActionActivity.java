@@ -526,15 +526,13 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         @Override
         public HashMap<String, String> getHeaders() {
             HashMap<String, String> headers = new HashMap<>();
-            headers.put("id",oldActionItem.getId()+"");
-            headers.put("userid", globalInfos.getUserid()+"");
-            headers.put("name", mName.getText().toString().trim());
-            headers.put("tags", getTagsString());
-            headers.put("notice", getNoticeString());
+            String videoName = null;
             if(isReRecord) {
-                headers.put("oldVideoName", new File(newVideoPath).getName());
-                Log.e(TAG, "update video:"+newVideoPath);
+                videoName = new File(newVideoPath).getName();
             }
+            newActionItem = new ActionItem(oldActionItem.getId(),mName.getText().toString().trim(),videoName, tagDatas, noticeDatas);
+            headers.put("userid", globalInfos.getUserid() + "");
+            headers.put("actionItem", gson.toJson(newActionItem));
             return headers;
         }
 

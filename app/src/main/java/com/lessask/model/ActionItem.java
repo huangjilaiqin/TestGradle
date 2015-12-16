@@ -18,6 +18,8 @@ public class ActionItem implements Parcelable {
     private ArrayList<Integer> tags;
     private ArrayList<String> notices;
 
+    public ActionItem(){}
+
     public ActionItem(int id,String name,String video, ArrayList<Integer> tags, ArrayList<String> notices) {
         this.id = id;
         this.name = name;
