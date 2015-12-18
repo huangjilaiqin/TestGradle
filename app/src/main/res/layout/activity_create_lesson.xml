@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            app:title="定制课程"
+            app:title="创建课程"
             />
         <ImageView
             android:id="@+id/save"
@@ -40,18 +40,18 @@
         android:layout_below="@id/header"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         >
         <RelativeLayout
             android:id="@+id/name_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-             <TextView
-                android:id="@+id/name_label"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:gravity="center"
-                android:layout_marginLeft="13dp"
-                android:text="名字"
+            <ImageView
+                android:id="@+id/cover"
+                android:layout_width="60dp"
+                android:layout_height="100dp"
+                android:src="@drawable/man"
                 />
             <EditText
                 android:id="@+id/name"
@@ -60,6 +60,7 @@
                 android:layout_toRightOf="@id/name_label"
                 android:layout_alignBottom="@id/name_label"
                 android:layout_marginLeft="5dp"
+                android:hint="课程名称"
                 />
 
         </RelativeLayout>
@@ -254,6 +255,7 @@
                 />
         </RelativeLayout>
     </RelativeLayout>
+
     <RelativeLayout
         android:id="@+id/actions_layout"
         android:layout_width="match_parent"

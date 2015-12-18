@@ -196,7 +196,6 @@
             android:name=".test.TestVolleyActivity"
             android:label="@string/title_activity_test_volley"
             android:theme="@style/AppTheme"></activity>
-        <activity android:name=".test.TestViewGroupActivity"></activity>
     </application>
 
 </manifest>

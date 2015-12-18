@@ -28,7 +28,7 @@
         android:text="volley"
         />
     <Button
-        android:id="@+id/view_group"
+        android:id="@+id/date_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
