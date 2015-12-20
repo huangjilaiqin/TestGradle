@@ -16,8 +16,10 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.lessask.R;
+import com.lessask.action.SelectActionActivity;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
+import com.lessask.tag.SelectTagsActivity;
 
 import java.util.Calendar;
 
@@ -36,6 +38,7 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView.findViewById(R.id.date_picker).setOnClickListener(this);
             rootView.findViewById(R.id.customer_picker).setOnClickListener(this);
             rootView.findViewById(R.id.tags_picker).setOnClickListener(this);
+            rootView.findViewById(R.id.selected_tags).setOnClickListener(this);
         }
         return rootView;
     }
@@ -88,6 +91,10 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             case R.id.date_picker:
                 TimePickerDialog dialog2 = new TimePickerDialog(getContext(),null,23,45,true);
                 dialog2.show();
+                break;
+            case R.id.selected_tags:
+                intent = new Intent(getActivity(), SelectTagsActivity.class);
+                startActivity(intent);
                 break;
         }
     }
