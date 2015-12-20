@@ -7,6 +7,7 @@
     <color name="main_color">#00bb9c</color>
     <color name="darkgray">#808080</color>
     <color name="gray">#D8D6D5</color>
+    <color name="border_gray">#D8D6D5</color>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
     <color name="red_fab">#F44336</color>

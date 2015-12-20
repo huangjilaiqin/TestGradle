@@ -10,32 +10,30 @@ import android.widget.NumberPicker;
 
 import com.lessask.R;
 
+import me.kaede.tagview.TagView;
+
 /**
  * Created by huangji on 2015/12/18.
  */
-public class StringPickerDialog extends AlertDialog implements DialogInterface.OnClickListener{
+public class TagsPickerDialog extends AlertDialog implements DialogInterface.OnClickListener{
 
     private OnSelectListener mSelectCallBack;
-    private NumberPicker numberPicker;
+    private TagView tagView;
     private String[] values;
+    private String[] selected;
 
-    public StringPickerDialog(Context context, String[] values, OnSelectListener mSelectCallBack) {
-        //super(context, R.style.nothing_dialog_transparent);
+    public TagsPickerDialog(Context context, String[] values, String[] selected, OnSelectListener mSelectCallBack) {
         super(context);
         this.values = values;
         this.mSelectCallBack = mSelectCallBack;
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.string_picker, null);
+        View view = inflater.inflate(R.layout.tags_picker, null);
         setView(view);
         setButton(BUTTON_POSITIVE, "确定", this);
         setButton(BUTTON_NEGATIVE, "取消", this);
 
-        numberPicker = (NumberPicker) view.findViewById(R.id.picker);
-        numberPicker.setDisplayedValues(values);
-        numberPicker.setMinValue(0);
-        numberPicker.setMaxValue(values.length-1);
-        numberPicker.setValue(2);
-        numberPicker.setDividerDrawable(new ColorDrawable(getContext().getResources().getColor(R.color.main_color)));
+        tagView = (TagView) view.findViewById(R.id.tags_view);
+        tagView.addTags(values);
     }
 
     @Override
@@ -44,7 +42,7 @@ public class StringPickerDialog extends AlertDialog implements DialogInterface.O
         switch (which) {
             case BUTTON_POSITIVE:
                 if (mSelectCallBack != null) {
-                    mSelectCallBack.onSelect(values[numberPicker.getValue()]);
+                    mSelectCallBack.onSelect(selected);
                 }
                 break;
             case BUTTON_NEGATIVE:
@@ -54,6 +52,6 @@ public class StringPickerDialog extends AlertDialog implements DialogInterface.O
     }
 
     public interface OnSelectListener {
-        void onSelect(String data);
+        void onSelect(String[] data);
     }
 }

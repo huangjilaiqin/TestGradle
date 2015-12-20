@@ -1,5 +1,6 @@
 package com.lessask.test;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
+import com.lessask.dialog.TagsPickerDialog;
 
 import java.util.Calendar;
 
@@ -32,6 +34,8 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView.findViewById(R.id.storage).setOnClickListener(this);
             rootView.findViewById(R.id.volley).setOnClickListener(this);
             rootView.findViewById(R.id.date_picker).setOnClickListener(this);
+            rootView.findViewById(R.id.customer_picker).setOnClickListener(this);
+            rootView.findViewById(R.id.tags_picker).setOnClickListener(this);
         }
         return rootView;
     }
@@ -56,14 +60,34 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 intent = new Intent(getActivity(), TestVolleyActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.date_picker:
-                StringPickerDialog dialog = new StringPickerDialog(getContext(), new StringPickerDialog.OnSelectListener() {
+            case R.id.customer_picker:
+                String[] values = {"增肌", "减脂", "塑形","胸部adadfadfaf","背部","腰部","臀部","大腿","小腿"};
+                StringPickerDialog dialog = new StringPickerDialog(getContext(), values, new StringPickerDialog.OnSelectListener() {
                     @Override
                     public void onSelect(String data) {
                         Toast.makeText(getContext(), data, Toast.LENGTH_SHORT).show();
                     }
                 });
                 dialog.show();
+                break;
+            case R.id.tags_picker:
+                String[] values1 = {"增肌", "减脂", "塑形","胸部adadfadfaf","背部","腰部","臀部","大腿","小腿"};
+                String[] selected = {"减脂", "腰部"};
+                TagsPickerDialog dialog1 = new TagsPickerDialog(getContext(), values1, selected, new TagsPickerDialog.OnSelectListener() {
+                    @Override
+                    public void onSelect(String[] data) {
+                        String resulte = "";
+                        for(int i=0;i<data.length;i++){
+                            resulte+=data[i];
+                        }
+                        Toast.makeText(getContext(), resulte, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                dialog1.show();
+                break;
+            case R.id.date_picker:
+                TimePickerDialog dialog2 = new TimePickerDialog(getContext(),null,23,45,true);
+                dialog2.show();
                 break;
         }
     }

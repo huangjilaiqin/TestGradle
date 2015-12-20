@@ -30,6 +30,20 @@
     <Button
         android:id="@+id/date_picker"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="date picker"
+        />
+    <Button
+        android:id="@+id/customer_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="customer Picker"
+        />
+    <Button
+        android:id="@+id/tags_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tags Picker"
+        />
 
 </LinearLayout>

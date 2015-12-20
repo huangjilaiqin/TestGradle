@@ -31,6 +31,7 @@ import com.lessask.dialog.LoadingDialog;
 
 import java.util.ArrayList;
 
+import me.kaede.tagview.OnTagClickListener;
 import me.kaede.tagview.OnTagDeleteListener;
 import me.kaede.tagview.Tag;
 import me.kaede.tagview.TagView;
@@ -112,6 +113,18 @@ public class SelectTagsActivity extends AppCompatActivity implements View.OnClic
         mSelectContent = (EditText) findViewById(R.id.select_content);
         mSelectContent.clearFocus();
         mTagView = (TagView) findViewById(R.id.selected_tags);
+        mTagView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        mTagView.setOnTagClickListener(new OnTagClickListener() {
+            @Override
+            public void onTagClick(Tag tag, int position) {
+
+            }
+        });
         mTagView.setOnTagDeleteListener(new OnTagDeleteListener() {
             @Override
             public void onTagDeleted(Tag tag, int position) {
@@ -153,7 +166,6 @@ public class SelectTagsActivity extends AppCompatActivity implements View.OnClic
             msg.what = ON_CREATETAGS;
             msg.obj = response;
             handler.sendMessage(msg);
-
         }
     };
 
