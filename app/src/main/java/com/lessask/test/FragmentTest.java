@@ -1,28 +1,21 @@
 package com.lessask.test;
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.lessask.R;
-import com.lessask.action.SelectActionActivity;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
 import com.lessask.tag.SelectTagsActivity;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -40,7 +33,6 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView.findViewById(R.id.date_picker).setOnClickListener(this);
             rootView.findViewById(R.id.customer_picker).setOnClickListener(this);
             rootView.findViewById(R.id.tags_picker).setOnClickListener(this);
-            rootView.findViewById(R.id.selected_tags).setOnClickListener(this);
         }
         return rootView;
     }
@@ -98,12 +90,6 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 TimePickerDialog dialog2 = new TimePickerDialog(getContext(),null,23,45,true);
                 dialog2.show();
                 break;
-            case R.id.selected_tags:
-                intent = new Intent(getActivity(), SelectTagsActivity.class);
-                startActivity(intent);
-                break;
         }
     }
-
-
 }

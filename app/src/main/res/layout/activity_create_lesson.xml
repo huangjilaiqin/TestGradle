@@ -92,8 +92,8 @@
                             android:id="@+id/purpose"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:minWidth="80dp"
                             android:layout_gravity="center_vertical"
-                            android:text="减脂 塑形"
                             android:editable="false"
                             android:layout_marginLeft="8dp"
                             />
@@ -113,8 +113,8 @@
                             android:id="@+id/bodies"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:minWidth="80dp"
                             android:layout_gravity="center_vertical"
-                            android:text="腰部 臀部"
                             android:editable="false"
                             android:layout_marginLeft="8dp"
                             />
@@ -143,8 +143,8 @@
                             android:id="@+id/address"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:minWidth="80dp"
                             android:layout_gravity="center_vertical"
-                            android:text="家里"
                             android:editable="false"
                             android:layout_marginLeft="8dp"
                             />
@@ -164,8 +164,8 @@
                             android:id="@+id/costtime"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:minWidth="80dp"
                             android:layout_gravity="center_vertical"
-                            android:text="5分钟"
                             android:editable="false"
                             android:layout_marginLeft="8dp"
                             />
@@ -177,6 +177,7 @@
             android:id="@+id/fat_muscle_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_below="@id/base_info_layout"
             >
             <RelativeLayout
@@ -190,7 +191,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:layout_marginLeft="13dp"
                     android:text="减脂"
                     />
                 <com.hedgehog.ratingbar.RatingBar
@@ -215,13 +215,13 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
                 >
                 <TextView
                     android:id="@+id/muscle_label"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:layout_marginLeft="13dp"
                     android:text="增肌"
                     />
                 <com.hedgehog.ratingbar.RatingBar
@@ -231,7 +231,6 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/muscle_label"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="5dp"
                     android:rating="1"
                     android:isIndicator="false"
                     hedgehog:starCount="5"
@@ -251,6 +250,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
         android:layout_below="@id/info_layout"
         >
         <android.support.v7.widget.RecyclerView

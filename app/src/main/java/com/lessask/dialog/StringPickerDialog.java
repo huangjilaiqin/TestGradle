@@ -10,6 +10,9 @@ import android.widget.NumberPicker;
 
 import com.lessask.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by huangji on 2015/12/18.
  */
@@ -19,11 +22,14 @@ public class StringPickerDialog extends AlertDialog implements DialogInterface.O
     private NumberPicker numberPicker;
     private String[] values;
 
+
     public StringPickerDialog(Context context, String[] values, OnSelectListener mSelectCallBack) {
-        //super(context, R.style.nothing_dialog_transparent);
         super(context);
         this.values = values;
         this.mSelectCallBack = mSelectCallBack;
+        init(context);
+    }
+    private void init(Context context){
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.string_picker, null);
         setView(view);
@@ -36,6 +42,17 @@ public class StringPickerDialog extends AlertDialog implements DialogInterface.O
         numberPicker.setMaxValue(values.length-1);
         numberPicker.setValue(2);
         numberPicker.setDividerDrawable(new ColorDrawable(getContext().getResources().getColor(R.color.main_color)));
+
+    }
+    public StringPickerDialog(Context context, ArrayList<String> listValues, OnSelectListener mSelectCallBack) {
+        super(context);
+        this.values = listValues.toArray(new String[]{});
+        this.mSelectCallBack = mSelectCallBack;
+        init(context);
+    }
+
+    public void setValue(int index){
+        numberPicker.setValue(index);
     }
 
     @Override
