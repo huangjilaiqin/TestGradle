@@ -55,4 +55,5 @@ dependencies {
     //该控件只支持14以上的sdk
     compile 'com.hedgehog.ratingbar:app:1.0.2'
     compile 'com.yqritc:android-scalablevideoview:1.0.1'
+    compile 'com.zhy:flowlayout-lib:1.0.0'
 }

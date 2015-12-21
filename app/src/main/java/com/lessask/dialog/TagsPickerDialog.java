@@ -3,58 +3,78 @@ package com.lessask.dialog;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.NumberPicker;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.lessask.R;
+import com.zhy.view.flowlayout.FlowLayout;
+import com.zhy.view.flowlayout.TagAdapter;
+import com.zhy.view.flowlayout.TagFlowLayout;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-
-import me.kaede.tagview.OnTagClickListener;
-import me.kaede.tagview.Tag;
-import me.kaede.tagview.TagView;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by huangji on 2015/12/18.
  */
 public class TagsPickerDialog extends AlertDialog implements DialogInterface.OnClickListener{
 
+    private String TAG = TagsPickerDialog.class.getSimpleName();
     private OnSelectListener mSelectCallBack;
-    private TagView tagView;
-    private String[] values;
-    private String[] selected;
+    private ArrayList<String> values;
+    private TagAdapter<String> tagAdapter;
+    private TagFlowLayout tagFlowLayout;
+    private int maxSelected = -1;
+    private TextView tip;
 
-    public TagsPickerDialog(Context context, String[] values, String[] selected, OnSelectListener mSelectCallBack) {
+    public TagsPickerDialog(Context context, ArrayList<String> values, OnSelectListener mSelectCallBack) {
         super(context);
         this.values = values;
         this.mSelectCallBack = mSelectCallBack;
-        LayoutInflater inflater = LayoutInflater.from(context);
+        final LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.tags_picker, null);
         setView(view);
         setButton(BUTTON_POSITIVE, "确定", this);
         setButton(BUTTON_NEGATIVE, "取消", this);
 
-        tagView = (TagView) view.findViewById(R.id.tags_view);
-        for (int i=0;i<values.length;i++)
-            tagView.addTag(createTag(values[i]));
-        tagView.setOnTagClickListener(new OnTagClickListener() {
+        tagFlowLayout = (TagFlowLayout) view.findViewById(R.id.tag_flowlayout);
+        tip = (TextView) view.findViewById(R.id.tip);
+
+        tagAdapter = new TagAdapter<String>(values) {
             @Override
-            public void onTagClick(Tag tag, int position) {
-                if(tag.layoutColor==R.color.main_color){
-                    tag.layoutColor = R.color.red_fab;
-                    tag.background = new ColorDrawable(getContext().getResources().getColor(R.color.main_color));
-                    Toast.makeText(getContext(), "set red:"+position, Toast.LENGTH_SHORT).show();
+            public View getView(FlowLayout parent, int position, String s) {
+                TextView tv = (TextView) inflater.inflate(R.layout.tv,
+                        tagFlowLayout, false);
+                tv.setText(s);
+                return tv;
+            }
+        };
+
+        tagFlowLayout.setAdapter(tagAdapter);
+    }
+
+    public void setSelectedList(int[] selected, int maxSelected){
+        this.maxSelected = maxSelected;
+        tip.setText("*最多选择"+maxSelected+"项");
+        tagFlowLayout.setMaxSelectCount(maxSelected);
+        if(selected.length<maxSelected) {
+            tagAdapter.setSelectedList(selected);
+        }else {
+            int selecte = 0;
+            for(int i=0;i<selected.length;i++) {
+                if(maxSelected==-1 || selecte<maxSelected){
+                    tagAdapter.setSelectedList(selected[i]);
+                    selecte++;
                 }else {
-                    tag.layoutColor = R.color.main_color;
-                    tag.background = new ColorDrawable(getContext().getResources().getColor(R.color.gray));
-                    Toast.makeText(getContext(), "set main:"+position, Toast.LENGTH_SHORT).show();
+                    break;
                 }
             }
-        });
+        }
     }
 
     @Override
@@ -63,7 +83,13 @@ public class TagsPickerDialog extends AlertDialog implements DialogInterface.OnC
         switch (which) {
             case BUTTON_POSITIVE:
                 if (mSelectCallBack != null) {
-                    mSelectCallBack.onSelect(selected);
+                    Iterator<Integer> iterator = tagFlowLayout.getSelectedList().iterator();
+                    List<String> result = new ArrayList<>();
+                    while (iterator.hasNext()){
+                        int i = iterator.next();
+                        result.add(values.get(i));
+                    }
+                    mSelectCallBack.onSelect(result);
                 }
                 break;
             case BUTTON_NEGATIVE:
@@ -72,25 +98,7 @@ public class TagsPickerDialog extends AlertDialog implements DialogInterface.OnC
         }
     }
 
-    private Tag createTag(String name){
-        Tag tag = new Tag(name);
-        tag.tagTextColor = R.color.main_color;
-        //tag.layoutColor = R.color.white;
-        tag.layoutBorderColor = R.color.border_gray;
-        //tag.layoutColor =  Color.parseColor("#DDDDDD");
-        //tag.layoutColor = R.color.main_color;
-        //tag.layoutColorPress = Color.parseColor("#555555");
-        tag.background = getContext().getResources().getDrawable(R.color.background_white);
-
-        tag.radius = 20f;
-        tag.tagTextSize = 18f;
-        tag.layoutBorderSize = 1f;
-        //tag.layoutBorderColor = Color.parseColor("#FFFFFF");
-        //tag.isDeletable = true;
-        return tag;
-    }
-
     public interface OnSelectListener {
-        void onSelect(String[] data);
+        void onSelect(List data);
     }
 }

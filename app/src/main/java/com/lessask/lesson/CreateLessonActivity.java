@@ -16,21 +16,35 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.R;
 import com.lessask.action.SelectActionActivity;
+import com.lessask.dialog.StringPickerDialog;
+import com.lessask.dialog.TagsPickerDialog;
 import com.lessask.recyclerview.ItemTouchHelperAdapter;
 import com.lessask.recyclerview.ItemTouchHelperViewHolder;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener{
     private String TAG = CreateLessonActivity.class.getSimpleName();
-    private ImageView mBack;
-    private ImageView mSave;
+
     private EditText mName;
+    private ImageView mCover;
+    private TextView mPurpose;
+    private TextView mBodies;
+    private TextView mAddress;
+    private TextView mCosttime;
+    private RatingBar mFatBar;
+    private RatingBar mMuscleBar;
+
     private RecyclerView mActions;
     private ActionListAdapter actionsAdapter;
     private ArrayList<LessonActionInfo> datas;
@@ -51,9 +65,21 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
+        mCover = (ImageView)findViewById(R.id.cover);
         mName = (EditText)findViewById(R.id.name);
-        mSave = (ImageView) findViewById(R.id.save);
-        mSave.setOnClickListener(this);
+        mPurpose  = (EditText)findViewById(R.id.purpose);
+        mBodies = (EditText)findViewById(R.id.bodies);
+        mAddress = (EditText)findViewById(R.id.address);
+        mCosttime = (EditText)findViewById(R.id.costtime);
+
+        findViewById(R.id.save).setOnClickListener(this);
+        findViewById(R.id.back).setOnClickListener(this);
+        mCover.setOnClickListener(this);
+        mPurpose.setOnClickListener(this);
+        mBodies.setOnClickListener(this);
+        mAddress.setOnClickListener(this);
+        mCosttime.setOnClickListener(this);
+
         mActions = (RecyclerView) findViewById(R.id.actions);
         datas = getData();
         actionsAdapter = new ActionListAdapter(this, datas);
@@ -68,6 +94,50 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                 finish();
                 break;
             case R.id.save:
+                break;
+            case R.id.purpose:
+                String[] purposeValues = {"增肌", "减脂", "塑形"};
+                StringPickerDialog dialog = new StringPickerDialog(CreateLessonActivity.this, purposeValues, new StringPickerDialog.OnSelectListener() {
+                    @Override
+                    public void onSelect(String data) {
+                        mPurpose.setText(data);
+                    }
+                });
+                dialog.show();
+                break;
+            case R.id.bodies:
+
+                String[] bodiesValues = {"胸部","背部","腰部","臀部","大腿","小腿"};
+                ArrayList<String> values1 = new ArrayList<>();
+                for(int i=0;i<bodiesValues.length;i++)
+                    values1.add(bodiesValues[i]);
+                int[] selected = {2,5,6};
+                TagsPickerDialog dialog1 = new TagsPickerDialog(CreateLessonActivity.this, values1, new TagsPickerDialog.OnSelectListener() {
+                    @Override
+                    public void onSelect(List data) {
+                        String resulte = "";
+                        for(int i=0;i<data.size();i++){
+                            resulte+=","+data.get(i);
+                        }
+                        Toast.makeText(CreateLessonActivity.this, resulte, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                dialog1.setSelectedList(selected, 2);
+                dialog1.show();
+                break;
+            case R.id.address:
+                String[] addressValues = {"健身房", "家里", "公园"};
+                StringPickerDialog addressDialog = new StringPickerDialog(CreateLessonActivity.this, purposeValues, new StringPickerDialog.OnSelectListener() {
+                    @Override
+                    public void onSelect(String data) {
+                        mAddress.setText(data);
+                    }
+                });
+                addressDialog.show();
+                break;
+            case R.id.costtime:
+                break;
+            case R.id.cover:
                 break;
         }
     }

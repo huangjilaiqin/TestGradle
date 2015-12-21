@@ -21,7 +21,9 @@ import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
 import com.lessask.tag.SelectTagsActivity;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by JHuang on 2015/11/25.
@@ -74,18 +76,22 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 dialog.show();
                 break;
             case R.id.tags_picker:
-                String[] values1 = {"增肌", "减脂", "塑形","胸部adadfadfaf","背部","腰部","臀部","大腿","小腿"};
-                String[] selected = {"减脂", "腰部"};
-                TagsPickerDialog dialog1 = new TagsPickerDialog(getContext(), values1, selected, new TagsPickerDialog.OnSelectListener() {
+                String[] values2 = {"增肌", "减脂", "塑形","胸部adadfadfaf","背部","腰部","臀部","大腿","小腿"};
+                ArrayList<String> values1 = new ArrayList<>();
+                for(int i=0;i<values2.length;i++)
+                    values1.add(values2[i]);
+                int[] selected = {2,5,6};
+                TagsPickerDialog dialog1 = new TagsPickerDialog(getContext(), values1, new TagsPickerDialog.OnSelectListener() {
                     @Override
-                    public void onSelect(String[] data) {
+                    public void onSelect(List data) {
                         String resulte = "";
-                        for(int i=0;i<data.length;i++){
-                            resulte+=data[i];
+                        for(int i=0;i<data.size();i++){
+                            resulte+=","+data.get(i);
                         }
                         Toast.makeText(getContext(), resulte, Toast.LENGTH_SHORT).show();
                     }
                 });
+                dialog1.setSelectedList(selected, 2);
                 dialog1.show();
                 break;
             case R.id.date_picker:
