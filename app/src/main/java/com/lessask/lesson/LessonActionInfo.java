@@ -14,11 +14,10 @@ public class LessonActionInfo {
     private int times;
     private int restTimes;
 
-    public LessonActionInfo(String name, int actionId, String actionName, String actionPic, int times, int groups, int restTimes) {
+    public LessonActionInfo(int actionId, String actionName, String actionPic,int groups,int times,int restTimes) {
         this.actionId = actionId;
         this.actionName = actionName;
         this.actionPic = actionPic;
-        this.name = name;
         //组数
         this.groups = groups;
         //每组的次数

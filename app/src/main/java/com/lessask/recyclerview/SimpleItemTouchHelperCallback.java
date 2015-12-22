@@ -36,9 +36,19 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public static final float ALPHA_FULL = 1.0f;
 
     private final ItemTouchHelperAdapter mAdapter;
+    private int mSwipeFlag;
+    private int mDragFlag;
 
     public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
         mAdapter = adapter;
+    }
+
+    public void setmSwipeFlag(int mSwipeFlag) {
+        this.mSwipeFlag = mSwipeFlag;
+    }
+
+    public void setmDragFlag(int mDragFlag) {
+        this.mDragFlag = mDragFlag;
     }
 
     @Override
@@ -59,9 +69,13 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
             final int swipeFlags = 0;
             return makeMovementFlags(dragFlags, swipeFlags);
         } else {
-            final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-            final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+            int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
             //final int swipeFlags = 0;
+            if(mSwipeFlag!=0)
+                swipeFlags = mSwipeFlag;
+            if(mDragFlag!=0)
+                dragFlags = mDragFlag;
             return makeMovementFlags(dragFlags, swipeFlags);
         }
     }

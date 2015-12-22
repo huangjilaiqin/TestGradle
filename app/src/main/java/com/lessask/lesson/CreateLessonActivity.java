@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -17,20 +19,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hedgehog.ratingbar.RatingBar;
+import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.ItemTouchHelperAdapter;
 import com.lessask.recyclerview.ItemTouchHelperViewHolder;
+import com.lessask.recyclerview.OnStartDragListener;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
+import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
 
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener{
+public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener{
     private String TAG = CreateLessonActivity.class.getSimpleName();
 
     private EditText mName;
@@ -44,7 +49,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
 
     private RecyclerView mActionsRecycleView;
     private LessonActionsAdapter mAdapter;
-    private ArrayList<LessonActionInfo> datas;
+    private ItemTouchHelper mItemTouchHelper;
 
     private int SELECT_ACTION = 1;
 
@@ -78,9 +83,18 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mCosttime.setOnTouchListener(this);
 
         mActionsRecycleView = (RecyclerView) findViewById(R.id.actions);
-        mAdapter = new LessonActionsAdapter(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        mActionsRecycleView.setLayoutManager(linearLayoutManager);
+        mActionsRecycleView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        mAdapter = new LessonActionsAdapter(this, this);
         mAdapter.appendToList(getData());
         mActionsRecycleView.setAdapter(mAdapter);
+
+        //ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mAdapter);
+        SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
+        callback.setmSwipeFlag(ItemTouchHelper.LEFT);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(mActionsRecycleView);
     }
 
     @Override
@@ -194,89 +208,13 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     private ArrayList<LessonActionInfo> getData(){
         ArrayList<LessonActionInfo> datas = new ArrayList<>();
         for(int i=0;i<20;i++){
-            datas.add(new LessonActionInfo("深蹲"+i, 15, 3, 60));
+            datas.add(new LessonActionInfo(i,"深蹲"+i,"1,jpg",3,15,60));
         }
         return  datas;
     }
 
-    class ActionListAdapter extends BaseRecyclerAdapter<LessonActionInfo, RecyclerView.ViewHolder> implements ItemTouchHelperAdapter {
-        private Context context;
-        private ArrayList<LessonActionInfo> datas;
-
-        ActionListAdapter(Context context, ArrayList<LessonActionInfo> datas){
-            this.context = context;
-            this.datas = datas;
-        }
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            //获取背景菜单
-            //这个控件的match_parent的大小就是item大小,如果item边缘使用margin会显示bg_menu的底色
-            View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.create_lesson_action_menu, null);
-            mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-            //获取item布局
-            //item布局要有两层layout在第二层layout里面放控件,背景色设置为不透明，否则bg_menu会显示出来
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.create_lesson_action_item, null);
-            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-            //生成返回RecyclerView.ViewHolder
-            return new MyHolder(context, mybg, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return datas.size();
-        }
-
-        @Override
-        public boolean onItemMove(int fromPosition, int toPosition) {
-            List list = getList();
-            if (fromPosition < toPosition) {
-                for (int i = fromPosition; i < toPosition; i++) {
-                    Collections.swap(list, i, i + 1);
-                }
-            } else {
-                for (int i = fromPosition; i > toPosition; i--) {
-                    Collections.swap(list, i, i - 1);
-                }
-            }
-            notifyItemMoved(fromPosition, toPosition);
-            return true;
-        }
-
-        @Override
-        public void onItemDismiss(int position) {
-            getList().remove(position);
-            notifyItemRemoved(position);
-        }
-    }
-
-    public static class ItemViewHolder extends RecyclerView.ViewHolder implements
-            ItemTouchHelperViewHolder {
-
-        public final TextView textView;
-        public final ImageView handleView;
-
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-            textView = (TextView) itemView.findViewById(R.id.text);
-            handleView = (ImageView) itemView.findViewById(R.id.handle);
-        }
-
-        @Override
-        public void onItemSelected() {
-            itemView.setBackgroundColor(Color.LTGRAY);
-        }
-
-        @Override
-        public void onItemClear() {
-            itemView.setBackgroundColor(0);
-        }
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
     }
 }
