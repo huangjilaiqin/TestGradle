@@ -62,14 +62,14 @@ public class TagsPickerDialog extends AlertDialog implements DialogInterface.OnC
         this.maxSelected = maxSelected;
         tip.setText("*最多选择"+maxSelected+"项");
         tagFlowLayout.setMaxSelectCount(maxSelected);
+        Log.e(TAG, "selected:"+selected.toString());
         if(selected.length<maxSelected) {
             tagAdapter.setSelectedList(selected);
         }else {
-            int selecte = 0;
             for(int i=0;i<selected.length;i++) {
-                if(maxSelected==-1 || selecte<maxSelected){
+                if(maxSelected==-1 || i<maxSelected){
                     tagAdapter.setSelectedList(selected[i]);
-                    selecte++;
+                    Log.e(TAG, "selected:"+selected[i]);
                 }else {
                     break;
                 }
@@ -85,8 +85,12 @@ public class TagsPickerDialog extends AlertDialog implements DialogInterface.OnC
                 if (mSelectCallBack != null) {
                     Iterator<Integer> iterator = tagFlowLayout.getSelectedList().iterator();
                     List<String> result = new ArrayList<>();
+                    Log.e(TAG, values.toString());
                     while (iterator.hasNext()){
                         int i = iterator.next();
+                        if(i<0)
+                            continue;
+                        Log.e(TAG, "i:"+i);
                         result.add(values.get(i));
                     }
                     mSelectCallBack.onSelect(result);

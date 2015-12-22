@@ -2,18 +2,52 @@ package com.lessask.lesson;
 
 /**
  * Created by huangji on 2015/10/21.
+ * 创建编辑课程的动作信息
  */
 public class LessonActionInfo {
     private String name;
-    private int times;
+    //根据actionId获取动作名字，图片
+    private int actionId;
+    private String actionName;
+    private String actionPic;
     private int groups;
-    private int costTimes;
+    private int times;
+    private int restTimes;
 
-    public LessonActionInfo(String name, int times, int groups, int costTimes) {
-        this.groups = groups;
-        this.times = times;
+    public LessonActionInfo(String name, int actionId, String actionName, String actionPic, int times, int groups, int restTimes) {
+        this.actionId = actionId;
+        this.actionName = actionName;
+        this.actionPic = actionPic;
         this.name = name;
-        this.costTimes = costTimes;
+        //组数
+        this.groups = groups;
+        //每组的次数
+        this.times = times;
+        this.restTimes = restTimes;
+    }
+
+    public int getActionId() {
+        return actionId;
+    }
+
+    public void setActionId(int actionId) {
+        this.actionId = actionId;
+    }
+
+    public String getActionName() {
+        return actionName;
+    }
+
+    public void setActionName(String actionName) {
+        this.actionName = actionName;
+    }
+
+    public String getActionPic() {
+        return actionPic;
+    }
+
+    public void setActionPic(String actionPic) {
+        this.actionPic = actionPic;
     }
 
     public String getName() {
@@ -40,11 +74,11 @@ public class LessonActionInfo {
         this.groups = groups;
     }
 
-    public int getCostTimes() {
-        return costTimes;
+    public int getRestTimes() {
+        return restTimes;
     }
 
-    public void setCostTimes(int costTimes) {
-        this.costTimes = costTimes;
+    public void setRestTimes(int restTimes) {
+        this.restTimes = restTimes;
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
  * Created by JHuang on 2015/11/30.
  */
 public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder>
-        extends RecyclerView.Adapter{
+        extends RecyclerView.Adapter<VH>{
         private final List<T> mList = new LinkedList<T>();
         public List<T> getList() {
         return mList;
