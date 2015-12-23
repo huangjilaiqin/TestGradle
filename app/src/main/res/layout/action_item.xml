@@ -14,7 +14,7 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:padding="16dp"
-        android:src="@drawable/vedio"
+        android:src="@drawable/video"
         android:background="@drawable/man"
         />
     <TextView

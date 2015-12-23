@@ -9,7 +9,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="13dp"
-        android:background="@drawable/vedio"
+        android:background="@drawable/video"
         />
     <TextView
         android:id="@+id/name"

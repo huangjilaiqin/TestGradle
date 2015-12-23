@@ -10,10 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,16 +21,11 @@ import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
-import com.lessask.recyclerview.BaseRecyclerAdapter;
-import com.lessask.recyclerview.ItemTouchHelperAdapter;
-import com.lessask.recyclerview.ItemTouchHelperViewHolder;
 import com.lessask.recyclerview.OnStartDragListener;
-import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener{
@@ -40,10 +33,11 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
 
     private EditText mName;
     private ImageView mCover;
-    private TextView mPurpose;
-    private TextView mBodies;
-    private TextView mAddress;
-    private TextView mCosttime;
+    private EditText mPurpose;
+    private EditText mBodies;
+    private EditText mAddress;
+    private EditText mCosttime;
+    private EditText mRecycleTimes;
     private RatingBar mFatBar;
     private RatingBar mMuscleBar;
 
@@ -73,7 +67,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mBodies = (EditText)findViewById(R.id.bodies);
         mAddress = (EditText)findViewById(R.id.address);
         mCosttime = (EditText)findViewById(R.id.costtime);
-        mCosttime.setClickable(true);
+        mRecycleTimes = (EditText)findViewById(R.id.recycle_times);
 
         findViewById(R.id.save).setOnClickListener(this);
         mCover.setOnClickListener(this);
@@ -81,6 +75,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mBodies.setOnTouchListener(this);
         mAddress.setOnTouchListener(this);
         mCosttime.setOnTouchListener(this);
+        mRecycleTimes .setOnTouchListener(this);
 
         mActionsRecycleView = (RecyclerView) findViewById(R.id.actions);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -99,6 +94,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        StringPickerDialog stringPickerDialog;
         if(event.getAction()==MotionEvent.ACTION_UP) {
             switch (v.getId()) {
                 case R.id.purpose:
@@ -110,11 +106,12 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                             Log.e(TAG, "select" + data);
                         }
                     });
+                    dialog.setEditable(false);
                     dialog.show();
                     Log.e(TAG, "purpose");
                     break;
                 case R.id.bodies:
-                    String[] values1 = {"胸部", "背部", "腰部", "臀部", "大腿", "小腿"};
+                    String[] values1 = {"胸部", "背部", "腰部腰部腰部腰部", "臀部", "大腿", "小腿"};
                     ArrayList<String> bodiesValues = new ArrayList<>();
                     for (int i = 0; i < values1.length; i++)
                         bodiesValues.add(values1[i]);
@@ -158,6 +155,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                             mAddress.setText(data);
                         }
                     });
+                    addressDialog.setEditable(false);
                     addressDialog.show();
                     break;
                 case R.id.costtime:
@@ -170,6 +168,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                             mCosttime.setText(data);
                         }
                     });
+                    costtimeDialog.setEditable(false);
                     int pos = costtimeValues.indexOf(mCosttime.getText().toString().trim());
                     if (pos == -1) {
                         costtimeDialog.setValue(29);
@@ -177,7 +176,25 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                         costtimeDialog.setValue(pos);
                     }
                     costtimeDialog.show();
-                    Log.e(TAG, "costtime");
+                    break;
+                case R.id.recycle_times:
+                    ArrayList<String> actionRecycleTimesValues = new ArrayList<>();
+                    for (int i = 1; i < 50; i++)
+                        actionRecycleTimesValues.add(i + "次");
+                    stringPickerDialog = new StringPickerDialog(CreateLessonActivity.this, actionRecycleTimesValues, new StringPickerDialog.OnSelectListener() {
+                        @Override
+                        public void onSelect(String data) {
+                            mRecycleTimes.setText(data);
+                        }
+                    });
+                    stringPickerDialog.setEditable(false);
+                    pos = actionRecycleTimesValues.indexOf(mRecycleTimes.getText().toString().trim());
+                    if (pos == -1) {
+                        stringPickerDialog.setValue(9);
+                    } else {
+                        stringPickerDialog.setValue(pos);
+                    }
+                    stringPickerDialog.show();
                     break;
                 case R.id.cover:
                     break;

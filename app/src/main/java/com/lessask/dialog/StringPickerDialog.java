@@ -29,6 +29,12 @@ public class StringPickerDialog extends AlertDialog implements DialogInterface.O
         this.mSelectCallBack = mSelectCallBack;
         init(context);
     }
+
+    public void setEditable(boolean flag){
+        if(flag==false)
+            numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+    }
+
     private void init(Context context){
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.string_picker, null);
@@ -39,7 +45,7 @@ public class StringPickerDialog extends AlertDialog implements DialogInterface.O
         numberPicker = (NumberPicker) view.findViewById(R.id.picker);
         numberPicker.setDisplayedValues(values);
         numberPicker.setMinValue(0);
-        numberPicker.setMaxValue(values.length-1);
+        numberPicker.setMaxValue(values.length - 1);
         numberPicker.setValue(2);
         numberPicker.setDividerDrawable(new ColorDrawable(getContext().getResources().getColor(R.color.main_color)));
 
