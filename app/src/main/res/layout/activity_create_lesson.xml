@@ -291,6 +291,7 @@
         <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_behavior="com.lessask.recyclerview.ScrollAwareFABBehavior"
             android:layout_gravity="bottom|right"
             android:src="@drawable/add"
             app:layout_anchor="@id/actions"

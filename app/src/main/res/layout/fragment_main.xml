@@ -5,18 +5,25 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               tools:context="com.lessask.FragmentMainActivity">
-    <android.support.v4.view.ViewPager
-      android:id="@+id/pager"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/create"
-        android:layout_width="wrap_content"
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@id/pager"
-        android:layout_alignBottom="@id/pager"
-        android:src="@drawable/camera"
-        app:elevation="6dp"
-        app:pressedTranslationZ="12dp"
-        />
+        >
+        <android.support.v4.view.ViewPager
+          android:id="@+id/pager"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"/>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/create"
+            app:layout_behavior="com.lessask.recyclerview.ScrollAwareFABBehavior"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            app:layout_anchor="@id/pager"
+            app:layout_anchorGravity="bottom|right|end"
+            android:src="@drawable/camera"
+            app:elevation="6dp"
+            app:pressedTranslationZ="12dp"
+            />
+    </android.support.design.widget.CoordinatorLayout>
 </RelativeLayout>
