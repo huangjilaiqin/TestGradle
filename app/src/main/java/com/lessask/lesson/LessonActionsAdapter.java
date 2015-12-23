@@ -2,6 +2,8 @@ package com.lessask.lesson;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
@@ -32,10 +35,12 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     private String TAG = LessonActionsAdapter.class.getSimpleName();
     private Context context;
     private final OnStartDragListener mDragStartListener;
+    private final CoordinatorLayout coordinatorLayout;
 
-    LessonActionsAdapter(Context context, OnStartDragListener onStartDragListener){
+    LessonActionsAdapter(Context context, OnStartDragListener onStartDragListener,CoordinatorLayout coordinatorLayout){
         this.context = context;
         this.mDragStartListener = onStartDragListener;
+        this.coordinatorLayout = coordinatorLayout;
     }
 
     @Override
@@ -76,7 +81,21 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     }
 
     @Override
-    public void onItemDismiss(int position) {
+    public void onItemDismiss(final int position) {
+
+        final LessonActionInfo lessonActionInfo = getList().get(position);
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, "删除动作", Snackbar.LENGTH_LONG);
+            snackbar.setAction("撤销", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context, "onclick", Toast.LENGTH_SHORT).show();
+                    getList().add(position, lessonActionInfo);
+                    notifyItemInserted(position);
+                }
+            });
+        //todo 回调
+        //snackbar.setCallback();
+        snackbar.show();
         getList().remove(position);
         notifyItemRemoved(position);
     }

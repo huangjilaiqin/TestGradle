@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.SwipeDismissBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -81,7 +84,8 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mActionsRecycleView.setLayoutManager(linearLayoutManager);
         mActionsRecycleView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
-        mAdapter = new LessonActionsAdapter(this, this);
+        final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+        mAdapter = new LessonActionsAdapter(this, this,coordinatorLayout );
         mAdapter.appendToList(getData());
         mActionsRecycleView.setAdapter(mAdapter);
 
@@ -90,6 +94,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         callback.setmSwipeFlag(ItemTouchHelper.LEFT);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mActionsRecycleView);
+
     }
 
     @Override
