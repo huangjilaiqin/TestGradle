@@ -33,6 +33,7 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView.findViewById(R.id.date_picker).setOnClickListener(this);
             rootView.findViewById(R.id.customer_picker).setOnClickListener(this);
             rootView.findViewById(R.id.tags_picker).setOnClickListener(this);
+            rootView.findViewById(R.id.coordinator_layout).setOnClickListener(this);
         }
         return rootView;
     }
@@ -90,6 +91,11 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 TimePickerDialog dialog2 = new TimePickerDialog(getContext(),null,23,45,true);
                 dialog2.show();
                 break;
+            case R.id.coordinator_layout:
+                intent = new Intent(getActivity(), CoordinatorLayoutActivity.class);
+                startActivity(intent);
+                break;
+
         }
     }
 }

@@ -60,7 +60,7 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/app_name"></activity>
+            android:label="@string/app_name" />
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register" />
@@ -130,72 +130,73 @@
 
         <activity
             android:name=".show.ShowImageActivity"
-            android:label="@string/title_activity_show_image"></activity>
+            android:label="@string/title_activity_show_image" />
         <activity
             android:name=".show.ShowSelectedImageActivity"
-            android:label="@string/title_activity_show_selected_image"></activity>
+            android:label="@string/title_activity_show_selected_image" />
         <activity
             android:name=".show.CreateShowActivity"
-            android:label="@string/title_activity_create_show"></activity>
+            android:label="@string/title_activity_create_show" />
         <activity
             android:name=".sports.SquatsActivity"
-            android:label="@string/title_activity_squats"></activity>
+            android:label="@string/title_activity_squats" />
         <activity
             android:name=".action.RecordActionActivity"
             android:label="@string/title_activity_video_record"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"></activity>
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
             android:name=".action.CreateActionActivity"
-            android:label="@string/title_activity_vedio_play"></activity>
+            android:label="@string/title_activity_vedio_play" />
         <activity
             android:name=".tag.SelectTagsActivity"
-            android:label="@string/title_activity_select_tag"></activity>
+            android:label="@string/title_activity_select_tag" />
         <activity
             android:name=".lesson.LessonsActivity"
-            android:label="@string/title_activity_lessons"></activity>
+            android:label="@string/title_activity_lessons" />
         <activity
             android:name=".lesson.CreateLessonActivity"
             android:label="@string/title_activity_create_lesson"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".action.SelectActionActivity"
-            android:label="@string/title_activity_select_action"></activity>
+            android:label="@string/title_activity_select_action" />
         <activity
             android:name=".me.ChangePersonInfoActivity"
-            android:label="@string/title_activity_change_person_info"></activity>
+            android:label="@string/title_activity_change_person_info" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main"></activity>
+            android:label="@string/title_activity_main" />
         <activity
             android:name=".test.TmpActivity"
-            android:label="@string/title_activity_tmp"></activity>
+            android:label="@string/title_activity_tmp" />
         <activity
             android:name=".test.SwipeRefreshAndLoadMoreActivity"
-            android:label="@string/title_activity_swipe_refresh_and_load_more"></activity>
+            android:label="@string/title_activity_swipe_refresh_and_load_more" />
         <activity android:name=".video.PlayVideoActiviy" />
         <activity android:name=".video.RecordVideoActivity" />
         <activity
             android:name=".test.SlideMenuActivity"
-            android:label="@string/title_activity_slide_menu"></activity>
+            android:label="@string/title_activity_slide_menu" />
         <activity
             android:name=".test.SlideMenu1Activity"
-            android:label="title_activity_slide_menu1"></activity>
+            android:label="title_activity_slide_menu1" />
         <activity
             android:name=".test.MainActivity1"
-            android:label="activity_main1"></activity>
+            android:label="activity_main1" />
         <activity
             android:name=".test.ItemTouchHelperActivity"
-            android:label="activity_item_touch_helper"></activity>
+            android:label="activity_item_touch_helper" />
         <activity
             android:name=".test.StorageActivity"
-            android:label="@string/title_activity_storage"></activity>
+            android:label="@string/title_activity_storage" />
         <activity
             android:name=".action.EditActionActivity"
-            android:label="EditActionActivity"></activity>
+            android:label="EditActionActivity" />
         <activity
             android:name=".test.TestVolleyActivity"
             android:label="@string/title_activity_test_volley"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".test.CoordinatorLayoutActivity"></activity>
     </application>
 
 </manifest>
