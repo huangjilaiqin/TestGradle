@@ -72,7 +72,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mCosttime = (EditText)findViewById(R.id.costtime);
         mRecycleTimes = (EditText)findViewById(R.id.recycle_times);
 
-        findViewById(R.id.save).setOnClickListener(this);
+        //findViewById(R.id.save).setOnClickListener(this);
         mCover.setOnClickListener(this);
         mPurpose.setOnTouchListener(this);
         mBodies.setOnTouchListener(this);
