@@ -122,12 +122,10 @@
         <activity
             android:name="me.iwf.photopicker.PhotoPagerActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
-
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote"/>
-
         <activity
             android:name=".show.ShowImageActivity"
             android:label="@string/title_activity_show_image"/>
@@ -198,6 +196,6 @@
             android:theme="@style/AppTheme"/>
         <activity android:name=".test.NestedScrollActivity">
         </activity>
+        <activity android:name=".test.CoordinatorLayoutActivity"></activity>
     </application>
-
 </manifest>
