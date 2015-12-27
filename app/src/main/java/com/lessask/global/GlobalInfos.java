@@ -2,12 +2,15 @@ package com.lessask.global;
 
 import android.util.Log;
 
+import com.lessask.model.ActionItem;
 import com.lessask.model.User;
 import com.lessask.action.ActionTagsHolder;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by huangji on 2015/8/12.
@@ -26,6 +29,7 @@ public class GlobalInfos {
     private HashMap<Integer, User> friendsinMap;
     //好友列表
     private ArrayList<User> friends;
+    private HashMap<Integer, ActionItem> actionsInfo;
 
     private File headImgDir;
     private String headImgHost;
@@ -38,6 +42,7 @@ public class GlobalInfos {
     private GlobalInfos(){
         historyIds = new HashMap<>();
         chatContents = new HashMap<>();
+        actionsInfo = new HashMap<>();
         actionTagsHolder = new ActionTagsHolder();
         config = new Config();
     }
@@ -46,6 +51,31 @@ public class GlobalInfos {
     }
     private static class LazyHolder {
         private static final GlobalInfos INSTANCE = new GlobalInfos();
+    }
+
+    public ArrayList<ActionItem> getActions(){
+        Collection<ActionItem> collection = actionsInfo.values();
+        if(collection instanceof List)
+            return (ArrayList) collection;
+        else
+            return new ArrayList<>(collection);
+    }
+
+    public void addActions(ArrayList<ActionItem> actionItems){
+        for (int i=0;i<actionItems.size();i++){
+            ActionItem action = actionItems.get(i);
+            actionsInfo.put(action.getId(), action);
+        }
+    }
+    public void addAction(ActionItem actionItem){
+        actionsInfo.put(actionItem.getId(), actionItem);
+    }
+
+    public ActionItem getActionById(int id){
+        return actionsInfo.get(id);
+    }
+    public void deleteAction(int id){
+        actionsInfo.remove(id);
     }
 
     public Config getConfig(){

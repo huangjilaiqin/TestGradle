@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.SwipeDismissBehavior;
 import android.support.v7.app.AppCompatActivity;
@@ -22,13 +23,18 @@ import android.widget.TextView;
 import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
+import com.lessask.action.SelectActionActivity;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
+import com.lessask.global.GlobalInfos;
+import com.lessask.model.ActionItem;
+import com.lessask.model.Lesson;
 import com.lessask.recyclerview.OnStartDragListener;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener{
@@ -43,17 +49,24 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     private EditText mRecycleTimes;
     private RatingBar mFatBar;
     private RatingBar mMuscleBar;
+    private EditText mDescription;
+
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
 
     private RecyclerView mActionsRecycleView;
     private LessonActionsAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
+    private Intent mIntent;
+    private ArrayList<Integer> selectedActionsId;
 
-    private int SELECT_ACTION = 1;
+    private final int SELECT_ACTION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_lesson);
+
+        mIntent = getIntent();
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -64,6 +77,8 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
+        selectedActionsId = new ArrayList<>();
+
         mCover = (ImageView)findViewById(R.id.cover);
         mName = (EditText)findViewById(R.id.name);
         mPurpose  = (EditText)findViewById(R.id.purpose);
@@ -71,8 +86,9 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mAddress = (EditText)findViewById(R.id.address);
         mCosttime = (EditText)findViewById(R.id.costtime);
         mRecycleTimes = (EditText)findViewById(R.id.recycle_times);
+        findViewById(R.id.add).setOnClickListener(this);
 
-        //findViewById(R.id.save).setOnClickListener(this);
+        findViewById(R.id.save).setOnClickListener(this);
         mCover.setOnClickListener(this);
         mPurpose.setOnTouchListener(this);
         mBodies.setOnTouchListener(this);
@@ -86,10 +102,8 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mActionsRecycleView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         mAdapter = new LessonActionsAdapter(this, this,coordinatorLayout );
-        mAdapter.appendToList(getData());
         mActionsRecycleView.setAdapter(mAdapter);
 
-        //ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mAdapter);
         SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
         callback.setmSwipeFlag(ItemTouchHelper.LEFT);
         mItemTouchHelper = new ItemTouchHelper(callback);
@@ -210,29 +224,54 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onClick(View v) {
-        Intent intent;
+        Intent intent = null;
         switch (v.getId()){
             case R.id.save:
+                String name = mName.getText().toString().trim();
+                ArrayList<String> bodies = (ArrayList)Arrays.asList(mBodies.getText().toString().trim().split(" "));
+                String address = mAddress.getText().toString().trim();
+                String purpose = mPurpose.getText().toString().trim();
+                int costTime = Integer.parseInt(mCosttime.getText().toString().trim());
+                String description = mDescription.getText().toString().trim();
+                Lesson lesson = new Lesson(-1,name,"",bodies,address,purpose,costTime,description,selectedActionsId);
+                mIntent.putExtra("lesson", lesson);
+                setResult(RESULT_OK, mIntent);
+                finish();
                 break;
             case R.id.cover:
+                break;
+            case R.id.add:
+                intent = new Intent(this, SelectActionActivity.class);
+                intent.putIntegerArrayListExtra("selected", selectedActionsId);
+                startActivityForResult(intent, SELECT_ACTION);
                 break;
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == SELECT_ACTION){
-            if(resultCode == RESULT_OK){
+        if(resultCode == RESULT_OK){
+            switch (requestCode){
+                case SELECT_ACTION:
+                    selectedActionsId = data.getIntegerArrayListExtra("selected");
+                    Log.e(TAG, "selectAction:"+selectedActionsId.size());
 
+                    int maxItemCount = mAdapter.getItemCount();
+                    mAdapter.clear();
+                    ArrayList<LessonActionInfo> lessonActionInfos = new ArrayList<>();
+                    for (int i=0;i<selectedActionsId.size();i++){
+                        int actionId = selectedActionsId.get(i);
+                        ActionItem actionItem = globalInfos.getActionById(actionId);
+                        LessonActionInfo info = new LessonActionInfo(actionId, actionItem.getName(), actionItem.getVideoName(),3,10,60,120);
+                        lessonActionInfos.add(info);
+                    }
+                    Log.e(TAG, "selectAction append:"+lessonActionInfos.size());
+                    mAdapter.appendToList(lessonActionInfos);
+                    if(maxItemCount<lessonActionInfos.size())
+                        maxItemCount = lessonActionInfos.size();
+                    mAdapter.notifyItemRangeChanged(0,maxItemCount);
+                    break;
             }
         }
-    }
-
-    private ArrayList<LessonActionInfo> getData(){
-        ArrayList<LessonActionInfo> datas = new ArrayList<>();
-        for(int i=0;i<20;i++){
-            datas.add(new LessonActionInfo(i,"深蹲"+i,"1,jpg",3,15,60));
-        }
-        return  datas;
     }
 
     @Override

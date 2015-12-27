@@ -1,13 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/lesson_list"
+    android:layout_height="match_parent"
+    android:id="@+id/coordinator_layout"
+    tools:context="com.lessask.lesson.LessonFragment">
+
+    <RelativeLayout
+        android:id="@+id/root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#f6f6f6"
-        android:scrollbars="none"
-        android:gravity="center"
+        android:layout_height="match_parent">
+        <com.lessask.recyclerview.RecyclerViewStatusSupport
+            android:id="@+id/lesson_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#f6f6f6"
+            android:scrollbars="none"
+            android:gravity="center"
+            />
+        <RelativeLayout
+            android:id="@+id/empty_view"
+            android:background="@color/background_white_not_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="empty"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/loading_view"
+            android:background="@color/background_white_not_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="loading"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/error_view"
+            android:background="@color/background_white_not_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/error_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="error"
+                />
+            <Button
+                android:id="@+id/refresh"
+                android:layout_below="@id/error_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="刷新"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.lessask.recyclerview.ScrollAwareFABBehavior"
+        android:layout_gravity="bottom|right"
+        android:src="@drawable/add"
+        app:layout_anchor="@id/lesson_list"
+        app:layout_anchorGravity="bottom|right|end"
+        android:layout_marginBottom="@dimen/codelab_fab_margin_bottom"
+        android:layout_marginRight="@dimen/codelab_fab_margin_right"
         />
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

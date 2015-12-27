@@ -12,9 +12,10 @@ public class LessonActionInfo {
     private String actionPic;
     private int groups;
     private int times;
-    private int restTimes;
+    private int groupRestTimes;
+    private int actionRestTimes;
 
-    public LessonActionInfo(int actionId, String actionName, String actionPic,int groups,int times,int restTimes) {
+    public LessonActionInfo(int actionId, String actionName, String actionPic,int groups,int times,int groupRestTimes, int actionRestTimes) {
         this.actionId = actionId;
         this.actionName = actionName;
         this.actionPic = actionPic;
@@ -22,7 +23,24 @@ public class LessonActionInfo {
         this.groups = groups;
         //每组的次数
         this.times = times;
-        this.restTimes = restTimes;
+        this.groupRestTimes = groupRestTimes;
+        this.actionRestTimes = actionRestTimes;
+    }
+
+    public int getGroupRestTimes() {
+        return groupRestTimes;
+    }
+
+    public void setGroupRestTimes(int groupRestTimes) {
+        this.groupRestTimes = groupRestTimes;
+    }
+
+    public int getActionRestTimes() {
+        return actionRestTimes;
+    }
+
+    public void setActionRestTimes(int actionRestTimes) {
+        this.actionRestTimes = actionRestTimes;
     }
 
     public int getActionId() {
@@ -71,13 +89,5 @@ public class LessonActionInfo {
 
     public void setGroups(int groups) {
         this.groups = groups;
-    }
-
-    public int getRestTimes() {
-        return restTimes;
-    }
-
-    public void setRestTimes(int restTimes) {
-        this.restTimes = restTimes;
     }
 }

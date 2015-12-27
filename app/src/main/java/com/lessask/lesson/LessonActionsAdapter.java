@@ -6,7 +6,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -85,16 +84,14 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
 
         final LessonActionInfo lessonActionInfo = getList().get(position);
         Snackbar snackbar = Snackbar.make(coordinatorLayout, "删除动作", Snackbar.LENGTH_LONG);
-            snackbar.setAction("撤销", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "onclick", Toast.LENGTH_SHORT).show();
-                    getList().add(position, lessonActionInfo);
-                    notifyItemInserted(position);
-                }
-            });
-        //todo 回调
-        //snackbar.setCallback();
+        snackbar.setAction("撤销", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "onclick", Toast.LENGTH_SHORT).show();
+                getList().add(position, lessonActionInfo);
+                notifyItemInserted(position);
+            }
+        });
         snackbar.show();
         getList().remove(position);
         notifyItemRemoved(position);

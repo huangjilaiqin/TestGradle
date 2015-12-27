@@ -12,21 +12,42 @@ public class Config {
     private String wsPath = "/ws/";
     private String createShowUrl = "http://123.59.40.113/httproute/show";
     private String imgUrl = "http://123.59.40.113/imgs/";
-    private String vedioPath = "";
     private String registerUrl = "http://123.59.40.113/httproute/register/";
     private String getShowUrl = "http://123.59.40.113/httproute/getshow/";
     private String likeUrl = "http://123.59.40.113/httproute/like/";
     private String unlikeUrl = "http://123.59.40.113/httproute/unlike/";
-    private String addVedioUrl = "http://123.59.40.113/httproute/action/add/";
+    private String videoUrl = "http://123.59.40.113/videos/";
+
+    private String addActionUrl = "http://123.59.40.113/httproute/action/add/";
     private String deleteActionUrl = "http://123.59.40.113/httproute/action/delete/";
     private String updateActionUrl = "http://123.59.40.113/httproute/action/update/";
     private String actioinsUrl = "http://123.59.40.113/httproute/actions/";
-    private String videoUrl = "http://123.59.40.113/videos/";
+
+    private String addLessonUrl = "http://123.59.40.113/httproute/lesson/add/";
+    private String deleteLessonUrl = "http://123.59.40.113/httproute/lesson/delete/";
+    private String updateLessonUrl = "http://123.59.40.113/httproute/lesson/update/";
+    private String lessonsUrl = "http://123.59.40.113/httproute/lessons/";
+
+    public String getAddLessonUrl() {
+        return addLessonUrl;
+    }
+
+    public String getDeleteLessonUrl() {
+        return deleteLessonUrl;
+    }
+
+    public String getUpdateLessonUrl() {
+        return updateLessonUrl;
+    }
+
+    public String getLessonsUrl() {
+        return lessonsUrl;
+    }
 
     private File videoCachePath;
 
-    public String getAddVedioUrl() {
-        return addVedioUrl;
+    public String getAddActionUrl() {
+        return addActionUrl;
     }
 
     public String getUpdateActionUrl() {

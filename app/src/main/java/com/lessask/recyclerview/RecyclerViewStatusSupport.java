@@ -92,8 +92,22 @@ public class RecyclerViewStatusSupport extends RecyclerView{
         }
 
         @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            Log.e(TAG, "positionStart:"+positionStart+", itemCount:"+itemCount);
+            Adapter adapter = getAdapter();
+            Log.e(TAG, "onItemRangeRemoved count:" + adapter.getItemCount());
+            if(adapter.getItemCount()==1){
+                emptyView.setVisibility(INVISIBLE);
+                errorView.setVisibility(INVISIBLE);
+                RecyclerViewStatusSupport.this.setVisibility(VISIBLE);
+            }else if(errorView.getVisibility()==VISIBLE){
+                errorView.setVisibility(INVISIBLE);
+                RecyclerViewStatusSupport.this.setVisibility(VISIBLE);
+            }
+        }
+
+        @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
-            super.onItemRangeRemoved(positionStart, itemCount);
             Adapter adapter = getAdapter();
             Log.e(TAG, "onItemRangeRemoved count:"+adapter.getItemCount());
             if(adapter.getItemCount()==0){

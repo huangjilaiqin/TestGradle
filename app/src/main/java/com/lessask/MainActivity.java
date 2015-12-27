@@ -69,13 +69,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Fragment currentFragment;
     private LinearLayout currentToolAction;
     private LinearLayout mainToolAction;
-    private LinearLayout lessonToolAction;
-    private LinearLayout actionToolAction;
 
     private static final int CREATE_LESSON = 0;
-    public static final int EDIT_ACTION = 1;
-    public static final int CREATE_ACTION = 2;
-    public static final int RECORD_ACTION = 3;
     public static final int CREATE_SHOW = 4;
     public static final int GETPICTURE_REQUEST = 5;
 
@@ -120,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toolActons.add((LinearLayout)findViewById(R.id.main_tool));
         toolActons.add(null);
         toolActons.add(null);
-        toolActons.add((LinearLayout)findViewById(R.id.lesson_tool));
-        toolActons.add((LinearLayout)findViewById(R.id.action_tool));
+        toolActons.add(null);
+        toolActons.add(null);
         toolActons.add(null);
         toolActons.add(null);
 
@@ -131,8 +126,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mainToolAction = (LinearLayout)findViewById(R.id.main_tool);
-        lessonToolAction = (LinearLayout)findViewById(R.id.lesson_tool);
-        actionToolAction = (LinearLayout)findViewById(R.id.action_tool);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
@@ -157,8 +150,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loadData();
     }
     private void initToolBar(){
-        findViewById(R.id.create_lesson).setOnClickListener(this);
-        findViewById(R.id.create_action).setOnClickListener(this);
     }
     private ArrayList<DrawerItem> getDatas(){
         ArrayList<DrawerItem> datas = new ArrayList<>();
@@ -178,19 +169,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
         if(resultCode==RESULT_OK) {
             switch (requestCode) {
-                case EDIT_ACTION:
-                case CREATE_ACTION:
-                    fragmentAction.onActivityResult(requestCode, resultCode, data);
-                    Log.e(TAG, "CREATE_ACTION back");
-                    break;
-                case RECORD_ACTION:
-                    Intent intent = new Intent(MainActivity.this, CreateActionActivity.class);
-                    intent.putExtra("path", data.getStringExtra("path"));
-                    intent.putExtra("ratio", data.getFloatExtra("ratio", 0.5f));
-                    intent.putExtra("imagePath", data.getStringExtra("imagePath"));
-                    startActivityForResult(intent, CREATE_ACTION);
-                    Log.e(TAG, "RECORD_ACTION back");
-                    break;
                 default:
                     Log.e(TAG, "not match requestCode:"+requestCode);
                     break;
@@ -256,16 +234,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         Intent intent;
         switch (v.getId()){
-            case R.id.create_lesson:
-                intent = new Intent(MainActivity.this, CreateLessonActivity.class);
-                startActivityForResult(intent, CREATE_LESSON);
-                break;
+            /*
             case R.id.create_action:
                 intent = new Intent(MainActivity.this, RecordVideoActivity.class);
                 intent.putExtra("className", CreateActionActivity.class.getName());
                 intent.putExtra("startActivityForResult", true);
                 startActivityForResult(intent, RECORD_ACTION);
                 break;
+                */
         }
     }
 

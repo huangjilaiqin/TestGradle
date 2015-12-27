@@ -1,11 +1,14 @@
 package com.lessask.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by laiqin on 15/12/17.
  */
-public class Lesson {
+public class Lesson implements Parcelable {
     private int id;
     private String name;
     private String cover;
@@ -27,6 +30,43 @@ public class Lesson {
         this.description = description;
         this.actionsId = actionsId;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(cover);
+        dest.writeList(bodies);
+        dest.writeString(address);
+        dest.writeString(purpose);
+        dest.writeInt(costTime);
+        dest.writeString(description);
+        dest.writeList(actionsId);
+    }
+    public static final Parcelable.Creator<Lesson> CREATOR
+             = new Parcelable.Creator<Lesson>() {
+         public Lesson createFromParcel(Parcel in) {
+             int id = in.readInt();
+             String name = in.readString();
+             String cover = in.readString();
+             ArrayList<String> bodies = in.readArrayList(null);
+             String address = in.readString();
+             String purpose = in.readString();
+             int costTime = in.readInt();
+             String description = in.readString();
+             ArrayList<Integer> actionsId = in.readArrayList(null);
+             return new Lesson(id,name,cover,bodies,address,purpose,costTime,description,actionsId);
+         }
+
+         public Lesson[] newArray(int size) {
+             return new Lesson[size];
+         }
+    };
 
     public int getId() {
         return id;
@@ -99,4 +139,6 @@ public class Lesson {
     public void setActionsId(ArrayList<Integer> actionsId) {
         this.actionsId = actionsId;
     }
+
+
 }

@@ -65,6 +65,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private float widthDivideHeightRatio = 320/240f;
     private Toolbar mToolbar;
     private ImageView mSave;
+    public static final int EDIT_ACTION = 1;
 
     private ArrayList<Integer> tagDatas;
     private ArrayList<String> noticeDatas;
@@ -427,7 +428,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         }
         ActionItem newAction = new ActionItem(0, mName.getText().toString().trim(), videoName, tagDatas, noticeDatas);
         if(checkChange(oldActionItem, newAction)){
-            this.setResult(MainActivity.EDIT_ACTION);
+            this.setResult(EDIT_ACTION);
             AlertDialog.Builder builder = new AlertDialog.Builder(EditActionActivity.this);
             builder.setMessage("确认放弃修改吗？");
             builder.setTitle("提示");

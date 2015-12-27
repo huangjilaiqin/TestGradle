@@ -51,7 +51,6 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
     private static final int CANCEL_RECORD_OFFSET = -100;
     private float mDownX, mDownY;
     private boolean isCancelRecord = false;
-    private String targetActivityName;
 
     private Intent mIntent;
     private final int RECORD_ACTION = 2;
@@ -60,7 +59,6 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIntent = getIntent();
-        targetActivityName = mIntent.getStringExtra("className");
         int cameraId = CameraHelper.getDefaultCameraID();
         // Create an instance of Camera
         mCamera = CameraHelper.getCameraInstance(cameraId);
@@ -162,32 +160,12 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
         if (isCancelRecord) {
             FileUtil.deleteFile(videoPath);
         } else {
-            // 告诉宿主页面录制视频的路径
-            if(mIntent.getBooleanExtra("startActivityForResult", false)){
-                mIntent.putExtra("ratio", RATIO);
-                mIntent.putExtra("path", videoPath);
-                mIntent.putExtra("imagePath", "");
-                setResult(RESULT_OK, mIntent);
-                Log.e(TAG, "finish and back");
-                finish();
-            }else {
-                Log.e(TAG, "videoPath:" + videoPath);
-                Class targetActivity;
-                try {
-                    targetActivity = Class.forName(targetActivityName);
-                } catch (ClassNotFoundException e) {
-                    Toast.makeText(this, "跳转Activity不存在:" + targetActivityName, Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
-                }
-
-                Intent intent = new Intent(this, targetActivity);
-                intent.putExtra("ratio", RATIO);
-                intent.putExtra("path", videoPath);
-                intent.putExtra("imagePath", "");
-                startActivity(intent);
-                finish();
-            }
+            mIntent.putExtra("ratio", RATIO);
+            mIntent.putExtra("path", videoPath);
+            mIntent.putExtra("imagePath", "");
+            setResult(RESULT_OK, mIntent);
+            Log.e(TAG, "finish and back");
+            finish();
         }
     }
 

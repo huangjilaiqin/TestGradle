@@ -224,7 +224,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                 showEditNoticeDialog();
                 break;
             case R.id.upload:
-                NetworkFileHelper.getInstance().startPost(config.getAddVedioUrl(), HandleActionResponse.class, new NetworkFileHelper.PostFileRequest() {
+                NetworkFileHelper.getInstance().startPost(config.getAddActionUrl(), HandleActionResponse.class, new NetworkFileHelper.PostFileRequest() {
                     @Override
                     public void onStart() {
                         loadingDialog = new LoadingDialog(CreateActionActivity.this);
@@ -237,6 +237,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                         HandleActionResponse handleActionResponse = (HandleActionResponse)response;
                         int actionId = handleActionResponse.getActionId();
                         String videoName = handleActionResponse.getVideoName();
+
                         ActionItem actionItem = new ActionItem(actionId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
                         CreateActionActivity.this.setResult(RESULT_OK, mIntent);

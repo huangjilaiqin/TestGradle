@@ -12,14 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
-import com.lessask.MainActivity;
 import com.lessask.OnItemClickListener;
 import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
@@ -28,9 +25,9 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
 import com.lessask.model.GetActionResponse;
 import com.lessask.net.GsonRequest;
-import com.lessask.net.NetFragment;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
+import com.lessask.video.RecordVideoActivity;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -38,20 +35,21 @@ import java.util.Map;
 /**
  * Created by JHuang on 2015/11/28.
  */
-public class FragmentAction extends Fragment {
+public class FragmentAction extends Fragment implements View.OnClickListener{
     private View rootView;
     private final String TAG = FragmentAction.class.getName();
     private ActionAdapter mRecyclerViewAdapter;
     private RecyclerViewStatusSupport mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
+    public static final int EDIT_ACTION = 1;
+    public static final int CREATE_ACTION = 2;
+    public static final int RECORD_ACTION = 3;
 
-    private Gson gson = new Gson();
+
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
-
-    private int deletePostion;
-
     private VolleyHelper volleyHelper = VolleyHelper.getInstance();
+    private int deletePostion;
 
     @Nullable
     @Override
@@ -65,6 +63,7 @@ public class FragmentAction extends Fragment {
                     loadAtions();
                 }
             });
+            rootView.findViewById(R.id.add).setOnClickListener(this);
 
 
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.action_list);
@@ -118,28 +117,13 @@ public class FragmentAction extends Fragment {
                             Intent intent = new Intent(FragmentAction.this.getActivity(), EditActionActivity.class);
                             intent.putExtra("actionItem", actionItem);
                             intent.putExtra("position", position);
-                            startActivityForResult(intent, MainActivity.EDIT_ACTION);
+                            startActivityForResult(intent, EDIT_ACTION);
                             break;
                     }
                 }
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
-            mRecyclerView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.e(TAG, "click");
-                    //Toast.makeText(getContext(), "click", Toast.LENGTH_SHORT).show();
-                }
-            });
-            mRecyclerView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    Log.e(TAG, "onLongClick");
-                    //Toast.makeText(getActivity(), "longClick", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            });
             //加载数据
             loadAtions();
         }
@@ -182,11 +166,13 @@ public class FragmentAction extends Fragment {
         GsonRequest getActionsRequest = new GsonRequest<>(Request.Method.POST, config.getActioinsUrl(), GetActionResponse.class, new GsonRequest.PostGsonRequest<GetActionResponse>() {
             @Override
             public void onStart() {
+                Log.e(TAG, "start getactions");
                 mRecyclerView.showLoadingView();
             }
 
             @Override
             public void onResponse(GetActionResponse response) {
+                Log.e(TAG, "response:"+response);
                 ArrayList<ActionItem> actiondatas = response.getActionDatas();
                 Log.e(TAG, "actiondatas length:" + actiondatas.size());
                 mRecyclerViewAdapter.appendToList(actiondatas);
@@ -196,6 +182,7 @@ public class FragmentAction extends Fragment {
 
             @Override
             public void onError(VolleyError error) {
+                Log.e(TAG, "getactions err:"+error.toString());
                 mRecyclerView.showErrorView(error.toString());
             }
 
@@ -212,7 +199,7 @@ public class FragmentAction extends Fragment {
         ActionItem actionItem = null;
         if(resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
-                case MainActivity.EDIT_ACTION:
+                case EDIT_ACTION:
                     actionItem = data.getParcelableExtra("actionItem");
                     int position = data.getIntExtra("position", -1);
                     Log.e(TAG, "onActivityResult EDIT_ACTION position:"+position);
@@ -223,10 +210,15 @@ public class FragmentAction extends Fragment {
                     oldOne.setNotices(actionItem.getNotices());
                     mRecyclerViewAdapter.notifyItemChanged(position);
                     break;
-                case MainActivity.CREATE_ACTION:
-                    if (data == null) {
-                        Log.e(TAG, "intent is null");
-                    }
+                case RECORD_ACTION:
+                    Intent intent = new Intent(getContext(), CreateActionActivity.class);
+                    intent.putExtra("path", data.getStringExtra("path"));
+                    intent.putExtra("ratio", data.getFloatExtra("ratio", 0.5f));
+                    intent.putExtra("imagePath", data.getStringExtra("imagePath"));
+                    startActivityForResult(intent, CREATE_ACTION);
+                    Log.e(TAG, "RECORD_ACTION back");
+                    break;
+                case CREATE_ACTION:
                     actionItem = data.getParcelableExtra("actionItem");
                     if (actionItem != null) {
                         mRecyclerViewAdapter.append(actionItem);
@@ -235,6 +227,17 @@ public class FragmentAction extends Fragment {
                     }
                     break;
             }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent;
+        switch (v.getId()){
+            case R.id.add:
+                intent = new Intent(getContext(), RecordVideoActivity.class);
+                startActivityForResult(intent, RECORD_ACTION);
+                break;
         }
     }
 }

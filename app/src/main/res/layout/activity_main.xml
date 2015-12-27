@@ -51,42 +51,6 @@
                         android:layout_width="wrap_content"
                         />
                 </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/lesson_tool"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignTop="@id/toolbar"
-                    android:visibility="invisible"
-                    >
-                    <ImageView
-                        android:id="@+id/create_lesson"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:padding="16dp"
-                        android:src="@drawable/add"
-                        />
-                </LinearLayout>
-                <LinearLayout
-                    android:id="@+id/action_tool"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignTop="@id/toolbar"
-                    android:visibility="invisible"
-                    >
-                    <ImageView
-                        android:id="@+id/create_action"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:padding="16dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/add"
-                        />
-                </LinearLayout>
             </RelativeLayout>
             <FrameLayout
                 android:id="@+id/main_fragment_container"

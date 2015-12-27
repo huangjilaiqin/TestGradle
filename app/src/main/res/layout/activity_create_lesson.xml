@@ -5,35 +5,51 @@
     xmlns:hedgehog="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/coordinator_layout"
     tools:context="com.lessask.lesson.CreateLessonActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:layout_height="wrap_content"
+        android:background="@color/main_color"
+        android:paddingTop="@dimen/toolbar_padding_top"
+        >
+        <RelativeLayout
+            android:id="@+id/header"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:title="创建课程"
-            />
+            android:layout_height="wrap_content"
+            android:background="#00bb9c"
+            android:minHeight="?attr/actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways"
+            >
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:navigationIcon="?attr/homeAsUpIndicator"
+                app:title="创建课程"
+                />
+            <ImageView
+                android:id="@+id/save"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:padding="16dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/done"
+                />
 
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        </RelativeLayout>
         <RelativeLayout
             android:id="@+id/info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/header"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:background="@color/background_white_not_transparent"
+            app:layout_scrollFlags="scroll|enterAlways"
             >
             <LinearLayout
                 android:id="@+id/base_info_layout"
@@ -216,50 +232,63 @@
                 </RelativeLayout>
             </LinearLayout>
             <LinearLayout
-                android:id="@+id/actions_tips"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="16dp"
                 android:layout_below="@id/fat_muscle_layout"
-                android:background="@color/background_grey"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/black_40"
-                    android:textSize="16sp"
-                    android:text="动作信息"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="20dp"
-                    android:text="动作循环次数"
-                    />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
                 <EditText
-                    android:id="@+id/recycle_times"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:minLines="1"
+                    android:maxLines="3"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:editable="false"
-                    android:textSize="15sp"
-                    android:text="10次"
+                    android:hint="跟你的学生说点什么吧..."
                     />
             </LinearLayout>
-
         </RelativeLayout>
-
-    </android.support.v4.widget.NestedScrollView>
-
+        <LinearLayout
+            android:id="@+id/actions_tips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:layout_below="@id/fat_muscle_layout"
+            android:background="@color/background_grey"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/black_40"
+                android:textSize="16sp"
+                android:text="动作信息"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:text="动作循环次数"
+                />
+            <EditText
+                android:id="@+id/recycle_times"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:editable="false"
+                android:textSize="15sp"
+                android:text="10次"
+                />
+        </LinearLayout>
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/actions"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
+
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_behavior="com.lessask.recyclerview.ScrollAwareFABBehavior"
