@@ -83,16 +83,14 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     public void onItemDismiss(final int position) {
 
         final LessonActionInfo lessonActionInfo = getList().get(position);
-        Snackbar snackbar = Snackbar.make(coordinatorLayout, "删除动作", Snackbar.LENGTH_LONG);
-        snackbar.setAction("撤销", new View.OnClickListener() {
+        Snackbar.make(coordinatorLayout, "删除动作", Snackbar.LENGTH_LONG).setAction("撤销", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(context, "onclick", Toast.LENGTH_SHORT).show();
                 getList().add(position, lessonActionInfo);
                 notifyItemInserted(position);
             }
-        });
-        snackbar.show();
+        }).show();
         getList().remove(position);
         notifyItemRemoved(position);
     }
