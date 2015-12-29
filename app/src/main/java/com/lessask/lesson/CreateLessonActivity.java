@@ -1,13 +1,14 @@
 package com.lessask.lesson;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.SwipeDismissBehavior;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,24 +19,33 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.action.SelectActionActivity;
+import com.lessask.dialog.LoadingDialog;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
+import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
+import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
+import com.lessask.model.Utils;
+import com.lessask.net.NetworkFileHelper;
 import com.lessask.recyclerview.OnStartDragListener;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener{
     private String TAG = CreateLessonActivity.class.getSimpleName();
@@ -51,15 +61,17 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     private RatingBar mMuscleBar;
     private EditText mDescription;
 
-    private GlobalInfos globalInfos = GlobalInfos.getInstance();
-
     private RecyclerView mActionsRecycleView;
     private LessonActionsAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
     private Intent mIntent;
-    private ArrayList<Integer> selectedActionsId;
+
+    private Gson gson = new Gson();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
 
     private final int SELECT_ACTION = 1;
+    private File mCoverFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +79,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         setContentView(R.layout.activity_create_lesson);
 
         mIntent = getIntent();
+        mCoverFile = new File(getExternalCacheDir(), "cover.jpg");
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -77,14 +90,13 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
-        selectedActionsId = new ArrayList<>();
-
         mCover = (ImageView)findViewById(R.id.cover);
         mName = (EditText)findViewById(R.id.name);
         mPurpose  = (EditText)findViewById(R.id.purpose);
         mBodies = (EditText)findViewById(R.id.bodies);
         mAddress = (EditText)findViewById(R.id.address);
         mCosttime = (EditText)findViewById(R.id.costtime);
+        mDescription = (EditText)findViewById(R.id.description);
         mRecycleTimes = (EditText)findViewById(R.id.recycle_times);
         findViewById(R.id.add).setOnClickListener(this);
 
@@ -215,8 +227,6 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     }
                     stringPickerDialog.show();
                     break;
-                case R.id.cover:
-                    break;
             }
         }
         return false;
@@ -228,31 +238,162 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         switch (v.getId()){
             case R.id.save:
                 String name = mName.getText().toString().trim();
-                ArrayList<String> bodies = (ArrayList)Arrays.asList(mBodies.getText().toString().trim().split(" "));
-                String address = mAddress.getText().toString().trim();
+                if(name.length()==0) {
+                    Toast.makeText(getBaseContext(), "请填写课程名", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 String purpose = mPurpose.getText().toString().trim();
-                int costTime = Integer.parseInt(mCosttime.getText().toString().trim());
+                if(purpose.length()==0) {
+                    Toast.makeText(getBaseContext(), "请选择训练目的", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String bodiesStr = mBodies.getText().toString().trim();
+                if(bodiesStr.length()==0){
+                    Toast.makeText(getBaseContext(), "请选择训练部位", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                List<String> bodies = Arrays.asList(bodiesStr.split(" "));
+
+                String address = mAddress.getText().toString().trim();
+                if(address.length()==0) {
+                    Toast.makeText(getBaseContext(), "请选择训练地点", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String costTimeStr = mCosttime.getText().toString().trim();
+                if(costTimeStr.length()==0) {
+                    Toast.makeText(getBaseContext(), "请选择训练耗时", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int costTime = Integer.parseInt(costTimeStr.replace("分钟", ""));
+
                 String description = mDescription.getText().toString().trim();
-                Lesson lesson = new Lesson(-1,name,"",bodies,address,purpose,costTime,description,selectedActionsId);
-                mIntent.putExtra("lesson", lesson);
-                setResult(RESULT_OK, mIntent);
-                finish();
+                if(description.length()==0) {
+                    Toast.makeText(getBaseContext(), "请填写课程描述", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                ArrayList<Integer> actionsId = getSelectedActionsId();
+                if(actionsId.size()==0) {
+                    Toast.makeText(getBaseContext(), "请选择课程动作", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                final Lesson lesson = new Lesson(-1,name,"",bodies,address,purpose,costTime,description,getSelectedActionsId());
+                final LoadingDialog loadingDialog = new LoadingDialog(CreateLessonActivity.this);
+
+                NetworkFileHelper.getInstance().startPost(config.getAddLessonUrl(), HandleLessonResponse.class, new NetworkFileHelper.PostFileRequest() {
+                    @Override
+                    public void onStart() {
+                        loadingDialog.show();
+                    }
+
+                    @Override
+                    public void onResponse(Object response) {
+                        loadingDialog.cancel();
+                        HandleLessonResponse handleLessonResponse = (HandleLessonResponse) response;
+                        int lessonId = handleLessonResponse.getId();
+                        lesson.setId(lessonId);
+                        mIntent.putExtra("lesson", lesson);
+                        setResult(RESULT_OK, mIntent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        loadingDialog.cancel();
+                        Toast.makeText(getBaseContext(), "保存课程失败:"+error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("userid", "" + globalInfos.getUserid());
+                        headers.put("lesson", gson.toJson(lesson));
+                        return headers;
+                    }
+
+                    @Override
+                    public Map<String, String> getFiles() {
+                        return null;
+                    }
+
+                    @Override
+                    public Map<String, String> getImages() {
+                        Map<String, String> images = new HashMap<String, String>();
+                        if(mCoverFile.exists())
+                            images.put("cover", mCoverFile.getAbsolutePath());
+                        return images;
+                    }
+                });
+
                 break;
             case R.id.cover:
+                getCover();
                 break;
             case R.id.add:
                 intent = new Intent(this, SelectActionActivity.class);
-                intent.putIntegerArrayListExtra("selected", selectedActionsId);
+                intent.putIntegerArrayListExtra("selected", getSelectedActionsId());
                 startActivityForResult(intent, SELECT_ACTION);
                 break;
+
         }
+    }
+
+    private void getCover(){
+        getImageFromPick();
+        //相机获取图片有翻转问题
+        /*
+        final Uri headImgUri = Uri.fromFile(mCoverFile);//获取文件的Uri
+        final int outputX = 120;
+        final int outputY = 180;
+        new AlertDialog.Builder(CreateLessonActivity.this).setItems(new String[]{"相机", "相册"}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    //不能同时设置输出到文件中 和 从data中返回
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, headImgUri);
+                    //intent.putExtra("return-data", true);
+                    startActivityForResult(intent, 101);
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_PICK, null);
+                    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                    intent.putExtra("output", headImgUri);
+                    intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                    intent.putExtra("crop", "true");
+                    intent.putExtra("aspectX", 1);// 裁剪框比例
+                    intent.putExtra("aspectY", 1);
+                    //intent.putExtra("outputX", outputX);// 输出图片大小
+                    //intent.putExtra("outputY", outputY);
+                    //intent.putExtra("return-data", true);
+                    startActivityForResult(intent, 100);
+                }
+            }
+        }).create().show();
+        */
+    }
+
+    private void getImageFromPick(){
+        Intent intent = new Intent(Intent.ACTION_PICK, null);
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        intent.putExtra("output", Uri.fromFile(mCoverFile));
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+        intent.putExtra("crop", "true");
+        intent.putExtra("aspectX", 1);// 裁剪框比例
+        intent.putExtra("aspectY", 1);
+        //intent.putExtra("outputX", outputX);// 输出图片大小
+        //intent.putExtra("outputY", outputY);
+        //intent.putExtra("return-data", true);
+        startActivityForResult(intent, 100);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode == RESULT_OK){
+            Intent intent = null;
             switch (requestCode){
                 case SELECT_ACTION:
-                    selectedActionsId = data.getIntegerArrayListExtra("selected");
+                    ArrayList<Integer> selectedActionsId = data.getIntegerArrayListExtra("selected");
                     Log.e(TAG, "selectAction:"+selectedActionsId.size());
 
                     int maxItemCount = mAdapter.getItemCount();
@@ -270,6 +411,28 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                         maxItemCount = lessonActionInfos.size();
                     mAdapter.notifyItemRangeChanged(0,maxItemCount);
                     break;
+                case 100:
+                    //bmp = intent.getParcelableExtra("data");
+                    Log.e(TAG, "从相册选取");
+                    Bitmap bmp = Utils.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
+                    mCover.setImageBitmap(bmp);
+                    break;
+                case 101:
+                    Log.e(TAG, "从相机选取");
+                    /*从uri中获取需要自己剪裁
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.outHeight = 180;
+                    options.outWidth = 180;
+                    bmp = decodeUriAsBitmap(headImgUri, options);
+                    //*/
+                    if(mCoverFile.isFile() && mCoverFile.exists())
+                        Log.e(TAG, mCoverFile.toString()+" is exit");
+                    bmp = Utils.getOptimizeBitmapFromFile(mCoverFile);
+                    Log.e(TAG, "count:" + bmp.getByteCount());
+
+                    //bmp = intent.getParcelableExtra("data");
+                    mCover.setImageBitmap(bmp);
+                    break;
             }
         }
     }
@@ -277,5 +440,14 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         mItemTouchHelper.startDrag(viewHolder);
+    }
+
+    private ArrayList<Integer> getSelectedActionsId(){
+        //获取选中的动作id
+        ArrayList<Integer> selectedActionsId = new ArrayList<>();
+        List<LessonActionInfo> datas = mAdapter.getList();
+        for(int i=0;i<datas.size();i++)
+            selectedActionsId.add(datas.get(i).getActionId());
+        return selectedActionsId;
     }
 }

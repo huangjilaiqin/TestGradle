@@ -82,10 +82,6 @@ public class Utils {
     public static Bitmap getBitmapFromFile(File file) {
         Bitmap bitmap = null;
         try {
-            BitmapFactory.Options opts=new BitmapFactory.Options();
-            opts.inJustDecodeBounds = true;
-            opts.inPreferredConfig = Bitmap.Config.RGB_565;
-            opts.inTempStorage = new byte[100 * 1024];
             /*
             BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
             int width = opts.outWidth;
@@ -93,13 +89,25 @@ public class Utils {
 
             opts.inJustDecodeBounds = false;
             */
-            //opts.inSampleSize = 2;
-            bitmap = BitmapFactory.decodeStream(new FileInputStream(file),null,null);
+
+            BitmapFactory.Options opts=new BitmapFactory.Options();
+            /*
+            opts.inJustDecodeBounds = true;
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            opts.inTempStorage = new byte[100 * 1024];
+
+            opts.inSampleSize = 2;
+            */
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(file),null,opts);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
         return bitmap;
+    }
+
+    public static Bitmap getOptimizeBitmapFromFile(File file) {
+        return optimizeBitmap(file);
     }
 
     public static void setBitmapToFile(File file, Bitmap bitmap) {

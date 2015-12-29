@@ -27,7 +27,6 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
 import com.lessask.model.Utils;
 import com.lessask.net.NetworkFileHelper;
-import com.lessask.test.TestVolleyActivity;
 
 import java.io.File;
 import java.util.ArrayList;

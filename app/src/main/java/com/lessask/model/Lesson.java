@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by laiqin on 15/12/17.
@@ -12,14 +13,14 @@ public class Lesson implements Parcelable {
     private int id;
     private String name;
     private String cover;
-    private ArrayList<String> bodies;
+    private List<String> bodies;
     private String address;
     private String purpose;
     private int costTime;
     private String description;
     private ArrayList<Integer> actionsId;
 
-    public Lesson(int id, String name, String cover, ArrayList<String> bodies, String address, String purpose, int costTime, String description, ArrayList<Integer> actionsId) {
+    public Lesson(int id, String name, String cover, List<String> bodies, String address, String purpose, int costTime, String description, ArrayList<Integer> actionsId) {
         this.id = id;
         this.name = name;
         this.cover = cover;
@@ -92,11 +93,11 @@ public class Lesson implements Parcelable {
         this.cover = cover;
     }
 
-    public ArrayList<String> getBodies() {
+    public List<String> getBodies() {
         return bodies;
     }
 
-    public void setBodies(ArrayList<String> bodies) {
+    public void setBodies(List<String> bodies) {
         this.bodies = bodies;
     }
 

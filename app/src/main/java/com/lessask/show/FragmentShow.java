@@ -58,7 +58,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private int oldShowId;
     private int pageNum = 10;
 
-    private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
@@ -131,7 +130,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         }
                     });
                     VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
-                    //startPost(config.getGetShowUrl(), GETSHOWS_FORWARD, GetShowResponse.class);
                 }
             });
             mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
