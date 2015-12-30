@@ -2,19 +2,25 @@ package com.lessask.lesson;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.lessask.OnItemClickListener;
 import com.lessask.R;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
+import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.model.Lesson;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by JHuang on 2015/11/24.
@@ -23,6 +29,8 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
 
     private static final String TAG=LessonAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
 
     private Context context;
 
@@ -46,15 +54,31 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final MyViewHolder myHolder = (MyViewHolder)RecyclerViewDragHolder.getHolder(holder);
         Lesson data = getItem(position);
-        myHolder.name.setText(data.getName()+"分钟");
+        myHolder.name.setText(data.getName());
         myHolder.address.setText(data.getAddress());
+        myHolder.time.setText(data.getCostTime()+"分钟");
+        myHolder.purpose.setText(data.getPurpose());
+        StringBuilder builder = new StringBuilder();
+        Iterator<String> iterator = data.getBodies().iterator();
+        while (iterator.hasNext()){
+            builder.append(iterator.next());
+            if(iterator.hasNext())
+                builder.append(" ");
+        }
+        myHolder.bodies.setText(builder.toString());
+        ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.cover,R.drawable.man, R.drawable.women);
+        Log.e(TAG, "load img:"+config.getImgUrl()+data.getCover());
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl()+data.getCover(), listener);
+
+
+        //处理菜单打开和未打开是的单击事件
         myHolder.getTopView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(myHolder.isOpen()){
+                if (myHolder.isOpen()) {
                     myHolder.close();
-                }else {
-                    Toast.makeText(context, "real click", Toast.LENGTH_SHORT).show();
+                } else {
+                    //Toast.makeText(context, "real click", Toast.LENGTH_SHORT).show();
                     if (onItemClickListener != null) {
                         onItemClickListener.onItemClick(v, position);
                     }
@@ -77,13 +101,15 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
         });
 
 
-        myHolder.time.setText("" + data.getCostTime());
     }
 
     public static class MyViewHolder extends RecyclerViewDragHolder{
+        ImageView cover;
         TextView name;
         TextView time;
         TextView address;
+        TextView purpose;
+        TextView bodies;
 
         //左滑菜单
         TextView deleteItem;
@@ -99,9 +125,13 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
 
         @Override
         public void initView(View itemView) {
+            cover = (ImageView)itemView.findViewById(R.id.cover);
             name = (TextView)itemView.findViewById(R.id.name);
             time = (TextView)itemView.findViewById(R.id.time);
             address = (TextView)itemView.findViewById(R.id.address);
+            purpose = (TextView)itemView.findViewById(R.id.purpose);
+            bodies = (TextView)itemView.findViewById(R.id.bodies);
+
             deleteItem = (TextView) itemView.findViewById(R.id.delete);
             distributeItem = (TextView) itemView.findViewById(R.id.distribute);
         }

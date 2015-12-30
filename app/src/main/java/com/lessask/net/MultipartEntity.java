@@ -67,8 +67,8 @@ public class MultipartEntity {
     public void initNet() throws IOException{
         URL url = new URL(this.url);
         con = (HttpURLConnection) url.openConnection();
-        con.setConnectTimeout(10000);
-        con.setReadTimeout(10000);
+        con.setConnectTimeout(15000);
+        con.setReadTimeout(15000);
         // 发送POST请求必须设置如下两行
         con.setDoInput(true);
         con.setDoOutput(true);
@@ -156,10 +156,13 @@ public class MultipartEntity {
 
         byte[] tmp = new byte[4096];
         int len = 0;
+        int size = 0;
         while ((len = fin.read(tmp)) != -1) {
             netOutput.write(tmp, 0, len);
+            size += len;
         }
         fin.close();
+        Log.e(TAG, "upload file size:" + size / 1024);
         netOutput.write(NEW_LINE_STR.getBytes());
         netOutput.flush();
     }
@@ -178,10 +181,14 @@ public class MultipartEntity {
 
         byte[] tmp = new byte[4096];
         int len = 0;
+        int size=0;
         while ((len = fin.read(tmp)) != -1) {
             netOutput.write(tmp, 0, len);
+            size += len;
         }
         fin.close();
+        size = size/1024;
+        Log.e(TAG, "optmize image size:"+size+" Kb");
         netOutput.write(NEW_LINE_STR.getBytes());
         netOutput.flush();
     }
@@ -203,19 +210,26 @@ public class MultipartEntity {
     public PostResponse end() throws IOException {
         // 参数最末尾的结束符
         // 写入结束符
+        Log.e(TAG, "end");
         netOutput.write(("--" + mBoundary + "--\r\n").getBytes());
         netOutput.flush();
         netOutput.close();
+        Log.e(TAG, "close");
         // 定义BufferedReader输入流来读取URL的响应
         int resCode = con.getResponseCode();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(
-            con.getInputStream()));
-        String line = null;
-        StringBuilder builder = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-            builder.append(line);
+        if(resCode==200){
+            Log.e(TAG, "resCode"+resCode);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                con.getInputStream()));
+            String line = null;
+            StringBuilder builder = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+            return new PostResponse(resCode, builder.toString());
+        }else {
+            return new PostResponse(resCode, "network error, code:"+resCode);
         }
-        return new PostResponse(resCode, builder.toString());
     }
 
     public void close() {

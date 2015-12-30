@@ -3,10 +3,10 @@ package com.lessask.lesson;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.Gson;
 import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
@@ -33,9 +34,10 @@ import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
 import com.lessask.model.Utils;
 import com.lessask.net.NetworkFileHelper;
+import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnStartDragListener;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
-
+import com.lessask.util.ArrayUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,8 +46,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener{
-    private String TAG = CreateLessonActivity.class.getSimpleName();
+public class EditLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener {
+    private String TAG = EditLessonActivity.class.getSimpleName();
 
     private EditText mName;
     private ImageView mCover;
@@ -62,6 +64,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     private LessonActionsAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
     private Intent mIntent;
+    private Lesson lesson;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -70,13 +73,10 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     private final int SELECT_ACTION = 1;
     private File mCoverFile;
 
-    private int fatEffect=1;
-    private int muscleEffect=1;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_lesson);
+        setContentView(R.layout.activity_edit_lesson);
 
         mIntent = getIntent();
         mCoverFile = new File(getExternalCacheDir(), "cover.jpg");
@@ -91,31 +91,41 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         });
 
         mCover = (ImageView)findViewById(R.id.cover);
+        ImageLoader.ImageListener listener = ImageLoader.getImageListener(mCover,R.drawable.man, R.drawable.women);
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + lesson.getCover(), listener);
+
         mName = (EditText)findViewById(R.id.name);
+        mName.setText(lesson.getName());
         mPurpose  = (EditText)findViewById(R.id.purpose);
+        mPurpose.setText(lesson.getName());
         mBodies = (EditText)findViewById(R.id.bodies);
+        mBodies.setText(ArrayUtil.join(lesson.getBodies(), " "));
         mAddress = (EditText)findViewById(R.id.address);
+        mAddress.setText(lesson.getAddress());
         mCosttime = (EditText)findViewById(R.id.costtime);
+        mCosttime.setText(lesson.getCostTime()+"分钟");
         mDescription = (EditText)findViewById(R.id.description);
+        mDescription.setText(lesson.getDescription());
         mRecycleTimes = (EditText)findViewById(R.id.recycle_times);
-        findViewById(R.id.add).setOnClickListener(this);
+        mRecycleTimes.setText(lesson.getRecycleTimes()+"次");
         mFatBar = (RatingBar)findViewById(R.id.fat_start);
-        mFatBar.setStar(fatEffect);
+        mFatBar.setStar(lesson.getFatEffect());
         mFatBar.setOnRatingChangeListener(new RatingBar.OnRatingChangeListener() {
             @Override
             public void onRatingChange(int RatingCount) {
-                fatEffect = RatingCount;
+                lesson.setFatEffect(RatingCount);
             }
         });
         mMuscleBar = (RatingBar)findViewById(R.id.muscle_start);
-        mMuscleBar.setStar(muscleEffect);
+        mMuscleBar.setStar(lesson.getMuscleEffect());
         mMuscleBar.setOnRatingChangeListener(new RatingBar.OnRatingChangeListener() {
             @Override
             public void onRatingChange(int RatingCount) {
-                muscleEffect = RatingCount;
+                lesson.setMuscleEffect(RatingCount);
             }
         });
 
+        findViewById(R.id.add).setOnClickListener(this);
         findViewById(R.id.save).setOnClickListener(this);
         mCover.setOnClickListener(this);
         mPurpose.setOnTouchListener(this);
@@ -142,11 +152,11 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         StringPickerDialog stringPickerDialog;
-        if(event.getAction()==MotionEvent.ACTION_UP) {
+        if(event.getAction()== MotionEvent.ACTION_UP) {
             switch (v.getId()) {
                 case R.id.purpose:
                     String[] purposeValues = {"增肌", "减脂", "塑形"};
-                    StringPickerDialog dialog = new StringPickerDialog(CreateLessonActivity.this, purposeValues, new StringPickerDialog.OnSelectListener() {
+                    StringPickerDialog dialog = new StringPickerDialog(EditLessonActivity.this, purposeValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mPurpose.setText(data);
@@ -162,7 +172,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     ArrayList<String> bodiesValues = new ArrayList<>();
                     for (int i = 0; i < values1.length; i++)
                         bodiesValues.add(values1[i]);
-                    TagsPickerDialog dialog1 = new TagsPickerDialog(CreateLessonActivity.this, bodiesValues, new TagsPickerDialog.OnSelectListener() {
+                    TagsPickerDialog dialog1 = new TagsPickerDialog(EditLessonActivity.this, bodiesValues, new TagsPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(List data) {
                             String resulte = "";
@@ -196,7 +206,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     break;
                 case R.id.address:
                     String[] addressValues = {"健身房", "家里", "公园"};
-                    StringPickerDialog addressDialog = new StringPickerDialog(CreateLessonActivity.this, addressValues, new StringPickerDialog.OnSelectListener() {
+                    StringPickerDialog addressDialog = new StringPickerDialog(EditLessonActivity.this, addressValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mAddress.setText(data);
@@ -209,7 +219,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     ArrayList<String> costtimeValues = new ArrayList<>();
                     for (int i = 1; i < 91; i++)
                         costtimeValues.add(i + "分钟");
-                    StringPickerDialog costtimeDialog = new StringPickerDialog(CreateLessonActivity.this, costtimeValues, new StringPickerDialog.OnSelectListener() {
+                    StringPickerDialog costtimeDialog = new StringPickerDialog(EditLessonActivity.this, costtimeValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mCosttime.setText(data);
@@ -228,7 +238,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     ArrayList<String> actionRecycleTimesValues = new ArrayList<>();
                     for (int i = 1; i < 50; i++)
                         actionRecycleTimesValues.add(i + "次");
-                    stringPickerDialog = new StringPickerDialog(CreateLessonActivity.this, actionRecycleTimesValues, new StringPickerDialog.OnSelectListener() {
+                    stringPickerDialog = new StringPickerDialog(EditLessonActivity.this, actionRecycleTimesValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mRecycleTimes.setText(data);
@@ -295,12 +305,9 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     return;
                 }
 
-                int recycleTimes = Integer.parseInt(mRecycleTimes.getText().toString().trim().replace("次",""));
+                final LoadingDialog loadingDialog = new LoadingDialog(EditLessonActivity.this);
 
-                final Lesson lesson = new Lesson(-1,name,"",bodies,address,purpose,costTime,description,getSelectedActionsId(),recycleTimes,fatEffect,muscleEffect);
-                final LoadingDialog loadingDialog = new LoadingDialog(CreateLessonActivity.this);
-
-                NetworkFileHelper.getInstance().startPost(config.getAddLessonUrl(), HandleLessonResponse.class, new NetworkFileHelper.PostFileRequest() {
+                NetworkFileHelper.getInstance().startPost(config.getUpdateLessonUrl(), HandleLessonResponse.class, new NetworkFileHelper.PostFileRequest() {
                     @Override
                     public void onStart() {
                         loadingDialog.show();
@@ -312,7 +319,6 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                         HandleLessonResponse handleLessonResponse = (HandleLessonResponse) response;
                         int lessonId = handleLessonResponse.getId();
                         lesson.setId(lessonId);
-                        lesson.setCover(handleLessonResponse.getCover());
                         mIntent.putExtra("lesson", lesson);
                         setResult(RESULT_OK, mIntent);
                         finish();
@@ -328,23 +334,21 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     public Map<String, String> getHeaders() {
                         Map<String, String> headers = new HashMap<String, String>();
                         headers.put("userId", "" + globalInfos.getUserId());
-                        String gsonStr = gson.toJson(lesson);
-                        Log.e(TAG, gsonStr.length()+", "+gsonStr);
                         headers.put("lesson", gson.toJson(lesson));
                         return headers;
                     }
 
                     @Override
                     public Map<String, String> getFiles() {
-                        Map<String, String> images = new HashMap<String, String>();
-                        if(mCoverFile.exists())
-                            images.put("cover", mCoverFile.getAbsolutePath());
-                        return images;
+                        return null;
                     }
 
                     @Override
                     public Map<String, String> getImages() {
-                        return null;
+                        Map<String, String> images = new HashMap<String, String>();
+                        if(mCoverFile.exists())
+                            images.put("cover", mCoverFile.getAbsolutePath());
+                        return images;
                     }
                 });
 
@@ -362,40 +366,6 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void getCover(){
-        getImageFromPick();
-        //相机获取图片有翻转问题
-        /*
-        final Uri headImgUri = Uri.fromFile(mCoverFile);//获取文件的Uri
-        final int outputX = 120;
-        final int outputY = 180;
-        new AlertDialog.Builder(CreateLessonActivity.this).setItems(new String[]{"相机", "相册"}, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    //不能同时设置输出到文件中 和 从data中返回
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, headImgUri);
-                    //intent.putExtra("return-data", true);
-                    startActivityForResult(intent, 101);
-                } else {
-                    Intent intent = new Intent(Intent.ACTION_PICK, null);
-                    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                    intent.putExtra("output", headImgUri);
-                    intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-                    intent.putExtra("crop", "true");
-                    intent.putExtra("aspectX", 1);// 裁剪框比例
-                    intent.putExtra("aspectY", 1);
-                    //intent.putExtra("outputX", outputX);// 输出图片大小
-                    //intent.putExtra("outputY", outputY);
-                    //intent.putExtra("return-data", true);
-                    startActivityForResult(intent, 100);
-                }
-            }
-        }).create().show();
-        */
-    }
-
-    private void getImageFromPick(){
         Intent intent = new Intent(Intent.ACTION_PICK, null);
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         intent.putExtra("output", Uri.fromFile(mCoverFile));
@@ -432,11 +402,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                 case 100:
                     //bmp = intent.getParcelableExtra("data");
                     Log.e(TAG, "从相册选取");
-                    //to do 图片压缩
                     Bitmap bmp = Utils.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
-                    int size = bmp.getByteCount();
-                    size = size/1024;
-                    Log.e(TAG, "iamge size"+size);
                     mCover.setImageBitmap(bmp);
                     break;
                 case 101:

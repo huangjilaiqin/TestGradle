@@ -2,9 +2,10 @@ package com.lessask.net;
 
 import android.util.Log;
 
+import org.bytedeco.javacv.FrameFilter;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -64,7 +65,7 @@ public class PostSingle extends Thread{
                 }
             }
             postResponse = multipartEntity.end();
-        }catch (IOException e){
+        }catch (Exception e){
             Log.e(TAG, "MultipartEntity Exception:" + e.toString());
             postSingleEvent.onError(e.toString());
         }finally {
@@ -72,8 +73,9 @@ public class PostSingle extends Thread{
                 int code = postResponse.getCode();
                 if(postResponse.getCode()!=200){
                     postSingleEvent.onError("error code:"+code);
+                }else {
+                    postSingleEvent.onDone(postResponse);
                 }
-                postSingleEvent.onDone(postResponse);
             }
             if(multipartEntity!=null)
                 multipartEntity.close();

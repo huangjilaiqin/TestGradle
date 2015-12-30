@@ -19,8 +19,11 @@ public class Lesson implements Parcelable {
     private int costTime;
     private String description;
     private ArrayList<Integer> actionsId;
+    private int recycleTimes;
+    private int fatEffect;
+    private int muscleEffect;
 
-    public Lesson(int id, String name, String cover, List<String> bodies, String address, String purpose, int costTime, String description, ArrayList<Integer> actionsId) {
+    public Lesson(int id, String name, String cover, List<String> bodies, String address, String purpose, int costTime, String description, ArrayList<Integer> actionsId,int recycleTimes,int fatEffect,int muscleEffect) {
         this.id = id;
         this.name = name;
         this.cover = cover;
@@ -30,6 +33,9 @@ public class Lesson implements Parcelable {
         this.costTime = costTime;
         this.description = description;
         this.actionsId = actionsId;
+        this.recycleTimes = recycleTimes;
+        this.fatEffect = fatEffect;
+        this.muscleEffect = muscleEffect;
     }
 
     @Override
@@ -48,6 +54,9 @@ public class Lesson implements Parcelable {
         dest.writeInt(costTime);
         dest.writeString(description);
         dest.writeList(actionsId);
+        dest.writeInt(recycleTimes);
+        dest.writeInt(fatEffect);
+        dest.writeInt(muscleEffect);
     }
     public static final Parcelable.Creator<Lesson> CREATOR
              = new Parcelable.Creator<Lesson>() {
@@ -61,13 +70,32 @@ public class Lesson implements Parcelable {
              int costTime = in.readInt();
              String description = in.readString();
              ArrayList<Integer> actionsId = in.readArrayList(null);
-             return new Lesson(id,name,cover,bodies,address,purpose,costTime,description,actionsId);
+             int recycleTimes = in.readInt();
+             int fatEffect = in.readInt();
+             int muscleEffect = in.readInt();
+             return new Lesson(id,name,cover,bodies,address,purpose,costTime,description,actionsId,recycleTimes,fatEffect,muscleEffect);
          }
 
          public Lesson[] newArray(int size) {
              return new Lesson[size];
          }
     };
+
+    public int getFatEffect() {
+        return fatEffect;
+    }
+
+    public void setFatEffect(int fatEffect) {
+        this.fatEffect = fatEffect;
+    }
+
+    public int getMuscleEffect() {
+        return muscleEffect;
+    }
+
+    public void setMuscleEffect(int muscleEffect) {
+        this.muscleEffect = muscleEffect;
+    }
 
     public int getId() {
         return id;
@@ -141,5 +169,11 @@ public class Lesson implements Parcelable {
         this.actionsId = actionsId;
     }
 
+    public int getRecycleTimes() {
+        return recycleTimes;
+    }
 
+    public void setRecycleTimes(int recycleTimes) {
+        this.recycleTimes = recycleTimes;
+    }
 }
