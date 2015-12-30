@@ -256,7 +256,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String,String> headers = new HashMap<String, String>();
-                        headers.put("userId", globalInfos.getUserid()+"");
+                        headers.put("userId", globalInfos.getUserId()+"");
 
                         ActionItem actionItem = new ActionItem(0,mName.getText().toString().trim(),"", tagDatas, noticeDatas);
                         headers.put("actionItem", gson.toJson(actionItem));

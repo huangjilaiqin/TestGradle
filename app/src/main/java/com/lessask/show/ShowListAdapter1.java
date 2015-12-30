@@ -22,7 +22,6 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.lessask.friends.FriendsAdapter;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -345,27 +344,27 @@ public class ShowListAdapter1 extends BaseAdapter {
             //获取数据状态数据
             postSingle = new PostSingle(config.getUnlikeUrl(), unlikePostSingleEvent);
             HashMap<String, String> requestArgs = new HashMap<>();
-            requestArgs.put("userid", ""+globalInfos.getUserid());
+            requestArgs.put("userid", ""+globalInfos.getUserId());
             requestArgs.put("showid", ""+showItem.getId());
             //postSingle.setHeaders(requestArgs);
             postSingle.start();
 
-            showItem.unlike(globalInfos.getUserid());
+            showItem.unlike(globalInfos.getUserId());
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
-            showItem.unlike(globalInfos.getUserid());
+            showItem.unlike(globalInfos.getUserId());
             int upSize = showItem.getLiker().size();
             tvUpSize.setText("" + upSize);
         }else {
             postSingle = new PostSingle(config.getLikeUrl(), likePostSingleEvent);
             HashMap<String, String> requestArgs = new HashMap<>();
-            requestArgs.put("userid", ""+globalInfos.getUserid());
+            requestArgs.put("userid", ""+globalInfos.getUserId());
             requestArgs.put("showid", ""+showItem.getId());
             //postSingle.setHeaders(requestArgs);
             postSingle.start();
 
-            showItem.like(globalInfos.getUserid());
+            showItem.like(globalInfos.getUserId());
             ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
-            showItem.like(globalInfos.getUserid());
+            showItem.like(globalInfos.getUserId());
             int upSize = showItem.getLiker().size();
             tvUpSize.setText("" + upSize);
         }

@@ -19,7 +19,7 @@ public class GlobalInfos {
 
     private final static String TAG = GlobalInfos.class.getName();
 
-    private int userid;
+    private int userId;
     private User user;
     //聊天信息
     private HashMap<Integer, ArrayList> chatContents;
@@ -128,7 +128,7 @@ public class GlobalInfos {
         this.headImgDir = headImgDir;
     }
 
-    public void setUser(int userid, User user){
+    public void setUser(int userId, User user){
         Log.e(TAG, "globalInfos set user");
         this.user = user;
     }
@@ -160,15 +160,15 @@ public class GlobalInfos {
     public void setFriendsinMap(HashMap<Integer, User> friends) {
         this.friendsinMap = friends;
         //将用户自己的信息添加进来
-        this.friendsinMap.put(userid, user);
+        this.friendsinMap.put(userId, user);
     }
 
-    public int getUserid() {
-        return userid;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUserid(int userid) {
-        this.userid = userid;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
 }

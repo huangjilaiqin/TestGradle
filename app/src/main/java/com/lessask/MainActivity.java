@@ -1,6 +1,5 @@
 package com.lessask;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,30 +20,24 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.lessask.action.CreateActionActivity;
 import com.lessask.action.FragmentAction;
 import com.lessask.contacts.FragmentContacts;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.lesson.CreateLessonActivity;
 import com.lessask.lesson.FragmentLesson;
 import com.lessask.library.FragmentLibrary;
 import com.lessask.me.FragmentMe;
-import com.lessask.model.ActionItem;
 import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;
 import com.lessask.tag.TagNet;
 import com.lessask.test.FragmentTest;
-import com.lessask.video.RecordVideoActivity;
 import com.viewpagerindicator.IconPageIndicator;
 
 import java.io.File;
@@ -201,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void loadData(){
         TagNet mTagNet = TagNet.getInstance();
         mTagNet.setGetTagsListener(getTagsListener);
-        GetTagsRequest request = new GetTagsRequest(globalInfos.getUserid());
+        GetTagsRequest request = new GetTagsRequest(globalInfos.getUserId());
         mTagNet.emit("gettags", gson.toJson(request));
     }
     public int getStatusBarHeight() {

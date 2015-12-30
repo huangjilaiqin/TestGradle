@@ -1,14 +1,11 @@
 package com.lessask.lesson;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -142,7 +139,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     Log.e(TAG, "purpose");
                     break;
                 case R.id.bodies:
-                    String[] values1 = {"胸部", "背部", "腰部腰部腰部腰部", "臀部", "大腿", "小腿"};
+                    String[] values1 = {"胸部", "背部", "腰部", "臀部", "大腿", "小腿"};
                     ArrayList<String> bodiesValues = new ArrayList<>();
                     for (int i = 0; i < values1.length; i++)
                         bodiesValues.add(values1[i]);
@@ -308,7 +305,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> headers = new HashMap<String, String>();
-                        headers.put("userid", "" + globalInfos.getUserid());
+                        headers.put("userId", "" + globalInfos.getUserId());
                         headers.put("lesson", gson.toJson(lesson));
                         return headers;
                     }

@@ -13,14 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
-import com.google.gson.Gson;
 import com.lessask.DividerItemDecoration;
 import com.lessask.MainActivity;
 import com.lessask.R;
@@ -31,10 +28,7 @@ import com.lessask.model.ShowItem;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.ImprovedSwipeLayout;
-import com.lessask.recyclerview.RecyclerViewInSwipeRefreshStatusSupport;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -122,7 +116,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                         @Override
                         public void setPostData(Map datas) {
-                            datas.put("userid", "" + globalInfos.getUserid());
+                            datas.put("userid", "" + globalInfos.getUserId());
                             datas.put("id", "" + newShowId);
                             datas.put("direct", "forward");
                             datas.put("pagenum", "" + pageNum);
@@ -192,7 +186,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                             @Override
                             public void setPostData(Map datas) {
-                                datas.put("userid", "" + globalInfos.getUserid());
+                                datas.put("userid", "" + globalInfos.getUserId());
                                 datas.put("id", "" + oldShowId);
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
@@ -236,7 +230,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                 @Override
                 public void setPostData(Map datas) {
-                    datas.put("userid", "" + globalInfos.getUserid());
+                    datas.put("userid", "" + globalInfos.getUserId());
                     datas.put("pagenum", ""+4);
                 }
             });

@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.lessask.MainActivity;
 import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
@@ -533,7 +532,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 videoName = new File(newVideoPath).getName();
             }
             newActionItem = new ActionItem(oldActionItem.getId(),mName.getText().toString().trim(),videoName, tagDatas, noticeDatas);
-            headers.put("userid", globalInfos.getUserid() + "");
+            headers.put("userid", globalInfos.getUserId() + "");
             headers.put("actionItem", gson.toJson(newActionItem));
             return headers;
         }

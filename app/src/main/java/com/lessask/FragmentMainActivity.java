@@ -78,7 +78,7 @@ public class FragmentMainActivity extends FragmentActivity implements ViewPager.
     private void loadData(){
         TagNet mTagNet = TagNet.getInstance();
         mTagNet.setGetTagsListener(getTagsListener);
-        GetTagsRequest request = new GetTagsRequest(globalInfos.getUserid());
+        GetTagsRequest request = new GetTagsRequest(globalInfos.getUserId());
         mTagNet.emit("gettags", gson.toJson(request));
     }
     private TagNet.GetTagsListener getTagsListener = new TagNet.GetTagsListener() {

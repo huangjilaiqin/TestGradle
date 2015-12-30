@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
@@ -25,13 +23,12 @@ import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.Lesson;
-import com.lessask.model.LessonItem;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -122,8 +119,8 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
     }
     private void loadLessons(){
-        GsonRequest  gsonRequest = new GsonRequest(Request.Method.POST, config.getLessonsUrl(), ArrayList.class, new GsonRequest.PostGsonRequest<ArrayList<Lesson>>(){
-
+        Type type = new TypeToken<ArrayList<Lesson>>() {}.getType();
+        GsonRequest  gsonRequest = new GsonRequest<ArrayList<Lesson>>(Request.Method.POST,config.getLessonsUrl(),type,new GsonRequest.PostGsonRequest<ArrayList<Lesson>>(){
             @Override
             public void onStart() {
                 mRecyclerView.showLoadingView();
@@ -131,8 +128,6 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
             @Override
             public void onResponse(ArrayList<Lesson> response) {
-                Log.e(TAG, "response:"+response);
-                Log.e(TAG, "actiondatas length:" + response.size());
                 mRecyclerViewAdapter.appendToList(response);
                 mRecyclerViewAdapter.notifyDataSetChanged();
             }
@@ -144,7 +139,7 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userid", "" + globalInfos.getUserid());
+                datas.put("userId", "" + globalInfos.getUserId());
             }
         });
         volleyHelper.addToRequestQueue(gsonRequest);

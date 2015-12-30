@@ -152,7 +152,7 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
             @Override
             public void setPostData(Map datas) {
                 ActionItem actionItem = mRecyclerViewAdapter.getItem(deletePostion);
-                datas.put("userid", globalInfos.getUserid() + "");
+                datas.put("userid", globalInfos.getUserId() + "");
                 datas.put("name", actionItem.getVideoName());
                 datas.put("id", actionItem.getId() + "");
 
@@ -188,7 +188,7 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userid", "" + globalInfos.getUserid());
+                datas.put("userid", "" + globalInfos.getUserId());
             }
         });
         volleyHelper.addToRequestQueue(getActionsRequest);

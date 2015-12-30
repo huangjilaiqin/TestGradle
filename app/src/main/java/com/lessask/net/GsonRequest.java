@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class GsonRequest<T> extends Request<T> {
     private String TAG = GsonRequest.class.getSimpleName();
     private final Gson gson = new Gson();
     private final Class<T> clazz;
+    private final Type type;
     private final Response.Listener<T> listener;
     private PostGsonRequest<T> postGsonRequest;
 
@@ -30,6 +32,25 @@ public class GsonRequest<T> extends Request<T> {
         });
         this.postGsonRequest = postGsonRequest;
         this.clazz = clazz;
+        this.type = null;
+        this.listener = new Response.Listener<T>() {
+            @Override
+            public void onResponse(T response) {
+                postGsonRequest.onResponse(response);
+            }
+        };
+        postGsonRequest.onStart();
+    }
+    public GsonRequest(int method, String url, Type type, final PostGsonRequest<T> postGsonRequest) {
+        super(method, url, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                postGsonRequest.onError(error);
+            }
+        });
+        this.postGsonRequest = postGsonRequest;
+        this.clazz = null;
+        this.type = type;
         this.listener = new Response.Listener<T>() {
             @Override
             public void onResponse(T response) {
@@ -76,8 +97,14 @@ public class GsonRequest<T> extends Request<T> {
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
             //Log.e(TAG, "data:"+json);
+            T obj = null;
+            if(clazz==null) {
+                obj = gson.fromJson(json, type);
+            }else {
+                obj = gson.fromJson(json, clazz);
+            }
             return Response.success(
-                    gson.fromJson(json, clazz),
+                    obj,
                     HttpHeaderParser.parseCacheHeaders(response));
         } catch (UnsupportedEncodingException e) {
             return Response.error(new ParseError(e));

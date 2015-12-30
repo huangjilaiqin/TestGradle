@@ -11,11 +11,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.lessask.R;
-import com.lessask.action.HandleActionResponse;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
@@ -24,7 +22,6 @@ import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class TestVolleyActivity extends AppCompatActivity implements View.OnClickListener{
@@ -88,7 +85,7 @@ public class TestVolleyActivity extends AppCompatActivity implements View.OnClic
 
                     @Override
                     public void setPostData(Map datas) {
-                        datas.put("userid", ""+globalInfos.getUserid());
+                        datas.put("userid", ""+globalInfos.getUserId());
                     }
                 });
                 volleyHelper.addToRequestQueue(gsonRequest);

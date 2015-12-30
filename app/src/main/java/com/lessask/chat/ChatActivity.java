@@ -111,7 +111,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         Intent intent = getIntent();
         swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
-        userId = globalInfos.getUserid();
+        userId = globalInfos.getUserId();
         friendId = intent.getIntExtra("friendId", -1);
         seq = 0;
 

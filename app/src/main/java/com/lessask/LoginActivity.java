@@ -51,7 +51,7 @@ public class LoginActivity extends Activity {
                     Toast.makeText(LoginActivity.this, "login errno:"+loginResponse.getErrno()+", error:"+loginResponse.getError(), Toast.LENGTH_SHORT).show();
                     break;
                 case HANDLER_LOGING_SUCCESS:
-                    Log.d(TAG, "login success userid:" + globalInfos.getUserid());
+                    Log.d(TAG, "login success userid:" + globalInfos.getUserId());
                     //去掉转圈圈
                     loginDialog.cancel();
                     //跳转到首页
@@ -96,7 +96,7 @@ public class LoginActivity extends Activity {
                     return;
                 }else {
                     userid =loginResponse.getUserid();
-                    globalInfos.setUserid(userid);
+                    globalInfos.setUserId(userid);
                     //to do 服务器端返回 昵称,客户端发生 状态(在线)
                     globalInfos.setUser(userid, new User(userid, loginResponse.getMail(), loginResponse.getNickname(), loginResponse.getStatus(), loginResponse.getPasswd(), loginResponse.getHeadimg()));
                     handler.sendEmptyMessage(HANDLER_LOGING_SUCCESS);

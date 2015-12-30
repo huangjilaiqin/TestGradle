@@ -135,7 +135,7 @@ public class Chat {
             }else {
                 ArrayList<ChatMessage> messages = historyResponse.getMessages();
                 if(messages.size()>0){
-                    int myId = globalInfos.getUserid();
+                    int myId = globalInfos.getUserId();
                     int friendId = 0;
                     //获取好友id
                     Iterator ite = messages.iterator();

@@ -431,7 +431,7 @@ public class RunActivity extends Activity implements BaiduMap.OnMapDrawFrameCall
 
     private void finishRun(){
         //上传运动数据
-        RunData runData = new RunData(globalInfos.getUserid(), myload, mytime);
+        RunData runData = new RunData(globalInfos.getUserId(), myload, mytime);
         String rundataStr = gson.toJson(runData);
         //log("rundataStr:" + rundataStr);
         chat.emit("uploadrun", gson.toJson(runData));

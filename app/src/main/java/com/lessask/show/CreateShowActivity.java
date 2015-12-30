@@ -166,7 +166,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             @Override
             public HashMap<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-                headers.put("userid", globalInfos.getUserid()+"");
+                headers.put("userid", globalInfos.getUserId()+"");
                 headers.put("address", "深圳市 南山区");
                 headers.put("content", mtvContent.getText().toString().trim());
                 headers.put("permission", "1");

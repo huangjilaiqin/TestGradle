@@ -1,6 +1,5 @@
 package com.lessask.tag;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -250,7 +248,7 @@ public class SelectTagsActivity extends AppCompatActivity implements View.OnClic
             if(position==filteredTags.size()-1 && mTagsAdapter.getCanCreateTag()){
                 //create new tag
                 String newTagName = mSelectContent.getText().toString();
-                CreateTagRequest request = new CreateTagRequest(globalInfos.getUserid(), newTagName, getTagSeq());
+                CreateTagRequest request = new CreateTagRequest(globalInfos.getUserId(), newTagName, getTagSeq());
                 mTagNet.emit("createtag", gson.toJson(request));
                 loadingDialog.show();
             }else {

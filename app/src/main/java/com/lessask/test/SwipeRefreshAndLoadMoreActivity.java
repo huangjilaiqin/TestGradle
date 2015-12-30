@@ -162,7 +162,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
 
         postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
         HashMap<String, String> requestArgs = new HashMap<>();
-        requestArgs.put("userid", "" + globalInfos.getUserid());
+        requestArgs.put("userid", "" + globalInfos.getUserId());
         requestArgs.put("pagenum", ""+4);
         //postSingle.setHeaders(requestArgs);
         postSingle.start();
@@ -175,7 +175,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
             public void onRefresh() {
                 postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
                 HashMap<String, String> requestArgs = new HashMap<>();
-                requestArgs.put("userid", "" + globalInfos.getUserid());
+                requestArgs.put("userid", "" + globalInfos.getUserId());
                 requestArgs.put("id", ""+newShowId);
                 requestArgs.put("direct", "forward");
                 requestArgs.put("pagenum", ""+pageNum);
@@ -198,7 +198,7 @@ public class SwipeRefreshAndLoadMoreActivity extends ActionBarActivity {
                     loadBackward = true;
                     postSingle = new PostSingle(config.getGetShowUrl(), postSingleEvent);
                     HashMap<String, String> requestArgs = new HashMap<>();
-                    requestArgs.put("userid", "" + globalInfos.getUserid());
+                    requestArgs.put("userid", "" + globalInfos.getUserId());
                     requestArgs.put("id", "" + oldShowId);
                     requestArgs.put("direct", "backward");
                     requestArgs.put("pagenum", "" + pageNum);

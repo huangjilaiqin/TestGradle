@@ -63,7 +63,7 @@ public class RegisterActivity extends Activity {
                     int statusCode = msg.arg1;
                     RegisterResponse registerResponse = (RegisterResponse)msg.obj;
                     if(statusCode==200){
-                        globalInfos.setUserid(registerResponse.getUserid());
+                        globalInfos.setUserId(registerResponse.getUserid());
                         registerDialog.cancel();
                         Toast.makeText(RegisterActivity.this, "注册成功, 跳转登录...", Toast.LENGTH_LONG).show();
                         //跳转到首页
@@ -176,7 +176,7 @@ public class RegisterActivity extends Activity {
                     handler.sendMessage(msg);
                     return;
                 } else {
-                    globalInfos.setUserid(registerResponse.getUserid());
+                    globalInfos.setUserId(registerResponse.getUserid());
                     handler.sendEmptyMessage(HANDLER_REGISTER_SUCCESS);
                 }
             }

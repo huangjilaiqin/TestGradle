@@ -241,7 +241,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                         Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
                         if(showItem.getId()==response.getShowid()){
                             Log.e(TAG, "unlike response");
-                            showItem.unlike(globalInfos.getUserid());
+                            showItem.unlike(globalInfos.getUserId());
                         }else {
                             //遍历查找showid
                         }
@@ -259,7 +259,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
                 @Override
                 public void setPostData(Map datas) {
-                    datas.put("userid", "" + globalInfos.getUserid());
+                    datas.put("userid", "" + globalInfos.getUserId());
                     datas.put("showid", "" + showItem.getId());
                     datas.put("position", "" + position);
                 }
@@ -277,7 +277,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                     if(response.getError()==null && response.getErrno()==0) {
                         Toast.makeText(activity, "like success", Toast.LENGTH_SHORT).show();
                         if (showItem.getId() == response.getShowid()) {
-                            showItem.like(globalInfos.getUserid());
+                            showItem.like(globalInfos.getUserId());
                         } else {
                             //遍历查找showid
                         }
@@ -295,7 +295,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
                 @Override
                 public void setPostData(Map datas) {
-                    datas.put("userid", "" + globalInfos.getUserid());
+                    datas.put("userid", "" + globalInfos.getUserId());
                     datas.put("showid", "" + showItem.getId());
                     datas.put("position", "" + position);
 
