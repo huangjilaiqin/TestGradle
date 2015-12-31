@@ -19,6 +19,7 @@ import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.model.Lesson;
+import com.lessask.util.ArrayUtil;
 
 import java.util.Iterator;
 
@@ -58,18 +59,10 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
         myHolder.address.setText(data.getAddress());
         myHolder.time.setText(data.getCostTime()+"分钟");
         myHolder.purpose.setText(data.getPurpose());
-        StringBuilder builder = new StringBuilder();
-        Iterator<String> iterator = data.getBodies().iterator();
-        while (iterator.hasNext()){
-            builder.append(iterator.next());
-            if(iterator.hasNext())
-                builder.append(" ");
-        }
-        myHolder.bodies.setText(builder.toString());
+        myHolder.bodies.setText(ArrayUtil.join(data.getBodies(), " "));
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.cover,R.drawable.man, R.drawable.women);
-        Log.e(TAG, "load img:"+config.getImgUrl()+data.getCover());
-        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl()+data.getCover(), listener);
-
+        Log.e(TAG, "load img:" + config.getImgUrl() + data.getCover());
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + data.getCover(), listener);
 
         //处理菜单打开和未打开是的单击事件
         myHolder.getTopView().setOnClickListener(new View.OnClickListener() {

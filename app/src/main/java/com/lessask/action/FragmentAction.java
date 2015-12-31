@@ -174,6 +174,7 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
             public void onResponse(GetActionResponse response) {
                 Log.e(TAG, "response:"+response);
                 ArrayList<ActionItem> actiondatas = response.getActionDatas();
+                globalInfos.addActions(actiondatas);
                 Log.e(TAG, "actiondatas length:" + actiondatas.size());
                 mRecyclerViewAdapter.appendToList(actiondatas);
                 //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);

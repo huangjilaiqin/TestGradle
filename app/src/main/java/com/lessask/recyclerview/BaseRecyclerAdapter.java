@@ -15,6 +15,7 @@ public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder
         return mList;
     }
 
+    //子类操作列表必须使用getList, 操作原来的数据无效，因为这是复制过去的
     public void appendToList(List<T> list) {
         if (list == null) {
             return;

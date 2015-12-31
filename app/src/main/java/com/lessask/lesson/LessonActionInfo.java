@@ -1,24 +1,23 @@
 package com.lessask.lesson;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by huangji on 2015/10/21.
  * 创建编辑课程的动作信息
  */
-public class LessonActionInfo {
-    private String name;
-    //根据actionId获取动作名字，图片
+public class LessonActionInfo implements Parcelable {
+    //根据actionId获取动作名字，图片,为了防止动作信息更改,只保存id
+    //如果要删除动作则提示使用了该动作的课程
     private int actionId;
-    private String actionName;
-    private String actionPic;
     private int groups;
     private int times;
     private int groupRestTimes;
     private int actionRestTimes;
 
-    public LessonActionInfo(int actionId, String actionName, String actionPic,int groups,int times,int groupRestTimes, int actionRestTimes) {
+    public LessonActionInfo(int actionId,int groups,int times,int groupRestTimes, int actionRestTimes) {
         this.actionId = actionId;
-        this.actionName = actionName;
-        this.actionPic = actionPic;
         //组数
         this.groups = groups;
         //每组的次数
@@ -26,6 +25,35 @@ public class LessonActionInfo {
         this.groupRestTimes = groupRestTimes;
         this.actionRestTimes = actionRestTimes;
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(actionId);
+        dest.writeInt(groups);
+        dest.writeInt(times);
+        dest.writeInt(groupRestTimes);
+        dest.writeInt(actionRestTimes);
+    }
+    public static final Parcelable.Creator<LessonActionInfo> CREATOR
+             = new Parcelable.Creator<LessonActionInfo>() {
+         public LessonActionInfo createFromParcel(Parcel in) {
+             int actionsId = in.readInt();
+             int groups = in.readInt();
+             int times = in.readInt();
+             int groupRestTimes = in.readInt();
+             int actionRestTimes = in.readInt();
+
+             return new LessonActionInfo(actionsId,groups,times,groupRestTimes,actionRestTimes);
+         }
+
+         public LessonActionInfo[] newArray(int size) {
+             return new LessonActionInfo[size];
+         }
+    };
 
     public int getGroupRestTimes() {
         return groupRestTimes;
@@ -50,31 +78,6 @@ public class LessonActionInfo {
     public void setActionId(int actionId) {
         this.actionId = actionId;
     }
-
-    public String getActionName() {
-        return actionName;
-    }
-
-    public void setActionName(String actionName) {
-        this.actionName = actionName;
-    }
-
-    public String getActionPic() {
-        return actionPic;
-    }
-
-    public void setActionPic(String actionPic) {
-        this.actionPic = actionPic;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getTimes() {
         return times;
     }

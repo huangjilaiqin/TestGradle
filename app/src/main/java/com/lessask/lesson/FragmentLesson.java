@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.OnItemClickListener;
 import com.lessask.R;
+import com.lessask.action.EditActionActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.Lesson;
@@ -51,7 +52,7 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null) {
             rootView = inflater.inflate(R.layout.fragment_lesson, null);
             rootView.findViewById(R.id.add).setOnClickListener(this);
@@ -71,11 +72,13 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
             mRecyclerView.setClickable(true);
 
             mRecyclerViewAdapter = new LessonAdapter(getContext());
-            //设置点击事件
+            //设置点击事件, 编辑动作
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    Intent intent = new Intent(getActivity(), CreateLessonActivity.class);
+                    Intent intent = new Intent(getActivity(), EditLessonActivity.class);
+                    intent.putExtra("lesson", mRecyclerViewAdapter.getItem(position));
+                    intent.putExtra("position", position);
                     startActivityForResult(intent, EDIT_LESSON);
                 }
             });
@@ -94,6 +97,22 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
             switch (requestCode){
                 case EDIT_LESSON:
                     Toast.makeText(getContext(), "edit lesson done", Toast.LENGTH_SHORT).show();
+                    int position = data.getIntExtra("position", -1);
+                    lesson = data.getParcelableExtra("lesson");
+                    Lesson oldOne = mRecyclerViewAdapter.getItem(position);
+                    oldOne.setName(lesson.getName());
+                    oldOne.setCover(lesson.getCover());
+                    oldOne.setPurpose(lesson.getPurpose());
+                    oldOne.setBodies(lesson.getBodies());
+                    oldOne.setAddress(lesson.getAddress());
+                    oldOne.setCostTime(lesson.getCostTime());
+                    oldOne.setFatEffect(lesson.getFatEffect());
+                    oldOne.setMuscleEffect(lesson.getMuscleEffect());
+                    oldOne.setDescription(lesson.getDescription());
+                    oldOne.setRecycleTimes(lesson.getRecycleTimes());
+                    oldOne.setLessonActionInfos(lesson.getLessonActionInfos());
+                    Log.e(TAG, "selectAction append:"+oldOne.getLessonActionInfos());
+                    mRecyclerViewAdapter.notifyItemChanged(position);
                     break;
                 case CREATE_LESSON:
                     Toast.makeText(getContext(), "create lesson done", Toast.LENGTH_SHORT).show();

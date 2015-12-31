@@ -6,6 +6,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,8 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
+import com.lessask.model.ActionItem;
+import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.ItemTouchHelperAdapter;
 import com.lessask.recyclerview.ItemTouchHelperViewHolder;
@@ -35,6 +41,8 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     private Context context;
     private final OnStartDragListener mDragStartListener;
     private final CoordinatorLayout coordinatorLayout;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
 
     LessonActionsAdapter(Context context, OnStartDragListener onStartDragListener,CoordinatorLayout coordinatorLayout){
         this.context = context;
@@ -56,7 +64,13 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, int position) {
         LessonActionInfo info = getItem(position);
-        holder.actionName.setText(info.getActionName());
+        ActionItem actionItem = globalInfos.getActionById(info.getActionId());
+        Log.e(TAG, "actionid:"+info.getActionId());
+        holder.actionName.setText(actionItem.getName());
+        //to do
+        ImageLoader.ImageListener listener = ImageLoader.getImageListener(holder.actionPic, R.drawable.man, R.drawable.women);
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + actionItem.getVideoName(), listener);
+
         holder.groups.setOnTouchListener(this);
         holder.times.setOnTouchListener(this);
         holder.groupRestTime.setOnTouchListener(this);
@@ -75,6 +89,12 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
                 Collections.swap(list, i, i - 1);
             }
         }
+        Log.e(TAG, "begin");
+        for (int i=0;i<list.size();i++){
+            LessonActionInfo info = (LessonActionInfo)list.get(i);
+            Log.e(TAG, "info:"+info.getActionId());
+        }
+        Log.e(TAG, "over");
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }

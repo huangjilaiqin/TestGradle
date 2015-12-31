@@ -29,7 +29,6 @@ import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ActionItem;
 import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
 import com.lessask.model.Utils;
@@ -72,6 +71,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
 
     private final int SELECT_ACTION = 1;
     private File mCoverFile;
+    private boolean isChangeCover = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +79,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         setContentView(R.layout.activity_edit_lesson);
 
         mIntent = getIntent();
+        lesson = mIntent.getParcelableExtra("lesson");
         mCoverFile = new File(getExternalCacheDir(), "cover.jpg");
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -97,7 +98,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         mName = (EditText)findViewById(R.id.name);
         mName.setText(lesson.getName());
         mPurpose  = (EditText)findViewById(R.id.purpose);
-        mPurpose.setText(lesson.getName());
+        mPurpose.setText(lesson.getPurpose());
         mBodies = (EditText)findViewById(R.id.bodies);
         mBodies.setText(ArrayUtil.join(lesson.getBodies(), " "));
         mAddress = (EditText)findViewById(R.id.address);
@@ -107,7 +108,8 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         mDescription = (EditText)findViewById(R.id.description);
         mDescription.setText(lesson.getDescription());
         mRecycleTimes = (EditText)findViewById(R.id.recycle_times);
-        mRecycleTimes.setText(lesson.getRecycleTimes()+"次");
+        mRecycleTimes.setText(lesson.getRecycleTimes() + "次");
+
         mFatBar = (RatingBar)findViewById(R.id.fat_start);
         mFatBar.setStar(lesson.getFatEffect());
         mFatBar.setOnRatingChangeListener(new RatingBar.OnRatingChangeListener() {
@@ -141,31 +143,38 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         mAdapter = new LessonActionsAdapter(this, this,coordinatorLayout );
         mActionsRecycleView.setAdapter(mAdapter);
+        //添加动作信息
+        mAdapter.appendToList(lesson.getLessonActionInfos());
 
         SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
         callback.setmSwipeFlag(ItemTouchHelper.LEFT);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mActionsRecycleView);
-
     }
+
+    private String[] purposeValues = {"增肌", "减脂", "塑形"};
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         StringPickerDialog stringPickerDialog;
         if(event.getAction()== MotionEvent.ACTION_UP) {
+            int pos;
             switch (v.getId()) {
                 case R.id.purpose:
-                    String[] purposeValues = {"增肌", "减脂", "塑形"};
                     StringPickerDialog dialog = new StringPickerDialog(EditLessonActivity.this, purposeValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mPurpose.setText(data);
-                            Log.e(TAG, "select" + data);
+                            lesson.setPurpose(data);
                         }
                     });
                     dialog.setEditable(false);
+                    List<String> purpose = Arrays.asList(purposeValues);
+                    pos = purpose.indexOf(lesson.getPurpose());
+                    if(pos==-1)
+                        pos=0;
+                    dialog.setValue(pos);
                     dialog.show();
-                    Log.e(TAG, "purpose");
                     break;
                 case R.id.bodies:
                     String[] values1 = {"胸部", "背部", "腰部", "臀部", "大腿", "小腿"};
@@ -178,13 +187,16 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                             String resulte = "";
                             int size = data.size();
                             int last = size-1;
+                            List<String> bodies = new ArrayList<>();
                             for (int i = 0; i < size; i++) {
                                 if(i!=last)
                                     resulte += data.get(i)+" ";
                                 else
                                     resulte += data.get(i);
+                                bodies.add((String)data.get(i));
                             }
                             mBodies.setText(resulte);
+                            lesson.setBodies(bodies);
                         }
                     });
                     String content = mBodies.getText().toString().trim();
@@ -192,7 +204,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                     if(content!=null && content.length()>0){
                         String[] values = content.split(" ");
                         for (String name:values){
-                            int pos = bodiesValues.indexOf(name);
+                            pos = bodiesValues.indexOf(name);
                             if(pos<0 || pos>=bodiesValues.size())
                                 continue;
                             selected.add(pos);
@@ -210,8 +222,14 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                         @Override
                         public void onSelect(String data) {
                             mAddress.setText(data);
+                            lesson.setAddress(data);
                         }
                     });
+                    List<String> address = Arrays.asList(addressValues);
+                    pos = address.indexOf(lesson.getAddress());
+                    if(pos==-1)
+                        pos=0;
+                    addressDialog.setValue(pos);
                     addressDialog.setEditable(false);
                     addressDialog.show();
                     break;
@@ -223,10 +241,11 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                         @Override
                         public void onSelect(String data) {
                             mCosttime.setText(data);
+                            lesson.setCostTime(Integer.parseInt(data.replace("分钟","")));
                         }
                     });
                     costtimeDialog.setEditable(false);
-                    int pos = costtimeValues.indexOf(mCosttime.getText().toString().trim());
+                    pos = costtimeValues.indexOf(mCosttime.getText().toString().trim());
                     if (pos == -1) {
                         costtimeDialog.setValue(29);
                     } else {
@@ -242,15 +261,14 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                         @Override
                         public void onSelect(String data) {
                             mRecycleTimes.setText(data);
+                            lesson.setRecycleTimes(Integer.parseInt(data.replace("次","")));
                         }
                     });
                     stringPickerDialog.setEditable(false);
-                    pos = actionRecycleTimesValues.indexOf(mRecycleTimes.getText().toString().trim());
-                    if (pos == -1) {
-                        stringPickerDialog.setValue(9);
-                    } else {
-                        stringPickerDialog.setValue(pos);
-                    }
+                    pos = lesson.getRecycleTimes()-1;
+                    if (pos<0 || pos>actionRecycleTimesValues.size())
+                        pos=9;
+                    stringPickerDialog.setValue(pos);
                     stringPickerDialog.show();
                     break;
             }
@@ -268,6 +286,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                     Toast.makeText(getBaseContext(), "请填写课程名", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                lesson.setName(name);
                 String purpose = mPurpose.getText().toString().trim();
                 if(purpose.length()==0) {
                     Toast.makeText(getBaseContext(), "请选择训练目的", Toast.LENGTH_SHORT).show();
@@ -298,6 +317,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                     Toast.makeText(getBaseContext(), "请填写课程描述", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                lesson.setDescription(description);
 
                 ArrayList<Integer> actionsId = getSelectedActionsId();
                 if(actionsId.size()==0) {
@@ -306,7 +326,6 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                 }
 
                 final LoadingDialog loadingDialog = new LoadingDialog(EditLessonActivity.this);
-
                 NetworkFileHelper.getInstance().startPost(config.getUpdateLessonUrl(), HandleLessonResponse.class, new NetworkFileHelper.PostFileRequest() {
                     @Override
                     public void onStart() {
@@ -318,7 +337,8 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                         loadingDialog.cancel();
                         HandleLessonResponse handleLessonResponse = (HandleLessonResponse) response;
                         int lessonId = handleLessonResponse.getId();
-                        lesson.setId(lessonId);
+                        if(isChangeCover)
+                            lesson.setCover(handleLessonResponse.getCover());
                         mIntent.putExtra("lesson", lesson);
                         setResult(RESULT_OK, mIntent);
                         finish();
@@ -334,6 +354,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                     public Map<String, String> getHeaders() {
                         Map<String, String> headers = new HashMap<String, String>();
                         headers.put("userId", "" + globalInfos.getUserId());
+                        lesson.setLessonActionInfos(mAdapter.getList());
                         headers.put("lesson", gson.toJson(lesson));
                         return headers;
                     }
@@ -345,10 +366,14 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
 
                     @Override
                     public Map<String, String> getImages() {
-                        Map<String, String> images = new HashMap<String, String>();
-                        if(mCoverFile.exists())
-                            images.put("cover", mCoverFile.getAbsolutePath());
-                        return images;
+                        if(isChangeCover) {
+                            Map<String, String> images = new HashMap<String, String>();
+                            if (mCoverFile.exists())
+                                images.put("cover", mCoverFile.getAbsolutePath());
+                            return images;
+                        }else {
+                            return null;
+                        }
                     }
                 });
 
@@ -382,18 +407,19 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
             switch (requestCode){
                 case SELECT_ACTION:
                     ArrayList<Integer> selectedActionsId = data.getIntegerArrayListExtra("selected");
-                    Log.e(TAG, "selectAction:"+selectedActionsId.size());
+                    Log.e(TAG, "selectAction:" + selectedActionsId.size());
 
                     int maxItemCount = mAdapter.getItemCount();
                     mAdapter.clear();
-                    ArrayList<LessonActionInfo> lessonActionInfos = new ArrayList<>();
+                    List<LessonActionInfo> lessonActionInfos = new ArrayList<>();
                     for (int i=0;i<selectedActionsId.size();i++){
                         int actionId = selectedActionsId.get(i);
-                        ActionItem actionItem = globalInfos.getActionById(actionId);
-                        LessonActionInfo info = new LessonActionInfo(actionId, actionItem.getName(), actionItem.getVideoName(),3,10,60,120);
+                        LessonActionInfo info = new LessonActionInfo(actionId,3,10,60,120);
                         lessonActionInfos.add(info);
                     }
-                    Log.e(TAG, "selectAction append:"+lessonActionInfos.size());
+                    lesson.setLessonActionInfos(lessonActionInfos);
+
+
                     mAdapter.appendToList(lessonActionInfos);
                     if(maxItemCount<lessonActionInfos.size())
                         maxItemCount = lessonActionInfos.size();
@@ -404,6 +430,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                     Log.e(TAG, "从相册选取");
                     Bitmap bmp = Utils.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
                     mCover.setImageBitmap(bmp);
+                    isChangeCover = true;
                     break;
                 case 101:
                     Log.e(TAG, "从相机选取");

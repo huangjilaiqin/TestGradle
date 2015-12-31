@@ -41,6 +41,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -143,6 +144,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     public boolean onTouch(View v, MotionEvent event) {
         StringPickerDialog stringPickerDialog;
         if(event.getAction()==MotionEvent.ACTION_UP) {
+            int pos;
             switch (v.getId()) {
                 case R.id.purpose:
                     String[] purposeValues = {"增肌", "减脂", "塑形"};
@@ -154,6 +156,14 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                         }
                     });
                     dialog.setEditable(false);
+                    String purposeStr = mPurpose.getText().toString().trim();
+                    if(purposeStr.length()>0){
+                        List<String> purpose = Arrays.asList(purposeValues);
+                        pos = purpose.indexOf(purposeStr);
+                        if(pos==-1)
+                            pos=0;
+                        dialog.setValue(pos);
+                    }
                     dialog.show();
                     Log.e(TAG, "purpose");
                     break;
@@ -182,7 +192,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     if(content!=null && content.length()>0){
                         String[] values = content.split(" ");
                         for (String name:values){
-                            int pos = bodiesValues.indexOf(name);
+                            pos = bodiesValues.indexOf(name);
                             if(pos<0 || pos>=bodiesValues.size())
                                 continue;
                             selected.add(pos);
@@ -202,6 +212,14 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                             mAddress.setText(data);
                         }
                     });
+                    String addressStr = mAddress.getText().toString().trim();
+                    if(addressStr.length()>0){
+                        List<String> address = Arrays.asList(addressStr);
+                        pos = address.indexOf(addressStr);
+                        if(pos==-1)
+                            pos=0;
+                        addressDialog.setValue(pos);
+                    }
                     addressDialog.setEditable(false);
                     addressDialog.show();
                     break;
@@ -216,7 +234,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                         }
                     });
                     costtimeDialog.setEditable(false);
-                    int pos = costtimeValues.indexOf(mCosttime.getText().toString().trim());
+                    pos = costtimeValues.indexOf(mCosttime.getText().toString().trim());
                     if (pos == -1) {
                         costtimeDialog.setValue(29);
                     } else {
@@ -236,11 +254,9 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     });
                     stringPickerDialog.setEditable(false);
                     pos = actionRecycleTimesValues.indexOf(mRecycleTimes.getText().toString().trim());
-                    if (pos == -1) {
-                        stringPickerDialog.setValue(9);
-                    } else {
-                        stringPickerDialog.setValue(pos);
-                    }
+                    if (pos == -1)
+                        pos=9;
+                    stringPickerDialog.setValue(pos);
                     stringPickerDialog.show();
                     break;
             }
@@ -289,15 +305,14 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     return;
                 }
 
-                ArrayList<Integer> actionsId = getSelectedActionsId();
-                if(actionsId.size()==0) {
+                if(mAdapter.getList().size()==0) {
                     Toast.makeText(getBaseContext(), "请选择课程动作", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 int recycleTimes = Integer.parseInt(mRecycleTimes.getText().toString().trim().replace("次",""));
 
-                final Lesson lesson = new Lesson(-1,name,"",bodies,address,purpose,costTime,description,getSelectedActionsId(),recycleTimes,fatEffect,muscleEffect);
+                final Lesson lesson = new Lesson(-1,name,"",bodies,address,purpose,costTime,description,mAdapter.getList(),recycleTimes,fatEffect,muscleEffect);
                 final LoadingDialog loadingDialog = new LoadingDialog(CreateLessonActivity.this);
 
                 NetworkFileHelper.getInstance().startPost(config.getAddLessonUrl(), HandleLessonResponse.class, new NetworkFileHelper.PostFileRequest() {
@@ -329,7 +344,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                         Map<String, String> headers = new HashMap<String, String>();
                         headers.put("userId", "" + globalInfos.getUserId());
                         String gsonStr = gson.toJson(lesson);
-                        Log.e(TAG, gsonStr.length()+", "+gsonStr);
+                        Log.e(TAG, gsonStr.length() + ", " + gsonStr);
                         headers.put("lesson", gson.toJson(lesson));
                         return headers;
                     }
@@ -357,7 +372,6 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                 intent.putIntegerArrayListExtra("selected", getSelectedActionsId());
                 startActivityForResult(intent, SELECT_ACTION);
                 break;
-
         }
     }
 
@@ -411,22 +425,33 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
             Intent intent = null;
             switch (requestCode){
                 case SELECT_ACTION:
-                    ArrayList<Integer> selectedActionsId = data.getIntegerArrayListExtra("selected");
-                    Log.e(TAG, "selectAction:"+selectedActionsId.size());
+                    ArrayList<Integer> modifyOldSelectedActionsId = data.getIntegerArrayListExtra("old_selected");
+                    ArrayList<Integer> newSelectedActionsId = data.getIntegerArrayListExtra("new_selected");
+                    ArrayList<Integer> oldSelectedActionsId = getSelectedActionsId();
 
-                    int maxItemCount = mAdapter.getItemCount();
-                    mAdapter.clear();
-                    ArrayList<LessonActionInfo> lessonActionInfos = new ArrayList<>();
-                    for (int i=0;i<selectedActionsId.size();i++){
-                        int actionId = selectedActionsId.get(i);
-                        ActionItem actionItem = globalInfos.getActionById(actionId);
-                        LessonActionInfo info = new LessonActionInfo(actionId, actionItem.getName(), actionItem.getVideoName(),3,10,60,120);
-                        lessonActionInfos.add(info);
+                    Iterator<Integer> oldIterator = oldSelectedActionsId.iterator();
+                    List<LessonActionInfo> lessonActionInfos = mAdapter.getList();
+                    while (oldIterator.hasNext()){
+                        int actionId = oldIterator.next();
+                        //该动作被删除了
+                        if(!modifyOldSelectedActionsId.contains(new Integer(actionId))){
+                            //遍历找到移除
+                            for(int i=0;i<lessonActionInfos.size();i++){
+                                LessonActionInfo info = lessonActionInfos.get(i);
+                                if(info.getActionId()==actionId){
+                                    lessonActionInfos.remove(i);
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    Log.e(TAG, "selectAction append:"+lessonActionInfos.size());
-                    mAdapter.appendToList(lessonActionInfos);
-                    if(maxItemCount<lessonActionInfos.size())
-                        maxItemCount = lessonActionInfos.size();
+                    Iterator<Integer> newIterator = newSelectedActionsId.iterator();
+                    while (newIterator.hasNext()){
+                        int actionId = newIterator.next();
+                        lessonActionInfos.add(new LessonActionInfo(actionId,1,10,60,120));
+                    }
+
+                    int maxItemCount = lessonActionInfos.size();
                     mAdapter.notifyItemRangeChanged(0,maxItemCount);
                     break;
                 case 100:

@@ -90,10 +90,8 @@ public class SelectActionActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.done:
-                ArrayList<Integer> selected = new ArrayList<>();
-                selected.addAll(alreadySelected);
-                selected.addAll(newSelected);
-                mIntent.putIntegerArrayListExtra("selected", selected);
+                mIntent.putIntegerArrayListExtra("old_selected", alreadySelected);
+                mIntent.putIntegerArrayListExtra("new_selected", newSelected);
                 setResult(RESULT_OK, mIntent);
                 finish();
                 break;
