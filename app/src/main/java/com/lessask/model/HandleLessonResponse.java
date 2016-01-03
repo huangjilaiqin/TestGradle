@@ -3,7 +3,7 @@ package com.lessask.model;
 /**
  * Created by JHuang on 2015/12/29.
  */
-public class HandleLessonResponse {
+public class HandleLessonResponse extends ResponseError {
     private int id;
     private String cover;
 

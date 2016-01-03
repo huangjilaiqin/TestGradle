@@ -96,7 +96,8 @@ public class PlayVideoActiviy extends Activity {
                     handler.sendMessage(msg);
 
                     Message msgDone = new Message();
-                    if(HttpHelper.httpDownload(videoUrl, videoFile.getAbsolutePath())) {
+                    String error = HttpHelper.httpDownload(videoUrl, videoFile.getAbsolutePath());
+                    if(error==null) {
                         Log.e(TAG, "download success");
                         msgDone.what = HANDLER_GETACTION_DONE;
                         handler.sendMessage(msgDone);

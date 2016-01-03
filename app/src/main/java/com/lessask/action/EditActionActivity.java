@@ -172,13 +172,13 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 }
 
                 @Override
-                public void onResponse(Object response) {
+                public void onResponse(String error) {
+                    if(error!=null){
+                        Log.e(TAG, "get action video error:"+error);
+                        Toast.makeText(EditActionActivity.this, "error:"+error, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     play(videoFile.getAbsolutePath());
-                    HandleActionResponse handleActionResponse = (HandleActionResponse)response;
-                    ActionItem actionItem = new ActionItem(oldActionItem.getId(),mName.getText().toString(),handleActionResponse.getVideoName(),tagDatas, noticeDatas);
-                    mIntent.putExtra("actionItem", actionItem);
-                    EditActionActivity.this.setResult(RESULT_OK, mIntent);
-                    finish();
                 }
 
                 @Override

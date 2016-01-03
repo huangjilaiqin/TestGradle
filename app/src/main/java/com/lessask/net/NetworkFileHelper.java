@@ -5,6 +5,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.lessask.dialog.StringPickerDialog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class NetworkFileHelper {
                         getFileRequest.onStart();
                         break;
                     case REQUEST_DONE:
-                        getFileRequest.onResponse(msg.obj);
+                        getFileRequest.onResponse((String)msg.obj);
                         getFileRequests.remove(tag);
                         break;
                     case REQUEST_ERROR:
@@ -88,7 +89,7 @@ public class NetworkFileHelper {
     }
     public interface GetFileRequest{
         void onStart();
-        void onResponse(Object response);
+        void onResponse(String error);
         void onError(String error);
     }
 
@@ -158,10 +159,20 @@ public class NetworkFileHelper {
                 msg.what = REQUEST_START;
                 handler.sendMessage(msg);
 
-                if(HttpHelper.httpDownload(url, path)) {
+                String error = HttpHelper.httpDownload(url, path);
+                Log.e(TAG, "startGetFile result:"+error);
+                if(error==null) {
+                    Message msg = new Message();
+                    msg.arg1 = GET_FILE;
+                    msg.arg2 = tag;
+                    msg.obj = error;
                     msg.what = REQUEST_DONE;
                     handler.sendMessage(msg);
                 }else {
+                    Message msg = new Message();
+                    msg.arg1 = GET_FILE;
+                    msg.arg2 = tag;
+                    msg.obj = error;
                     msg.what = REQUEST_ERROR;
                     handler.sendMessage(msg);
                 }

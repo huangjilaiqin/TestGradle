@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.lessask.OnItemClickListener;
+import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -30,6 +31,7 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
 
     private static final String TAG=LessonAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
+    private OnItemMenuClickListener onItemMenuClickListener;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
@@ -49,6 +51,9 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
+    }
+    public void setOnItemMenuClickListener(OnItemMenuClickListener onItemMenuClickListener){
+        this.onItemMenuClickListener = onItemMenuClickListener;
     }
 
     @Override
@@ -71,7 +76,6 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
                 if (myHolder.isOpen()) {
                     myHolder.close();
                 } else {
-                    //Toast.makeText(context, "real click", Toast.LENGTH_SHORT).show();
                     if (onItemClickListener != null) {
                         onItemClickListener.onItemClick(v, position);
                     }
@@ -81,15 +85,17 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
         myHolder.deleteItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //stringArrayList.remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, getItemCount());
+                if (onItemMenuClickListener != null) {
+                    onItemMenuClickListener.onItemMenuClick(v, position);
+                }
             }
         });
         myHolder.distributeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "分配", Toast.LENGTH_SHORT).show();
+                if (onItemMenuClickListener != null) {
+                    onItemMenuClickListener.onItemMenuClick(v, position);
+                }
             }
         });
 

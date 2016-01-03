@@ -8,6 +8,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:background="@color/background_white_not_transparent"
+    android:id="@+id/lesson_item"
     >
     <ImageView
         android:id="@+id/cover"

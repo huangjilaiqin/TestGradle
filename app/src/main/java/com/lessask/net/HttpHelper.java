@@ -15,7 +15,7 @@ import java.net.URLConnection;
  */
 public class HttpHelper {
     private static String TAG = HttpHelper.class.getSimpleName();
-    public static boolean httpDownload(String httpUrl,String saveFile){
+    public static String httpDownload(String httpUrl,String saveFile){
         // 下载网络文件
         int bytesum = 0;
         int byteread = 0;
@@ -26,7 +26,7 @@ public class HttpHelper {
         } catch (MalformedURLException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
-            return false;
+            return e1.toString();
         }
 
         try {
@@ -40,14 +40,14 @@ public class HttpHelper {
                 System.out.println(bytesum);
                 fs.write(buffer, 0, byteread);
             }
-            return true;
+            return null;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.e(TAG, "FileNotFoundException url:"+httpUrl);
-            return false;
+            return e.toString();
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return e.toString();
        }
    }
 }

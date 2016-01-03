@@ -1,11 +1,13 @@
 package com.lessask.lesson;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,10 +21,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.OnItemClickListener;
+import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.action.EditActionActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
@@ -75,11 +79,43 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
             //设置点击事件, 编辑动作
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
-                public void onItemClick(View view, int position) {
+                public void onItemClick(View view, final int position) {
                     Intent intent = new Intent(getActivity(), EditLessonActivity.class);
                     intent.putExtra("lesson", mRecyclerViewAdapter.getItem(position));
                     intent.putExtra("position", position);
                     startActivityForResult(intent, EDIT_LESSON);
+                }
+            });
+            mRecyclerViewAdapter.setOnItemMenuClickListener(new OnItemMenuClickListener() {
+                @Override
+                public void onItemMenuClick(View view, final int position) {
+                    final Lesson lesson = mRecyclerViewAdapter.getItem(position);
+                    switch (view.getId()) {
+                        case R.id.delete:
+                            AlertDialog.Builder builder = new AlertDialog.Builder(FragmentLesson.this.getContext());
+                            builder.setMessage("确认删除吗？position:" + position + ", name:" + lesson.getName());
+                            builder.setTitle("提示");
+                            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    //网络协议
+                                    deleteAction(position);
+                                }
+                            });
+                            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            builder.create().show();
+
+                            break;
+                        case R.id.edit:
+                            Toast.makeText(getContext(), "编辑", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
                 }
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
@@ -87,6 +123,41 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
             loadLessons();
         }
         return rootView;
+    }
+
+    private void deleteAction(final int deletePostion){
+        GsonRequest deleteActionRequest = new GsonRequest<>(Request.Method.POST, config.getDeleteLessonUrl(), HandleLessonResponse.class, new GsonRequest.PostGsonRequest<HandleLessonResponse>() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onResponse(HandleLessonResponse response) {
+                if(response.getError()!=null){
+                    Toast.makeText(getContext(), "error:"+response.getError(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mRecyclerViewAdapter.remove(deletePostion);
+                mRecyclerViewAdapter.notifyItemRemoved(deletePostion);
+                mRecyclerViewAdapter.notifyItemRangeChanged(deletePostion, mRecyclerViewAdapter.getItemCount());
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(getContext(), "error:"+error.toString(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                Lesson lesson = mRecyclerViewAdapter.getItem(deletePostion);
+                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("id", lesson.getId() + "");
+
+            }
+        });
+
+        volleyHelper.addToRequestQueue(deleteActionRequest);
     }
 
     @Override

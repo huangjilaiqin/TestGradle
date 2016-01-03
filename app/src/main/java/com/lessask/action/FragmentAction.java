@@ -49,7 +49,6 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private VolleyHelper volleyHelper = VolleyHelper.getInstance();
-    private int deletePostion;
 
     @Nullable
     @Override
@@ -78,11 +77,11 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), "onClick:" + position, Toast.LENGTH_SHORT).show();
-                    /*
-                    Intent intent = new Intent(getActivity(), EditActionActivity.class);
-                    startActivityForResult(intent, MainActivity.EDIT_ACTION);
-                    */
+                    Intent intent = new Intent(FragmentAction.this.getActivity(), EditActionActivity.class);
+                    intent.putExtra("actionItem", mRecyclerViewAdapter.getItem(position));
+                    intent.putExtra("position", position);
+                    startActivityForResult(intent, EDIT_ACTION);
+
                 }
             });
             mRecyclerViewAdapter.setOnItemMenuClickListener(new OnItemMenuClickListener() {
@@ -100,8 +99,7 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     //网络协议
-                                    deletePostion = position;
-                                    deleteAction();
+                                    deleteAction(position);
                                 }
                             });
                             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -130,7 +128,7 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
         return rootView;
     }
 
-    private void deleteAction(){
+    private void deleteAction(final int deletePostion){
         GsonRequest deleteActionRequest = new GsonRequest<>(Request.Method.POST, config.getDeleteActionUrl(), HandleActionResponse.class, new GsonRequest.PostGsonRequest<HandleActionResponse>() {
             @Override
             public void onStart() {

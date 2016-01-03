@@ -109,12 +109,13 @@ public abstract class NetFragment extends Fragment{
                 handler.sendMessage(msg);
                 Log.e(TAG, "download video start");
 
-                if(HttpHelper.httpDownload(url, path)) {
+                String error = HttpHelper.httpDownload(url, path);
+                if(error==null) {
                     Log.e(TAG, "download success");
                     msg.what = REQUEST_DONE;
                     handler.sendMessage(msg);
                 }else {
-                    Log.e(TAG, "download failed");
+                    Log.e(TAG, "download failed,"+error);
                     msg.what = REQUEST_ERROR;
                     handler.sendMessage(msg);
                 }
