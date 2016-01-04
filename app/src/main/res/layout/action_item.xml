@@ -13,9 +13,14 @@
         android:id="@+id/video"
         android:layout_width="56dp"
         android:layout_height="56dp"
+        android:src="@drawable/man"
+        />
+    <ImageView
+        android:id="@+id/video_icon"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:padding="16dp"
         android:src="@drawable/video"
-        android:background="@drawable/man"
         />
     <TextView
         android:id="@+id/name"

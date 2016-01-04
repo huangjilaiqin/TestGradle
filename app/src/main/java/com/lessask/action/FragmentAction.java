@@ -45,7 +45,6 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
     public static final int CREATE_ACTION = 2;
     public static final int RECORD_ACTION = 3;
 
-
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private VolleyHelper volleyHelper = VolleyHelper.getInstance();
@@ -145,7 +144,8 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
             public void setPostData(Map datas) {
                 ActionItem actionItem = mRecyclerViewAdapter.getItem(deletePostion);
                 datas.put("userid", globalInfos.getUserId() + "");
-                datas.put("name", actionItem.getVideoName());
+                datas.put("videoName", actionItem.getVideoName());
+                datas.put("actionIamge", actionItem.getActionImage());
                 datas.put("id", actionItem.getId() + "");
 
             }
@@ -167,6 +167,7 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                 Log.e(TAG, "response:"+response);
                 ArrayList<ActionItem> actiondatas = response.getActionDatas();
                 globalInfos.addActions(actiondatas);
+
                 Log.e(TAG, "actiondatas length:" + actiondatas.size());
                 mRecyclerViewAdapter.appendToList(actiondatas);
                 //Log.e(TAG, "oldShowId:" + oldShowId + " newShowId:" + newShowId);
@@ -199,13 +200,14 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                     ActionItem oldOne = mRecyclerViewAdapter.getItem(position);
                     oldOne.setName(actionItem.getName());
                     oldOne.setVideoName(actionItem.getVideoName());
+                    oldOne.setActionImage(actionItem.getActionImage());
                     oldOne.setTags(actionItem.getTags());
                     oldOne.setNotices(actionItem.getNotices());
                     mRecyclerViewAdapter.notifyItemChanged(position);
                     break;
                 case RECORD_ACTION:
                     Intent intent = new Intent(getContext(), CreateActionActivity.class);
-                    intent.putExtra("path", data.getStringExtra("path"));
+                    intent.putExtra("videoPath", data.getStringExtra("videoPath"));
                     intent.putExtra("ratio", data.getFloatExtra("ratio", 0.5f));
                     intent.putExtra("imagePath", data.getStringExtra("imagePath"));
                     startActivityForResult(intent, CREATE_ACTION);

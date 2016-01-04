@@ -2,7 +2,9 @@ package com.lessask.video;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,8 +16,12 @@ import android.widget.Toast;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.util.ImageUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
 import sz.itguy.utils.FileUtil;
 import sz.itguy.wxlikevideo.camera.CameraHelper;
@@ -161,12 +167,45 @@ public class RecordVideoActivity extends Activity implements View.OnTouchListene
             FileUtil.deleteFile(videoPath);
         } else {
             mIntent.putExtra("ratio", RATIO);
-            mIntent.putExtra("path", videoPath);
-            mIntent.putExtra("imagePath", "");
+            mIntent.putExtra("videoPath", videoPath);
+            Bitmap videoThumbnail = getVideoThumbnail(videoPath);
+            File imagePath = new File(getExternalCacheDir(),"videoThumbnail.jpg");
+            try {
+                ImageUtil.setBitmap2File(imagePath, videoThumbnail);
+            }catch (IOException e){
+                Log.e(TAG, "imagePath:"+imagePath.getAbsolutePath());
+            }
+
+            mIntent.putExtra("imagePath", imagePath.getAbsolutePath());
             setResult(RESULT_OK, mIntent);
             Log.e(TAG, "finish and back");
             finish();
         }
+    }
+
+    /**
+     * 获取视频缩略图（这里获取第一帧）
+     * @param filePath
+     * @return
+     */
+    public Bitmap getVideoThumbnail(String filePath) {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(filePath);
+            bitmap = retriever.getFrameAtTime(TimeUnit.MILLISECONDS.toMicros(1));
+        }
+        catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                retriever.release();
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }
+        return bitmap;
     }
 
     @Override

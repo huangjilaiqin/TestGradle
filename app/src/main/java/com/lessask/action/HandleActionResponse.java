@@ -8,16 +8,27 @@ import com.lessask.model.ResponseError;
 public class HandleActionResponse extends ResponseError {
     int actionId;
     private String videoName;
+    private String actionImage;
 
-    public HandleActionResponse(int actionId, String videoName) {
+    public HandleActionResponse(int actionId, String videoName,String actionIamge) {
         this.actionId = actionId;
         this.videoName = videoName;
+        this.actionImage = actionIamge;
     }
 
-    public HandleActionResponse(int errno, String error, int actionId, String videoName) {
+    public HandleActionResponse(int errno, String error, int actionId, String videoName,String actionIamge) {
         super(errno, error);
         this.actionId = actionId;
         this.videoName = videoName;
+        this.actionImage = actionIamge;
+    }
+
+    public String getActionImage() {
+        return actionImage;
+    }
+
+    public void setActionImage(String actionImage) {
+        this.actionImage = actionImage;
     }
 
     public int getActionId() {

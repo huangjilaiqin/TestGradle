@@ -11,12 +11,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.lessask.OnItemClickListener;
 import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ActionItem;
+import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.video.PlayVideoActiviy;
@@ -82,6 +84,10 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
                 context.startActivity(intent);
             }
         });
+        ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.video,R.drawable.man, R.drawable.women);
+        Log.e(TAG, "load video img:" + config.getImgUrl() + data.getActionImage());
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + data.getActionImage(), listener);
+
         myHolder.getTopView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

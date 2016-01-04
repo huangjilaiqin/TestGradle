@@ -52,7 +52,8 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
 
     private final int SELECT_TAGS = 1;
     private final String TAG = CreateActionActivity.class.getSimpleName();
-    private String path;
+    private String videoPath;
+    private String imagePath;
     private ScalableVideoView mScalableVideoView;
     private EditText mName;
     private ImageView mEditTags;
@@ -89,7 +90,7 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
     @Override
     protected void onRestart() {
         super.onRestart();
-        play(path, 0);
+        play(videoPath, 0);
     }
 
     @Override
@@ -97,11 +98,17 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         super.onCreate(savedInstanceState);
 
         mIntent = getIntent();
-        path = mIntent.getStringExtra("path");
+        videoPath = mIntent.getStringExtra("videoPath");
+        imagePath = mIntent.getStringExtra("imagePath");
         widthDivideHeightRatio = mIntent.getFloatExtra("ratio", 0.5f);
-        Log.e(TAG, "video path:" + path);
-        if (TextUtils.isEmpty(path)) {
+        Log.e(TAG, "video videoPath:" + videoPath);
+        if (TextUtils.isEmpty(videoPath)) {
             Toast.makeText(this, "视频路径错误", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        if (TextUtils.isEmpty(imagePath)) {
+            Toast.makeText(this, "视频缩略图路径错误", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -151,15 +158,15 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
         layoutParams.height = (int)(displaymetrics.widthPixels/widthDivideHeightRatio);
         mScalableVideoView.setLayoutParams(layoutParams);
 
-        play(path, 0);
+        play(videoPath, 0);
     }
 
-    private void play(final String path, final int position){
+    private void play(final String videoPath, final int position){
         new Thread(){
             @Override
             public void run() {
                 try {
-                    mScalableVideoView.setDataSource(path);
+                    mScalableVideoView.setDataSource(videoPath);
                     mScalableVideoView.setLooping(true);
                     mScalableVideoView.prepare();
                     mScalableVideoView.seekTo(position);
@@ -234,11 +241,16 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     @Override
                     public void onResponse(Object response) {
                         loadingDialog.cancel();
-                        HandleActionResponse handleActionResponse = (HandleActionResponse)response;
+                        HandleActionResponse handleActionResponse = (HandleActionResponse) response;
+                        if (handleActionResponse.getError() != null) {
+                            Toast.makeText(CreateActionActivity.this, "error:"+handleActionResponse.getError(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         int actionId = handleActionResponse.getActionId();
                         String videoName = handleActionResponse.getVideoName();
+                        String actionImage = handleActionResponse.getActionImage();
 
-                        ActionItem actionItem = new ActionItem(actionId,mName.getText().toString(),videoName,tagDatas, noticeDatas);
+                        ActionItem actionItem = new ActionItem(actionId, mName.getText().toString(), videoName,actionImage, tagDatas, noticeDatas);
                         mIntent.putExtra("actionItem", actionItem);
                         CreateActionActivity.this.setResult(RESULT_OK, mIntent);
                         Log.e(TAG, "upload success");
@@ -248,31 +260,31 @@ public class CreateActionActivity extends AppCompatActivity implements OnClickLi
                     @Override
                     public void onError(String error) {
                         loadingDialog.cancel();
-                        Toast.makeText(CreateActionActivity.this, "上传失败:"+error, Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "upload failed");
-                        finish();
+                        Toast.makeText(CreateActionActivity.this, "上传失败:" + error, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public Map<String, String> getHeaders() {
-                        Map<String,String> headers = new HashMap<String, String>();
-                        headers.put("userId", globalInfos.getUserId()+"");
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("userId", globalInfos.getUserId() + "");
 
-                        ActionItem actionItem = new ActionItem(0,mName.getText().toString().trim(),"", tagDatas, noticeDatas);
+                        ActionItem actionItem = new ActionItem(0, mName.getText().toString().trim(), "","", tagDatas, noticeDatas);
                         headers.put("actionItem", gson.toJson(actionItem));
                         return headers;
                     }
 
                     @Override
                     public Map<String, String> getFiles() {
-                        Map<String,String> files = new HashMap<String, String>();
-                        files.put("videofile", path);
+                        Map<String, String> files = new HashMap<String, String>();
+                        files.put("videofile", videoPath);
                         return files;
                     }
 
                     @Override
                     public Map<String, String> getImages() {
-                        return null;
+                        Map<String, String> images = new HashMap<String, String>();
+                        images.put("actionImage", imagePath);
+                        return images;
                     }
                 });
                 break;

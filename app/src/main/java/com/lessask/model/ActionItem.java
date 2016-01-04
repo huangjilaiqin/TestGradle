@@ -15,13 +15,15 @@ public class ActionItem implements Parcelable {
     private int id;
     private String name;        //动作名字
     private String videoName;       //视频文件名字
+    private String actionImage;     //视频缩略图
     private ArrayList<Integer> tags;
     private ArrayList<String> notices;
 
-    public ActionItem(int id,String name,String videoName, ArrayList<Integer> tags, ArrayList<String> notices) {
+    public ActionItem(int id,String name,String videoName,String actionImage, ArrayList<Integer> tags, ArrayList<String> notices) {
         this.id = id;
         this.name = name;
         this.videoName = videoName;
+        this.actionImage = actionImage;
         this.tags = tags;
         this.notices = notices;
     }
@@ -43,6 +45,14 @@ public class ActionItem implements Parcelable {
             if(!notices.get(i).equals(itemNotices.get(i)))
                 return false;
         return true;
+    }
+
+    public String getActionImage() {
+        return actionImage;
+    }
+
+    public void setActionImage(String actionImage) {
+        this.actionImage = actionImage;
     }
 
     public String getVideoName() {
@@ -95,6 +105,7 @@ public class ActionItem implements Parcelable {
         dest.writeInt(id);
         dest.writeString(name);
         dest.writeString(videoName);
+        dest.writeString(actionImage);
         dest.writeList(tags);
         dest.writeList(notices);
     }
@@ -104,9 +115,10 @@ public class ActionItem implements Parcelable {
              int id = in.readInt();
              String name = in.readString();
              String videoName = in.readString();
+             String actionImage = in.readString();
              ArrayList<Integer> tags = in.readArrayList(null);
              ArrayList<String> notices = in.readArrayList(null);
-             return new ActionItem(id,name,videoName,tags,notices);
+             return new ActionItem(id,name,videoName,actionImage,tags,notices);
          }
 
          public ActionItem[] newArray(int size) {
