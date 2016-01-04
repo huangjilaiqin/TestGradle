@@ -111,12 +111,6 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                             builder.create().show();
 
                             break;
-                        case R.id.edit:
-                            Intent intent = new Intent(FragmentAction.this.getActivity(), EditActionActivity.class);
-                            intent.putExtra("actionItem", actionItem);
-                            intent.putExtra("position", position);
-                            startActivityForResult(intent, EDIT_ACTION);
-                            break;
                     }
                 }
             });

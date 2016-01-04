@@ -3,6 +3,7 @@ package com.lessask.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +88,8 @@ public class BitmapHelper {
                 (int) height, matrix, true);
         return bitmap;
     }
+
+
 
     /**
      * get the orientation of the bitmap {@link android.media.ExifInterface}

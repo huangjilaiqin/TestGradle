@@ -31,12 +31,12 @@ import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
-import com.lessask.model.Utils;
 import com.lessask.net.NetworkFileHelper;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnStartDragListener;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
 import com.lessask.util.ArrayUtil;
+import com.lessask.util.ImageUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -428,7 +428,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                 case 100:
                     //bmp = intent.getParcelableExtra("data");
                     Log.e(TAG, "从相册选取");
-                    Bitmap bmp = Utils.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
+                    Bitmap bmp = ImageUtil.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
                     mCover.setImageBitmap(bmp);
                     isChangeCover = true;
                     break;
@@ -442,7 +442,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                     //*/
                     if(mCoverFile.isFile() && mCoverFile.exists())
                         Log.e(TAG, mCoverFile.toString()+" is exit");
-                    bmp = Utils.getOptimizeBitmapFromFile(mCoverFile);
+                    bmp = ImageUtil.getOptimizeBitmapFromFile(mCoverFile);
                     Log.e(TAG, "count:" + bmp.getByteCount());
 
                     //bmp = intent.getParcelableExtra("data");

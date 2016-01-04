@@ -27,7 +27,7 @@ import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.History;
 import com.lessask.model.ResponseError;
-import com.lessask.model.Utils;
+import com.lessask.util.Utils;
 
 
 public class ChatActivity extends Activity implements AbsListView.OnScrollListener{

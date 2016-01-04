@@ -15,7 +15,7 @@ import com.lessask.model.HistoryResponse;
 import com.lessask.model.ResponseError;
 import com.lessask.model.RunDataResponse;
 import com.lessask.model.User;
-import com.lessask.model.Utils;
+import com.lessask.util.Utils;
 import com.lessask.net.LASocketIO;
 
 import java.lang.reflect.Type;

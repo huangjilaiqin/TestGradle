@@ -112,9 +112,6 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
                             builder.create().show();
 
                             break;
-                        case R.id.edit:
-                            Toast.makeText(getContext(), "编辑", Toast.LENGTH_SHORT).show();
-                            break;
                     }
                 }
             });

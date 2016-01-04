@@ -88,7 +88,6 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
                 if(myHolder.isOpen()){
                     myHolder.close();
                 }else {
-                    Toast.makeText(context, "real click", Toast.LENGTH_SHORT).show();
                     if (onItemClickListener != null) {
                         onItemClickListener.onItemClick(v, position);
                     }
@@ -96,14 +95,6 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
             }
         });
         myHolder.deleteItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(onItemMenuClickListener!=null){
-                    onItemMenuClickListener.onItemMenuClick(v, position);
-                }
-            }
-        });
-        myHolder.editItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(onItemMenuClickListener!=null){
@@ -133,7 +124,6 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
 
         //左滑菜单
         TextView deleteItem;
-        TextView editItem;
 
         public MyViewHolder(Context context, View bgView, View topView) {
             super(context, bgView, topView);
@@ -150,7 +140,6 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
             tags = (TextView)itemView.findViewById(R.id.tags);
 
             deleteItem = (TextView) itemView.findViewById(R.id.delete);
-            editItem = (TextView) itemView.findViewById(R.id.edit);
         }
     }
 }

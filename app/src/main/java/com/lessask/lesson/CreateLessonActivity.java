@@ -28,16 +28,17 @@ import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ActionItem;
 import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
-import com.lessask.model.Utils;
 import com.lessask.net.NetworkFileHelper;
 import com.lessask.recyclerview.OnStartDragListener;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
+import com.lessask.util.ImageUtil;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -70,6 +71,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
 
     private final int SELECT_ACTION = 1;
     private File mCoverFile;
+    private boolean isSelectedCover;
 
     private int fatEffect=1;
     private int muscleEffect=1;
@@ -269,6 +271,10 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         Intent intent = null;
         switch (v.getId()){
             case R.id.save:
+                if(!isSelectedCover){
+                    Toast.makeText(getBaseContext(), "请选择计划封面", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 String name = mName.getText().toString().trim();
                 if(name.length()==0) {
                     Toast.makeText(getBaseContext(), "请填写课程名", Toast.LENGTH_SHORT).show();
@@ -458,10 +464,18 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     //bmp = intent.getParcelableExtra("data");
                     Log.e(TAG, "从相册选取");
                     //to do 图片压缩
-                    Bitmap bmp = Utils.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
-                    int size = bmp.getByteCount();
-                    size = size/1024;
-                    Log.e(TAG, "iamge size"+size);
+                    //Bitmap bmp = Utils.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
+                    Log.e(TAG, "cover w:"+mCover.getWidth()+", h:"+mCover.getHeight());
+                    Bitmap bmp = ImageUtil.getOptimizeBitmapFromFile(mCoverFile,mCover.getWidth(),mCover.getHeight());
+                    try {
+                        Log.e(TAG, "before optmize cover size:"+mCoverFile.length()/1024.0);
+                        ImageUtil.setBitmap2File(mCoverFile, bmp);
+                        Log.e(TAG, "optmize cover size:"+mCoverFile.length()/1024.0);
+                    }catch (IOException e){
+                        Toast.makeText(CreateLessonActivity.this, "error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    isSelectedCover=true;
                     mCover.setImageBitmap(bmp);
                     break;
                 case 101:
@@ -474,7 +488,15 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     //*/
                     if(mCoverFile.isFile() && mCoverFile.exists())
                         Log.e(TAG, mCoverFile.toString()+" is exit");
-                    bmp = Utils.getOptimizeBitmapFromFile(mCoverFile);
+                    bmp = ImageUtil.getOptimizeBitmapFromFile(mCoverFile,mCover.getWidth(),mCover.getHeight());
+                    try {
+                        Log.e(TAG, "before optmize cover size:"+mCoverFile.length()/1024.0);
+                        ImageUtil.setBitmap2File(mCoverFile, bmp);
+                        Log.e(TAG, "optmize cover size:"+mCoverFile.length()/1024.0);
+                    }catch (IOException e){
+                        Toast.makeText(CreateLessonActivity.this, "error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Log.e(TAG, "count:" + bmp.getByteCount());
 
                     //bmp = intent.getParcelableExtra("data");

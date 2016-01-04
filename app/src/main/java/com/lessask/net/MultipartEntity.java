@@ -4,8 +4,9 @@ package com.lessask.net;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.lessask.dialog.LoadingDialog;
-import com.lessask.model.Utils;
+import com.lessask.util.Utils;
+import com.lessask.util.ImageUtil;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -169,7 +170,7 @@ public class MultipartEntity {
 
     public void addOptimizeImagePart(final String key, final File file) throws IOException{
         //压缩图片
-        Bitmap bitmap = Utils.optimizeBitmap(file);
+        Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(file);
         BufferedInputStream fin = Utils.bitmat2BufferedInputStream(bitmap);
         writeFirstBoundary();
         //Content-Type

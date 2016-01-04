@@ -294,7 +294,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                             //不存在缩略图
                             //int width = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getWidth();
                             //int height = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getHeight();
-                            thumbnailBitmap = Utils.optimizeBitmap(originFile.getAbsolutePath(), 100, 100);
+                            thumbnailBitmap = Utils.getOptimizeBitmapFromFile(originFile.getAbsolutePath(), 100, 100);
                         }
 
                         String fileName = originFile.getName();

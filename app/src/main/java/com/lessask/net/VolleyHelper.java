@@ -3,6 +3,7 @@ package com.lessask.net;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -16,6 +17,7 @@ public class VolleyHelper {
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
     private static Context mCtx;
+    private String TAG = VolleyHelper.class.getSimpleName();
 
     private VolleyHelper() {
         if(mCtx==null)
@@ -33,6 +35,7 @@ public class VolleyHelper {
 
                     @Override
                     public void putBitmap(String url, Bitmap bitmap) {
+                        Log.e(TAG, "bitmap size:"+bitmap.getByteCount()/1024);
                         cache.put(url, bitmap);
                     }
                 });

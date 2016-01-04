@@ -77,7 +77,9 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         //Log.e(TAG, headImgUrl);
         ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead ,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
         //imageLoader.get(headImgUrl, headImgListener);
-        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener);
+        //VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener);
+        //VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,holder.ivHead.getWidth(),holder.ivHead.getHeight());
+        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,200,200);
 
         showItem.getUserid();
         holder.tvName.setText(showItem.getNickname());
@@ -112,7 +114,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
         //设置图片
         GridLayout imageLayout;
-        ImageView showImage1,showImage2,showImage3,showImage4;
+        ImageView showImage,showImage1,showImage2,showImage3,showImage4;
         ArrayList<String> pictures = showItem.getPictures();
         switch (pictures.size()){
             case 1:
@@ -123,9 +125,11 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 registerImageEvent(showImage1, showItem, 0);
 
                 String imgUrl1 = imageUrlPrefix+pictures.get(0);
+                Log.e(TAG, "img1 w:"+showImage1.getWidth()+" h:"+showImage1.getHeight());
                 ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(showImage1,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                 //imageLoader.get(imgUrl1, listener1);
-                VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1);
+                //VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,showImage1.getWidth(),showImage1.getHeight());
+                VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,200,200);
 
                 holder.showImageLayout.removeAllViews();
                 holder.showImageLayout.addView(layout);
@@ -140,9 +144,12 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i);
-                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews2[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    showImage = imageViews2[i];
+                    Log.e(TAG, "img2 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                     //imageLoader.get(imgUrl, listener);
-                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener);
+                    //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
                     registerImageEvent(imageViews2[i], showItem, i);
                 }
 
@@ -160,9 +167,12 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i);
-                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews3[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    showImage = imageViews3[i];
+                    Log.e(TAG, "img3 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                     //imageLoader.get(imgUrl, listener);
-                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener);
+                    //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
                     registerImageEvent(imageViews3[i], showItem, i);
                 }
 
@@ -181,9 +191,12 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i);
-                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageViews4[i],R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    showImage = imageViews4[i];
+                    Log.e(TAG, "img4 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                     //imageLoader.get(imgUrl, listener);
-                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener);
+                    //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
                     registerImageEvent(imageViews4[i], showItem, i);
                 }
 

@@ -25,8 +25,8 @@ import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ShowItem;
-import com.lessask.model.Utils;
 import com.lessask.net.NetworkFileHelper;
+import com.lessask.util.ImageUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -243,7 +243,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
 
             if(isFull || position<imgs.size()-1){
                 //使用缩略图
-                Bitmap bitmap = Utils.getThumbnail(new File(imgs.get(position)), getContentResolver(),70,70);
+                Bitmap bitmap = ImageUtil.getThumbnail(new File(imgs.get(position)), getContentResolver(), 70, 70);
                 imageView.setImageBitmap(bitmap);
                 registerImageEvent(imageView, position);
             }else {

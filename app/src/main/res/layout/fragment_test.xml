@@ -51,6 +51,12 @@
         android:layout_height="wrap_content"
         android:text="coordinate"
         />
+    <Button
+        android:id="@+id/get_pic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="压缩图片"
+        />
 
 
 </LinearLayout>

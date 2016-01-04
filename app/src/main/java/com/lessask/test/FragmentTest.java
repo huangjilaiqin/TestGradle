@@ -1,10 +1,16 @@
 package com.lessask.test;
 
+import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +19,11 @@ import android.widget.Toast;
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
-import com.lessask.tag.SelectTagsActivity;
+import com.lessask.global.GlobalInfos;
+import com.lessask.util.ImageUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +32,9 @@ import java.util.List;
  */
 public class FragmentTest  extends Fragment implements View.OnClickListener{
     private View rootView;
+    private File testFile;
+    private String TAG = FragmentTest.class.getSimpleName();
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_test, null);
@@ -34,6 +46,8 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView.findViewById(R.id.customer_picker).setOnClickListener(this);
             rootView.findViewById(R.id.tags_picker).setOnClickListener(this);
             rootView.findViewById(R.id.coordinator_layout).setOnClickListener(this);
+            rootView.findViewById(R.id.get_pic).setOnClickListener(this);
+            testFile = new File(getActivity().getExternalCacheDir(), "test.jpg");
         }
         return rootView;
     }
@@ -95,7 +109,58 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 intent = new Intent(getActivity(), CoordinatorLayoutActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.get_pic:
+                /*
+                intent = new Intent(Intent.ACTION_PICK, null);
+                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                intent.putExtra("output", Uri.fromFile(testFile));
+                intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                intent.putExtra("crop", "true");
+                intent.putExtra("aspectX", 1);// 裁剪框比例
+                intent.putExtra("aspectY", 1);
+                startActivityForResult(intent, 100);
+                */
+                intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, 100);
+                break;
+        }
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case 100:
+                    //Bitmap bmp = Utils.getOptimizeBitmapFromFile(testFile);
+                    Uri originalUri = data.getData();
+                    Log.e(TAG, "uri:"+data.getData());
+                    String[] proj = {MediaStore.Images.Media.DATA};
+
+                    //好像是android多媒体数据库的封装接口，具体的看Android文档
+                    Cursor cursor = getActivity().getContentResolver().query(originalUri, proj, null, null, null);
+                    //按我个人理解 这个是获得用户选择的图片的索引值
+                    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    //将光标移至开头 ，这个很重要，不小心很容易引起越界
+                    cursor.moveToFirst();
+                    //最后根据索引值获取图片路径
+                    String path = cursor.getString(column_index);
+                    Log.e(TAG, "path:"+path);
+
+                    File inFile = new File(path);
+                    Log.e(TAG, "orign size:"+inFile.length()/1024.0);
+                    //Bitmap bmp = Utils.getOptimizeBitmapFromFile(inFile, 200, 200);
+                    Bitmap bmp = ImageUtil.getOptimizeBitmapFromFile(inFile, globalInfos.getScreenWidth(), globalInfos.getScreenHeight());
+                    File outFile = new File(getActivity().getExternalCacheDir(), "out.jpg");
+                    try {
+                        ImageUtil.setBitmap2File(outFile, bmp);
+                    }catch (IOException e){
+                        Log.e(TAG, "IOException:"+e.getMessage());
+                    }
+                    Log.e(TAG, "opti size:"+outFile.length()/1024.0);
+                    Log.e(TAG, "file rate:"+((float)inFile.length())/outFile.length());
+                    break;
+            }
         }
     }
 }
