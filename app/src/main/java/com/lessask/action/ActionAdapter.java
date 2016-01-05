@@ -84,6 +84,7 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
                 context.startActivity(intent);
             }
         });
+
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.video,R.drawable.man, R.drawable.women);
         Log.e(TAG, "load video img:" + config.getImgUrl() + data.getActionImage());
         VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + data.getActionImage(), listener);

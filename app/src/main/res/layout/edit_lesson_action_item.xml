@@ -13,10 +13,16 @@
         android:id="@+id/action_pic"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:padding="12dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/man"
+        />
+    <ImageView
+        android:id="@+id/video_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="16dp"
         android:layout_centerVertical="true"
         android:src="@drawable/video"
-        android:background="@drawable/women"
         />
     <TextView
         android:id="@+id/name"

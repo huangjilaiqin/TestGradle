@@ -32,6 +32,7 @@ import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.lesson.EditLessonActivity;
 import com.lessask.model.ActionItem;
 import com.lessask.net.NetworkFileHelper;
 import com.lessask.tag.SelectTagsActivity;
@@ -53,7 +54,6 @@ import me.kaede.tagview.TagView;
 public class EditActionActivity extends AppCompatActivity implements OnClickListener{
 
     private final String TAG = EditActionActivity.class.getSimpleName();
-    private String path;
     private ScalableVideoView mScalableVideoView;
     private EditText mName;
     private ImageView mEditTags;
@@ -81,13 +81,14 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     private Intent mIntent;
 
     private ActionItem actionItem;
-    private ActionItem newActionItem;
+
     private boolean isReRecord;
-    private boolean isEdit;
-    private String newVideoPath;
+    //重拍后的视频路径
+    private String newLocalVideoPath;
     private String newActionImage;
     private String oldVideoName;
     private String oldActionImage;
+
     private int itemPosition;
     private NetworkFileHelper networkFileHelper = NetworkFileHelper.getInstance();
 
@@ -130,17 +131,12 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         mEditTags.setOnClickListener(this);
         mTagView = (TagView) findViewById(R.id.selected_tags);
         for(int i=0;i<tagDatas.size();i++){
-            Log.e(TAG, "add tag:"+i);
             mTagView.addTag(getTag(tagDatas.get(i)));
         }
 
         mNotice = (ImageView) findViewById(R.id.notice);
         mNotice.setOnClickListener(this);
-        ArrayList<String> originNotices = (ArrayList<String>)noticeDatas.clone();
-        for(int i=0;i<originNotices.size();i++){
-            Log.e(TAG, "add notice:"+i);
-            addTextView2AttentionListItem(noticeDatas.get(i));
-        }
+        initAttentionListItem();
 
         displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -224,6 +220,31 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     }
 
     private String beforeEditContent;
+
+    private void initAttentionListItem(){
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.notice_item_layout);
+        LinearLayout.LayoutParams tvLayoutParams;
+        for(int i=0;i<noticeDatas.size();i++) {
+            final TextView textView = new TextView(this);
+            textView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String content = textView.getText().toString();
+                    beforeEditContent = content;
+                    showEditNoticeDialog(true, content, (TextView) v);
+                }
+            });
+            textView.setText(noticeDatas.get(i));
+            textView.setTextSize(18);
+            textView.setBackgroundResource(R.drawable.text_white_bg);
+            textView.setPadding(5, 3, 5, 3);
+            linearLayout.addView(textView);
+            tvLayoutParams = (LinearLayout.LayoutParams) textView.getLayoutParams();
+            tvLayoutParams.bottomMargin = 3;
+            textView.setLayoutParams(tvLayoutParams);
+        }
+    }
+
     private void addTextView2AttentionListItem(final String content){
         if(content.length()==0)
             return;
@@ -278,7 +299,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 break;
             case R.id.re_record:
                 if(isReRecord){
-                    File file = new File(newVideoPath);
+                    File file = new File(newLocalVideoPath);
                     if(file.exists() && file.isFile())
                         file.delete();
                     file = new File(newActionImage);
@@ -290,6 +311,10 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 startActivityForResult(intent, RECORD_ACTION);
                 break;
             case R.id.save:
+                if(mName.toString().trim().length()<=0){
+                    Toast.makeText(EditActionActivity.this, "请填写动作名称", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 networkFileHelper.startPost(config.getUpdateActionUrl(), HandleActionResponse.class, updateActionRequest);
                 break;
             default:
@@ -397,19 +422,23 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
             case SELECT_TAGS:
-                tagDatas = data.getIntegerArrayListExtra("tagDatas");
+                ArrayList<Integer> newTagDatas = data.getIntegerArrayListExtra("tagDatas");
                 Log.e(TAG, "on result:"+tagDatas);
                 mTagView.removeAllTags();
-                for(int i=0;i<tagDatas.size();i++){
-                    mTagView.addTag(getTag(tagDatas.get(i)));
+                tagDatas.clear();
+                for(int i=0;i<newTagDatas.size();i++){
+                    int tagId = newTagDatas.get(i);
+                    mTagView.addTag(getTag(tagId));
+                    tagDatas.add(tagId);
                 }
                 break;
             case RECORD_ACTION:
-                newVideoPath = data.getStringExtra("videoPath");
+                newLocalVideoPath = data.getStringExtra("videoPath");
+                Log.e(TAG, "newLocalVideoPath size:"+new File(newLocalVideoPath).length()/1024);
                 newActionImage = data.getStringExtra("imagePath");
                 float ratio = data.getFloatExtra("ratio", 1.33f);
                 isReRecord = true;
-                play(newVideoPath);
+                play(newLocalVideoPath);
                 break;
         }
     }
@@ -450,26 +479,34 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
                 return;
             }
             int actionId = handleActionResponse.getActionId();
+            //这是完整路径
             String videoName = handleActionResponse.getVideoName();
             String actionIamge = handleActionResponse.getActionImage();
-            //删除旧video文件
-            File oldVideoFile = new File(config.getVideoCachePath(), oldVideoName);
-            if (oldVideoFile.exists() && oldVideoFile.isFile()) {
-                oldVideoFile.delete();
-                Log.e(TAG, "delete old file:" + oldVideoFile.getAbsolutePath());
-            }
+            if(isReRecord) {
+                //删除旧video文件
+                File oldVideoFile = new File(oldVideoName);
+                Log.e(TAG, "delete oldVideoName:" + oldVideoFile.getAbsolutePath());
+                if (oldVideoFile.exists() && oldVideoFile.isFile()) {
+                    oldVideoFile.delete();
+                    Log.e(TAG, "delete old file:" + oldVideoFile.getAbsolutePath());
+                }
 
-            //重命名新video文件
-            File newVideoFile = new File(config.getVideoCachePath(), newVideoPath);
-            if (newVideoFile.exists() && newVideoFile.isFile()) {
-                Log.e(TAG, config.getVideoCachePath()+", "+videoName);
-                File newFile = new File(config.getVideoCachePath(), videoName);
-                Log.e(TAG, "before rename new file:" + newFile.getAbsolutePath());
-                newVideoFile.renameTo(newFile);
-                Log.e(TAG, "rename new file:" + videoName);
+                //重命名新video文件
+                File localVideoFile = new File(newLocalVideoPath);
+                if (localVideoFile.exists() && localVideoFile.isFile()) {
+                    //网络文件名字
+                    File newVideoFile = new File(config.getVideoCachePath(), videoName);
+                    Log.e(TAG, "before rename new file:" + localVideoFile.getAbsolutePath());
+                    if (localVideoFile.renameTo(newVideoFile))
+                        Log.e(TAG, "after rename new file:" + localVideoFile.getAbsolutePath());
+                    else
+                        Log.e(TAG, "fialde after rename new file:" + localVideoFile.getAbsolutePath());
+                }
             }
-
-            ActionItem actionItem = new ActionItem(actionId, mName.getText().toString(), videoName,actionIamge, tagDatas, noticeDatas);
+            Log.e(TAG, "newVideoName:" + videoName + ", new actionImage:" + actionIamge);
+            actionItem.setName(mName.getText().toString().trim());
+            actionItem.setVideoName(videoName);
+            actionItem.setActionImage(actionIamge);
             mIntent.putExtra("actionItem", actionItem);
             mIntent.putExtra("position", itemPosition);
             EditActionActivity.this.setResult(RESULT_OK, mIntent);
@@ -486,19 +523,11 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         @Override
         public HashMap<String, String> getHeaders() {
             HashMap<String, String> headers = new HashMap<>();
-            String videoName = "";
-            String actionImage = "";
-            if(isReRecord) {
-                videoName = new File(newVideoPath).getName();
-                actionImage = new File(newActionImage).getName();
-            }
-            newActionItem = new ActionItem(actionItem.getId(),mName.getText().toString().trim(),videoName,actionImage, tagDatas, noticeDatas);
+
+            actionItem.setName(mName.getText().toString());
             headers.put("userid", globalInfos.getUserId() + "");
-            headers.put("actionItem", gson.toJson(newActionItem));
-            if(isReRecord) {
-                headers.put("oldVideoName", oldVideoName);
-                headers.put("oldActionImage", oldActionImage);
-            }
+            headers.put("actionItem", gson.toJson(actionItem));
+            Log.e(TAG, "actionItem:"+gson.toJson(actionItem));
             return headers;
         }
 
@@ -506,7 +535,7 @@ public class EditActionActivity extends AppCompatActivity implements OnClickList
         public HashMap<String, String> getFiles() {
             HashMap<String, String> files = new HashMap<>();
             if(isReRecord){
-                files.put("videofile", newVideoPath);
+                files.put("videofile", newLocalVideoPath);
             }
             return files;
         }

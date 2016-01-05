@@ -1,6 +1,7 @@
 package com.lessask.lesson;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -27,7 +28,9 @@ import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.ItemTouchHelperAdapter;
 import com.lessask.recyclerview.ItemTouchHelperViewHolder;
 import com.lessask.recyclerview.OnStartDragListener;
+import com.lessask.video.PlayVideoActiviy;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,12 +67,28 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, int position) {
         LessonActionInfo info = getItem(position);
-        ActionItem actionItem = globalInfos.getActionById(info.getActionId());
+        final ActionItem actionItem = globalInfos.getActionById(info.getActionId());
         Log.e(TAG, "actionid:"+info.getActionId());
         holder.actionName.setText(actionItem.getName());
         //to do
+        holder.actionPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, PlayVideoActiviy.class);
+                if (actionItem.getVideoName() == null) {
+                    Toast.makeText(context, "file is not exist", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                File videoFile = new File(config.getVideoCachePath(), actionItem.getVideoName());
+
+                intent.putExtra("video_path", videoFile.getAbsolutePath());
+                intent.putExtra("video_url", config.getVideoUrl() + actionItem.getVideoName());
+                context.startActivity(intent);
+            }
+        });
+
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(holder.actionPic, R.drawable.man, R.drawable.women);
-        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + actionItem.getVideoName(), listener);
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + actionItem.getActionImage(), listener);
 
         holder.groups.setOnTouchListener(this);
         holder.times.setOnTouchListener(this);

@@ -125,7 +125,6 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
         GsonRequest deleteActionRequest = new GsonRequest<>(Request.Method.POST, config.getDeleteActionUrl(), HandleActionResponse.class, new GsonRequest.PostGsonRequest<HandleActionResponse>() {
             @Override
             public void onStart() {
-
             }
 
             @Override
@@ -137,7 +136,6 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
 
             @Override
             public void onError(VolleyError error) {
-
             }
 
             @Override

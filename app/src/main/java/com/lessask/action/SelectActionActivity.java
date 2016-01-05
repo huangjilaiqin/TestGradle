@@ -15,9 +15,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.Config;
@@ -28,7 +30,9 @@ import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
+import com.lessask.video.PlayVideoActiviy;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -113,11 +117,32 @@ public class SelectActionActivity extends AppCompatActivity implements View.OnCl
 
         @Override
         public void onBindViewHolder(MyHolder holder, final int position) {
-            ActionItem actionItem = getItem(position);
+            final ActionItem actionItem = getItem(position);
             //holder.video.set
+            holder.video.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, PlayVideoActiviy.class);
+                    if(actionItem.getVideoName()==null){
+                        Toast.makeText(context, "file is not exist", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    File videoFile = new File(config.getVideoCachePath(), actionItem.getVideoName());
+
+                    intent.putExtra("video_path", videoFile.getAbsolutePath());
+                    intent.putExtra("video_url", config.getVideoUrl()+actionItem.getVideoName());
+                    context.startActivity(intent);
+                }
+            });
+
+            ImageLoader.ImageListener listener = ImageLoader.getImageListener(holder.video, R.drawable.man, R.drawable.women);
+            VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + actionItem.getActionImage(), listener);
+
             holder.name.setText(actionItem.getName());
             ArrayList<Integer> tags = actionItem.getTags();
             StringBuilder builder = new StringBuilder();
+
+
 
             for(int i=0;i<tags.size();i++){
                 Log.e(TAG, "id:"+tags.get(i));
