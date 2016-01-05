@@ -70,8 +70,8 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
             return makeMovementFlags(dragFlags, swipeFlags);
         } else {
             int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-            int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-            //final int swipeFlags = 0;
+            //int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            int swipeFlags = 0;
             if(mSwipeFlag!=0)
                 swipeFlags = mSwipeFlag;
             if(mDragFlag!=0)

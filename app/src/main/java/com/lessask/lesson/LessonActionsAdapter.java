@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.lessask.OnItemClickListener;
+import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.global.Config;
@@ -28,6 +30,7 @@ import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.ItemTouchHelperAdapter;
 import com.lessask.recyclerview.ItemTouchHelperViewHolder;
 import com.lessask.recyclerview.OnStartDragListener;
+import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.video.PlayVideoActiviy;
 
 import java.io.File;
@@ -38,10 +41,13 @@ import java.util.List;
 /**
  * Created by huangji on 2015/12/22.
  */
-public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, LessonActionsAdapter.ItemViewHolder>
+public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, RecyclerView.ViewHolder>
         implements ItemTouchHelperAdapter,View.OnTouchListener {
     private String TAG = LessonActionsAdapter.class.getSimpleName();
     private Context context;
+    private OnItemClickListener onItemClickListener;
+    private OnItemMenuClickListener onItemMenuClickListener;
+
     private final OnStartDragListener mDragStartListener;
     private final CoordinatorLayout coordinatorLayout;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -52,26 +58,35 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
         this.mDragStartListener = onStartDragListener;
         this.coordinatorLayout = coordinatorLayout;
     }
-
-    @Override
-    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        //获取item布局
-        //item布局要有两层layout在第二层layout里面放控件,背景色设置为不透明，否则bg_menu会显示出来
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_lesson_action_item, null);
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-        //生成返回RecyclerView.ViewHolder
-        return new ItemViewHolder(view);
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+    public void setOnItemMenuClickListener(OnItemMenuClickListener onItemMenuClickListener){
+        this.onItemMenuClickListener = onItemMenuClickListener;
     }
 
     @Override
-    public void onBindViewHolder(final ItemViewHolder holder, int position) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        //获取item布局
+        View itemMenu = LayoutInflater.from(parent.getContext()).inflate(R.layout.lesson_action_menu, null);
+        itemMenu.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        //item布局要有两层layout在第二层layout里面放控件,背景色设置为不透明，否则bg_menu会显示出来
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_lesson_action_item, null);
+        //Height要使用WRAP_CONTENT否则内容会被挤在一起显示不出来
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        //生成返回RecyclerView.ViewHolder
+        return new ItemViewHolder(context, itemMenu, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
+    }
+
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+        final ItemViewHolder myholder = (ItemViewHolder)RecyclerViewDragHolder.getHolder(holder);
         LessonActionInfo info = getItem(position);
         final ActionItem actionItem = globalInfos.getActionById(info.getActionId());
         Log.e(TAG, "actionid:"+info.getActionId());
-        holder.actionName.setText(actionItem.getName());
+        myholder.actionName.setText(actionItem.getName());
         //to do
-        holder.actionPic.setOnClickListener(new View.OnClickListener() {
+        myholder.actionPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayVideoActiviy.class);
@@ -87,13 +102,31 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
             }
         });
 
-        ImageLoader.ImageListener listener = ImageLoader.getImageListener(holder.actionPic, R.drawable.man, R.drawable.women);
+        ImageLoader.ImageListener listener = ImageLoader.getImageListener(myholder.actionPic, R.drawable.man, R.drawable.women);
         VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + actionItem.getActionImage(), listener);
 
-        holder.groups.setOnTouchListener(this);
-        holder.times.setOnTouchListener(this);
-        holder.groupRestTime.setOnTouchListener(this);
-        holder.actionRestTime.setOnTouchListener(this);
+        myholder.getTopView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (myholder.isOpen()) {
+                    myholder.close();
+                }else {
+                    // do something
+                }
+            }
+        });
+        myholder.deleteItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                remove(position);
+                notifyItemRemoved(position);
+            }
+        });
+
+        myholder.groups.setOnTouchListener(this);
+        myholder.times.setOnTouchListener(this);
+        myholder.groupRestTime.setOnTouchListener(this);
+        myholder.actionRestTime.setOnTouchListener(this);
     }
 
     @Override
@@ -120,7 +153,7 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
 
     @Override
     public void onItemDismiss(final int position) {
-
+        /*
         final LessonActionInfo lessonActionInfo = getList().get(position);
         Snackbar.make(coordinatorLayout, "删除动作", Snackbar.LENGTH_LONG).setAction("撤销", new View.OnClickListener() {
             @Override
@@ -132,6 +165,7 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
         }).show();
         getList().remove(position);
         notifyItemRemoved(position);
+        */
     }
 
     @Override
@@ -226,34 +260,35 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
         return false;
     }
 
-    public static class ItemViewHolder extends RecyclerView.ViewHolder implements
-            ItemTouchHelperViewHolder {
+    public static class ItemViewHolder  extends RecyclerViewDragHolder {
 
-        public final TextView actionName;
-        public final ImageView actionPic;
-        public final EditText groups;
-        public final EditText times;
-        public final EditText groupRestTime;
-        public final EditText actionRestTime;
+        public TextView actionName;
+        public ImageView actionPic;
+        public EditText groups;
+        public EditText times;
+        public EditText groupRestTime;
+        public EditText actionRestTime;
+        //左滑菜单
+        TextView deleteItem;
 
-        public ItemViewHolder(View itemView) {
-            super(itemView);
+        public ItemViewHolder(Context context, View bgView, View topView) {
+            super(context, bgView, topView);
+        }
+
+        public ItemViewHolder(Context context, View bgView, View topView, int mTrackingEdges) {
+            super(context, bgView, topView, mTrackingEdges);
+        }
+
+        @Override
+        public void initView(View itemView) {
             actionName = (TextView) itemView.findViewById(R.id.name);
             actionPic = (ImageView) itemView.findViewById(R.id.action_pic);
             groups = (EditText) itemView.findViewById(R.id.groups);
             times = (EditText) itemView.findViewById(R.id.times);
             groupRestTime = (EditText) itemView.findViewById(R.id.group_rest_time);
             actionRestTime = (EditText) itemView.findViewById(R.id.action_rest_time);
-        }
 
-        @Override
-        public void onItemSelected() {
-            itemView.setBackgroundColor(Color.LTGRAY);
-        }
-
-        @Override
-        public void onItemClear() {
-            itemView.setBackgroundColor(0);
+            deleteItem = (TextView) itemView.findViewById(R.id.delete);
         }
     }
 }

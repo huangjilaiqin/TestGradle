@@ -1,6 +1,7 @@
 package com.lessask.me;
 
 
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,6 +34,7 @@ public class FragmentMe extends Fragment{
     private View rootView;
     private ViewPager mViewPager;
     private TitlePageIndicator indicator;
+    private TabLayout tabLayout;
     private ArrayList<Fragment> fragmentDatas;
     private ArrayList<String> fragmentNames;
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
@@ -56,6 +58,7 @@ public class FragmentMe extends Fragment{
             //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().);
             mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
             mViewPager.setAdapter(myFragmentPagerAdapter);
+            /*
             mViewPager.setCurrentItem(0); //设置默认当前页
             mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -73,10 +76,15 @@ public class FragmentMe extends Fragment{
 
                 }
             });
+            */
+            tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
+            tabLayout.setupWithViewPager(mViewPager);
 
+            /*
             indicator = (TitlePageIndicator)rootView.findViewById(R.id.indicator);
             indicator.setViewPager(mViewPager);
             indicator.setCurrentItem(0);
+            */
         }
         return rootView;
     }

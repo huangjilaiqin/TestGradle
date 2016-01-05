@@ -22,6 +22,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.Gson;
 import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
+import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.action.SelectActionActivity;
 import com.lessask.dialog.LoadingDialog;
@@ -147,7 +148,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         mAdapter.appendToList(lesson.getLessonActionInfos());
 
         SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
-        callback.setmSwipeFlag(ItemTouchHelper.LEFT);
+        //callback.setmSwipeFlag(ItemTouchHelper.LEFT);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mActionsRecycleView);
     }

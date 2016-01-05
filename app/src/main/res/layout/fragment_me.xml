@@ -236,24 +236,21 @@
         </RelativeLayout>
     </RelativeLayout>
     <RelativeLayout
-        android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/base_info"
         >
-        <com.viewpagerindicator.TitlePageIndicator
-            android:id="@+id/indicator"
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            app:footerColor="@color/main_color"
-            app:selectedColor="@color/main_color"
+            app:tabMode="fixed"
             />
         <android.support.v4.view.ViewPager
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/indicator"
+            android:layout_below="@id/tabs"
             />
     </RelativeLayout>
 </RelativeLayout>

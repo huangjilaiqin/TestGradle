@@ -136,7 +136,8 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mActionsRecycleView.setAdapter(mAdapter);
 
         SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
-        callback.setmSwipeFlag(ItemTouchHelper.LEFT);
+        //callback.setmSwipeFlag(ItemTouchHelper.LEFT);
+        //callback.setmSwipeFlag(0);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mActionsRecycleView);
 
