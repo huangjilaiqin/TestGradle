@@ -3,9 +3,8 @@ package com.lessask.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.lessask.lesson.LessonActionInfo;
+import com.lessask.lesson.LessonAction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,12 +19,12 @@ public class Lesson implements Parcelable {
     private String purpose;
     private int costTime;
     private String description;
-    private List<LessonActionInfo> lessonActionInfos;
+    private List<LessonAction> lessonActions;
     private int recycleTimes;
     private int fatEffect;
     private int muscleEffect;
 
-    public Lesson(int id, String name, String cover, List<String> bodies, String address, String purpose, int costTime, String description, List<LessonActionInfo> lessonActionInfos,int recycleTimes,int fatEffect,int muscleEffect) {
+    public Lesson(int id, String name, String cover, List<String> bodies, String address, String purpose, int costTime, String description, List<LessonAction> lessonActions,int recycleTimes,int fatEffect,int muscleEffect) {
         this.id = id;
         this.name = name;
         this.cover = cover;
@@ -34,7 +33,7 @@ public class Lesson implements Parcelable {
         this.purpose = purpose;
         this.costTime = costTime;
         this.description = description;
-        this.lessonActionInfos= lessonActionInfos;
+        this.lessonActions = lessonActions;
         this.recycleTimes = recycleTimes;
         this.fatEffect = fatEffect;
         this.muscleEffect = muscleEffect;
@@ -55,7 +54,7 @@ public class Lesson implements Parcelable {
         dest.writeString(purpose);
         dest.writeInt(costTime);
         dest.writeString(description);
-        dest.writeList(lessonActionInfos);
+        dest.writeList(lessonActions);
         dest.writeInt(recycleTimes);
         dest.writeInt(fatEffect);
         dest.writeInt(muscleEffect);
@@ -71,7 +70,7 @@ public class Lesson implements Parcelable {
              String purpose = in.readString();
              int costTime = in.readInt();
              String description = in.readString();
-             List<LessonActionInfo> actionsId = in.readArrayList(LessonActionInfo.class.getClassLoader());
+             List<LessonAction> actionsId = in.readArrayList(LessonAction.class.getClassLoader());
              int recycleTimes = in.readInt();
              int fatEffect = in.readInt();
              int muscleEffect = in.readInt();
@@ -163,12 +162,12 @@ public class Lesson implements Parcelable {
         this.description = description;
     }
 
-    public List<LessonActionInfo> getLessonActionInfos() {
-        return lessonActionInfos;
+    public List<LessonAction> getLessonActions() {
+        return lessonActions;
     }
 
-    public void setLessonActionInfos(List<LessonActionInfo> lessonActionInfos) {
-        this.lessonActionInfos = lessonActionInfos;
+    public void setLessonActions(List<LessonAction> lessonActions) {
+        this.lessonActions = lessonActions;
     }
 
     public int getRecycleTimes() {

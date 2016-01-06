@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by huangji on 2015/10/21.
  * 创建编辑课程的动作信息
  */
-public class LessonActionInfo implements Parcelable {
+public class LessonAction implements Parcelable {
     //根据actionId获取动作名字，图片,为了防止动作信息更改,只保存id
     //如果要删除动作则提示使用了该动作的课程
     private int actionId;
@@ -16,7 +16,7 @@ public class LessonActionInfo implements Parcelable {
     private int groupRestTimes;
     private int actionRestTimes;
 
-    public LessonActionInfo(int actionId,int groups,int times,int groupRestTimes, int actionRestTimes) {
+    public LessonAction(int actionId, int groups, int times, int groupRestTimes, int actionRestTimes) {
         this.actionId = actionId;
         //组数
         this.groups = groups;
@@ -38,20 +38,20 @@ public class LessonActionInfo implements Parcelable {
         dest.writeInt(groupRestTimes);
         dest.writeInt(actionRestTimes);
     }
-    public static final Parcelable.Creator<LessonActionInfo> CREATOR
-             = new Parcelable.Creator<LessonActionInfo>() {
-         public LessonActionInfo createFromParcel(Parcel in) {
+    public static final Parcelable.Creator<LessonAction> CREATOR
+             = new Parcelable.Creator<LessonAction>() {
+         public LessonAction createFromParcel(Parcel in) {
              int actionsId = in.readInt();
              int groups = in.readInt();
              int times = in.readInt();
              int groupRestTimes = in.readInt();
              int actionRestTimes = in.readInt();
 
-             return new LessonActionInfo(actionsId,groups,times,groupRestTimes,actionRestTimes);
+             return new LessonAction(actionsId,groups,times,groupRestTimes,actionRestTimes);
          }
 
-         public LessonActionInfo[] newArray(int size) {
-             return new LessonActionInfo[size];
+         public LessonAction[] newArray(int size) {
+             return new LessonAction[size];
          }
     };
 

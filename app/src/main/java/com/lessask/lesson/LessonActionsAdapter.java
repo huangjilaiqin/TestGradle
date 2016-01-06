@@ -2,9 +2,7 @@ package com.lessask.lesson;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,7 +26,6 @@ import com.lessask.model.ActionItem;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.ItemTouchHelperAdapter;
-import com.lessask.recyclerview.ItemTouchHelperViewHolder;
 import com.lessask.recyclerview.OnStartDragListener;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.video.PlayVideoActiviy;
@@ -41,7 +38,7 @@ import java.util.List;
 /**
  * Created by huangji on 2015/12/22.
  */
-public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, RecyclerView.ViewHolder>
+public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonAction, RecyclerView.ViewHolder>
         implements ItemTouchHelperAdapter,View.OnTouchListener {
     private String TAG = LessonActionsAdapter.class.getSimpleName();
     private Context context;
@@ -81,7 +78,7 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final ItemViewHolder myholder = (ItemViewHolder)RecyclerViewDragHolder.getHolder(holder);
-        LessonActionInfo info = getItem(position);
+        LessonAction info = getItem(position);
         final ActionItem actionItem = globalInfos.getActionById(info.getActionId());
         Log.e(TAG, "actionid:"+info.getActionId());
         myholder.actionName.setText(actionItem.getName());
@@ -110,7 +107,7 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
             public void onClick(View v) {
                 if (myholder.isOpen()) {
                     myholder.close();
-                }else {
+                } else {
                     // do something
                 }
             }
@@ -143,7 +140,7 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
         }
         Log.e(TAG, "begin");
         for (int i=0;i<list.size();i++){
-            LessonActionInfo info = (LessonActionInfo)list.get(i);
+            LessonAction info = (LessonAction)list.get(i);
             Log.e(TAG, "info:"+info.getActionId());
         }
         Log.e(TAG, "over");
@@ -154,7 +151,7 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonActionInfo, 
     @Override
     public void onItemDismiss(final int position) {
         /*
-        final LessonActionInfo lessonActionInfo = getList().get(position);
+        final LessonAction lessonActionInfo = getList().get(position);
         Snackbar.make(coordinatorLayout, "删除动作", Snackbar.LENGTH_LONG).setAction("撤销", new View.OnClickListener() {
             @Override
             public void onClick(View v) {

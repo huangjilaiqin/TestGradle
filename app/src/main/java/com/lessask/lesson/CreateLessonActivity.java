@@ -37,7 +37,6 @@ import com.lessask.util.ImageUtil;
 
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -437,16 +436,16 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     ArrayList<Integer> oldSelectedActionsId = getSelectedActionsId();
 
                     Iterator<Integer> oldIterator = oldSelectedActionsId.iterator();
-                    List<LessonActionInfo> lessonActionInfos = mAdapter.getList();
+                    List<LessonAction> lessonActions = mAdapter.getList();
                     while (oldIterator.hasNext()){
                         int actionId = oldIterator.next();
                         //该动作被删除了
                         if(!modifyOldSelectedActionsId.contains(new Integer(actionId))){
                             //遍历找到移除
-                            for(int i=0;i<lessonActionInfos.size();i++){
-                                LessonActionInfo info = lessonActionInfos.get(i);
+                            for(int i=0;i< lessonActions.size();i++){
+                                LessonAction info = lessonActions.get(i);
                                 if(info.getActionId()==actionId){
-                                    lessonActionInfos.remove(i);
+                                    lessonActions.remove(i);
                                     break;
                                 }
                             }
@@ -455,10 +454,10 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     Iterator<Integer> newIterator = newSelectedActionsId.iterator();
                     while (newIterator.hasNext()){
                         int actionId = newIterator.next();
-                        lessonActionInfos.add(new LessonActionInfo(actionId,1,10,60,120));
+                        lessonActions.add(new LessonAction(actionId,1,10,60,120));
                     }
 
-                    int maxItemCount = lessonActionInfos.size();
+                    int maxItemCount = lessonActions.size();
                     mAdapter.notifyItemRangeChanged(0,maxItemCount);
                     break;
                 case 100:
@@ -515,7 +514,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     private ArrayList<Integer> getSelectedActionsId(){
         //获取选中的动作id
         ArrayList<Integer> selectedActionsId = new ArrayList<>();
-        List<LessonActionInfo> datas = mAdapter.getList();
+        List<LessonAction> datas = mAdapter.getList();
         for(int i=0;i<datas.size();i++)
             selectedActionsId.add(datas.get(i).getActionId());
         return selectedActionsId;

@@ -17,13 +17,11 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.OnItemClickListener;
 import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
-import com.lessask.action.EditActionActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.HandleLessonResponse;
@@ -178,8 +176,8 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
                     oldOne.setMuscleEffect(lesson.getMuscleEffect());
                     oldOne.setDescription(lesson.getDescription());
                     oldOne.setRecycleTimes(lesson.getRecycleTimes());
-                    oldOne.setLessonActionInfos(lesson.getLessonActionInfos());
-                    Log.e(TAG, "selectAction append:"+oldOne.getLessonActionInfos());
+                    oldOne.setLessonActions(lesson.getLessonActions());
+                    Log.e(TAG, "selectAction append:"+oldOne.getLessonActions());
                     mRecyclerViewAdapter.notifyItemChanged(position);
                     break;
                 case CREATE_LESSON:

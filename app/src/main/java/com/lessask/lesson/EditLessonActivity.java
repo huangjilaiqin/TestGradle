@@ -22,7 +22,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.Gson;
 import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
-import com.lessask.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.action.SelectActionActivity;
 import com.lessask.dialog.LoadingDialog;
@@ -145,7 +144,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         mAdapter = new LessonActionsAdapter(this, this,coordinatorLayout );
         mActionsRecycleView.setAdapter(mAdapter);
         //添加动作信息
-        mAdapter.appendToList(lesson.getLessonActionInfos());
+        mAdapter.appendToList(lesson.getLessonActions());
 
         SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
         //callback.setmSwipeFlag(ItemTouchHelper.LEFT);
@@ -355,7 +354,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                     public Map<String, String> getHeaders() {
                         Map<String, String> headers = new HashMap<String, String>();
                         headers.put("userId", "" + globalInfos.getUserId());
-                        lesson.setLessonActionInfos(mAdapter.getList());
+                        lesson.setLessonActions(mAdapter.getList());
                         headers.put("lesson", gson.toJson(lesson));
                         return headers;
                     }
@@ -412,18 +411,18 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
 
                     int maxItemCount = mAdapter.getItemCount();
                     mAdapter.clear();
-                    List<LessonActionInfo> lessonActionInfos = new ArrayList<>();
+                    List<LessonAction> lessonActions = new ArrayList<>();
                     for (int i=0;i<selectedActionsId.size();i++){
                         int actionId = selectedActionsId.get(i);
-                        LessonActionInfo info = new LessonActionInfo(actionId,3,10,60,120);
-                        lessonActionInfos.add(info);
+                        LessonAction info = new LessonAction(actionId,3,10,60,120);
+                        lessonActions.add(info);
                     }
-                    lesson.setLessonActionInfos(lessonActionInfos);
+                    lesson.setLessonActions(lessonActions);
 
 
-                    mAdapter.appendToList(lessonActionInfos);
-                    if(maxItemCount<lessonActionInfos.size())
-                        maxItemCount = lessonActionInfos.size();
+                    mAdapter.appendToList(lessonActions);
+                    if(maxItemCount< lessonActions.size())
+                        maxItemCount = lessonActions.size();
                     mAdapter.notifyItemRangeChanged(0,maxItemCount);
                     break;
                 case 100:
@@ -461,7 +460,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
     private ArrayList<Integer> getSelectedActionsId(){
         //获取选中的动作id
         ArrayList<Integer> selectedActionsId = new ArrayList<>();
-        List<LessonActionInfo> datas = mAdapter.getList();
+        List<LessonAction> datas = mAdapter.getList();
         for(int i=0;i<datas.size();i++)
             selectedActionsId.add(datas.get(i).getActionId());
         return selectedActionsId;
