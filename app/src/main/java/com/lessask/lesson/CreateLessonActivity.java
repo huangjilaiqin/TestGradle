@@ -454,7 +454,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     Iterator<Integer> newIterator = newSelectedActionsId.iterator();
                     while (newIterator.hasNext()){
                         int actionId = newIterator.next();
-                        lessonActions.add(new LessonAction(actionId,1,10,60,120));
+                        lessonActions.add(new LessonAction(actionId,1,10,60,"",120));
                     }
 
                     int maxItemCount = lessonActions.size();
