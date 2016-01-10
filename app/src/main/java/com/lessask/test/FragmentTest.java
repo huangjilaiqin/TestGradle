@@ -25,6 +25,7 @@ import com.lessask.util.ImageUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,19 +36,27 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
     private File testFile;
     private String TAG = FragmentTest.class.getSimpleName();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private HashMap<Integer,Class> intentActivity = new HashMap<>();
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_test, null);
             rootView.findViewById(R.id.slider_menu).setOnClickListener(this);
+            intentActivity.put(R.id.slider_menu, SlideMenuActivity.class);
             rootView.findViewById(R.id.item_touch_helper).setOnClickListener(this);
+            intentActivity.put(R.id.item_touch_helper, ItemTouchHelperActivity.class);
             rootView.findViewById(R.id.storage).setOnClickListener(this);
+            intentActivity.put(R.id.storage, StorageActivity.class);
             rootView.findViewById(R.id.volley).setOnClickListener(this);
+            intentActivity.put(R.id.volley,TestVolleyActivity.class);
             rootView.findViewById(R.id.date_picker).setOnClickListener(this);
             rootView.findViewById(R.id.customer_picker).setOnClickListener(this);
             rootView.findViewById(R.id.tags_picker).setOnClickListener(this);
             rootView.findViewById(R.id.coordinator_layout).setOnClickListener(this);
+            intentActivity.put(R.id.coordinator_layout,CoordinatorLayoutActivity.class);
             rootView.findViewById(R.id.get_pic).setOnClickListener(this);
             testFile = new File(getActivity().getExternalCacheDir(), "test.jpg");
+            rootView.findViewById(R.id.status_change).setOnClickListener(this);
+            intentActivity.put(R.id.status_change, ReplaceChildActivity.class);
         }
         return rootView;
     }
@@ -56,22 +65,6 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         Intent intent = null;
         switch (v.getId()){
-            case R.id.slider_menu:
-                intent = new Intent(getActivity(), SlideMenuActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.item_touch_helper:
-                intent = new Intent(getActivity(), ItemTouchHelperActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.storage:
-                intent = new Intent(getActivity(), StorageActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.volley:
-                intent = new Intent(getActivity(), TestVolleyActivity.class);
-                startActivity(intent);
-                break;
             case R.id.customer_picker:
                 String[] values = {"增肌", "减脂", "塑形","胸部adadfadfaf","背部","腰部","臀部","大腿","小腿"};
                 StringPickerDialog dialog = new StringPickerDialog(getContext(), values, new StringPickerDialog.OnSelectListener() {
@@ -105,10 +98,6 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 TimePickerDialog dialog2 = new TimePickerDialog(getContext(),null,23,45,true);
                 dialog2.show();
                 break;
-            case R.id.coordinator_layout:
-                intent = new Intent(getActivity(), CoordinatorLayoutActivity.class);
-                startActivity(intent);
-                break;
             case R.id.get_pic:
                 /*
                 intent = new Intent(Intent.ACTION_PICK, null);
@@ -124,6 +113,11 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
                 intent.setType("image/*");
                 startActivityForResult(intent, 100);
                 break;
+            default:
+                intent = new Intent(getActivity(), intentActivity.get(v.getId()));
+                startActivity(intent);
+                break;
+
         }
     }
 

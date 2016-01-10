@@ -72,24 +72,16 @@
             android:textSize="14sp"
             android:text="10个"
             />
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/name"
-        >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="10dp"
             android:layout_gravity="center_vertical"
             android:textSize="14sp"
-            android:text="组间:"
+            android:text="休息:"
             />
         <EditText
-            android:id="@+id/group_rest_time"
+            android:id="@+id/reset_time"
             android:layout_width="wrap_content"
             android:minWidth="50dp"
             android:layout_height="wrap_content"
@@ -98,30 +90,6 @@
             android:textSize="14sp"
             android:text="60秒"
             />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/info"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_gravity="center_vertical"
-            android:textSize="14sp"
-            android:text="动作间:"
-            />
-        <EditText
-            android:id="@+id/action_rest_time"
-            android:layout_width="wrap_content"
-            android:minWidth="50dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:editable="false"
-            android:textSize="14sp"
-            android:text="120秒"
-            />
+
     </LinearLayout>
 </RelativeLayout>

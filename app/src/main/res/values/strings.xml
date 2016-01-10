@@ -64,5 +64,6 @@
     <string name="title_activity_slide_menu">SlideMenuActivity</string>
     <string name="title_activity_storage">StorageActivity</string>
     <string name="title_activity_test_volley">TestVolleyActivity</string>
+    <string name="title_activity_replace_child">ReplaceChildActivity</string>
 
 </resources>

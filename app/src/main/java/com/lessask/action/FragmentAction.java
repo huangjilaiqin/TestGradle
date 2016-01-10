@@ -12,13 +12,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.lessask.DividerItemDecoration;
-import com.lessask.OnItemClickListener;
-import com.lessask.OnItemMenuClickListener;
+import com.lessask.recyclerview.OnItemClickListener;
+import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;

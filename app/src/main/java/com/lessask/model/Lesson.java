@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.lessask.lesson.LessonAction;
 
 import java.util.List;
+import java.util.List;
 
 /**
  * Created by laiqin on 15/12/17.
@@ -22,8 +23,9 @@ public class Lesson implements Parcelable {
     private int recycleTimes;
     private int fatEffect;
     private int muscleEffect;
+    private List<LessonAction> lessonActions;
 
-    public Lesson(int id, String name, String cover, List<String> bodies, String address, String purpose, int costTime, String description,int recycleTimes,int fatEffect,int muscleEffect) {
+    public Lesson(int id, String name, String cover, List<String> bodies, String address, String purpose, int costTime, String description,int recycleTimes,int fatEffect,int muscleEffect,List<LessonAction> lessonActions) {
         this.id = id;
         this.name = name;
         this.cover = cover;
@@ -35,6 +37,7 @@ public class Lesson implements Parcelable {
         this.recycleTimes = recycleTimes;
         this.fatEffect = fatEffect;
         this.muscleEffect = muscleEffect;
+        this.lessonActions = lessonActions;
     }
 
     @Override
@@ -55,6 +58,7 @@ public class Lesson implements Parcelable {
         dest.writeInt(recycleTimes);
         dest.writeInt(fatEffect);
         dest.writeInt(muscleEffect);
+        dest.writeList(lessonActions);
     }
     public static final Parcelable.Creator<Lesson> CREATOR
              = new Parcelable.Creator<Lesson>() {
@@ -70,13 +74,22 @@ public class Lesson implements Parcelable {
              int recycleTimes = in.readInt();
              int fatEffect = in.readInt();
              int muscleEffect = in.readInt();
-             return new Lesson(id,name,cover,bodies,address,purpose,costTime,description,recycleTimes,fatEffect,muscleEffect);
+             List<LessonAction> lessonActions = in.readArrayList(LessonAction.class.getClassLoader());
+             return new Lesson(id,name,cover,bodies,address,purpose,costTime,description,recycleTimes,fatEffect,muscleEffect,lessonActions);
          }
 
          public Lesson[] newArray(int size) {
              return new Lesson[size];
          }
     };
+
+    public List<LessonAction> getLessonActions() {
+        return lessonActions;
+    }
+
+    public void setLessonActions(List<LessonAction> lessonActions) {
+        this.lessonActions = lessonActions;
+    }
 
     public int getFatEffect() {
         return fatEffect;

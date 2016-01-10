@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +18,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
@@ -31,24 +34,24 @@ import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
+import com.lessask.net.GsonRequest;
 import com.lessask.net.NetworkFileHelper;
+import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnStartDragListener;
+import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
+import com.lessask.util.ArrayUtil;
 import com.lessask.util.ImageUtil;
 
-
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class CreateLessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener{
-    private String TAG = CreateLessonActivity.class.getSimpleName();
+public class LessonActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener, OnStartDragListener {
+    private String TAG = LessonActivity.class.getSimpleName();
 
     private EditText mName;
     private ImageView mCover;
@@ -61,10 +64,11 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     private RatingBar mMuscleBar;
     private EditText mDescription;
 
-    private RecyclerView mActionsRecycleView;
+    private RecyclerViewStatusSupport mActionsRecycleView;
     private LessonActionsAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
     private Intent mIntent;
+    private Lesson lesson;
 
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -72,17 +76,15 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
 
     private final int SELECT_ACTION = 1;
     private File mCoverFile;
-    private boolean isSelectedCover;
-
-    private int fatEffect=1;
-    private int muscleEffect=1;
+    private boolean isChangeCover = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_lesson);
+        setContentView(R.layout.activity_edit_lesson);
 
         mIntent = getIntent();
+        lesson = mIntent.getParcelableExtra("lesson");
         mCoverFile = new File(getExternalCacheDir(), "cover.jpg");
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -95,31 +97,42 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         });
 
         mCover = (ImageView)findViewById(R.id.cover);
+        ImageLoader.ImageListener listener = ImageLoader.getImageListener(mCover,R.drawable.man, R.drawable.women);
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + lesson.getCover(), listener);
+
         mName = (EditText)findViewById(R.id.name);
+        mName.setText(lesson.getName());
         mPurpose  = (EditText)findViewById(R.id.purpose);
+        mPurpose.setText(lesson.getPurpose());
         mBodies = (EditText)findViewById(R.id.bodies);
+        mBodies.setText(ArrayUtil.join(lesson.getBodies(), " "));
         mAddress = (EditText)findViewById(R.id.address);
+        mAddress.setText(lesson.getAddress());
         mCosttime = (EditText)findViewById(R.id.costtime);
+        mCosttime.setText(lesson.getCostTime()+"分钟");
         mDescription = (EditText)findViewById(R.id.description);
+        mDescription.setText(lesson.getDescription());
         mRecycleTimes = (EditText)findViewById(R.id.recycle_times);
-        findViewById(R.id.add).setOnClickListener(this);
+        mRecycleTimes.setText(lesson.getRecycleTimes() + "次");
+
         mFatBar = (RatingBar)findViewById(R.id.fat_start);
-        mFatBar.setStar(fatEffect);
+        mFatBar.setStar(lesson.getFatEffect());
         mFatBar.setOnRatingChangeListener(new RatingBar.OnRatingChangeListener() {
             @Override
             public void onRatingChange(int RatingCount) {
-                fatEffect = RatingCount;
+                lesson.setFatEffect(RatingCount);
             }
         });
         mMuscleBar = (RatingBar)findViewById(R.id.muscle_start);
-        mMuscleBar.setStar(muscleEffect);
+        mMuscleBar.setStar(lesson.getMuscleEffect());
         mMuscleBar.setOnRatingChangeListener(new RatingBar.OnRatingChangeListener() {
             @Override
             public void onRatingChange(int RatingCount) {
-                muscleEffect = RatingCount;
+                lesson.setMuscleEffect(RatingCount);
             }
         });
 
+        findViewById(R.id.add).setOnClickListener(this);
         findViewById(R.id.save).setOnClickListener(this);
         mCover.setOnClickListener(this);
         mPurpose.setOnTouchListener(this);
@@ -128,67 +141,77 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         mCosttime.setOnTouchListener(this);
         mRecycleTimes .setOnTouchListener(this);
 
-        mActionsRecycleView = (RecyclerView) findViewById(R.id.actions);
+        mActionsRecycleView = (RecyclerViewStatusSupport) findViewById(R.id.actions);
+        mActionsRecycleView.setStatusViews(findViewById(R.id.loading_view), findViewById(R.id.empty_view), findViewById(R.id.error_view));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mActionsRecycleView.setLayoutManager(linearLayoutManager);
         mActionsRecycleView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         mAdapter = new LessonActionsAdapter(this, this,coordinatorLayout );
         mActionsRecycleView.setAdapter(mAdapter);
+        //mAdapter.appendToList(lesson.getLessonActions());
 
         SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
         //callback.setmSwipeFlag(ItemTouchHelper.LEFT);
-        //callback.setmSwipeFlag(0);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mActionsRecycleView);
 
+        findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadLessonAtions(globalInfos.getUserId(), lesson.getId());
+            }
+        });
+
+        //添加动作信息
+        loadLessonAtions(globalInfos.getUserId(), lesson.getId());
     }
+
+    private String[] purposeValues = {"增肌", "减脂", "塑形"};
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         StringPickerDialog stringPickerDialog;
-        if(event.getAction()==MotionEvent.ACTION_UP) {
+        if(event.getAction()== MotionEvent.ACTION_UP) {
             int pos;
             switch (v.getId()) {
                 case R.id.purpose:
-                    String[] purposeValues = {"增肌", "减脂", "塑形"};
-                    StringPickerDialog dialog = new StringPickerDialog(CreateLessonActivity.this, purposeValues, new StringPickerDialog.OnSelectListener() {
+                    StringPickerDialog dialog = new StringPickerDialog(LessonActivity.this, purposeValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mPurpose.setText(data);
-                            Log.e(TAG, "select" + data);
+                            lesson.setPurpose(data);
                         }
                     });
                     dialog.setEditable(false);
-                    String purposeStr = mPurpose.getText().toString().trim();
-                    if(purposeStr.length()>0){
-                        List<String> purpose = Arrays.asList(purposeValues);
-                        pos = purpose.indexOf(purposeStr);
-                        if(pos==-1)
-                            pos=0;
-                        dialog.setValue(pos);
-                    }
+                    List<String> purpose = Arrays.asList(purposeValues);
+                    pos = purpose.indexOf(lesson.getPurpose());
+                    if(pos==-1)
+                        pos=0;
+                    dialog.setValue(pos);
                     dialog.show();
-                    Log.e(TAG, "purpose");
                     break;
                 case R.id.bodies:
                     String[] values1 = {"胸部", "背部", "腰部", "臀部", "大腿", "小腿"};
                     ArrayList<String> bodiesValues = new ArrayList<>();
                     for (int i = 0; i < values1.length; i++)
                         bodiesValues.add(values1[i]);
-                    TagsPickerDialog dialog1 = new TagsPickerDialog(CreateLessonActivity.this, bodiesValues, new TagsPickerDialog.OnSelectListener() {
+                    TagsPickerDialog dialog1 = new TagsPickerDialog(LessonActivity.this, bodiesValues, new TagsPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(List data) {
                             String resulte = "";
                             int size = data.size();
                             int last = size-1;
+                            List<String> bodies = new ArrayList<>();
                             for (int i = 0; i < size; i++) {
                                 if(i!=last)
                                     resulte += data.get(i)+" ";
                                 else
                                     resulte += data.get(i);
+                                bodies.add((String)data.get(i));
                             }
                             mBodies.setText(resulte);
+                            lesson.setBodies(bodies);
                         }
                     });
                     String content = mBodies.getText().toString().trim();
@@ -210,20 +233,18 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     break;
                 case R.id.address:
                     String[] addressValues = {"健身房", "家里", "公园"};
-                    StringPickerDialog addressDialog = new StringPickerDialog(CreateLessonActivity.this, addressValues, new StringPickerDialog.OnSelectListener() {
+                    StringPickerDialog addressDialog = new StringPickerDialog(LessonActivity.this, addressValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mAddress.setText(data);
+                            lesson.setAddress(data);
                         }
                     });
-                    String addressStr = mAddress.getText().toString().trim();
-                    if(addressStr.length()>0){
-                        List<String> address = Arrays.asList(addressStr);
-                        pos = address.indexOf(addressStr);
-                        if(pos==-1)
-                            pos=0;
-                        addressDialog.setValue(pos);
-                    }
+                    List<String> address = Arrays.asList(addressValues);
+                    pos = address.indexOf(lesson.getAddress());
+                    if(pos==-1)
+                        pos=0;
+                    addressDialog.setValue(pos);
                     addressDialog.setEditable(false);
                     addressDialog.show();
                     break;
@@ -231,10 +252,11 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     ArrayList<String> costtimeValues = new ArrayList<>();
                     for (int i = 1; i < 91; i++)
                         costtimeValues.add(i + "分钟");
-                    StringPickerDialog costtimeDialog = new StringPickerDialog(CreateLessonActivity.this, costtimeValues, new StringPickerDialog.OnSelectListener() {
+                    StringPickerDialog costtimeDialog = new StringPickerDialog(LessonActivity.this, costtimeValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mCosttime.setText(data);
+                            lesson.setCostTime(Integer.parseInt(data.replace("分钟","")));
                         }
                     });
                     costtimeDialog.setEditable(false);
@@ -250,15 +272,16 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     ArrayList<String> actionRecycleTimesValues = new ArrayList<>();
                     for (int i = 1; i < 50; i++)
                         actionRecycleTimesValues.add(i + "次");
-                    stringPickerDialog = new StringPickerDialog(CreateLessonActivity.this, actionRecycleTimesValues, new StringPickerDialog.OnSelectListener() {
+                    stringPickerDialog = new StringPickerDialog(LessonActivity.this, actionRecycleTimesValues, new StringPickerDialog.OnSelectListener() {
                         @Override
                         public void onSelect(String data) {
                             mRecycleTimes.setText(data);
+                            lesson.setRecycleTimes(Integer.parseInt(data.replace("次","")));
                         }
                     });
                     stringPickerDialog.setEditable(false);
-                    pos = actionRecycleTimesValues.indexOf(mRecycleTimes.getText().toString().trim());
-                    if (pos == -1)
+                    pos = lesson.getRecycleTimes()-1;
+                    if (pos<0 || pos>actionRecycleTimesValues.size())
                         pos=9;
                     stringPickerDialog.setValue(pos);
                     stringPickerDialog.show();
@@ -273,15 +296,12 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
         Intent intent = null;
         switch (v.getId()){
             case R.id.save:
-                if(!isSelectedCover){
-                    Toast.makeText(getBaseContext(), "请选择计划封面", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 String name = mName.getText().toString().trim();
                 if(name.length()==0) {
                     Toast.makeText(getBaseContext(), "请填写课程名", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                lesson.setName(name);
                 String purpose = mPurpose.getText().toString().trim();
                 if(purpose.length()==0) {
                     Toast.makeText(getBaseContext(), "请选择训练目的", Toast.LENGTH_SHORT).show();
@@ -312,18 +332,16 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     Toast.makeText(getBaseContext(), "请填写课程描述", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                lesson.setDescription(description);
 
-                if(mAdapter.getList().size()==0) {
+                ArrayList<Integer> actionsId = getSelectedActionsId();
+                if(actionsId.size()==0) {
                     Toast.makeText(getBaseContext(), "请选择课程动作", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                int recycleTimes = Integer.parseInt(mRecycleTimes.getText().toString().trim().replace("次",""));
-
-                final Lesson lesson = new Lesson(-1,name,"",bodies,address,purpose,costTime,description,recycleTimes,fatEffect,muscleEffect, mAdapter.getList());
-                final LoadingDialog loadingDialog = new LoadingDialog(CreateLessonActivity.this);
-
-                NetworkFileHelper.getInstance().startPost(config.getAddLessonUrl(), HandleLessonResponse.class, new NetworkFileHelper.PostFileRequest() {
+                final LoadingDialog loadingDialog = new LoadingDialog(LessonActivity.this);
+                NetworkFileHelper.getInstance().startPost(config.getUpdateLessonUrl(), HandleLessonResponse.class, new NetworkFileHelper.PostFileRequest() {
                     @Override
                     public void onStart() {
                         loadingDialog.show();
@@ -334,8 +352,8 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                         loadingDialog.cancel();
                         HandleLessonResponse handleLessonResponse = (HandleLessonResponse) response;
                         int lessonId = handleLessonResponse.getId();
-                        lesson.setId(lessonId);
-                        lesson.setCover(handleLessonResponse.getCover());
+                        if(isChangeCover)
+                            lesson.setCover(handleLessonResponse.getCover());
                         mIntent.putExtra("lesson", lesson);
                         setResult(RESULT_OK, mIntent);
                         finish();
@@ -351,23 +369,27 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     public Map<String, String> getHeaders() {
                         Map<String, String> headers = new HashMap<String, String>();
                         headers.put("userId", "" + globalInfos.getUserId());
-                        String gsonStr = gson.toJson(lesson);
-                        Log.e(TAG, gsonStr.length() + ", " + gsonStr);
+                        lesson.setLessonActions(mAdapter.getList());
+                        Log.e(TAG, gson.toJson(lesson));
                         headers.put("lesson", gson.toJson(lesson));
                         return headers;
                     }
 
                     @Override
                     public Map<String, String> getFiles() {
-                        Map<String, String> images = new HashMap<String, String>();
-                        if(mCoverFile.exists())
-                            images.put("cover", mCoverFile.getAbsolutePath());
-                        return images;
+                        return null;
                     }
 
                     @Override
                     public Map<String, String> getImages() {
-                        return null;
+                        if(isChangeCover) {
+                            Map<String, String> images = new HashMap<String, String>();
+                            if (mCoverFile.exists())
+                                images.put("cover", mCoverFile.getAbsolutePath());
+                            return images;
+                        }else {
+                            return null;
+                        }
                     }
                 });
 
@@ -377,47 +399,16 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                 break;
             case R.id.add:
                 intent = new Intent(this, SelectActionActivity.class);
+                //intent.putIntegerArrayListExtra("selected", getSelectedActionsId());
+                //intent.putIntegerArrayListExtra("selected", getSelectedActionsId());
                 intent.putParcelableArrayListExtra("selected", new ArrayList<LessonAction>(mAdapter.getList()));
                 startActivityForResult(intent, SELECT_ACTION);
                 break;
+
         }
     }
 
     private void getCover(){
-        getImageFromPick();
-        //相机获取图片有翻转问题
-        /*
-        final Uri headImgUri = Uri.fromFile(mCoverFile);//获取文件的Uri
-        final int outputX = 120;
-        final int outputY = 180;
-        new AlertDialog.Builder(CreateLessonActivity.this).setItems(new String[]{"相机", "相册"}, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    //不能同时设置输出到文件中 和 从data中返回
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, headImgUri);
-                    //intent.putExtra("return-data", true);
-                    startActivityForResult(intent, 101);
-                } else {
-                    Intent intent = new Intent(Intent.ACTION_PICK, null);
-                    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                    intent.putExtra("output", headImgUri);
-                    intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-                    intent.putExtra("crop", "true");
-                    intent.putExtra("aspectX", 1);// 裁剪框比例
-                    intent.putExtra("aspectY", 1);
-                    //intent.putExtra("outputX", outputX);// 输出图片大小
-                    //intent.putExtra("outputY", outputY);
-                    //intent.putExtra("return-data", true);
-                    startActivityForResult(intent, 100);
-                }
-            }
-        }).create().show();
-        */
-    }
-
-    private void getImageFromPick(){
         Intent intent = new Intent(Intent.ACTION_PICK, null);
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         intent.putExtra("output", Uri.fromFile(mCoverFile));
@@ -433,30 +424,51 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
             Intent intent = null;
             switch (requestCode){
                 case SELECT_ACTION:
-                    ArrayList<LessonAction> selectedActions = data.getParcelableArrayListExtra("selected");
+                    /*
+                    ArrayList<Integer> modifyOldSelectedActionsId = data.getIntegerArrayListExtra("old_selected");
+                    ArrayList<Integer> newSelectedActionsId = data.getIntegerArrayListExtra("new_selected");
+                    ArrayList<Integer> oldSelectedActionsId = getSelectedActionsId();
 
-                    mAdapter.clear();
+                    //移除被删除的动作
+                    Iterator<Integer> oldIterator = oldSelectedActionsId.iterator();
+
+                    while (oldIterator.hasNext()){
+                        int actionId = oldIterator.next();
+                        //该动作被删除了
+                        if(!modifyOldSelectedActionsId.contains(new Integer(actionId))){
+                            //遍历找到移除
+                            for(int i=0;i< mAdapter.getItemCount();i++){
+                                LessonAction info = mAdapter.getItem(i);
+                                if(info.getActionId()==actionId){
+                                    mAdapter.remove(i);
+                                    mAdapter.notifyItemRemoved(i);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    //添加新添加的动作
+                    Iterator<Integer> newIterator = newSelectedActionsId.iterator();
+                    while (newIterator.hasNext()){
+                        int actionId = newIterator.next();
+                        mAdapter.append(new LessonAction(actionId,1,10,60));
+                    }
+                    */
+                    int beforeInsertSize = mAdapter.getItemCount();
+                    ArrayList<LessonAction> selectedActions = data.getParcelableArrayListExtra("selected");
+                    for (int i=0;i<selectedActions.size();i++)
+                        Log.e(TAG, selectedActions.get(i).getActionImage());
                     mAdapter.appendToList(selectedActions);
-                    mAdapter.notifyDataSetChanged();
+                    if(selectedActions.size()>0)
+                        mAdapter.notifyItemRangeInserted(beforeInsertSize,selectedActions.size());
 
                     break;
                 case 100:
                     //bmp = intent.getParcelableExtra("data");
                     Log.e(TAG, "从相册选取");
-                    //to do 图片压缩
-                    //Bitmap bmp = Utils.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
-                    Log.e(TAG, "cover w:"+mCover.getWidth()+", h:"+mCover.getHeight());
-                    Bitmap bmp = ImageUtil.getOptimizeBitmapFromFile(mCoverFile,mCover.getWidth(),mCover.getHeight());
-                    try {
-                        Log.e(TAG, "before optmize cover size:"+mCoverFile.length()/1024.0);
-                        ImageUtil.setBitmap2File(mCoverFile, bmp);
-                        Log.e(TAG, "optmize cover size:"+mCoverFile.length()/1024.0);
-                    }catch (IOException e){
-                        Toast.makeText(CreateLessonActivity.this, "error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    isSelectedCover=true;
+                    Bitmap bmp = ImageUtil.getBitmapFromFile(mCoverFile);//decodeUriAsBitmap(headImgUri, null);
                     mCover.setImageBitmap(bmp);
+                    isChangeCover = true;
                     break;
                 case 101:
                     Log.e(TAG, "从相机选取");
@@ -468,15 +480,7 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
                     //*/
                     if(mCoverFile.isFile() && mCoverFile.exists())
                         Log.e(TAG, mCoverFile.toString()+" is exit");
-                    bmp = ImageUtil.getOptimizeBitmapFromFile(mCoverFile,mCover.getWidth(),mCover.getHeight());
-                    try {
-                        Log.e(TAG, "before optmize cover size:"+mCoverFile.length()/1024.0);
-                        ImageUtil.setBitmap2File(mCoverFile, bmp);
-                        Log.e(TAG, "optmize cover size:"+mCoverFile.length()/1024.0);
-                    }catch (IOException e){
-                        Toast.makeText(CreateLessonActivity.this, "error:"+e.getMessage(), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                    bmp = ImageUtil.getOptimizeBitmapFromFile(mCoverFile);
                     Log.e(TAG, "count:" + bmp.getByteCount());
 
                     //bmp = intent.getParcelableExtra("data");
@@ -489,5 +493,44 @@ public class CreateLessonActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         mItemTouchHelper.startDrag(viewHolder);
+    }
+
+    private ArrayList<Integer> getSelectedActionsId(){
+        //获取选中的动作id
+        ArrayList<Integer> selectedActionsId = new ArrayList<>();
+        List<LessonAction> datas = mAdapter.getList();
+        for(int i=0;i<datas.size();i++)
+            selectedActionsId.add(datas.get(i).getActionId());
+        return selectedActionsId;
+    }
+    private void loadLessonAtions(final int userId,final int lessonId){
+        GsonRequest getActionsRequest = new GsonRequest<>(Request.Method.POST, config.getLessonActionsUrl(), new TypeToken<List<LessonAction>>() {}.getType(), new GsonRequest.PostGsonRequest<ArrayList<LessonAction>>() {
+            @Override
+            public void onStart() {
+                mActionsRecycleView.showLoadingView();
+            }
+
+            @Override
+            public void onResponse(ArrayList<LessonAction> response) {
+                int size = mAdapter.getItemCount();
+                mAdapter.appendToList((ArrayList) response);
+                //mAdapter.notifyItemRangeInserted(size, response.size());
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Log.e(TAG, "getactions err:" + error.toString());
+                //Toast.makeText(EditLessonActivity.this,error.toString(),Toast.LENGTH_SHORT).show();
+                mActionsRecycleView.showErrorView(error.toString());
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userId", "" + userId);
+                datas.put("lessonId", "" + lessonId);
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(getActionsRequest);
     }
 }

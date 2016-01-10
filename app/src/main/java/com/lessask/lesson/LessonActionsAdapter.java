@@ -16,13 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
-import com.lessask.OnItemClickListener;
-import com.lessask.OnItemMenuClickListener;
+import com.lessask.recyclerview.OnItemClickListener;
+import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ActionItem;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.ItemTouchHelperAdapter;
@@ -39,7 +38,7 @@ import java.util.List;
  * Created by huangji on 2015/12/22.
  */
 public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonAction, RecyclerView.ViewHolder>
-        implements ItemTouchHelperAdapter,View.OnTouchListener {
+        implements ItemTouchHelperAdapter {
     private String TAG = LessonActionsAdapter.class.getSimpleName();
     private Context context;
     private OnItemClickListener onItemClickListener;
@@ -78,29 +77,27 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonAction, Recy
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final ItemViewHolder myholder = (ItemViewHolder)RecyclerViewDragHolder.getHolder(holder);
-        LessonAction info = getItem(position);
-        final ActionItem actionItem = globalInfos.getActionById(info.getActionId());
-        Log.e(TAG, "actionid:"+info.getActionId());
-        myholder.actionName.setText(actionItem.getName());
-        //to do
+        final LessonAction info = getItem(position);
+        myholder.actionName.setText(info.getActionName());
         myholder.actionPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PlayVideoActiviy.class);
-                if (actionItem.getVideoName() == null) {
+                if (info.getVideoName() == null) {
                     Toast.makeText(context, "file is not exist", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                File videoFile = new File(config.getVideoCachePath(), actionItem.getVideoName());
+                File videoFile = new File(config.getVideoCachePath(), info.getVideoName());
 
                 intent.putExtra("video_path", videoFile.getAbsolutePath());
-                intent.putExtra("video_url", config.getVideoUrl() + actionItem.getVideoName());
+                intent.putExtra("video_url", config.getVideoUrl() + info.getVideoName());
                 context.startActivity(intent);
             }
         });
 
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(myholder.actionPic, R.drawable.man, R.drawable.women);
-        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + actionItem.getActionImage(), listener);
+        Log.e(TAG, info.getActionName()+", "+info.getActionImage());
+        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + info.getActionImage(), listener);
 
         myholder.getTopView().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,10 +117,13 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonAction, Recy
             }
         });
 
-        myholder.groups.setOnTouchListener(this);
-        myholder.times.setOnTouchListener(this);
-        myholder.groupRestTime.setOnTouchListener(this);
-        myholder.actionRestTime.setOnTouchListener(this);
+        myholder.groups.setOnTouchListener(myholder);
+        myholder.groups.setText(info.getGroups() + "组");
+        myholder.times.setOnTouchListener(myholder);
+        myholder.times.setText(info.getTimes() + "个");
+        myholder.resetTime.setOnTouchListener(myholder);
+        Log.e(TAG, "resetTime:"+info.getResetTime());
+        myholder.resetTime.setText(info.getResetTime() + "秒");
     }
 
     @Override
@@ -165,106 +165,15 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonAction, Recy
         */
     }
 
-    @Override
-    public boolean onTouch(final View v, MotionEvent event) {
-        if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
-            final EditText et;
-            int pos;
-            StringPickerDialog stringPickerDialog;
-            switch (v.getId()){
-                case R.id.groups:
-                    et = (EditText) v;
-                    ArrayList<String> groupValues = new ArrayList<>();
-                    for (int i = 1; i < 10; i++)
-                        groupValues.add(i + "组");
-                    StringPickerDialog costtimeDialog = new StringPickerDialog(context, groupValues, new StringPickerDialog.OnSelectListener() {
-                        @Override
-                        public void onSelect(String data) {
-                            et.setText(data);
-                        }
-                    });
-                    costtimeDialog.setEditable(false);
-                    pos = groupValues.indexOf(et.getText().toString().trim());
-                    if (pos == -1) {
-                        costtimeDialog.setValue(2);
-                    } else {
-                        costtimeDialog.setValue(pos);
-                    }
-                    costtimeDialog.show();
-                    break;
-                case R.id.times:
-                    et = (EditText) v;
-                    ArrayList<String> costtimeValues = new ArrayList<>();
-                    for (int i = 1; i < 201; i++)
-                        costtimeValues.add(i + "个");
-                    stringPickerDialog = new StringPickerDialog(context, costtimeValues, new StringPickerDialog.OnSelectListener() {
-                        @Override
-                        public void onSelect(String data) {
-                            et.setText(data);
-                        }
-                    });
-                    stringPickerDialog.setEditable(false);
-                    pos = costtimeValues.indexOf(et.getText().toString().trim());
-                    if (pos == -1) {
-                        stringPickerDialog.setValue(9);
-                    } else {
-                        stringPickerDialog.setValue(pos);
-                    }
-                    stringPickerDialog.show();
-                    break;
-                case R.id.group_rest_time:
-                    et = (EditText) v;
-                    ArrayList<String> groupRestTimeValues = new ArrayList<>();
-                    for (int i = 1; i < 181; i++)
-                        groupRestTimeValues.add(i + "秒");
-                    stringPickerDialog = new StringPickerDialog(context, groupRestTimeValues, new StringPickerDialog.OnSelectListener() {
-                        @Override
-                        public void onSelect(String data) {
-                            et.setText(data);
-                        }
-                    });
-                    stringPickerDialog.setEditable(false);
-                    pos = groupRestTimeValues.indexOf(et.getText().toString().trim());
-                    if (pos == -1) {
-                        stringPickerDialog.setValue(59);
-                    } else {
-                        stringPickerDialog.setValue(pos);
-                    }
-                    stringPickerDialog.show();
-                    break;
-                case R.id.action_rest_time:
-                    et = (EditText) v;
-                    ArrayList<String> actionRestTimeValues = new ArrayList<>();
-                    for (int i = 1; i < 301; i++)
-                        actionRestTimeValues.add(i + "秒");
-                    stringPickerDialog = new StringPickerDialog(context, actionRestTimeValues, new StringPickerDialog.OnSelectListener() {
-                        @Override
-                        public void onSelect(String data) {
-                            et.setText(data);
-                        }
-                    });
-                    stringPickerDialog.setEditable(false);
-                    pos = actionRestTimeValues.indexOf(et.getText().toString().trim());
-                    if (pos == -1) {
-                        stringPickerDialog.setValue(119);
-                    } else {
-                        stringPickerDialog.setValue(pos);
-                    }
-                    stringPickerDialog.show();
-                    break;
-            }
-        }
-        return false;
-    }
 
-    public static class ItemViewHolder  extends RecyclerViewDragHolder {
+
+    public class ItemViewHolder  extends RecyclerViewDragHolder implements View.OnTouchListener{
 
         public TextView actionName;
         public ImageView actionPic;
         public EditText groups;
         public EditText times;
-        public EditText groupRestTime;
-        public EditText actionRestTime;
+        public EditText resetTime;
         //左滑菜单
         TextView deleteItem;
 
@@ -282,10 +191,87 @@ public class LessonActionsAdapter extends BaseRecyclerAdapter<LessonAction, Recy
             actionPic = (ImageView) itemView.findViewById(R.id.action_pic);
             groups = (EditText) itemView.findViewById(R.id.groups);
             times = (EditText) itemView.findViewById(R.id.times);
-            groupRestTime = (EditText) itemView.findViewById(R.id.group_rest_time);
-            actionRestTime = (EditText) itemView.findViewById(R.id.action_rest_time);
+            resetTime = (EditText) itemView.findViewById(R.id.reset_time);
 
             deleteItem = (TextView) itemView.findViewById(R.id.delete);
+            RecyclerView.ViewHolder viewHolder=getDragViewHolder();
         }
+
+        @Override
+        public boolean onTouch(final View v, MotionEvent event) {
+            if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
+                final EditText et;
+                int pos;
+                final LessonAction lessonAction = getItem(((RecyclerView.ViewHolder)getDragViewHolder()).getAdapterPosition());
+                StringPickerDialog stringPickerDialog;
+                switch (v.getId()){
+                    case R.id.groups:
+                        et = (EditText) v;
+                        ArrayList<String> groupValues = new ArrayList<>();
+                        for (int i = 1; i < 10; i++)
+                            groupValues.add(i + "组");
+                        StringPickerDialog costtimeDialog = new StringPickerDialog(context, groupValues, new StringPickerDialog.OnSelectListener() {
+                            @Override
+                            public void onSelect(String data) {
+                                et.setText(data);
+                                lessonAction.setGroups(Integer.parseInt(data.replace("组","")));
+                            }
+                        });
+                        costtimeDialog.setEditable(false);
+                        pos = groupValues.indexOf(et.getText().toString().trim());
+                        if (pos == -1) {
+                            costtimeDialog.setValue(2);
+                        } else {
+                            costtimeDialog.setValue(pos);
+                        }
+                        costtimeDialog.show();
+                        break;
+                    case R.id.times:
+                        et = (EditText) v;
+                        ArrayList<String> costtimeValues = new ArrayList<>();
+                        for (int i = 1; i < 201; i++)
+                            costtimeValues.add(i + "个");
+                        stringPickerDialog = new StringPickerDialog(context, costtimeValues, new StringPickerDialog.OnSelectListener() {
+                            @Override
+                            public void onSelect(String data) {
+                                et.setText(data);
+                                lessonAction.setTimes(Integer.parseInt(data.replace("个", "")));
+                            }
+                        });
+                        stringPickerDialog.setEditable(false);
+                        pos = costtimeValues.indexOf(et.getText().toString().trim());
+                        if (pos == -1) {
+                            stringPickerDialog.setValue(9);
+                        } else {
+                            stringPickerDialog.setValue(pos);
+                        }
+                        stringPickerDialog.show();
+                        break;
+                    case R.id.reset_time:
+                        et = (EditText) v;
+                        ArrayList<String> groupRestTimeValues = new ArrayList<>();
+                        for (int i = 1; i < 181; i++)
+                            groupRestTimeValues.add(i + "秒");
+                        stringPickerDialog = new StringPickerDialog(context, groupRestTimeValues, new StringPickerDialog.OnSelectListener() {
+                            @Override
+                            public void onSelect(String data) {
+                                et.setText(data);
+                                lessonAction.setResetTime(Integer.parseInt(data.replace("秒", "")));
+                            }
+                        });
+                        stringPickerDialog.setEditable(false);
+                        pos = groupRestTimeValues.indexOf(et.getText().toString().trim());
+                        if (pos == -1) {
+                            stringPickerDialog.setValue(59);
+                        } else {
+                            stringPickerDialog.setValue(pos);
+                        }
+                        stringPickerDialog.show();
+                        break;
+                }
+            }
+            return false;
+        }
+
     }
 }

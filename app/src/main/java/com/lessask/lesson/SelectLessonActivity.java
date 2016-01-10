@@ -1,4 +1,4 @@
-package com.lessask.action;
+package com.lessask.lesson;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,9 +22,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
+import com.lessask.action.ActionTagsHolder;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.lesson.LessonAction;
 import com.lessask.model.ActionItem;
 import com.lessask.model.GetActionResponse;
 import com.lessask.net.GsonRequest;
@@ -36,11 +36,10 @@ import com.lessask.video.PlayVideoActiviy;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-public class SelectActionActivity extends AppCompatActivity implements View.OnClickListener{
-    private String TAG = SelectActionActivity.class.getSimpleName();
+public class SelectLessonActivity extends AppCompatActivity implements View.OnClickListener{
+    private String TAG = SelectLessonActivity.class.getSimpleName();
     private RecyclerViewStatusSupport mRecyclerView;
 
     private GlobalInfos globalInfos = GlobalInfos.getInstance();

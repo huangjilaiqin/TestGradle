@@ -1,4 +1,4 @@
-package com.lessask;
+package com.lessask.recyclerview;
 
 import android.view.View;
 

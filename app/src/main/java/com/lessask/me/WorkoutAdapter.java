@@ -1,4 +1,4 @@
-package com.lessask.lesson;
+package com.lessask.me;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -11,37 +11,47 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.lessask.recyclerview.OnItemClickListener;
+import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.Lesson;
+import com.lessask.model.Workout;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewDragHolder;
-import com.lessask.model.Lesson;
 import com.lessask.util.ArrayUtil;
 
 /**
  * Created by JHuang on 2015/11/24.
  */
-public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.ViewHolder> {
+public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.ViewHolder> {
 
-    private static final String TAG=LessonAdapter.class.getSimpleName();
+    private static final String TAG=WorkoutAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
+    private OnItemLongClickListener onItemLongClickListener;
     private OnItemMenuClickListener onItemMenuClickListener;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
     private Context context;
 
-    public LessonAdapter(Context context){
+    public WorkoutAdapter(Context context){
         this.context = context;
     }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.lesson_menu, null);
+        View mybg,view;
+        Log.e(TAG, "type: "+viewType);
+        if(viewType==1){
+            mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_menu, null);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_item, parent, false);
+        }else {
+            mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_reset_menu, null);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_reset_item, parent, false);
+        }
         mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.lesson_item, parent, false);
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return new MyViewHolder(context, mybg, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
     }
@@ -52,19 +62,52 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
     public void setOnItemMenuClickListener(OnItemMenuClickListener onItemMenuClickListener){
         this.onItemMenuClickListener = onItemMenuClickListener;
     }
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+        this.onItemLongClickListener = onItemLongClickListener;
+    }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final MyViewHolder myHolder = (MyViewHolder)RecyclerViewDragHolder.getHolder(holder);
-        Lesson data = getItem(position);
-        myHolder.name.setText(data.getName());
-        myHolder.address.setText(data.getAddress());
-        myHolder.time.setText(data.getCostTime()+"分钟");
-        myHolder.purpose.setText(data.getPurpose());
-        myHolder.bodies.setText(ArrayUtil.join(data.getBodies(), " "));
-        ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.cover,R.drawable.man, R.drawable.women);
-        Log.e(TAG, "load img:" + config.getImgUrl() + data.getCover());
-        VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + data.getCover(), listener);
+        Workout data = getItem(position);
+        Lesson lesson = data.getLesson();
+        if(lesson!=null){
+            myHolder.name.setText(lesson.getName());
+            myHolder.address.setText(lesson.getAddress());
+            myHolder.time.setText(lesson.getCostTime()+"分钟");
+            myHolder.purpose.setText(lesson.getPurpose());
+            myHolder.bodies.setText(ArrayUtil.join(lesson.getBodies(), " "));
+            ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.cover,R.drawable.man, R.drawable.women);
+            VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + lesson.getCover(), listener);
+            myHolder.reset.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemMenuClickListener != null) {
+                        onItemMenuClickListener.onItemMenuClick(v, position);
+                    }
+                }
+            });
+            myHolder.change.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemMenuClickListener != null) {
+                        onItemMenuClickListener.onItemMenuClick(v, position);
+                    }
+                }
+            });
+        }else {
+            //休息日的item处理
+            myHolder.add.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemMenuClickListener != null) {
+                        onItemMenuClickListener.onItemMenuClick(v, position);
+                    }
+                }
+            });
+
+        }
+
 
         //处理菜单打开和未打开是的单击事件
         myHolder.getTopView().setOnClickListener(new View.OnClickListener() {
@@ -79,24 +122,20 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
                 }
             }
         });
-        myHolder.deleteItem.setOnClickListener(new View.OnClickListener() {
+        myHolder.getTopView().setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                if (onItemMenuClickListener != null) {
-                    onItemMenuClickListener.onItemMenuClick(v, position);
-                }
-            }
-        });
-        myHolder.distributeItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemMenuClickListener != null) {
-                    onItemMenuClickListener.onItemMenuClick(v, position);
-                }
+            public boolean onLongClick(View view) {
+                return false;
             }
         });
 
 
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Log.e(TAG, "id: "+getItem(position).getId());
+        return getItem(position).getId()>0?1:0;
     }
 
     public static class MyViewHolder extends RecyclerViewDragHolder{
@@ -108,8 +147,9 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
         TextView bodies;
 
         //左滑菜单
-        TextView deleteItem;
-        TextView distributeItem;
+        TextView reset;
+        TextView change;
+        TextView add;
 
         public MyViewHolder(Context context, View bgView, View topView) {
             super(context, bgView, topView);
@@ -128,8 +168,9 @@ public class LessonAdapter extends BaseRecyclerAdapter<Lesson, RecyclerView.View
             purpose = (TextView)itemView.findViewById(R.id.purpose);
             bodies = (TextView)itemView.findViewById(R.id.bodies);
 
-            deleteItem = (TextView) itemView.findViewById(R.id.delete);
-            distributeItem = (TextView) itemView.findViewById(R.id.distribute);
+            reset = (TextView) itemView.findViewById(R.id.reset);
+            change = (TextView) itemView.findViewById(R.id.change);
+            add = (TextView) itemView.findViewById(R.id.add);
         }
     }
 }

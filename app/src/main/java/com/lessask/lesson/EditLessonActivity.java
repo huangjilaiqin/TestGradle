@@ -3,6 +3,7 @@ package com.lessask.lesson;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,11 +19,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
+import com.lessask.action.EditActionActivity;
 import com.lessask.action.SelectActionActivity;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.dialog.StringPickerDialog;
@@ -31,9 +36,11 @@ import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
+import com.lessask.net.GsonRequest;
 import com.lessask.net.NetworkFileHelper;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnStartDragListener;
+import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.recyclerview.SimpleItemTouchHelperCallback;
 import com.lessask.util.ArrayUtil;
 import com.lessask.util.ImageUtil;
@@ -42,6 +49,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +67,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
     private RatingBar mMuscleBar;
     private EditText mDescription;
 
-    private RecyclerView mActionsRecycleView;
+    private RecyclerViewStatusSupport mActionsRecycleView;
     private LessonActionsAdapter mAdapter;
     private ItemTouchHelper mItemTouchHelper;
     private Intent mIntent;
@@ -136,20 +144,30 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         mCosttime.setOnTouchListener(this);
         mRecycleTimes .setOnTouchListener(this);
 
-        mActionsRecycleView = (RecyclerView) findViewById(R.id.actions);
+        mActionsRecycleView = (RecyclerViewStatusSupport) findViewById(R.id.actions);
+        mActionsRecycleView.setStatusViews(findViewById(R.id.loading_view), findViewById(R.id.empty_view), findViewById(R.id.error_view));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mActionsRecycleView.setLayoutManager(linearLayoutManager);
         mActionsRecycleView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         mAdapter = new LessonActionsAdapter(this, this,coordinatorLayout );
         mActionsRecycleView.setAdapter(mAdapter);
-        //添加动作信息
-        mAdapter.appendToList(lesson.getLessonActions());
+        //mAdapter.appendToList(lesson.getLessonActions());
 
         SimpleItemTouchHelperCallback callback = new SimpleItemTouchHelperCallback(mAdapter);
         //callback.setmSwipeFlag(ItemTouchHelper.LEFT);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mActionsRecycleView);
+
+        findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadLessonAtions(globalInfos.getUserId(), lesson.getId());
+            }
+        });
+
+        //添加动作信息
+        loadLessonAtions(globalInfos.getUserId(), lesson.getId());
     }
 
     private String[] purposeValues = {"增肌", "减脂", "塑形"};
@@ -355,6 +373,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                         Map<String, String> headers = new HashMap<String, String>();
                         headers.put("userId", "" + globalInfos.getUserId());
                         lesson.setLessonActions(mAdapter.getList());
+                        Log.e(TAG, gson.toJson(lesson));
                         headers.put("lesson", gson.toJson(lesson));
                         return headers;
                     }
@@ -383,7 +402,9 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.add:
                 intent = new Intent(this, SelectActionActivity.class);
-                intent.putIntegerArrayListExtra("selected", getSelectedActionsId());
+                //intent.putIntegerArrayListExtra("selected", getSelectedActionsId());
+                //intent.putIntegerArrayListExtra("selected", getSelectedActionsId());
+                intent.putParcelableArrayListExtra("selected", new ArrayList<LessonAction>(mAdapter.getList()));
                 startActivityForResult(intent, SELECT_ACTION);
                 break;
 
@@ -406,24 +427,44 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
             Intent intent = null;
             switch (requestCode){
                 case SELECT_ACTION:
-                    ArrayList<Integer> selectedActionsId = data.getIntegerArrayListExtra("selected");
-                    Log.e(TAG, "selectAction:" + selectedActionsId.size());
+                    /*
+                    ArrayList<Integer> modifyOldSelectedActionsId = data.getIntegerArrayListExtra("old_selected");
+                    ArrayList<Integer> newSelectedActionsId = data.getIntegerArrayListExtra("new_selected");
+                    ArrayList<Integer> oldSelectedActionsId = getSelectedActionsId();
 
-                    int maxItemCount = mAdapter.getItemCount();
-                    mAdapter.clear();
-                    List<LessonAction> lessonActions = new ArrayList<>();
-                    for (int i=0;i<selectedActionsId.size();i++){
-                        int actionId = selectedActionsId.get(i);
-                        LessonAction info = new LessonAction(actionId,3,10,60,120);
-                        lessonActions.add(info);
+                    //移除被删除的动作
+                    Iterator<Integer> oldIterator = oldSelectedActionsId.iterator();
+
+                    while (oldIterator.hasNext()){
+                        int actionId = oldIterator.next();
+                        //该动作被删除了
+                        if(!modifyOldSelectedActionsId.contains(new Integer(actionId))){
+                            //遍历找到移除
+                            for(int i=0;i< mAdapter.getItemCount();i++){
+                                LessonAction info = mAdapter.getItem(i);
+                                if(info.getActionId()==actionId){
+                                    mAdapter.remove(i);
+                                    mAdapter.notifyItemRemoved(i);
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    lesson.setLessonActions(lessonActions);
+                    //添加新添加的动作
+                    Iterator<Integer> newIterator = newSelectedActionsId.iterator();
+                    while (newIterator.hasNext()){
+                        int actionId = newIterator.next();
+                        mAdapter.append(new LessonAction(actionId,1,10,60));
+                    }
+                    */
+                    int beforeInsertSize = mAdapter.getItemCount();
+                    ArrayList<LessonAction> selectedActions = data.getParcelableArrayListExtra("selected");
+                    for (int i=0;i<selectedActions.size();i++)
+                        Log.e(TAG, selectedActions.get(i).getActionImage());
+                    mAdapter.appendToList(selectedActions);
+                    if(selectedActions.size()>0)
+                        mAdapter.notifyItemRangeInserted(beforeInsertSize,selectedActions.size());
 
-
-                    mAdapter.appendToList(lessonActions);
-                    if(maxItemCount< lessonActions.size())
-                        maxItemCount = lessonActions.size();
-                    mAdapter.notifyItemRangeChanged(0,maxItemCount);
                     break;
                 case 100:
                     //bmp = intent.getParcelableExtra("data");
@@ -464,5 +505,35 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         for(int i=0;i<datas.size();i++)
             selectedActionsId.add(datas.get(i).getActionId());
         return selectedActionsId;
+    }
+    private void loadLessonAtions(final int userId,final int lessonId){
+        GsonRequest getActionsRequest = new GsonRequest<>(Request.Method.POST, config.getLessonActionsUrl(), new TypeToken<List<LessonAction>>() {}.getType(), new GsonRequest.PostGsonRequest<ArrayList<LessonAction>>() {
+            @Override
+            public void onStart() {
+                mActionsRecycleView.showLoadingView();
+            }
+
+            @Override
+            public void onResponse(ArrayList<LessonAction> response) {
+                int size = mAdapter.getItemCount();
+                mAdapter.appendToList((ArrayList) response);
+                //mAdapter.notifyItemRangeInserted(size, response.size());
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Log.e(TAG, "getactions err:" + error.toString());
+                //Toast.makeText(EditLessonActivity.this,error.toString(),Toast.LENGTH_SHORT).show();
+                mActionsRecycleView.showErrorView(error.toString());
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userId", "" + userId);
+                datas.put("lessonId", "" + lessonId);
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(getActionsRequest);
     }
 }

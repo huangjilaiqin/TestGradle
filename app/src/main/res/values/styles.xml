@@ -34,6 +34,7 @@
         <item name="android:background">@null</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+
     <style name="nothing_dialog">
         <!-- 窗口边框 -->
         <!-- 窗口是否浮动在Activity上 -->
@@ -53,8 +54,8 @@
         <item name="android:isIndicator">false</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

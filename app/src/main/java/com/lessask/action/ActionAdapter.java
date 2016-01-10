@@ -12,8 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
-import com.lessask.OnItemClickListener;
-import com.lessask.OnItemMenuClickListener;
+import com.lessask.recyclerview.OnItemClickListener;
+import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;

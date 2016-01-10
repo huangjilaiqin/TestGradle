@@ -283,12 +283,71 @@
         </LinearLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/actions"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        >
+
+        <com.lessask.recyclerview.RecyclerViewStatusSupport
+            android:id="@+id/actions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#f6f6f6"
+            android:scrollbars="none"
+            android:gravity="center"
+            />
+        <RelativeLayout
+            android:id="@+id/empty_view"
+            android:background="@color/background_white_not_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_centerHorizontal="true"
+                android:text="empty"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/loading_view"
+            android:background="@color/background_white_not_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_centerHorizontal="true"
+                android:text="loading"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/error_view"
+            android:background="@color/background_white_not_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/error_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_centerHorizontal="true"
+                android:text="error"
+                />
+            <Button
+                android:id="@+id/refresh"
+                android:layout_below="@id/error_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="刷新"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add"

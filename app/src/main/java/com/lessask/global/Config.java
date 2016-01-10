@@ -28,6 +28,33 @@ public class Config {
     private String updateLessonUrl = "http://123.59.40.113/httproute/lesson/update/";
     private String lessonsUrl = "http://123.59.40.113/httproute/lessons/";
 
+    private String lessonActionsUrl = "http://123.59.40.113/httproute/lesson_actions/";
+
+    private String addWorkoutUrl = "http://123.59.40.113/httproute/workout/add";
+    private String deleteWorkoutUrl = "http://123.59.40.113/httproute/workout/delete";
+    private String updateWorkoutUrl = "http://123.59.40.113/httproute/workout/update";
+    private String workoutsUrl = "http://123.59.40.113/httproute/workouts";
+
+    public String getAddWorkoutUrl() {
+        return addWorkoutUrl;
+    }
+
+    public String getDeleteWorkoutUrl() {
+        return deleteWorkoutUrl;
+    }
+
+    public String getUpdateWorkoutUrl() {
+        return updateWorkoutUrl;
+    }
+
+    public String getWorkoutsUrl() {
+        return workoutsUrl;
+    }
+
+    public String getLessonActionsUrl() {
+        return lessonActionsUrl;
+    }
+
     public String getAddLessonUrl() {
         return addLessonUrl;
     }

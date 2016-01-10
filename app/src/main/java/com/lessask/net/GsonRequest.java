@@ -1,5 +1,7 @@
 package com.lessask.net;
 
+import android.util.Log;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -96,7 +98,7 @@ public class GsonRequest<T> extends Request<T> {
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
-            //Log.e(TAG, "data:"+json);
+            //Log.e(TAG, "data:" + json);
             T obj = null;
             if(clazz==null) {
                 obj = gson.fromJson(json, type);
@@ -107,8 +109,10 @@ public class GsonRequest<T> extends Request<T> {
                     obj,
                     HttpHeaderParser.parseCacheHeaders(response));
         } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "UnsupportedEncodingException: "+e.toString());
             return Response.error(new ParseError(e));
         } catch (JsonSyntaxException e) {
+            Log.e(TAG, "JsonSyntaxException : "+e.toString());
             return Response.error(new ParseError(e));
         }
     }

@@ -196,9 +196,13 @@
             android:name=".test.TestVolleyActivity"
             android:label="@string/title_activity_test_volley"
             android:theme="@style/AppTheme" />
-        <activity android:name=".test.NestedScrollActivity"></activity>
+        <activity android:name=".test.NestedScrollActivity" />
         <activity android:name=".test.CoordinatorLayoutActivity" />
-        <activity android:name=".lesson.EditLessonActivity"></activity>
+        <activity android:name=".lesson.EditLessonActivity" />
+        <activity
+            android:name=".test.ReplaceChildActivity"
+            android:label="@string/title_activity_replace_child"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

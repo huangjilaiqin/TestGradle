@@ -46,45 +46,18 @@ public class FragmentMe extends Fragment{
             rootView = inflater.inflate(R.layout.fragment_me, null);
             fragmentDatas = new ArrayList<>();
             fragmentDatas.add(new FragmentStatus());
-            fragmentDatas.add(new FragmentTimeline());
             fragmentDatas.add(new FragmentWorkout());
             fragmentNames = new ArrayList<>();
             fragmentNames.add("动态");
-            fragmentNames.add("时间轴");
             fragmentNames.add("训练");
 
-            //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
             myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
-            //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().);
             mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
             mViewPager.setAdapter(myFragmentPagerAdapter);
-            /*
-            mViewPager.setCurrentItem(0); //设置默认当前页
-            mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-                }
-
-                @Override
-                public void onPageSelected(int position) {
-                    Log.e(TAG, "onPageSelected:"+position);
-                }
-
-                @Override
-                public void onPageScrollStateChanged(int state) {
-
-                }
-            });
-            */
             tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(mViewPager);
 
-            /*
-            indicator = (TitlePageIndicator)rootView.findViewById(R.id.indicator);
-            indicator.setViewPager(mViewPager);
-            indicator.setCurrentItem(0);
-            */
         }
         return rootView;
     }

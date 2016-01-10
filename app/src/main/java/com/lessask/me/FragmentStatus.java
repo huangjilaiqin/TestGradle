@@ -28,7 +28,6 @@ public class FragmentStatus extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null){
-            Log.e(TAG, "onCreateView");
             rootView = inflater.inflate(R.layout.fragment_status, null);
 
             RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.recycle);
@@ -74,7 +73,6 @@ public class FragmentStatus extends Fragment{
 
         @Override
         public int getItemCount() {
-            Log.e(TAG, "count:" + super.getItemCount());
             return super.getItemCount();
         }
     }
