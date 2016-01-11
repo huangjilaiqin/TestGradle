@@ -35,6 +35,7 @@
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -202,6 +203,10 @@
         <activity
             android:name=".test.ReplaceChildActivity"
             android:label="@string/title_activity_replace_child"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".lesson.SelectLessonActivity"
+            android:label="@string/title_activity_select_lesson"
             android:theme="@style/AppTheme"></activity>
     </application>
 

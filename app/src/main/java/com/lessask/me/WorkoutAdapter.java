@@ -1,6 +1,8 @@
 package com.lessask.me;
 
+import android.app.Service;
 import android.content.Context;
+import android.os.Vibrator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -125,6 +127,11 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
         myHolder.getTopView().setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                if (onItemLongClickListener != null) {
+                    Vibrator vib = (Vibrator)context.getSystemService(Service.VIBRATOR_SERVICE);
+                    vib.vibrate(5);
+                    onItemLongClickListener.onItemLongClick(view, position);
+                }
                 return false;
             }
         });
@@ -134,7 +141,6 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
 
     @Override
     public int getItemViewType(int position) {
-        Log.e(TAG, "id: "+getItem(position).getId());
         return getItem(position).getId()>0?1:0;
     }
 

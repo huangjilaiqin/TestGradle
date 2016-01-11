@@ -1,5 +1,7 @@
 package com.lessask.me;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,11 +15,15 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
+import com.lessask.dialog.LoadingDialog;
 import com.lessask.dialog.MenuDialog;
 import com.lessask.dialog.OnSelectMenu;
+import com.lessask.lesson.SelectLessonActivity;
 import com.lessask.recyclerview.OnItemClickListener;
+import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
@@ -36,11 +42,14 @@ import java.util.Map;
  * Created by JHuang on 2015/10/22.
  */
 public class FragmentWorkout extends Fragment {
+    private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
     private final int SELECT_LESSON = 1;
     private String TAG = FragmentWorkout.class.getSimpleName();
+    private final int CHANGE = 1;
+    private final int ADD = 2;
 
     private View rootView;
     private WorkoutAdapter mRecyclerViewAdapter;
@@ -67,6 +76,61 @@ public class FragmentWorkout extends Fragment {
             mRecyclerView.setClickable(true);
 
             mRecyclerViewAdapter = new WorkoutAdapter(getContext());
+
+            String[] resetMenu = new String[]{"添加"};
+            String[] workoutMenu = new String[]{"休息","更改"};
+
+
+            mRecyclerViewAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+                @Override
+                public void onItemLongClick(View view, final int position) {
+                    Workout workout = mRecyclerViewAdapter.getItem(position);
+                    final MenuDialog resetMenuDialog = new MenuDialog(getContext(), new String[]{"添加"},
+                    new OnSelectMenu() {
+                        @Override
+                        public void onSelectMenu(int menupos) {
+                            Toast.makeText(getContext(), "menupos:" + menupos + ", position:" + position, Toast.LENGTH_SHORT).show();
+                            Intent intent;
+                            switch (menupos){
+                                case 0:
+                                    //选择课程
+                                    intent = new Intent(FragmentWorkout.this.getContext(), SelectLessonActivity.class);
+                                    intent.putExtra("position", position);
+                                    startActivityForResult(intent, ADD);
+                                    break;
+                            }
+                        }
+                    });
+                    final MenuDialog workoutMenuDialog = new MenuDialog(getContext(), new String[]{"添加"},
+                    new OnSelectMenu() {
+                        @Override
+                        public void onSelectMenu(int menupos) {
+                            Toast.makeText(getContext(), "menupos:" + menupos + ", position:" + position, Toast.LENGTH_SHORT).show();
+                            Intent intent;
+                            switch (menupos){
+                                case 0:
+                                    //休息
+                                    break;
+                                case 1:
+                                    //更改课程
+                                    intent = new Intent(FragmentWorkout.this.getContext(), SelectLessonActivity.class);
+                                    startActivityForResult(intent, CHANGE);
+                                    intent.putExtra("position", position);
+                                    break;
+                            }
+                        }
+                    });
+                    switch (mRecyclerViewAdapter.getItemViewType(position)) {
+                        case 0:
+                            resetMenuDialog.show();
+                            break;
+                        case 1:
+                            workoutMenuDialog.show();
+                            break;
+                    }
+                }
+            });
             //查看动作
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
@@ -76,14 +140,7 @@ public class FragmentWorkout extends Fragment {
                     intent.putExtra("lesson", mRecyclerViewAdapter.getItem(position).getLesson());
                     startActivity(intent);
                     */
-                    MenuDialog menuDialog = new MenuDialog(getContext(),new String[]{"休息","更改"});
-                    menuDialog.setOnSelectMenu(new OnSelectMenu() {
-                        @Override
-                        public void onSelectMenu(int menupos) {
-                            Toast.makeText(getContext(),"menupos:"+menupos+", position:"+position,Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    menuDialog.show();
+
                 }
             });
             mRecyclerViewAdapter.setOnItemMenuClickListener(new OnItemMenuClickListener() {
@@ -109,6 +166,128 @@ public class FragmentWorkout extends Fragment {
         }
         return rootView;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode== Activity.RESULT_OK){
+            Workout workout;
+            int position;
+            switch (requestCode){
+                case ADD:
+                    position = data.getIntExtra("position", -1);
+                    if(position==-1){
+                        Toast.makeText(FragmentWorkout.this.getContext(),"错误的星期",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    workout = data.getParcelableExtra("workout");
+                    workout.setWeek(position+1);
+                    addWorkout(workout,position);
+                    break;
+                case CHANGE:
+                    workout = data.getParcelableExtra("workout");
+                    position = data.getIntExtra("position", -1);
+                    if(position==-1){
+                        Toast.makeText(FragmentWorkout.this.getContext(),"错误的星期",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    workout = data.getParcelableExtra("workout");
+                    workout.setWeek(position+1);
+                    updateWorkout(workout);
+                    break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void addWorkout(final Workout workout, final int position){
+        GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getAddWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
+
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
+            @Override
+            public void onStart() {
+                loadingDialog.show();
+            }
+
+            @Override
+            public void onResponse(WorkoutResponse response) {
+                loadingDialog.cancel();
+                if(response.getError()!=null || response.getErrno()!=0){
+                    Toast.makeText(FragmentWorkout.this.getContext(), response.getError(), Toast.LENGTH_SHORT).show();
+                    return;
+                }else {
+                    //mRecyclerViewAdapter.remove(position);
+                    workout.setId(response.getId());
+                    mRecyclerViewAdapter.update(position,workout);
+                    mRecyclerViewAdapter.notifyItemUpdate(position);
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                loadingDialog.cancel();
+                Toast.makeText(FragmentWorkout.this.getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userId","" + globalInfos.getUserId());
+                Workout w = new Workout(-1,workout.getLessonId(),workout.getUserId(),workout.getWeek());
+                datas.put("workout", gson.toJson(w));
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+    }
+    private void deleteWorkout(Workout workout){
+        GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getUpdateWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onResponse(WorkoutResponse response) {
+
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+    }
+    private void updateWorkout(Workout workout){
+        GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getUpdateWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
+
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onResponse(WorkoutResponse response) {
+
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+    }
+
     private void loadWorkouts(){
         Type type = new TypeToken<ArrayListResponse<Workout>>() {}.getType();
         GsonRequest gsonRequest = new GsonRequest<ArrayListResponse<Workout>>(Request.Method.POST,config.getWorkoutsUrl(),type,new GsonRequest.PostGsonRequest<ArrayListResponse<Workout>>(){

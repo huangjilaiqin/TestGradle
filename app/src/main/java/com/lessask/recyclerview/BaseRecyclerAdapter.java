@@ -30,6 +30,7 @@ public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder
         mList.add(t);
     }
 
+
     public void appendToTop(T item) {
         if (item == null) {
             return;
@@ -49,6 +50,15 @@ public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder
         if (position < mList.size() && position >= 0) {
             mList.remove(position);
         }
+    }
+
+    public void update(int position,T obj){
+        remove(position);
+        mList.add(position,obj);
+    }
+    public void notifyItemUpdate(int position){
+        if (position < mList.size() && position >= 0)
+            notifyItemInserted(position);
     }
 
     public void clear() {
