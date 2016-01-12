@@ -213,6 +213,7 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
             @Override
             public void onResponse(ArrayList<Lesson> response) {
+                Lesson l = response.get(0);
                 mRecyclerViewAdapter.appendToList(response);
                 mRecyclerViewAdapter.notifyDataSetChanged();
             }

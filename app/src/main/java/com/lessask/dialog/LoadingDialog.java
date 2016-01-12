@@ -27,8 +27,6 @@ public class LoadingDialog extends Dialog{
         Log.e(TAG, "loadingDialog create");
         setContentView(view);
 
-
-
         mAnimatedGifView = (SimpleDraweeView) findViewById(R.id.loading);
         DraweeController animatedGifController = Fresco.newDraweeControllerBuilder()
         .setAutoPlayAnimations(true).setUri(Uri.parse("res://com.lessask/"+R.drawable.loading)).build();

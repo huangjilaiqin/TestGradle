@@ -22,6 +22,7 @@ import com.lessask.model.Lesson;
 import com.lessask.model.Workout;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.recyclerview.OnItemSelectListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.lang.reflect.Type;
@@ -55,6 +56,8 @@ public class SelectLessonActivity extends AppCompatActivity implements View.OnCl
 
         findViewById(R.id.done).setOnClickListener(this);
 
+        mIntent = getIntent();
+
         mRecyclerView = (RecyclerViewStatusSupport)findViewById(R.id.lessons);
         mRecyclerView.setStatusViews(findViewById(R.id.loading_view), findViewById(R.id.empty_view), findViewById(R.id.error_view));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -62,6 +65,14 @@ public class SelectLessonActivity extends AppCompatActivity implements View.OnCl
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         mAdapter = new SelectLessonAdapter(this);
+        mAdapter.setOnItemSelectListener(new OnItemSelectListener() {
+            @Override
+            public void onItemSelect(int position) {
+                mIntent.putExtra("lesson", mAdapter.getItem(position));
+                setResult(RESULT_OK, mIntent);
+                finish();
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
         loadLessons();
 
@@ -70,10 +81,12 @@ public class SelectLessonActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.done:
+                /*
                 Workout workout = new Workout();
                 mIntent.putExtra("workout", workout);
                 setResult(RESULT_OK, mIntent);
                 finish();
+                */
                 break;
         }
     }

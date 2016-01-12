@@ -54,7 +54,9 @@ public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder
 
     public void update(int position,T obj){
         remove(position);
+        notifyItemRemoved(position);
         mList.add(position,obj);
+        notifyItemInserted(position);
     }
     public void notifyItemUpdate(int position){
         if (position < mList.size() && position >= 0)

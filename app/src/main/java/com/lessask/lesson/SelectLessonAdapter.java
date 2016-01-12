@@ -19,6 +19,7 @@ import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
+import com.lessask.recyclerview.OnItemSelectListener;
 import com.lessask.util.ArrayUtil;
 
 /**
@@ -29,6 +30,7 @@ public class SelectLessonAdapter extends BaseRecyclerAdapter<Lesson, SelectLesso
     private static final String TAG=SelectLessonAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
     private OnItemMenuClickListener onItemMenuClickListener;
+    private OnItemSelectListener onItemSelectListener;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
@@ -50,6 +52,10 @@ public class SelectLessonAdapter extends BaseRecyclerAdapter<Lesson, SelectLesso
         this.onItemMenuClickListener = onItemMenuClickListener;
     }
 
+    public void setOnItemSelectListener(OnItemSelectListener onItemSelectListener) {
+        this.onItemSelectListener = onItemSelectListener;
+    }
+
     @Override
     public void onBindViewHolder(MyViewHolder myHolder, final int position) {
         Lesson data = getItem(position);
@@ -59,8 +65,16 @@ public class SelectLessonAdapter extends BaseRecyclerAdapter<Lesson, SelectLesso
         myHolder.purpose.setText(data.getPurpose());
         myHolder.bodies.setText(ArrayUtil.join(data.getBodies(), " "));
         ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.cover,R.drawable.man, R.drawable.women);
-        Log.e(TAG, "load img:" + config.getImgUrl() + data.getCover());
         VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + data.getCover(), listener);
+
+        myHolder.select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(onItemSelectListener !=null){
+                    onItemSelectListener.onItemSelect(position);
+                }
+            }
+        });
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{

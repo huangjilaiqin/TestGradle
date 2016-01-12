@@ -14,8 +14,8 @@ import android.widget.TextView;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
-
-import java.util.ArrayList;
+import com.lessask.recyclerview.RecyclerViewStatusSupport;
+import com.lessask.show.ShowTime;
 
 /**
  * Created by JHuang on 2015/10/22.
@@ -30,26 +30,20 @@ public class FragmentStatus extends Fragment{
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_status, null);
 
-            RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.recycle);
+            RecyclerViewStatusSupport recyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.list);
             LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(mLinearLayoutManager);
+            recyclerView.setStatusViews(rootView.findViewById(R.id.loading_view), rootView.findViewById(R.id.empty_view), rootView.findViewById(R.id.error_view));
             recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
             MyAdapter myAdapter = new MyAdapter();
-            myAdapter.appendToList(getData());
             recyclerView.setAdapter(myAdapter);
+            ShowTime showTime = new ShowTime();
+            showTime.read(getContext(),myAdapter,recyclerView,"http://123.59.40.113/httproute/getshow1/");
         }
         return rootView;
     }
 
-    public ArrayList<String> getData(){
-        ArrayList<String> datas = new ArrayList<>();
-        for(int i=0;i<20;i++){
-            datas.add(i+"");
-        }
-        return datas;
-    }
-
-    public class MyAdapter extends BaseRecyclerAdapter<String, MyAdapter.MyHolder>{
+    public class MyAdapter extends BaseRecyclerAdapter<ShowTime, MyAdapter.MyHolder>{
 
         @Override
         public MyAdapter.MyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -59,7 +53,8 @@ public class FragmentStatus extends Fragment{
 
         @Override
         public void onBindViewHolder(MyAdapter.MyHolder holder, int position) {
-            holder.name.setText(getItem(position));
+            ShowTime item = getItem(position);
+            Log.e(TAG, "item:" + item.getAddress() + "," + item.getTime() + ", " + item.getContent()+","+item.getPictures());
         }
 
         class MyHolder extends RecyclerView.ViewHolder{
@@ -71,10 +66,5 @@ public class FragmentStatus extends Fragment{
             }
         }
 
-        @Override
-        public int getItemCount() {
-            return super.getItemCount();
-        }
     }
-
 }

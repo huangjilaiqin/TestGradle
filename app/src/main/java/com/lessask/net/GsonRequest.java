@@ -98,7 +98,7 @@ public class GsonRequest<T> extends Request<T> {
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
-            //Log.e(TAG, "data:" + json);
+            Log.e(TAG, "data:" + json);
             T obj = null;
             if(clazz==null) {
                 obj = gson.fromJson(json, type);

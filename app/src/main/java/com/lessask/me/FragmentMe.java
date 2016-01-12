@@ -1,6 +1,8 @@
 package com.lessask.me;
 
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -38,6 +40,9 @@ public class FragmentMe extends Fragment{
     private ArrayList<Fragment> fragmentDatas;
     private ArrayList<String> fragmentNames;
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
+    private FragmentWorkout fragmentWorkout;
+    public final static int WORKOUT_ADD=1;
+    public final static int WORKOUT_CHANGE=2;
 
     @Nullable
     @Override
@@ -45,8 +50,9 @@ public class FragmentMe extends Fragment{
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_me, null);
             fragmentDatas = new ArrayList<>();
+            fragmentWorkout = new FragmentWorkout();
             fragmentDatas.add(new FragmentStatus());
-            fragmentDatas.add(new FragmentWorkout());
+            fragmentDatas.add(fragmentWorkout);
             fragmentNames = new ArrayList<>();
             fragmentNames.add("动态");
             fragmentNames.add("训练");
@@ -87,4 +93,20 @@ public class FragmentMe extends Fragment{
             return fragmentNames.get(position);
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e(TAG, "onActivityResult");
+        if(resultCode== Activity.RESULT_OK){
+            switch (requestCode){
+                case WORKOUT_ADD:
+                case WORKOUT_CHANGE:
+                    fragmentWorkout.onActivityResult(requestCode,resultCode,data);
+                    break;
+            }
+        }
+    }
 }
+
+
+

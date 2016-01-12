@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +21,7 @@ import com.lessask.dialog.LoadingDialog;
 import com.lessask.dialog.MenuDialog;
 import com.lessask.dialog.OnSelectMenu;
 import com.lessask.lesson.SelectLessonActivity;
+import com.lessask.model.Lesson;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
@@ -42,20 +42,15 @@ import java.util.Map;
  * Created by JHuang on 2015/10/22.
  */
 public class FragmentWorkout extends Fragment {
-    private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
-    private final int SELECT_LESSON = 1;
     private String TAG = FragmentWorkout.class.getSimpleName();
-    private final int CHANGE = 1;
-    private final int ADD = 2;
 
     private View rootView;
     private WorkoutAdapter mRecyclerViewAdapter;
     private RecyclerViewStatusSupport mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    private ItemTouchHelper mItemTouchHelper;
 
     @Nullable
     @Override
@@ -85,7 +80,7 @@ public class FragmentWorkout extends Fragment {
 
                 @Override
                 public void onItemLongClick(View view, final int position) {
-                    Workout workout = mRecyclerViewAdapter.getItem(position);
+                    final Workout workout = mRecyclerViewAdapter.getItem(position);
                     final MenuDialog resetMenuDialog = new MenuDialog(getContext(), new String[]{"添加"},
                     new OnSelectMenu() {
                         @Override
@@ -97,25 +92,25 @@ public class FragmentWorkout extends Fragment {
                                     //选择课程
                                     intent = new Intent(FragmentWorkout.this.getContext(), SelectLessonActivity.class);
                                     intent.putExtra("position", position);
-                                    startActivityForResult(intent, ADD);
+                                    getParentFragment().startActivityForResult(intent, FragmentMe.WORKOUT_ADD);
                                     break;
                             }
                         }
                     });
-                    final MenuDialog workoutMenuDialog = new MenuDialog(getContext(), new String[]{"添加"},
+                    final MenuDialog workoutMenuDialog = new MenuDialog(getContext(), new String[]{"休息","更改训练"},
                     new OnSelectMenu() {
                         @Override
                         public void onSelectMenu(int menupos) {
-                            Toast.makeText(getContext(), "menupos:" + menupos + ", position:" + position, Toast.LENGTH_SHORT).show();
                             Intent intent;
                             switch (menupos){
                                 case 0:
                                     //休息
+                                    deleteWorkout(position,workout);
                                     break;
                                 case 1:
                                     //更改课程
                                     intent = new Intent(FragmentWorkout.this.getContext(), SelectLessonActivity.class);
-                                    startActivityForResult(intent, CHANGE);
+                                    startActivityForResult(intent, FragmentMe.WORKOUT_CHANGE);
                                     intent.putExtra("position", position);
                                     break;
                             }
@@ -170,20 +165,22 @@ public class FragmentWorkout extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode== Activity.RESULT_OK){
+            Log.e(TAG, "onActivityResult");
             Workout workout;
+            Lesson lesson;
             int position;
             switch (requestCode){
-                case ADD:
+                case FragmentMe.WORKOUT_ADD:
                     position = data.getIntExtra("position", -1);
                     if(position==-1){
                         Toast.makeText(FragmentWorkout.this.getContext(),"错误的星期",Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    workout = data.getParcelableExtra("workout");
-                    workout.setWeek(position+1);
+                    lesson = data.getParcelableExtra("lesson");
+                    workout = new Workout(-1,lesson.getId(),globalInfos.getUserId(),position+1,lesson);
                     addWorkout(workout,position);
                     break;
-                case CHANGE:
+                case FragmentMe.WORKOUT_CHANGE:
                     workout = data.getParcelableExtra("workout");
                     position = data.getIntExtra("position", -1);
                     if(position==-1){
@@ -192,7 +189,7 @@ public class FragmentWorkout extends Fragment {
                     }
                     workout = data.getParcelableExtra("workout");
                     workout.setWeek(position+1);
-                    updateWorkout(workout);
+                    updateWorkout(position,workout);
                     break;
             }
         }
@@ -215,10 +212,9 @@ public class FragmentWorkout extends Fragment {
                     Toast.makeText(FragmentWorkout.this.getContext(), response.getError(), Toast.LENGTH_SHORT).show();
                     return;
                 }else {
-                    //mRecyclerViewAdapter.remove(position);
                     workout.setId(response.getId());
-                    mRecyclerViewAdapter.update(position,workout);
-                    mRecyclerViewAdapter.notifyItemUpdate(position);
+                    mRecyclerViewAdapter.update(position, workout);
+                    //mRecyclerViewAdapter.notifyItemUpdate(position);
                 }
             }
 
@@ -230,59 +226,75 @@ public class FragmentWorkout extends Fragment {
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userId","" + globalInfos.getUserId());
-                Workout w = new Workout(-1,workout.getLessonId(),workout.getUserId(),workout.getWeek());
-                datas.put("workout", gson.toJson(w));
+                datas.put("userId",""+globalInfos.getUserId());
+                datas.put("lessonId",""+workout.getLessonId());
+                datas.put("week", ""+workout.getWeek());
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
     }
-    private void deleteWorkout(Workout workout){
-        GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getUpdateWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
+    private void deleteWorkout(final int position, final Workout workout){
+        GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getDeleteWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
 
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
             @Override
             public void onStart() {
-
+                loadingDialog.show();
             }
 
             @Override
             public void onResponse(WorkoutResponse response) {
-
+                loadingDialog.cancel();
+                if(response.getError()!=null || response.getErrno()!=0){
+                    Toast.makeText(getContext(), response.getError(), Toast.LENGTH_SHORT).show();
+                }else {
+                    Workout resetWorkout = new Workout();
+                    mRecyclerViewAdapter.update(position,resetWorkout);
+                }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Toast.makeText(getContext(), error.getMessage(),Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void setPostData(Map datas) {
-
+                datas.put("userId", ""+globalInfos.getUserId());
+                datas.put("id", ""+workout.getId());
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
     }
-    private void updateWorkout(Workout workout){
+    private void updateWorkout(final int position,final Workout workout){
         GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getUpdateWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
 
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
             @Override
             public void onStart() {
-
+                loadingDialog.show();
             }
 
             @Override
             public void onResponse(WorkoutResponse response) {
-
+                if(response.getError()!=null || response.getErrno()!=0){
+                    Toast.makeText(getContext(), response.getError(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, response.getError());
+                }else {
+                    mRecyclerViewAdapter.update(position,workout);
+                }
             }
 
             @Override
             public void onError(VolleyError error) {
-
+                Toast.makeText(getContext(), error.getMessage(),Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void setPostData(Map datas) {
-
+                datas.put("userId", ""+globalInfos.getUserId());
+                datas.put("lessonId", ""+workout.getLessonId());
+                datas.put("week", ""+workout.getWeek());
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
@@ -300,33 +312,39 @@ public class FragmentWorkout extends Fragment {
             public void onResponse(ArrayListResponse<Workout> response) {
                 if(response.getError()!=null || response.getErrno()!=0){
                     mRecyclerView.showErrorView(response.getError());
+                    Toast.makeText(getContext(), response.getError(), Toast.LENGTH_SHORT).show();
                     Log.e(TAG, response.getError());
                 }else {
                     ArrayList<Workout> showWorkouts = new ArrayList<>();
                     ArrayList<Workout> workouts = response.getDatas();
+                    Log.e(TAG, "workouts size:"+workouts.size());
                     int currentWeek = 1;
                     Workout workout;
-                    if(workouts.size()==0){
+                    if(workouts.size()!=7) {
+                        for (int i=0;i<workouts.size();i++){
+                            workout = workouts.get(i);
+                            int week = workout.getWeek();
+                            Log.e(TAG, "week: "+week);
+                            while (currentWeek<week){
+                                Workout resetWorkout = new Workout();
+                                resetWorkout.setWeek(currentWeek);
+                                showWorkouts.add(resetWorkout);
+                                Log.e(TAG, "reset week: "+currentWeek);
+                                currentWeek++;
+                            }
+                            currentWeek=week+1;
+                            showWorkouts.add(workout);
+                        }
                         while (currentWeek<8){
                             Workout resetWorkout = new Workout();
                             resetWorkout.setWeek(currentWeek);
                             showWorkouts.add(resetWorkout);
                             currentWeek++;
                         }
-                    }else if(workouts.size()!=7) {
-                        for (int i=0;i<workouts.size();i++){
-                            workout = workouts.get(i);
-                            int week = workout.getWeek();
-                            while (currentWeek<week){
-                                Workout resetWorkout = new Workout();
-                                resetWorkout.setWeek(currentWeek);
-                                showWorkouts.add(resetWorkout);
-                                currentWeek++;
-                            }
-                            currentWeek=week+1;
-                        }
+                        mRecyclerViewAdapter.appendToList(showWorkouts);
+                    }else {
+                        mRecyclerViewAdapter.appendToList(workouts);
                     }
-                    mRecyclerViewAdapter.appendToList(showWorkouts);
                     mRecyclerViewAdapter.notifyDataSetChanged();
                 }
             }
@@ -338,7 +356,7 @@ public class FragmentWorkout extends Fragment {
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userId", "" + globalInfos.getUserId());
+                datas.put("userId", ""+globalInfos.getUserId());
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
