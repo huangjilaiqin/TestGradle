@@ -2,6 +2,8 @@ package com.lessask.recyclerview;
 
 import android.support.v7.widget.RecyclerView;
 
+import com.lessask.crud.AdapterAction;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +11,7 @@ import java.util.List;
  * Created by JHuang on 2015/11/30.
  */
 public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder>
-        extends RecyclerView.Adapter<VH>{
+        extends RecyclerView.Adapter<VH> implements AdapterAction<T> {
         private final List<T> mList = new LinkedList<T>();
         public List<T> getList() {
         return mList;
@@ -78,4 +80,5 @@ public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder
         }
         return mList.get(position);
     }
+
 }

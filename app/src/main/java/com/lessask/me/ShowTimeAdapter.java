@@ -19,6 +19,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
 import com.lessask.R;
+import com.lessask.crud.AdapterAction;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.net.VolleyHelper;
@@ -33,7 +34,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 /**
  * Created by huangji on 2015/11/16.
  */
-public class ShowTimeAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowTimeAdapter.ViewHolder> implements OnRecyclerItemClickListener {
+public class ShowTimeAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowTimeAdapter.ViewHolder> implements OnRecyclerItemClickListener,AdapterAction<ShowTime> {
     private static final String TAG = ShowTimeAdapter.class.getName();
 
     PhotoViewAttacher mAttacher;
@@ -196,6 +197,11 @@ public class ShowTimeAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowT
 
     @Override
     public void onClick(View view, int i) {
+
+    }
+
+    @Override
+    public void update(int position, ShowTime obj) {
 
     }
 

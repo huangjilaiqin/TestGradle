@@ -1,4 +1,4 @@
-package com.github.captain_miao.recyclerviewutils;
+package com.lessask.recyclerview;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,14 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.captain_miao.recyclerviewutils.MaterialProgressBarSupport;
+import com.lessask.crud.AdapterAction;
+
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created on 15/8/23.
+ * 为了实现统一的接口
  */
 public abstract class BaseLoadMoreRecyclerAdapter<T, VH extends RecyclerView.ViewHolder>
-        extends RecyclerView.Adapter {
+        extends RecyclerView.Adapter implements AdapterAction<T> {
     public static final int TYPE_FOOTER = Integer.MIN_VALUE;
     public static final int TYPE_ITEM = 0;
 
@@ -30,13 +33,13 @@ public abstract class BaseLoadMoreRecyclerAdapter<T, VH extends RecyclerView.Vie
     public abstract void onBindItemViewHolder(final VH holder, int position);
 
     public int getFooterLayoutResource() {
-        return R.layout.item_view_load_more;//default
+        return com.github.captain_miao.recyclerviewutils.R.layout.item_view_load_more;//default
     }
     public int getFooterLoadingShowStringResource() {
-        return R.string.app_loading_more;//loading_more
+        return com.github.captain_miao.recyclerviewutils.R.string.app_loading_more;//loading_more
     }
     public int getFooterNoMoreDataShowStringResource() {
-        return R.string.app_no_more_data;//loading_more
+        return com.github.captain_miao.recyclerviewutils.R.string.app_no_more_data;//loading_more
     }
 
     public static class FooterViewHolder extends RecyclerView.ViewHolder {
@@ -46,8 +49,8 @@ public abstract class BaseLoadMoreRecyclerAdapter<T, VH extends RecyclerView.Vie
         public final TextView mTextView;
         public FooterViewHolder(View view) {
             super(view);
-            mProgressView = (MaterialProgressBarSupport) view.findViewById(R.id.progress_view);
-            mTextView = (TextView) view.findViewById(R.id.tv_content);
+            mProgressView = (MaterialProgressBarSupport) view.findViewById(com.github.captain_miao.recyclerviewutils.R.id.progress_view);
+            mTextView = (TextView) view.findViewById(com.github.captain_miao.recyclerviewutils.R.id.tv_content);
         }
 
         @Override

@@ -11,19 +11,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
+import com.lessask.crud.CRUD;
+import com.lessask.crud.DefaultGsonRequestCRUD;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
+import com.lessask.model.ArrayListResponse;
+import com.lessask.model.Workout;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.show.ShowListAdapter;
 import com.lessask.show.ShowTime;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by JHuang on 2015/10/22.
  */
-public class FragmentStatus extends Fragment{
+public class FragmentStatus extends Fragment implements CRUD<Workout>{
     private String TAG = FragmentStatus.class.getSimpleName();
     private View rootView;
+    private ShowTimeAdapter myAdapter;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
 
     @Nullable
     @Override
@@ -37,36 +51,37 @@ public class FragmentStatus extends Fragment{
             recyclerView.setStatusViews(rootView.findViewById(R.id.loading_view), rootView.findViewById(R.id.empty_view), rootView.findViewById(R.id.error_view));
             recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
             //MyAdapter myAdapter = new MyAdapter();
-            ShowTimeAdapter myAdapter = new ShowTimeAdapter(getContext());
+            myAdapter = new ShowTimeAdapter(getContext());
             recyclerView.setAdapter(myAdapter);
-            ShowTime showTime = new ShowTime();
-            showTime.read(getContext(),myAdapter,recyclerView,"http://123.59.40.113/httproute/getshow1/");
+            //ShowTime showTime = new ShowTime();
+            //showTime.read(getContext(),myAdapter,recyclerView,"http://123.59.40.113/httproute/getshow1/");
+            read(recyclerView);
         }
         return rootView;
     }
 
-    public class MyAdapter extends BaseRecyclerAdapter<ShowTime, MyAdapter.MyHolder>{
+    @Override
+    public void create(Workout obj, int position) {
 
-        @Override
-        public MyAdapter.MyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_lesson_action_item, null);
-            return new MyHolder(view);
-        }
+    }
 
-        @Override
-        public void onBindViewHolder(MyAdapter.MyHolder holder, int position) {
-            ShowTime item = getItem(position);
-            Log.e(TAG, "item:" + item.getAddress() + "," + item.getTime() + ", " + item.getContent()+","+item.getPictures());
-        }
+    @Override
+    public void read(RecyclerViewStatusSupport recyclerView) {
+        DefaultGsonRequestCRUD  crud = new DefaultGsonRequestCRUD();
+        Type type = new TypeToken<ArrayListResponse<ShowTime>>() {}.getType();
+        Map datas = new HashMap();
+        datas.put("userid", globalInfos.getUserId() + "");
+        datas.put("pagenum", "10");
+        crud.read(getContext(), myAdapter, recyclerView, "http://123.59.40.113/httproute/getshow1/", type, datas);
+    }
 
-        class MyHolder extends RecyclerView.ViewHolder{
-            TextView name;
+    @Override
+    public void update(Workout obj, int position) {
 
-            public MyHolder(View itemView) {
-                super(itemView);
-                name = (TextView) itemView.findViewById(R.id.name);
-            }
-        }
+    }
+
+    @Override
+    public void delete(Workout obj, int position) {
 
     }
 }

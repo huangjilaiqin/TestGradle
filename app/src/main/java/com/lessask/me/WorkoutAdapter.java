@@ -179,4 +179,5 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
             add = (TextView) itemView.findViewById(R.id.add);
         }
     }
+
 }

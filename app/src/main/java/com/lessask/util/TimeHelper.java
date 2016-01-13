@@ -26,6 +26,7 @@ public class TimeHelper {
     }
 
     public static Date utcStr2Date(String timeStr){
+        Log.e(TAG, "timeStr: "+timeStr);
         SimpleDateFormat sdf = new  SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date =null;

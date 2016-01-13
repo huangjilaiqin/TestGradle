@@ -14,9 +14,10 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
+import com.lessask.crud.CRUDExtend;
+import com.lessask.crud.DefaultGsonRequestCRUD;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.dialog.MenuDialog;
 import com.lessask.dialog.OnSelectMenu;
@@ -42,7 +43,7 @@ import java.util.Map;
 /**
  * Created by JHuang on 2015/10/22.
  */
-public class FragmentWorkout extends Fragment {
+public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
@@ -61,7 +62,8 @@ public class FragmentWorkout extends Fragment {
             rootView.findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    loadWorkouts();
+                    //loadWorkouts();
+                    read(mRecyclerView);
                 }
             });
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.workouts);
@@ -106,7 +108,9 @@ public class FragmentWorkout extends Fragment {
                             switch (menupos){
                                 case 0:
                                     //休息
-                                    deleteWorkout(position,workout);
+                                    //deleteWorkout(position,workout);
+                                    deleteAndAdd(workout,position);
+                                    //delete(workout,position);
                                     break;
                                 case 1:
                                     //更改课程
@@ -158,7 +162,8 @@ public class FragmentWorkout extends Fragment {
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
-            loadWorkouts();
+            //loadWorkouts();
+            read(mRecyclerView);
         }
         return rootView;
     }
@@ -179,7 +184,8 @@ public class FragmentWorkout extends Fragment {
                     }
                     lesson = data.getParcelableExtra("lesson");
                     workout = new Workout(-1,lesson.getId(),globalInfos.getUserId(),position+1,lesson);
-                    addWorkout(workout,position);
+                    //addWorkout(workout,position);
+                    create(workout,position);
                     break;
                 case FragmentMe.WORKOUT_CHANGE:
                     workout = data.getParcelableExtra("workout");
@@ -190,7 +196,8 @@ public class FragmentWorkout extends Fragment {
                     }
                     workout = data.getParcelableExtra("workout");
                     workout.setWeek(position+1);
-                    updateWorkout(position,workout);
+                    //updateWorkout(position,workout);
+                    update(workout,position);
                     break;
             }
         }
@@ -391,4 +398,148 @@ public class FragmentWorkout extends Fragment {
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
     }
 
+    @Override
+    public void deleteAndAdd(final Workout obj, final int position) {
+        GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getDeleteWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
+
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
+            @Override
+            public void onStart() {
+                loadingDialog.show();
+            }
+
+            @Override
+            public void onResponse(WorkoutResponse response) {
+                loadingDialog.cancel();
+                if(response.getError()!=null || response.getErrno()!=0){
+                    Toast.makeText(getContext(), response.getError(), Toast.LENGTH_SHORT).show();
+                }else {
+                    Workout resetWorkout = new Workout();
+                    mRecyclerViewAdapter.update(position,resetWorkout);
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(getContext(), error.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userId", ""+globalInfos.getUserId());
+                datas.put("id", "" + obj.getId());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("id", ""+obj.getId());
+                return datas;
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+
+    }
+
+    @Override
+    public void create(Workout obj, int position) {
+        DefaultGsonRequestCRUD  crud = new DefaultGsonRequestCRUD();
+        Type type = new TypeToken<Workout>() {}.getType();
+        Map datas = new HashMap();
+        datas.put("userId", globalInfos.getUserId() + "");
+        datas.put("lessonId", "" + obj.getLessonId());
+        datas.put("week", "" + obj.getWeek());
+        crud.create(getContext(),mRecyclerViewAdapter,config.getAddWorkoutUrl(),type,datas,position);
+    }
+
+    @Override
+    public void read(RecyclerViewStatusSupport recyclerView) {
+        Type type = new TypeToken<ArrayListResponse<Workout>>() {}.getType();
+        GsonRequest gsonRequest = new GsonRequest<ArrayListResponse<Workout>>(Request.Method.POST,config.getWorkoutsUrl(),type,new GsonRequest.PostGsonRequest<ArrayListResponse<Workout>>(){
+            @Override
+            public void onStart() {
+                mRecyclerView.showLoadingView();
+            }
+
+            @Override
+            public void onResponse(ArrayListResponse<Workout> response) {
+                if(response.getError()!=null || response.getErrno()!=0){
+                    mRecyclerView.showErrorView(response.getError());
+                    Toast.makeText(getContext(), response.getError(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, response.getError());
+                }else {
+                    ArrayList<Workout> showWorkouts = new ArrayList<>();
+                    ArrayList<Workout> workouts = response.getDatas();
+                    Log.e(TAG, "workouts size:"+workouts.size());
+                    int currentWeek = 1;
+                    Workout workout;
+                    if(workouts.size()!=7) {
+                        for (int i=0;i<workouts.size();i++){
+                            workout = workouts.get(i);
+                            int week = workout.getWeek();
+                            Log.e(TAG, "week: "+week);
+                            while (currentWeek<week){
+                                Workout resetWorkout = new Workout();
+                                resetWorkout.setWeek(currentWeek);
+                                showWorkouts.add(resetWorkout);
+                                Log.e(TAG, "reset week: "+currentWeek);
+                                currentWeek++;
+                            }
+                            currentWeek=week+1;
+                            showWorkouts.add(workout);
+                        }
+                        while (currentWeek<8){
+                            Workout resetWorkout = new Workout();
+                            resetWorkout.setWeek(currentWeek);
+                            showWorkouts.add(resetWorkout);
+                            currentWeek++;
+                        }
+                        mRecyclerViewAdapter.appendToList(showWorkouts);
+                    }else {
+                        mRecyclerViewAdapter.appendToList(workouts);
+                    }
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                mRecyclerView.showErrorView(error.getMessage());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                return datas;
+            }
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userId", ""+globalInfos.getUserId());
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+
+    }
+
+    @Override
+    public void update(Workout obj, int position) {
+        DefaultGsonRequestCRUD  crud = new DefaultGsonRequestCRUD();
+        Type type = new TypeToken<Workout>() {}.getType();
+        Map datas = new HashMap();
+        datas.put("userId", ""+globalInfos.getUserId());
+        datas.put("lessonId", ""+obj.getLessonId());
+        datas.put("week", ""+obj.getWeek());
+        crud.update(getContext(), mRecyclerViewAdapter, config.getAddWorkoutUrl(), type, datas, position);
+    }
+
+    @Override
+    public void delete(Workout obj,int position) {
+        DefaultGsonRequestCRUD  crud = new DefaultGsonRequestCRUD();
+        Type type = new TypeToken<Workout>() {}.getType();
+        Map datas = new HashMap();
+        datas.put("userId", globalInfos.getUserId() + "");
+        datas.put("lessonId", "" + obj.getId());
+        crud.delete(getContext(), mRecyclerViewAdapter, config.getAddWorkoutUrl(), type, datas, position);
+
+    }
 }

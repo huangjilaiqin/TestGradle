@@ -8,8 +8,8 @@ import android.os.Parcelable;
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.model.ArrayListResponse;
-import com.lessask.model.BeaCRUDHelper;
-import com.lessask.model.BeanCRUD;
+import com.lessask.crud.CRUD;
+import com.lessask.crud.DefaultGsonRequestCRUD;
 import com.lessask.model.CommentItem;
 import com.lessask.model.ResponseError;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
@@ -58,16 +58,6 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.liker = liker;
         this.likeStatus = likeStatus;
         this.comments = comments;
-    }
-
-
-    public void read(final Context context,final BaseLoadMoreRecyclerAdapter adapter,final RecyclerViewStatusSupport recyclerView,String url){
-        BeaCRUDHelper helper = new BeaCRUDHelper();
-        Type type = new TypeToken<ArrayListResponse<ShowTime>>() {}.getType();
-        Map headers = new HashMap();
-        headers.put("userid", "1");
-        headers.put("pagenum","10");
-        helper.read(context,adapter,recyclerView,url,type,headers);
     }
 
     public String getHeadimg() {
