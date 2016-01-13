@@ -29,6 +29,7 @@ import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.video.RecordVideoActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -146,6 +147,17 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                 datas.put("id", actionItem.getId() + "");
 
             }
+
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                ActionItem actionItem = mRecyclerViewAdapter.getItem(deletePostion);
+                datas.put("userid", globalInfos.getUserId() + "");
+                datas.put("videoName", actionItem.getVideoName());
+                datas.put("actionIamge", actionItem.getActionImage());
+                datas.put("id", actionItem.getId() + "");
+                return datas;
+            }
         });
 
         volleyHelper.addToRequestQueue(deleteActionRequest);
@@ -180,6 +192,13 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
             @Override
             public void setPostData(Map datas) {
                 datas.put("userid", "" + globalInfos.getUserId());
+            }
+
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userid", globalInfos.getUserId() + "");
+                return datas;
             }
         });
         volleyHelper.addToRequestQueue(getActionsRequest);

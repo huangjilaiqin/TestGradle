@@ -22,6 +22,7 @@ import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class TestVolleyActivity extends AppCompatActivity implements View.OnClickListener{
@@ -86,6 +87,13 @@ public class TestVolleyActivity extends AppCompatActivity implements View.OnClic
                     @Override
                     public void setPostData(Map datas) {
                         datas.put("userid", ""+globalInfos.getUserId());
+                    }
+
+                    @Override
+                    public Map getPostData() {
+                        Map datas = new HashMap();
+                        datas.put("userid", ""+globalInfos.getUserId());
+                        return datas;
                     }
                 });
                 volleyHelper.addToRequestQueue(gsonRequest);

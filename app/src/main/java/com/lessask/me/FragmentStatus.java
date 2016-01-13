@@ -15,6 +15,7 @@ import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
+import com.lessask.show.ShowListAdapter;
 import com.lessask.show.ShowTime;
 
 /**
@@ -35,7 +36,8 @@ public class FragmentStatus extends Fragment{
             recyclerView.setLayoutManager(mLinearLayoutManager);
             recyclerView.setStatusViews(rootView.findViewById(R.id.loading_view), rootView.findViewById(R.id.empty_view), rootView.findViewById(R.id.error_view));
             recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
-            MyAdapter myAdapter = new MyAdapter();
+            //MyAdapter myAdapter = new MyAdapter();
+            ShowTimeAdapter myAdapter = new ShowTimeAdapter(getContext());
             recyclerView.setAdapter(myAdapter);
             ShowTime showTime = new ShowTime();
             showTime.read(getContext(),myAdapter,recyclerView,"http://123.59.40.113/httproute/getshow1/");

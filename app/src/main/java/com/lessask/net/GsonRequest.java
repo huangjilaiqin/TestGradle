@@ -76,14 +76,18 @@ public class GsonRequest<T> extends Request<T> {
         void onResponse(T response);
         void onError(VolleyError error);
         void setPostData(Map datas);
+        Map getPostData();
     }
 
 
     @Override
     protected Map<String, String> getParams() throws AuthFailureError {
+        /*
         HashMap<String,String> headers = new HashMap<>();
         postGsonRequest.setPostData(headers);
         return headers;
+        */
+        return postGsonRequest.getPostData();
     }
 
     @Override

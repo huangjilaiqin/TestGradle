@@ -35,6 +35,7 @@ import com.lessask.video.PlayVideoActiviy;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -229,13 +230,19 @@ public class SelectActionActivity extends AppCompatActivity implements View.OnCl
 
             @Override
             public void onError(VolleyError error) {
-                Log.e(TAG, "getactions err:"+error.toString());
+                Log.e(TAG, "getactions err:" + error.toString());
                 mRecyclerView.showErrorView(error.toString());
             }
 
             @Override
             public void setPostData(Map datas) {
                 datas.put("userid", "" + globalInfos.getUserId());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userid", "" + globalInfos.getUserId());
+                return datas;
             }
         });
         volleyHelper.addToRequestQueue(getActionsRequest);

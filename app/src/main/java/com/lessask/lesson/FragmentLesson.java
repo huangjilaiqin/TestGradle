@@ -32,6 +32,7 @@ import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -150,6 +151,14 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
                 datas.put("id", lesson.getId() + "");
 
             }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                Lesson lesson = mRecyclerViewAdapter.getItem(deletePostion);
+                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("id", lesson.getId() + "");
+                return datas;
+            }
         });
 
         volleyHelper.addToRequestQueue(deleteActionRequest);
@@ -226,6 +235,12 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
             @Override
             public void setPostData(Map datas) {
                 datas.put("userId", "" + globalInfos.getUserId());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                return datas;
             }
         });
         volleyHelper.addToRequestQueue(gsonRequest);

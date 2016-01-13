@@ -36,6 +36,7 @@ import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -227,8 +228,16 @@ public class FragmentWorkout extends Fragment {
             @Override
             public void setPostData(Map datas) {
                 datas.put("userId",""+globalInfos.getUserId());
-                datas.put("lessonId",""+workout.getLessonId());
-                datas.put("week", ""+workout.getWeek());
+                datas.put("lessonId", "" + workout.getLessonId());
+                datas.put("week", "" + workout.getWeek());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("lessonId", "" + workout.getLessonId());
+                datas.put("week", "" + workout.getWeek());
+                return datas;
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
@@ -263,6 +272,13 @@ public class FragmentWorkout extends Fragment {
                 datas.put("userId", ""+globalInfos.getUserId());
                 datas.put("id", ""+workout.getId());
             }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("id", ""+workout.getId());
+                return datas;
+            }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
     }
@@ -295,6 +311,14 @@ public class FragmentWorkout extends Fragment {
                 datas.put("userId", ""+globalInfos.getUserId());
                 datas.put("lessonId", ""+workout.getLessonId());
                 datas.put("week", ""+workout.getWeek());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("lessonId", ""+workout.getLessonId());
+                datas.put("week", ""+workout.getWeek());
+                return datas;
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
@@ -353,7 +377,12 @@ public class FragmentWorkout extends Fragment {
             public void onError(VolleyError error) {
                 mRecyclerView.showErrorView(error.getMessage());
             }
-
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                return datas;
+            }
             @Override
             public void setPostData(Map datas) {
                 datas.put("userId", ""+globalInfos.getUserId());

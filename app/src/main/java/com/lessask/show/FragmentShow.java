@@ -31,6 +31,7 @@ import com.lessask.recyclerview.ImprovedSwipeLayout;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -122,6 +123,16 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                             datas.put("pagenum", "" + pageNum);
 
                         }
+
+                        @Override
+                        public Map getPostData() {
+                            Map datas = new HashMap();
+                            datas.put("userid", "" + globalInfos.getUserId());
+                            datas.put("id", "" + newShowId);
+                            datas.put("direct", "forward");
+                            datas.put("pagenum", "" + pageNum);
+                            return datas;
+                        }
                     });
                     VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
                 }
@@ -191,6 +202,16 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
                             }
+
+                            @Override
+                            public Map getPostData() {
+                                Map datas = new HashMap();
+                                datas.put("userid", "" + globalInfos.getUserId());
+                                datas.put("id", "" + oldShowId);
+                                datas.put("direct", "backward");
+                                datas.put("pagenum", "" + pageNum);
+                                return datas;
+                            }
                         });
                         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
                     }
@@ -232,6 +253,14 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                 public void setPostData(Map datas) {
                     datas.put("userid", "" + globalInfos.getUserId());
                     datas.put("pagenum", ""+4);
+                }
+
+                @Override
+                public Map getPostData() {
+                    Map datas = new HashMap();
+                    datas.put("userid", "" + globalInfos.getUserId());
+                    datas.put("pagenum", ""+4);
+                    return datas;
                 }
             });
             VolleyHelper.getInstance().addToRequestQueue(gsonRequest);

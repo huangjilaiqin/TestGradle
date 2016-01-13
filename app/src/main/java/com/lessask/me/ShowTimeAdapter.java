@@ -1,4 +1,4 @@
-package com.lessask.show;
+package com.lessask.me;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,32 +15,26 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.LikeResponse;
-import com.lessask.model.ShowItem;
-import com.lessask.model.UnlikeResponse;
-import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.show.ShowImageActivity;
+import com.lessask.show.ShowTime;
 import com.lessask.util.TimeHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
-import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 
 /**
  * Created by huangji on 2015/11/16.
  */
-public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowListAdapter.ViewHolder> implements OnRecyclerItemClickListener {
-    private static final String TAG = ShowListAdapter.class.getName();
+public class ShowTimeAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowTimeAdapter.ViewHolder> implements OnRecyclerItemClickListener {
+    private static final String TAG = ShowTimeAdapter.class.getName();
 
     PhotoViewAttacher mAttacher;
 
@@ -52,12 +46,11 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
 
     private final LayoutInflater inflater;
 
-    public ShowListAdapter(FragmentActivity activity){
+    public ShowTimeAdapter(Context context){
         //数据直接传递给Base...Adapter
         //获取item通过getItem
         //appendToList(data);
-        this.activity = activity;
-        this.context = activity.getApplicationContext();
+        this.context = context;
         inflater = LayoutInflater.from(context);
 
     }
@@ -65,13 +58,13 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
     @Override
     public ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.show_item, parent, false);
-        return new ShowListAdapter.ViewHolder(view);
+        return new ShowTimeAdapter.ViewHolder(view);
     }
 
     @Override
     public void onBindItemViewHolder(final ViewHolder holder, int position) {
         final int myPosition = position;
-        ShowItem showItem = getItem(myPosition);
+        ShowTime showItem = getItem(myPosition);
 
         //头像
         String headImgUrl = imageUrlPrefix+showItem.getHeadimg();
@@ -104,12 +97,6 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         }else {
             holder.ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
         }
-        holder.ivUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeUp(v, myPosition);
-            }
-        });
 
         //评论
 
@@ -238,105 +225,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             showImageLayout = (RelativeLayout)itemView.findViewById(R.id.show_image_layout);
         }
     }
-    private void changeUp(final View view, final int position){
 
-        final ShowItem showItem = getItem(position);
-        final ImageView likeView = (ImageView)view;
-        if(showItem.getLikeStatus()==1){
-            GsonRequest unlikeRequest = new GsonRequest<>(Request.Method.POST, config.getUnlikeUrl(), UnlikeResponse.class, new GsonRequest.PostGsonRequest<UnlikeResponse>() {
-                @Override
-                public void onStart() {
-                    Toast.makeText(activity, "unlike", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onResponse(UnlikeResponse response) {
-                    if(response.getError()==null && response.getErrno()==0){
-                        Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
-                        if(showItem.getId()==response.getShowid()){
-                            Log.e(TAG, "unlike response");
-                            showItem.unlike(globalInfos.getUserId());
-                        }else {
-                            //遍历查找showid
-                        }
-                        likeView.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
-                        notifyDataSetChanged();
-                    }else {
-                        Toast.makeText(activity, "unlike fail"+response.getError()+", "+response.getErrno(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onError(VolleyError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-
-                @Override
-                public void setPostData(Map datas) {
-                    datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("showid", "" + showItem.getId());
-                    datas.put("position", "" + position);
-                }
-
-                @Override
-                public Map getPostData() {
-                    Map datas = new HashMap();
-                    datas.put("userid", globalInfos.getUserId() + "");
-                    datas.put("showid", "" + showItem.getId());
-                    datas.put("position", "" + position);
-                    return datas;
-                }
-            });
-            VolleyHelper.getInstance().addToRequestQueue(unlikeRequest);
-        }else {
-            GsonRequest likeRequest = new GsonRequest<>(Request.Method.POST, config.getLikeUrl(), LikeResponse.class, new GsonRequest.PostGsonRequest<LikeResponse>() {
-                @Override
-                public void onStart() {
-
-                }
-
-                @Override
-                public void onResponse(LikeResponse response) {
-                    if(response.getError()==null && response.getErrno()==0) {
-                        Toast.makeText(activity, "like success", Toast.LENGTH_SHORT).show();
-                        if (showItem.getId() == response.getShowid()) {
-                            showItem.like(globalInfos.getUserId());
-                        } else {
-                            //遍历查找showid
-                        }
-                        likeView.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
-                        notifyDataSetChanged();
-                    }else {
-                        Toast.makeText(activity, "like fail"+response.getError()+", "+response.getErrno(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onError(VolleyError error) {
-                    Log.e(TAG, "like "+error.getMessage());
-                }
-
-                @Override
-                public void setPostData(Map datas) {
-                    datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("showid", "" + showItem.getId());
-                    datas.put("position", "" + position);
-
-                }
-
-                @Override
-                public Map getPostData() {
-                    Map datas = new HashMap();
-                    datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("showid", "" + showItem.getId());
-                    datas.put("position", "" + position);
-                    return datas;
-                }
-            });
-            VolleyHelper.getInstance().addToRequestQueue(likeRequest);
-        }
-    }
-    private void registerImageEvent(ImageView image, final ShowItem item, final int index){
+    private void registerImageEvent(ImageView image, final ShowTime item, final int index){
         image.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

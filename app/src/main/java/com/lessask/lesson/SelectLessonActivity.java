@@ -27,6 +27,7 @@ import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SelectLessonActivity extends AppCompatActivity implements View.OnClickListener{
@@ -113,6 +114,12 @@ public class SelectLessonActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void setPostData(Map datas) {
                 datas.put("userId", "" + globalInfos.getUserId());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", globalInfos.getUserId() + "");
+                return datas;
             }
         });
         volleyHelper.addToRequestQueue(gsonRequest);

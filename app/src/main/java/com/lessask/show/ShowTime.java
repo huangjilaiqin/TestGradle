@@ -1,19 +1,29 @@
 package com.lessask.show;
 
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.lessask.model.ArrayListResponse;
+import com.lessask.model.BeaCRUDHelper;
 import com.lessask.model.BeanCRUD;
 import com.lessask.model.CommentItem;
+import com.lessask.model.ResponseError;
+import com.lessask.recyclerview.BaseRecyclerAdapter;
+import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by JHuang on 2015/9/16.
  */
-public class ShowTime extends BeanCRUD<ShowTime> implements Parcelable {
+public class ShowTime extends ResponseError implements Parcelable {
     private int id;
     private int userid;
     private String nickname;
@@ -49,15 +59,15 @@ public class ShowTime extends BeanCRUD<ShowTime> implements Parcelable {
         this.likeStatus = likeStatus;
         this.comments = comments;
     }
-    @Override
-    public void readOnPostData(Map datas) {
-        datas.put("pagenum","10");
-        datas.put("userid","1");
-    }
 
-    @Override
-    public void deleteOnPostData(Map datas) {
 
+    public void read(final Context context,final BaseLoadMoreRecyclerAdapter adapter,final RecyclerViewStatusSupport recyclerView,String url){
+        BeaCRUDHelper helper = new BeaCRUDHelper();
+        Type type = new TypeToken<ArrayListResponse<ShowTime>>() {}.getType();
+        Map headers = new HashMap();
+        headers.put("userid", "1");
+        headers.put("pagenum","10");
+        helper.read(context,adapter,recyclerView,url,type,headers);
     }
 
     public String getHeadimg() {

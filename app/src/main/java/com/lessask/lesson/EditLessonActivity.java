@@ -533,6 +533,13 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
                 datas.put("userId", "" + userId);
                 datas.put("lessonId", "" + lessonId);
             }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userid", "" + globalInfos.getUserId());
+                datas.put("lessonId", "" + lessonId);
+                return datas;
+            }
         });
         VolleyHelper.getInstance().addToRequestQueue(getActionsRequest);
     }
