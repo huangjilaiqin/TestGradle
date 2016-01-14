@@ -207,7 +207,8 @@
         <activity
             android:name=".lesson.SelectLessonActivity"
             android:label="@string/title_activity_select_lesson"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".test.DynamicLoadImgActivity"></activity>
     </application>
 
 </manifest>

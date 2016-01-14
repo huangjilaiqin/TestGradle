@@ -9,6 +9,13 @@
         android:text="左滑菜单"
         />
     <Button
+        android:id="@+id/dynamicload_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="动态加载图片"
+        />
+
+    <Button
         android:id="@+id/item_touch_helper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

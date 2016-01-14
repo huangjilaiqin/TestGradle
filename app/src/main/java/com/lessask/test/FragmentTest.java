@@ -47,16 +47,18 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             rootView.findViewById(R.id.storage).setOnClickListener(this);
             intentActivity.put(R.id.storage, StorageActivity.class);
             rootView.findViewById(R.id.volley).setOnClickListener(this);
-            intentActivity.put(R.id.volley,TestVolleyActivity.class);
+            intentActivity.put(R.id.volley, TestVolleyActivity.class);
             rootView.findViewById(R.id.date_picker).setOnClickListener(this);
             rootView.findViewById(R.id.customer_picker).setOnClickListener(this);
             rootView.findViewById(R.id.tags_picker).setOnClickListener(this);
             rootView.findViewById(R.id.coordinator_layout).setOnClickListener(this);
-            intentActivity.put(R.id.coordinator_layout,CoordinatorLayoutActivity.class);
+            intentActivity.put(R.id.coordinator_layout, CoordinatorLayoutActivity.class);
             rootView.findViewById(R.id.get_pic).setOnClickListener(this);
             testFile = new File(getActivity().getExternalCacheDir(), "test.jpg");
             rootView.findViewById(R.id.status_change).setOnClickListener(this);
             intentActivity.put(R.id.status_change, ReplaceChildActivity.class);
+            rootView.findViewById(R.id.dynamicload_img).setOnClickListener(this);
+            intentActivity.put(R.id.dynamicload_img,DynamicLoadImgActivity.class);
         }
         return rootView;
     }
