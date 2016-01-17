@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
@@ -125,7 +127,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
     private void createShow(){
         loadingDialog = new LoadingDialog(CreateShowActivity.this);
 
-        NetworkFileHelper.getInstance().startPost(config.getCreateShowUrl(), CreateShowResponse.class, new NetworkFileHelper.PostFileRequest() {
+        NetworkFileHelper.getInstance().startPost(config.getAddShowtimeUrl(), ShowTime.class, new NetworkFileHelper.PostFileRequest() {
             @Override
             public void onStart() {
                 loadingDialog.show();
@@ -135,25 +137,29 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onResponse(Object response) {
                 loadingDialog.cancel();
-                CreateShowResponse createShowResponse = (CreateShowResponse)response;
-                int showId = createShowResponse.getShowid();
-                String time = createShowResponse.getTime();
-                ArrayList<String> pictures = createShowResponse.getPictures();
-                Toast.makeText(CreateShowActivity.this, "create success", Toast.LENGTH_SHORT).show();
-                //跳转到动态
+                //CreateShowResponse createShowResponse = (CreateShowResponse)response;
+                ShowTime showTime = (ShowTime) response;
+                if(showTime.getError()!=null || showTime.getErrno()!=0){
+                    Toast.makeText(CreateShowActivity.this, showTime.getError(),Toast.LENGTH_SHORT).show();
+                }else {
+                    int showId = showTime.getId();
+                    String time = showTime.getTime();
+                    ArrayList<String> pictures = showTime.getPictures();
+                    //跳转到动态
 
-                ShowItem showItem = new ShowItem();
-                showItem.setId(showId);
-                showItem.setAddress("深圳 南山");
-                showItem.setContent(mtvContent.getText().toString().trim());
-                showItem.setHeadimg(globalInfos.getUser().getHeadImg());
-                showItem.setPictures(pictures);
-                showItem.setTime(time);
-                mIntent.putExtra("showItem", showItem);
-                Log.e(TAG, "create show success:" + mIntent.getIntExtra("forResultCode", -1));
-                //setResult(mIntent.getIntExtra("forResultCode", -1), intent);
-                setResult(Activity.RESULT_OK, mIntent);
-                finish();
+                    ShowItem showItem = new ShowItem();
+                    showItem.setId(showId);
+                    showItem.setAddress("深圳 南山");
+                    showItem.setContent(mtvContent.getText().toString().trim());
+                    showItem.setHeadimg(globalInfos.getUser().getHeadImg());
+                    showItem.setPictures(pictures);
+                    showItem.setTime(time);
+                    mIntent.putExtra("showItem", showItem);
+                    Log.e(TAG, "create show success:" + mIntent.getIntExtra("forResultCode", -1));
+                    //setResult(mIntent.getIntExtra("forResultCode", -1), intent);
+                    setResult(Activity.RESULT_OK, mIntent);
+                    finish();
+                }
             }
 
             @Override
@@ -166,25 +172,31 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             @Override
             public HashMap<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
-                headers.put("userid", globalInfos.getUserId()+"");
+                headers.put("userId", globalInfos.getUserId()+"");
                 headers.put("address", "深圳市 南山区");
                 headers.put("content", mtvContent.getText().toString().trim());
                 headers.put("permission", "1");
                 headers.put("ats", "");
 
-                StringBuilder builder = new StringBuilder();
+
+                ArrayList<String> pictures = new ArrayList<String>();
+                ArrayList<String> picsSize = new ArrayList<String>();
                 int photosSize=0;
                 if(!isFull)
                     photosSize = photos.size()-1;
                 int lastIndex = photosSize-1;
                 for (int i=0;i<photosSize;i++){
-                    File file = new File(photos.get(i));
-                    builder.append(file.getName());
-                    if(i!=lastIndex){
-                        builder.append("##");
-                    }
+                    String picPath = photos.get(i);
+                    BitmapFactory.Options options = ImageUtil.getImageSize(picPath);
+                    picsSize.add(options.outWidth+","+options.outHeight);
+
+                    File file = new File(picPath);
+                    pictures.add(file.getName());
                 }
-                headers.put("pictures", builder.toString());
+                Gson gson = new Gson();
+                headers.put("pictures", gson.toJson(pictures));
+                headers.put("picsSize", gson.toJson(picsSize));
+                Log.e(TAG, "createShow getHeaders");
                 return headers;
             }
 

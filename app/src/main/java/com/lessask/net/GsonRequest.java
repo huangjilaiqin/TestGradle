@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GsonRequest<T> extends Request<T> {
-    private String TAG = GsonRequest.class.getSimpleName();
+    private final String TAG = GsonRequest.class.getSimpleName();
     private final Gson gson = new Gson();
     private final Class<T> clazz;
     private final Type type;
@@ -56,6 +56,7 @@ public class GsonRequest<T> extends Request<T> {
         this.listener = new Response.Listener<T>() {
             @Override
             public void onResponse(T response) {
+                Log.e(TAG, "onResponse");
                 postGsonRequest.onResponse(response);
             }
         };
@@ -109,6 +110,7 @@ public class GsonRequest<T> extends Request<T> {
             }else {
                 obj = gson.fromJson(json, clazz);
             }
+            Log.e(TAG, "parseNetworkResponse");
             return Response.success(
                     obj,
                     HttpHeaderParser.parseCacheHeaders(response));

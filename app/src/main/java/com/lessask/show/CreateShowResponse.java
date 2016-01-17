@@ -1,13 +1,15 @@
 package com.lessask.show;
 
 
+import com.lessask.model.ResponseError;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Created by huangji on 2015/10/19.
  */
-public class CreateShowResponse {
+public class CreateShowResponse extends ResponseError {
     int showid;
     String time;
     ArrayList<String> pictures;

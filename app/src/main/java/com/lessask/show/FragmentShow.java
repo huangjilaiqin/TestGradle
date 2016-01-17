@@ -18,18 +18,19 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.github.captain_miao.recyclerviewutils.EndlessRecyclerOnScrollListener;
+import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.MainActivity;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.GetShowResponse;
-import com.lessask.model.ShowItem;
+import com.lessask.model.ArrayListResponse;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.ImprovedSwipeLayout;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,9 +45,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private final String TAG = FragmentShow.class.getName();
     private View mRootView;
     private ShowListAdapter mRecyclerViewAdapter;
-    //private RecyclerViewInSwipeRefreshStatusSupport mRecyclerView;
     private RecyclerViewStatusSupport mRecyclerView;
-    //private SwipeRefreshLayout mSwipeRefreshLayout;
     private ImprovedSwipeLayout mSwipeRefreshLayout;
     private LinearLayoutManager mLinearLayoutManager;
     private int newShowId;
@@ -86,26 +85,39 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                 @Override
                 public void onRefresh() {
                     //下拉刷新
-                    GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), GetShowResponse.class, new GsonRequest.PostGsonRequest<GetShowResponse>() {
+                    Type type = new TypeToken<ArrayListResponse<ShowTime>>() {}.getType();
+                    GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
                         @Override
                         public void onStart() {
 
                         }
 
                         @Override
-                        public void onResponse(GetShowResponse response) {
-                            ArrayList<ShowItem> showdatas = response.getShowdatas();
-                            //最新状态
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            for(int i=showdatas.size()-1;i>=0;i--){
-                                mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                        public void onResponse(ArrayListResponse response) {
+                            if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
+                                //Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
+                                mRecyclerView.showErrorView(response.getError());
+                            }else {
+                                ArrayList<ShowTime> showdatas = response.getDatas();
+                                //最新状态
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                for(int i=showdatas.size()-1;i>=0;i--){
+                                    mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                                }
+                                if(showdatas.size()>0){
+                                    newShowId = showdatas.get(0).getId();
+                                    mRecyclerViewAdapter.notifyDataSetChanged();
+                                    //Log.e(TAG, "newShowId:"+newShowId);
+                                }else if(showdatas.size()==0 && mRecyclerViewAdapter.getItemCount()==0) {
+                                    Log.e(TAG, "showEmptyView");
+                                    mRecyclerView.showEmptyView();
+                                }
+                                mRecyclerView.scrollToPosition(0);
+
+                                //mRecyclerViewAdapter.appendToList((List)response.getDatas());
+                                //mRecyclerViewAdapter.notifyDataSetChanged();
                             }
-                            if(showdatas.size()>0){
-                                newShowId = showdatas.get(0).getId();
-                                mRecyclerViewAdapter.notifyDataSetChanged();
-                                //Log.e(TAG, "newShowId:"+newShowId);
-                            }
-                            mRecyclerView.scrollToPosition(0);
+
 
                         }
 
@@ -117,7 +129,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                         @Override
                         public void setPostData(Map datas) {
-                            datas.put("userid", "" + globalInfos.getUserId());
+                            datas.put("userId", "" + globalInfos.getUserId());
                             datas.put("id", "" + newShowId);
                             datas.put("direct", "forward");
                             datas.put("pagenum", "" + pageNum);
@@ -127,7 +139,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                         @Override
                         public Map getPostData() {
                             Map datas = new HashMap();
-                            datas.put("userid", "" + globalInfos.getUserId());
+                            datas.put("userId", "" + globalInfos.getUserId());
                             datas.put("id", "" + newShowId);
                             datas.put("direct", "forward");
                             datas.put("pagenum", "" + pageNum);
@@ -151,40 +163,46 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     }else {
                         loadBackward = true;
                         mRecyclerViewAdapter.setHasFooter(true);
-
-                        //startPost(config.getGetShowUrl(), GETSHOWS_BACKWORD, GetShowResponse.class);
-                        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), GetShowResponse.class, new GsonRequest.PostGsonRequest<GetShowResponse>() {
+                        Type type = new TypeToken<ArrayListResponse<ShowTime>>() {}.getType();
+                        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
+                        //GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), GetShowResponse.class, new GsonRequest.PostGsonRequest<GetShowResponse>() {
                             @Override
                             public void onStart() {
 
                             }
 
                             @Override
-                            public void onResponse(GetShowResponse response) {
+                            public void onResponse(ArrayListResponse response) {
+                                Log.e(TAG, "get show loadmore response");
                                 loadBackward = false;
 
-                                ArrayList<ShowItem> showdatas = response.getShowdatas();
-                                //历史状态
-                                int position = mRecyclerViewAdapter.getItemCount();
-                                if(showdatas.size()==0){
-                                    mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
-                                    return;
-                                }
-                                mRecyclerViewAdapter.appendToList(showdatas);
-                                /*
-                                for(int i=0;i<showdatas.size();i++){
-                                    mRecyclerViewAdapter.append(showdatas.get(i));
-                                }
-                                */
-                                if(showdatas.size()>0) {
-                                    ShowItem showItem = showdatas.get(showdatas.size() - 1);
-                                    oldShowId = showItem.getId();
-                                    showItem = showdatas.get(0);
-                                    newShowId = showItem.getId()>newShowId?showItem.getId():newShowId;
+                                if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
+                                    //Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
+                                    mRecyclerView.showErrorView(response.getError());
+                                }else {
+                                    ArrayList<ShowTime> showdatas = response.getDatas();
+                                    //历史状态
+                                    int position = mRecyclerViewAdapter.getItemCount();
+                                    if (showdatas.size() == 0) {
+                                        if (mRecyclerViewAdapter.getItemCount() == 0) {
+                                            Log.e(TAG, "showEmptyView");
+                                            mRecyclerView.showEmptyView();
+                                        } else {
+                                            mRecyclerViewAdapter.setHasMoreDataAndFooter(false, true);
+                                        }
+                                        return;
+                                    }
+                                    mRecyclerViewAdapter.appendToList(showdatas);
 
-                                    mRecyclerViewAdapter.notifyDataSetChanged();
+                                    if (showdatas.size() > 0) {
+                                        ShowTime showTime = showdatas.get(showdatas.size() - 1);
+                                        oldShowId = showTime.getId();
+                                        showTime = showdatas.get(0);
+                                        newShowId = showTime.getId() > newShowId ? showTime.getId() : newShowId;
+                                        mRecyclerViewAdapter.notifyDataSetChanged();
+                                    }
+                                    Log.e(TAG, "loadMore is back " + showdatas.size());
                                 }
-                                Log.e(TAG, "loadMore is back "+showdatas.size());
                             }
 
                             @Override
@@ -197,7 +215,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                             @Override
                             public void setPostData(Map datas) {
-                                datas.put("userid", "" + globalInfos.getUserId());
+                                datas.put("userId", "" + globalInfos.getUserId());
                                 datas.put("id", "" + oldShowId);
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
@@ -206,7 +224,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                             @Override
                             public Map getPostData() {
                                 Map datas = new HashMap();
-                                datas.put("userid", "" + globalInfos.getUserId());
+                                datas.put("userId", "" + globalInfos.getUserId());
                                 datas.put("id", "" + oldShowId);
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
@@ -218,30 +236,34 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                 }
             });
             //获取初始化数据
-            GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), GetShowResponse.class, new GsonRequest.PostGsonRequest<GetShowResponse>() {
+            Type type = new TypeToken<ArrayListResponse<ShowTime>>() {}.getType();
+            GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
                 @Override
                 public void onStart() {
 
                 }
 
                 @Override
-                public void onResponse(GetShowResponse response) {
+                public void onResponse(ArrayListResponse response) {
+                    if(response.getError()!=null || response.getErrno()!=0){
+                        return;
+                    }else {
+                        ArrayList<ShowTime> showdatas = response.getDatas();
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        mRecyclerViewAdapter.appendToTopList(showdatas);
 
-                    ArrayList<ShowItem> showdatas = response.getShowdatas();
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    mRecyclerViewAdapter.appendToTopList(showdatas);
-                    /*
-                    for(int i=showdatas.size()-1;i>=0;i--){
-                        mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                        if (showdatas.size() > 0) {
+                            newShowId = showdatas.get(0).getId();
+                            oldShowId = showdatas.get(showdatas.size() - 1).getId();
+                            mRecyclerViewAdapter.notifyDataSetChanged();
+                            //Log.e(TAG, "newShowId:"+newShowId);
+                        }else if(showdatas.size()==0){
+                            if(mRecyclerViewAdapter.getItemCount()==0) {
+                                mRecyclerView.showEmptyView();
+                            }
+                        }
+                        mRecyclerView.scrollToPosition(0);
                     }
-                    */
-                    if(showdatas.size()>0){
-                        newShowId = showdatas.get(0).getId();
-                        oldShowId = showdatas.get(showdatas.size()-1).getId();
-                        mRecyclerViewAdapter.notifyDataSetChanged();
-                        //Log.e(TAG, "newShowId:"+newShowId);
-                    }
-                    mRecyclerView.scrollToPosition(0);
                 }
 
                 @Override
@@ -251,14 +273,14 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
 
                 @Override
                 public void setPostData(Map datas) {
-                    datas.put("userid", "" + globalInfos.getUserId());
+                    datas.put("userId", "" + globalInfos.getUserId());
                     datas.put("pagenum", ""+4);
                 }
 
                 @Override
                 public Map getPostData() {
                     Map datas = new HashMap();
-                    datas.put("userid", "" + globalInfos.getUserId());
+                    datas.put("userId", "" + globalInfos.getUserId());
                     datas.put("pagenum", ""+4);
                     return datas;
                 }
@@ -285,67 +307,16 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                 case MainActivity.CREATE_SHOW:
                     Log.e(TAG, "发布状态成功");
                     Toast.makeText(getContext(), "发布状态成功", Toast.LENGTH_SHORT).show();
-                    ShowItem showItem = data.getParcelableExtra("showItem");
-                    for(int i=0;i<showItem.getPictures().size();i++){
-                        Log.e(TAG, showItem.getPictures().get(i));
+                    ShowTime showTime = data.getParcelableExtra("showTime");
+                    for(int i=0;i<showTime.getPictures().size();i++){
+                        Log.e(TAG, showTime.getPictures().get(i));
                     }
-                    mRecyclerViewAdapter.appendToTop(showItem);
+                    mRecyclerViewAdapter.appendToTop(showTime);
                     mRecyclerViewAdapter.notifyItemInserted(0);
                     mRecyclerViewAdapter.notifyDataSetChanged();
+
+                    newShowId = showTime.getId();
                     break;
-                /*
-                case GETPICTURE_REQUEST:
-                    ArrayList<String> photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
-                    for(int i=0;i<photos.size();i++) {
-                        String originFileStr = photos.get(i);
-                        File originFile = new File(originFileStr);
-
-                        //获取缩略图
-                        ContentResolver cr = getActivity().getContentResolver();
-                        //获取原图id
-                        String columns[] = new String[] { MediaStore.Images.Media._ID};
-                        Cursor cursor = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "_data=?", new String[]{originFileStr}, null);
-                        int originImgId = 0;
-                        if(cursor.moveToFirst()){
-                            originImgId = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
-                        }
-
-
-                        String[] projection = { MediaStore.Images.Thumbnails.DATA};
-                        cursor = cr.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, projection, "image_id=?", new String[]{originImgId+""}, null);
-                        String thumbnailPath = "";
-                        String thumbData = "";
-                        Bitmap thumbnailBitmap = null;
-                        if(cursor.moveToFirst()){
-                            thumbnailPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
-                            thumbnailBitmap = Utils.getBitmapFromFile(new File(thumbnailPath));
-                        }else {
-                            //不存在缩略图
-                            //int width = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getWidth();
-                            //int height = CreateShowActivity.this.getWindowManager().getDefaultDisplay().getHeight();
-                            thumbnailBitmap = Utils.getOptimizeBitmapFromFile(originFile.getAbsolutePath(), 100, 100);
-                        }
-
-                        String fileName = originFile.getName();
-                        String name = fileName.substring(0, fileName.indexOf("."));
-                        String ex = fileName.substring(fileName.indexOf(".") + 1);
-                        String newName = name+"_cmp1."+ex;
-
-                        File dir = Environment.getExternalStorageDirectory();
-                        dir = new File(dir, "testImage");
-                        if(!dir.exists())
-                            dir.mkdir();
-
-                        Utils.setBitmapToFile(new File(dir, newName), thumbnailBitmap);
-
-                    }
-                    Intent intent = new Intent(getActivity(), CreateShowActivity.class);
-                    intent.putStringArrayListExtra("images", photos);
-                    intent.putExtra("forResultCode", CREATE_SHOW);
-                    startActivityForResult(intent, CREATE_SHOW);
-                    break;
-                    */
-
             }
         }
     }

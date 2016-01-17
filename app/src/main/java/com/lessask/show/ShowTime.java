@@ -7,6 +7,7 @@ import android.os.Parcelable;
 
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 import com.google.gson.reflect.TypeToken;
+import com.lessask.dialog.StringPickerDialog;
 import com.lessask.model.ArrayListResponse;
 import com.lessask.crud.CRUD;
 import com.lessask.crud.DefaultGsonRequestCRUD;
@@ -32,6 +33,9 @@ public class ShowTime extends ResponseError implements Parcelable {
     private String address;
     private String content;
     private ArrayList<String> pictures;
+    //格式100,100;200,300;320,480
+    private ArrayList<String> picsSize;
+    //格式 #767876;#345412;#986745
     private int permission;
     private int likeSize;
     private int commentSize;
@@ -44,7 +48,7 @@ public class ShowTime extends ResponseError implements Parcelable {
 
     public ShowTime(){}
 
-    public ShowTime(int id, int userid, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, ArrayList<Integer> liker, int likeStatus, ArrayList<CommentItem> comments) {
+    public ShowTime(int id, int userid, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, int likeSize,int commentSize,int likeStatus,ArrayList<String> picsSize) {
         this.id = id;
         this.userid = userid;
         this.nickname = nickname;
@@ -55,9 +59,26 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.pictures = pictures;
         this.permission = permission;
         this.ats = ats;
-        this.liker = liker;
+        this.likeSize=likeSize;
+        this.commentSize=commentSize;
         this.likeStatus = likeStatus;
-        this.comments = comments;
+        this.picsSize=picsSize;
+    }
+
+    public int getLikeSize() {
+        return likeSize;
+    }
+
+    public void setLikeSize(int likeSize) {
+        this.likeSize = likeSize;
+    }
+
+    public int getCommentSize() {
+        return commentSize;
+    }
+
+    public void setCommentSize(int commentSize) {
+        this.commentSize = commentSize;
     }
 
     public String getHeadimg() {
@@ -191,9 +212,10 @@ public class ShowTime extends ResponseError implements Parcelable {
         parcel.writeList(pictures);
         parcel.writeInt(permission);
         parcel.writeString(ats);
-        parcel.writeList(liker);
+        parcel.writeInt(likeSize);
+        parcel.writeInt(commentSize);
         parcel.writeInt(likeStatus);
-        parcel.writeList(comments);
+        parcel.writeList(picsSize);
     }
     public static final Creator<ShowTime> CREATOR
              = new Creator<ShowTime>() {
@@ -208,10 +230,11 @@ public class ShowTime extends ResponseError implements Parcelable {
              ArrayList<String> pictures = in.readArrayList(null);
              int permission = in.readInt();
              String ats = in.readString();
-             ArrayList<Integer> liker = in.readArrayList(null);
+             int likeSize = in.readInt();
+             int commentSize = in.readInt();
              int likeStatus = in.readInt();
-             ArrayList<CommentItem> comments = in.readArrayList(null);
-             return new ShowTime(id,userid,nickname,headimg,time,adress,content,pictures,permission,ats,liker,likeStatus,comments);
+             ArrayList<String> picsSize = in.readArrayList(null);
+             return new ShowTime(id,userid,nickname,headimg,time,adress,content,pictures,permission,ats,likeSize,commentSize,likeStatus,picsSize);
          }
 
          public ShowTime[] newArray(int size) {

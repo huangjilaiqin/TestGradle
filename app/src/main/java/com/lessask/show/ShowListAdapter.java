@@ -3,6 +3,7 @@ package com.lessask.show;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,10 +24,10 @@ import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.LikeResponse;
-import com.lessask.model.ShowItem;
 import com.lessask.model.UnlikeResponse;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.util.ScreenUtil;
 import com.lessask.util.TimeHelper;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 /**
  * Created by huangji on 2015/11/16.
  */
-public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowListAdapter.ViewHolder> implements OnRecyclerItemClickListener {
+public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowListAdapter.ViewHolder> implements OnRecyclerItemClickListener {
     private static final String TAG = ShowListAdapter.class.getName();
 
     PhotoViewAttacher mAttacher;
@@ -71,35 +72,39 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
     @Override
     public void onBindItemViewHolder(final ViewHolder holder, int position) {
         final int myPosition = position;
-        ShowItem showItem = getItem(myPosition);
+        ShowTime showTime = getItem(myPosition);
 
         //头像
-        String headImgUrl = imageUrlPrefix+showItem.getHeadimg();
+        String headImgUrl = imageUrlPrefix+showTime.getHeadimg();
         //Log.e(TAG, headImgUrl);
         ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead ,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
         //imageLoader.get(headImgUrl, headImgListener);
         //VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener);
         //VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,holder.ivHead.getWidth(),holder.ivHead.getHeight());
-        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,200,200);
+        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 200, 200);
 
-        showItem.getUserid();
-        holder.tvName.setText(showItem.getNickname());
-        holder.tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showItem.getTime())));
-        holder.tvAddress.setText(showItem.getAddress());
-        holder.tvContent.setText(showItem.getContent());
+        showTime.getUserid();
+        holder.tvName.setText(showTime.getNickname());
+        holder.tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showTime.getTime())));
+        holder.tvAddress.setText(showTime.getAddress());
+        if(showTime.getContent().length()==0){
+            holder.tvContent.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
+        }else {
+            holder.tvContent.setText(showTime.getContent());
+        }
         int likeSize = 0;
-        if(showItem.getLiker()!=null){
-            likeSize = showItem.getLiker().size();
+        if(showTime.getLiker()!=null){
+            likeSize = showTime.getLiker().size();
         }
         holder.tvUpSize.setText("" + likeSize);
         int commentSize = 0;
-        if(showItem.getComments()!=null){
-            commentSize = showItem.getComments().size();
+        if(showTime.getComments()!=null){
+            commentSize = showTime.getComments().size();
         }
         holder.tvCommentSize.setText("" + commentSize);
 
         //点赞
-        if(showItem.getLikeStatus()==1){
+        if(showTime.getLikeStatus()==1){
             holder.ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up_selected));
         }else {
             holder.ivUp.setImageDrawable(context.getResources().getDrawable(R.drawable.up));
@@ -114,95 +119,198 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
         //评论
 
         //设置图片
-        GridLayout imageLayout;
         ImageView showImage,showImage1,showImage2,showImage3,showImage4;
-        ArrayList<String> pictures = showItem.getPictures();
+        ArrayList<String> pictures = showTime.getPictures();
+        int imageDeltaDp = 4;
+        int imageSize = (int)((ScreenUtil.getScreenWidth(context)-ScreenUtil.dp2Px(context,80+imageDeltaDp))/2);
+        int imageDelta = ScreenUtil.dp2Px(context,imageDeltaDp);
+        ViewGroup.LayoutParams sizeParams = new RelativeLayout.LayoutParams(imageSize,imageSize);
+        RelativeLayout layout;
+        RelativeLayout.LayoutParams lp1,lp2,lp3,lp4;
         switch (pictures.size()){
             case 1:
+                Log.e(TAG, "1 imgs");
+                /*
                 //加载图片布局xml文件, 获取布局对象
-                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.show_iamge_1, null).findViewById(R.id.root_layout);
+                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_1, null).findViewById(R.id.root_layout);
                 //设置图片
                 showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
-                registerImageEvent(showImage1, showItem, 0);
+                showImage1.setLayoutParams(sizeParams);
+                registerImageEvent(showImage1, showTime, 0);
+                */
 
-                String imgUrl1 = imageUrlPrefix+pictures.get(0);
+                showImage1 = new ImageView(context);
+                showImage1.setId(R.id.show_image1);
+                showImage1.setAdjustViewBounds(true);
+                showImage1.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp1 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+
+                String imgUrl1 = imageUrlPrefix+pictures.get(0)+"!"+imageSize+"_"+imageSize;
                 Log.e(TAG, "img1 w:"+showImage1.getWidth()+" h:"+showImage1.getHeight());
                 ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(showImage1,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                //imageLoader.get(imgUrl1, listener1);
-                //VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,showImage1.getWidth(),showImage1.getHeight());
                 VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,200,200);
 
                 holder.showImageLayout.removeAllViews();
-                holder.showImageLayout.addView(layout);
+                holder.showImageLayout.addView(showImage1,lp1);
                 break;
             case 2:
+                Log.e(TAG, "2 imgs");
                 //加载图片布局xml文件, 获取布局对象
-                imageLayout = (GridLayout) inflater.inflate(R.layout.show_iamge_2, null).findViewById(R.id.root_layout);
+                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_2, null).findViewById(R.id.root_layout);
                 //设置图片
-                showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
-                showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
-                ImageView[] imageViews2 = {showImage1,showImage2};
 
+                /*
+                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
+                showImage1.setLayoutParams(sizeParams);
+                showImage2 = (ImageView)layout.findViewById(R.id.show_image2);
+                showImage2.setLayoutParams(sizeParams);
+                */
+                showImage1 = new ImageView(context);
+                showImage1.setId(R.id.show_image1);
+                showImage1.setAdjustViewBounds(true);
+                showImage1.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp1 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+
+                showImage2 = new ImageView(context);
+                showImage2.setId(R.id.show_image2);
+                showImage2.setAdjustViewBounds(true);
+                showImage2.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp2 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+                lp2.setMargins(imageDelta,0,0,0);
+                lp2.addRule(RelativeLayout.RIGHT_OF,R.id.show_image1);
+                ImageView[] imageViews2 = {showImage1,showImage2};
+                RelativeLayout.LayoutParams[] lps = {lp1,lp2};
+
+                holder.showImageLayout.removeAllViews();
                 for(int i=0;i<pictures.size();i++){
-                    String imgUrl = imageUrlPrefix+pictures.get(i);
+                    //String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
+                    String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+200+"_"+200;
                     showImage = imageViews2[i];
                     Log.e(TAG, "img2 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                     //imageLoader.get(imgUrl, listener);
                     //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
                     VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
-                    registerImageEvent(imageViews2[i], showItem, i);
+                    registerImageEvent(showImage, showTime, i);
+
+                    holder.showImageLayout.addView(showImage,lps[i]);
                 }
 
-                holder.showImageLayout.removeAllViews();
-                holder.showImageLayout.addView(imageLayout);
                 break;
             case 3:
+                Log.e(TAG, "3 imgs");
+                /*
                 //加载图片布局xml文件, 获取布局对象
-                imageLayout = (GridLayout) inflater.inflate(R.layout.show_iamge_3, null).findViewById(R.id.root_layout);
+                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_3, null).findViewById(R.id.root_layout);
                 //设置图片
-                showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
-                showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
-                showImage3 = (ImageView)imageLayout.findViewById(R.id.show_image3);
+                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
+                showImage2 = (ImageView)layout.findViewById(R.id.show_image2);
+                showImage3 = (ImageView)layout.findViewById(R.id.show_image3);
                 ImageView[] imageViews3 = {showImage1,showImage2,showImage3};
+                */
+                showImage1 = new ImageView(context);
+                showImage1.setId(R.id.show_image1);
+                showImage1.setAdjustViewBounds(true);
+                showImage1.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp1 = new RelativeLayout.LayoutParams(imageSize,imageSize);
 
+                showImage2 = new ImageView(context);
+                showImage2.setId(R.id.show_image2);
+                showImage2.setAdjustViewBounds(true);
+                showImage2.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp2 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+                lp2.setMargins(imageDelta,0,0,0);
+                lp2.addRule(RelativeLayout.RIGHT_OF,R.id.show_image1);
+
+                showImage3 = new ImageView(context);
+                showImage3.setId(R.id.show_image3);
+                showImage3.setAdjustViewBounds(true);
+                showImage3.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp3 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+                lp3.setMargins(0,imageDelta,0,0);
+                lp3.addRule(RelativeLayout.BELOW,R.id.show_image1);
+
+
+                ImageView[] imageViews3 = {showImage1,showImage2,showImage3};
+                RelativeLayout.LayoutParams[] lps3 = {lp1,lp2,lp3};
+
+                holder.showImageLayout.removeAllViews();
                 for(int i=0;i<pictures.size();i++){
-                    String imgUrl = imageUrlPrefix+pictures.get(i);
+                    String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews3[i];
+                    showImage.setLayoutParams(sizeParams);
                     Log.e(TAG, "img3 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                     //imageLoader.get(imgUrl, listener);
                     //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
                     VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
-                    registerImageEvent(imageViews3[i], showItem, i);
+                    registerImageEvent(showImage, showTime, i);
+                    holder.showImageLayout.addView(showImage,lps3[i]);
                 }
 
-                holder.showImageLayout.removeAllViews();
-                holder.showImageLayout.addView(imageLayout);
                 break;
             case 4:
+                Log.e(TAG, "4 imgs");
+                /*
                 //加载图片布局xml文件, 获取布局对象
-                imageLayout = (GridLayout) inflater.inflate(R.layout.show_iamge_4, null).findViewById(R.id.root_layout);
+                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_4, null).findViewById(R.id.root_layout);
                 //设置图片
-                showImage1 = (ImageView)imageLayout.findViewById(R.id.show_image1);
-                showImage2 = (ImageView)imageLayout.findViewById(R.id.show_image2);
-                showImage3 = (ImageView)imageLayout.findViewById(R.id.show_image3);
-                showImage4 = (ImageView)imageLayout.findViewById(R.id.show_image4);
+                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
+                showImage2 = (ImageView)layout.findViewById(R.id.show_image2);
+                showImage3 = (ImageView)layout.findViewById(R.id.show_image3);
+                showImage4 = (ImageView)layout.findViewById(R.id.show_image4);
                 ImageView[] imageViews4 = {showImage1,showImage2,showImage3,showImage4};
+                */
 
+                showImage1 = new ImageView(context);
+                showImage1.setId(R.id.show_image1);
+                showImage1.setAdjustViewBounds(true);
+                showImage1.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp1 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+
+                showImage2 = new ImageView(context);
+                showImage2.setId(R.id.show_image2);
+                showImage2.setAdjustViewBounds(true);
+                showImage2.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp2 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+                lp2.setMargins(imageDelta,0,0,0);
+                lp2.addRule(RelativeLayout.RIGHT_OF, R.id.show_image1);
+
+                showImage3 = new ImageView(context);
+                showImage3.setId(R.id.show_image3);
+                showImage3.setAdjustViewBounds(true);
+                showImage3.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp3 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+                lp3.setMargins(0,imageDelta,0,0);
+                lp3.addRule(RelativeLayout.BELOW, R.id.show_image1);
+
+                showImage4 = new ImageView(context);
+                showImage4.setId(R.id.show_image4);
+                showImage4.setAdjustViewBounds(true);
+                showImage4.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                lp4 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+                lp4.setMargins(0,imageDelta,0,0);
+                lp4.addRule(RelativeLayout.BELOW, R.id.show_image2);
+                lp4.addRule(RelativeLayout.RIGHT_OF,R.id.show_image3);
+
+
+                ImageView[] imageViews4 = {showImage1,showImage2,showImage3,showImage4};
+                RelativeLayout.LayoutParams[] lps4 = {lp1,lp2,lp3,lp4};
+
+                holder.showImageLayout.removeAllViews();
                 for(int i=0;i<pictures.size();i++){
-                    String imgUrl = imageUrlPrefix+pictures.get(i);
+                    String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews4[i];
+                    showImage.setLayoutParams(sizeParams);
                     Log.e(TAG, "img4 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                     //imageLoader.get(imgUrl, listener);
                     //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
                     VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
-                    registerImageEvent(imageViews4[i], showItem, i);
+                    registerImageEvent(showImage, showTime, i);
+                    holder.showImageLayout.addView(showImage,lps4[i]);
                 }
 
-                holder.showImageLayout.removeAllViews();
-                holder.showImageLayout.addView(imageLayout);
                 break;
         }
     }
@@ -240,9 +348,9 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
     }
     private void changeUp(final View view, final int position){
 
-        final ShowItem showItem = getItem(position);
+        final ShowTime showTime = getItem(position);
         final ImageView likeView = (ImageView)view;
-        if(showItem.getLikeStatus()==1){
+        if(showTime.getLikeStatus()==1){
             GsonRequest unlikeRequest = new GsonRequest<>(Request.Method.POST, config.getUnlikeUrl(), UnlikeResponse.class, new GsonRequest.PostGsonRequest<UnlikeResponse>() {
                 @Override
                 public void onStart() {
@@ -253,9 +361,9 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 public void onResponse(UnlikeResponse response) {
                     if(response.getError()==null && response.getErrno()==0){
                         Toast.makeText(activity, "unlike success", Toast.LENGTH_SHORT).show();
-                        if(showItem.getId()==response.getShowid()){
+                        if(showTime.getId()==response.getShowid()){
                             Log.e(TAG, "unlike response");
-                            showItem.unlike(globalInfos.getUserId());
+                            showTime.unlike(globalInfos.getUserId());
                         }else {
                             //遍历查找showid
                         }
@@ -274,7 +382,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 @Override
                 public void setPostData(Map datas) {
                     datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("showid", "" + showItem.getId());
+                    datas.put("showid", "" + showTime.getId());
                     datas.put("position", "" + position);
                 }
 
@@ -282,7 +390,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 public Map getPostData() {
                     Map datas = new HashMap();
                     datas.put("userid", globalInfos.getUserId() + "");
-                    datas.put("showid", "" + showItem.getId());
+                    datas.put("showid", "" + showTime.getId());
                     datas.put("position", "" + position);
                     return datas;
                 }
@@ -299,8 +407,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 public void onResponse(LikeResponse response) {
                     if(response.getError()==null && response.getErrno()==0) {
                         Toast.makeText(activity, "like success", Toast.LENGTH_SHORT).show();
-                        if (showItem.getId() == response.getShowid()) {
-                            showItem.like(globalInfos.getUserId());
+                        if (showTime.getId() == response.getShowid()) {
+                            showTime.like(globalInfos.getUserId());
                         } else {
                             //遍历查找showid
                         }
@@ -319,7 +427,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 @Override
                 public void setPostData(Map datas) {
                     datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("showid", "" + showItem.getId());
+                    datas.put("showid", "" + showTime.getId());
                     datas.put("position", "" + position);
 
                 }
@@ -328,7 +436,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
                 public Map getPostData() {
                     Map datas = new HashMap();
                     datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("showid", "" + showItem.getId());
+                    datas.put("showid", "" + showTime.getId());
                     datas.put("position", "" + position);
                     return datas;
                 }
@@ -336,7 +444,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowItem, ShowL
             VolleyHelper.getInstance().addToRequestQueue(likeRequest);
         }
     }
-    private void registerImageEvent(ImageView image, final ShowItem item, final int index){
+    private void registerImageEvent(ImageView image, final ShowTime item, final int index){
         image.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

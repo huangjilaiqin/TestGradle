@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.lessask.R;
@@ -52,6 +51,13 @@ public class RecyclerViewStatusSupport extends RecyclerView{
             RecyclerViewStatusSupport.this.setVisibility(INVISIBLE);
             errorTextView.setText(error);
             errorView.setVisibility(VISIBLE);
+        }
+    }
+    public void showEmptyView(){
+        if(emptyView!=null){
+            loadingView.setVisibility(INVISIBLE);
+            errorView.setVisibility(INVISIBLE);
+            RecyclerViewStatusSupport.this.setVisibility(VISIBLE);
         }
     }
 

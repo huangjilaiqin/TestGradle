@@ -10,7 +10,7 @@ public class Config {
     private String wsUrl = "http://123.59.40.113";
     //private String wsPath = "/ws/socket.io/";
     private String wsPath = "/ws/";
-    private String createShowUrl = "http://123.59.40.113/httproute/show";
+    private String addShowtimeUrl = "http://123.59.40.113/httproute/showtime/add";
     private String imgUrl = "http://123.59.40.113/imgs/";
     private String registerUrl = "http://123.59.40.113/httproute/register/";
     private String getShowUrl = "http://123.59.40.113/httproute/getshow/";
@@ -34,6 +34,10 @@ public class Config {
     private String deleteWorkoutUrl = "http://123.59.40.113/httproute/workout/delete";
     private String updateWorkoutUrl = "http://123.59.40.113/httproute/workout/update";
     private String workoutsUrl = "http://123.59.40.113/httproute/workouts";
+
+    public String getAddShowtimeUrl() {
+        return addShowtimeUrl;
+    }
 
     public String getAddWorkoutUrl() {
         return addWorkoutUrl;
@@ -119,11 +123,6 @@ public class Config {
 
     public String getVideoUrl() {
         return videoUrl;
-    }
-
-
-    public String getCreateShowUrl() {
-        return createShowUrl;
     }
 
     public String getWsUrl() {

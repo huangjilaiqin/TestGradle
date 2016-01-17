@@ -109,6 +109,20 @@ public class ImageUtil {
 		return result;
 	}
 
+    public static BitmapFactory.Options getImageSize(String pathName) {
+        File file = new File(pathName);
+        if (!file.exists() || !file.isFile()) {
+            throw new Resources.NotFoundException();
+        }
+        Bitmap result = null;
+        // 图片配置对象，该对象可以配置图片加载的像素获取个数
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        // 表示加载图像的原始宽高
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(pathName, options);
+        return  options;
+    }
+
     public static void setBitmap2File(File file,Bitmap mBitmap) throws IOException{
         setBitmap2File(file,mBitmap,80);
     }
