@@ -314,7 +314,7 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     mRecyclerViewAdapter.appendToTop(showTime);
                     mRecyclerViewAdapter.notifyItemInserted(0);
                     mRecyclerViewAdapter.notifyDataSetChanged();
-
+                    Log.e(TAG, "add show:"+showTime.getId());
                     newShowId = showTime.getId();
                     break;
             }

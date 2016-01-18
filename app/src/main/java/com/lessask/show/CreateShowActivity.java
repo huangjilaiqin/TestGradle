@@ -55,6 +55,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
     private MyAdapter mGridViewAdapter;
     private LoadingDialog loadingDialog;
     private Intent mIntent;
+    private ShowTime mShowTime;
 
     private Config config = globalInfos.getConfig();
 
@@ -90,6 +91,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
         mGridViewAdapter = new MyAdapter(this, photos);
         mGridView.setAdapter(mGridViewAdapter);
 
+        mShowTime = new ShowTime();
     }
 
     @Override
@@ -137,26 +139,20 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onResponse(Object response) {
                 loadingDialog.cancel();
-                //CreateShowResponse createShowResponse = (CreateShowResponse)response;
                 ShowTime showTime = (ShowTime) response;
                 if(showTime.getError()!=null || showTime.getErrno()!=0){
-                    Toast.makeText(CreateShowActivity.this, showTime.getError(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CreateShowActivity.this, showTime.getError(),Toast.LENGTH_LONG).show();
+                    Log.e(TAG, showTime.getError());
                 }else {
                     int showId = showTime.getId();
                     String time = showTime.getTime();
                     ArrayList<String> pictures = showTime.getPictures();
                     //跳转到动态
+                    mShowTime.setId(showId);
+                    mShowTime.setTime(time);
+                    mShowTime.setPictures(pictures);
 
-                    ShowItem showItem = new ShowItem();
-                    showItem.setId(showId);
-                    showItem.setAddress("深圳 南山");
-                    showItem.setContent(mtvContent.getText().toString().trim());
-                    showItem.setHeadimg(globalInfos.getUser().getHeadImg());
-                    showItem.setPictures(pictures);
-                    showItem.setTime(time);
-                    mIntent.putExtra("showItem", showItem);
-                    Log.e(TAG, "create show success:" + mIntent.getIntExtra("forResultCode", -1));
-                    //setResult(mIntent.getIntExtra("forResultCode", -1), intent);
+                    mIntent.putExtra("showTime", mShowTime);
                     setResult(Activity.RESULT_OK, mIntent);
                     finish();
                 }
@@ -172,15 +168,25 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             @Override
             public HashMap<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
+
+                mShowTime.setUserId(globalInfos.getUserId());
+                mShowTime.setNickname(globalInfos.getUser().getNickname());
+                mShowTime.setAddress("深圳市 南山区");
+                mShowTime.setContent(mtvContent.getText().toString().trim());
+                mShowTime.setPermission(1);
+
+                /*
                 headers.put("userId", globalInfos.getUserId()+"");
                 headers.put("address", "深圳市 南山区");
                 headers.put("content", mtvContent.getText().toString().trim());
                 headers.put("permission", "1");
                 headers.put("ats", "");
+                */
 
 
-                ArrayList<String> pictures = new ArrayList<String>();
-                ArrayList<String> picsSize = new ArrayList<String>();
+                ArrayList<String> pictures = new ArrayList<>();
+                ArrayList<ArrayList<Integer>> picsSize = new ArrayList<>();
+                ArrayList<Integer> picsColor = new ArrayList<>();
                 int photosSize=0;
                 if(!isFull)
                     photosSize = photos.size()-1;
@@ -188,14 +194,26 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 for (int i=0;i<photosSize;i++){
                     String picPath = photos.get(i);
                     BitmapFactory.Options options = ImageUtil.getImageSize(picPath);
-                    picsSize.add(options.outWidth+","+options.outHeight);
+                    ArrayList<Integer> imgWh = new ArrayList<Integer>();
+                    imgWh.add(options.outWidth);
+                    imgWh.add(options.outHeight);
+                    picsSize.add(imgWh);
 
                     File file = new File(picPath);
                     pictures.add(file.getName());
+                    //获取图片主色
+                    picsColor.add(ImageUtil.getImageMainColor(picPath));
                 }
                 Gson gson = new Gson();
+                /*
                 headers.put("pictures", gson.toJson(pictures));
                 headers.put("picsSize", gson.toJson(picsSize));
+                headers.put("picsColor", gson.toJson(picsColor));
+                */
+                mShowTime.setPictures(pictures);
+                mShowTime.setPicsSize(picsSize);
+                mShowTime.setPicsColor(picsColor);
+                headers.put("showTime", gson.toJson(mShowTime));
                 Log.e(TAG, "createShow getHeaders");
                 return headers;
             }
@@ -286,34 +304,10 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 case REQUEST_ADD_IMAGE:
                     if (data != null) {
                         ArrayList<String> selectedPhotos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
-                        //测试图片压缩
-                        /*
-                        for(int i=0;i<selectedPhotos.size();i++){
-                            String originFileStr = selectedPhotos.get(i);
-                            File originFile = new File(originFileStr);
-
-                            //获取缩略图
-                            ContentResolver cr = getContentResolver();
-
-                            Bitmap thumbnailBitmap = Utils.getThumbnail(originFile, cr);
-
-                            String fileName = originFile.getName();
-                            String name = fileName.substring(0, fileName.indexOf("."));
-                            String ex = fileName.substring(fileName.indexOf(".") + 1);
-                            String newName = name+"_cmp1."+ex;
-
-                            File dir = Environment.getExternalStorageDirectory();
-                            dir = new File(dir, "testImage");
-                            if(!dir.exists())
-                                dir.mkdir();
-
-                            Utils.setBitmapToFile(new File(dir, newName), thumbnailBitmap);
-                        }
-                        */
                         //把最后一个加号的图片去掉
                         Log.e(TAG, "1 "+photos.get(photos.size()-1));
                         photos.remove(photos.size() - 1);
-                        for (int i = 0; i < selectedPhotos.size(); i++) {
+                        for(int i = 0; i < selectedPhotos.size(); i++) {
                             photos.add(selectedPhotos.get(i));
                         }
                         Log.e(TAG, "CreateShowActivity:" + photos);

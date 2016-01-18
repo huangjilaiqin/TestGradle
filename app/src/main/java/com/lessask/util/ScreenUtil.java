@@ -17,4 +17,16 @@ public class ScreenUtil {
     public static int getScreenHeight(Context context){
         return  context.getResources().getDisplayMetrics().heightPixels;
     }
+    private static int singleImgWidth=0;
+    public static int getSingleImgWidth(Context context){
+        if(singleImgWidth==0)
+            singleImgWidth=(int)(ScreenUtil.getScreenWidth(context)*0.556);
+        return singleImgWidth;
+    }
+    private static int multiImgWidth=0;
+    public static int getMultiImgWidth(Context context, int imageDeltaDp){
+        if(multiImgWidth==0)
+            multiImgWidth=(int)((ScreenUtil.getScreenWidth(context)-ScreenUtil.dp2Px(context,80+imageDeltaDp))/2);
+        return multiImgWidth;
+    }
 }

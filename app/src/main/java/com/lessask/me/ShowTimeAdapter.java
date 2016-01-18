@@ -76,7 +76,7 @@ public class ShowTimeAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowT
         //VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,holder.ivHead.getWidth(),holder.ivHead.getHeight());
         VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,200,200);
 
-        showItem.getUserid();
+        showItem.getUserId();
         holder.tvName.setText(showItem.getNickname());
         holder.tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showItem.getTime())));
         holder.tvAddress.setText(showItem.getAddress());

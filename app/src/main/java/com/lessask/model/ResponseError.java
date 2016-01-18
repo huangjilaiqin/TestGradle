@@ -8,8 +8,6 @@ public class ResponseError {
     private int errno;
 
     public ResponseError(){
-        errno = 0;
-        error = "";
     }
     public ResponseError(int errno, String error){
         this.errno = errno;

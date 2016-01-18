@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -124,7 +125,7 @@ public class ImageUtil {
     }
 
     public static void setBitmap2File(File file,Bitmap mBitmap) throws IOException{
-        setBitmap2File(file,mBitmap,80);
+        setBitmap2File(file, mBitmap, 80);
     }
     /*
     * 将压缩bitmap到文件
@@ -196,5 +197,26 @@ public class ImageUtil {
         }
 
         return bitmap;
+    }
+    public static int getImageMainColor(String path){
+        Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(new File(path));
+        Palette palette = Palette.from(bitmap).generate();
+        int color = palette.getMutedColor(0x000000);
+        if(color==0){
+            color = palette.getLightMutedColor(0x000000);
+            if(color==0){
+                color = palette.getDarkMutedColor(0x000000);
+                if(color==0){
+                    color  = palette.getVibrantColor(0x000000);
+                    if(color==0){
+                        color = palette.getLightVibrantColor(0x000000);
+                        if(color==0){
+                            color = palette.getDarkVibrantColor(0x000000);
+                        }
+                    }
+                }
+            }
+        }
+        return color;
     }
 }

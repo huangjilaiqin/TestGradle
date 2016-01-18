@@ -3,13 +3,11 @@ package com.lessask.show;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -78,13 +76,11 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
         String headImgUrl = imageUrlPrefix+showTime.getHeadimg();
         //Log.e(TAG, headImgUrl);
         ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead ,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-        //imageLoader.get(headImgUrl, headImgListener);
-        //VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener);
-        //VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,holder.ivHead.getWidth(),holder.ivHead.getHeight());
         VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 200, 200);
 
-        showTime.getUserid();
+        showTime.getUserId();
         holder.tvName.setText(showTime.getNickname());
+        Log.e(TAG, "showTime:" + showTime.getTime());
         holder.tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showTime.getTime())));
         holder.tvAddress.setText(showTime.getAddress());
         if(showTime.getContent().length()==0){
@@ -121,50 +117,49 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
         //设置图片
         ImageView showImage,showImage1,showImage2,showImage3,showImage4;
         ArrayList<String> pictures = showTime.getPictures();
+        ArrayList<ArrayList<Integer>> picsSize = showTime.getPicsSize();
+        ArrayList<Integer> picsColor = showTime.getPicsColor();
+        if(picsColor==null){
+            picsColor=new ArrayList<>();
+            for(int i=0;i<pictures.size();i++)
+                picsColor.add(0);
+        }
+        //多个图片间隔
         int imageDeltaDp = 4;
-        int imageSize = (int)((ScreenUtil.getScreenWidth(context)-ScreenUtil.dp2Px(context,80+imageDeltaDp))/2);
         int imageDelta = ScreenUtil.dp2Px(context,imageDeltaDp);
+        //多个图片的显示宽度
+        int imageSize = ScreenUtil.getMultiImgWidth(context,imageDeltaDp);
+        //单个图片的显示宽度
+        int singleImgSize = ScreenUtil.getMultiImgWidth(context,imageDeltaDp);
+
         ViewGroup.LayoutParams sizeParams = new RelativeLayout.LayoutParams(imageSize,imageSize);
-        RelativeLayout layout;
         RelativeLayout.LayoutParams lp1,lp2,lp3,lp4;
         switch (pictures.size()){
             case 1:
-                Log.e(TAG, "1 imgs");
-                /*
-                //加载图片布局xml文件, 获取布局对象
-                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_1, null).findViewById(R.id.root_layout);
-                //设置图片
-                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
-                showImage1.setLayoutParams(sizeParams);
-                registerImageEvent(showImage1, showTime, 0);
-                */
-
                 showImage1 = new ImageView(context);
                 showImage1.setId(R.id.show_image1);
                 showImage1.setAdjustViewBounds(true);
                 showImage1.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                lp1 = new RelativeLayout.LayoutParams(imageSize,imageSize);
+                showImage1.setBackgroundColor(picsColor.get(0));
 
-                String imgUrl1 = imageUrlPrefix+pictures.get(0)+"!"+imageSize+"_"+imageSize;
-                Log.e(TAG, "img1 w:"+showImage1.getWidth()+" h:"+showImage1.getHeight());
-                ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(showImage1,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,200,200);
+                ArrayList<Integer> wh = picsSize.get(0);
+                Log.e(TAG, "w:"+wh.get(0)+", h:"+wh.get(1));
+                int w = wh.get(0);
+                int h = wh.get(1);
+                if(w<singleImgSize && h<singleImgSize){
+                    singleImgSize = Math.min(w,h);
+                }
+                Log.e(TAG, "singleImgSize:"+singleImgSize);
+                lp1 = new RelativeLayout.LayoutParams(singleImgSize,singleImgSize);
+
+                String imgUrl1 = imageUrlPrefix+pictures.get(0)+"!"+singleImgSize+"_"+singleImgSize;
+                ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(showImage1,0,0);
+                VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,singleImgSize,singleImgSize);
 
                 holder.showImageLayout.removeAllViews();
                 holder.showImageLayout.addView(showImage1,lp1);
                 break;
             case 2:
-                Log.e(TAG, "2 imgs");
-                //加载图片布局xml文件, 获取布局对象
-                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_2, null).findViewById(R.id.root_layout);
-                //设置图片
-
-                /*
-                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
-                showImage1.setLayoutParams(sizeParams);
-                showImage2 = (ImageView)layout.findViewById(R.id.show_image2);
-                showImage2.setLayoutParams(sizeParams);
-                */
                 showImage1 = new ImageView(context);
                 showImage1.setId(R.id.show_image1);
                 showImage1.setAdjustViewBounds(true);
@@ -183,14 +178,12 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
 
                 holder.showImageLayout.removeAllViews();
                 for(int i=0;i<pictures.size();i++){
-                    //String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
-                    String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+200+"_"+200;
+                    String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews2[i];
+                    showImage.setBackgroundColor(picsColor.get(i));
                     Log.e(TAG, "img2 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
-                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                    //imageLoader.get(imgUrl, listener);
-                    //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
-                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,imageSize,imageSize);
                     registerImageEvent(showImage, showTime, i);
 
                     holder.showImageLayout.addView(showImage,lps[i]);
@@ -198,16 +191,6 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
 
                 break;
             case 3:
-                Log.e(TAG, "3 imgs");
-                /*
-                //加载图片布局xml文件, 获取布局对象
-                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_3, null).findViewById(R.id.root_layout);
-                //设置图片
-                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
-                showImage2 = (ImageView)layout.findViewById(R.id.show_image2);
-                showImage3 = (ImageView)layout.findViewById(R.id.show_image3);
-                ImageView[] imageViews3 = {showImage1,showImage2,showImage3};
-                */
                 showImage1 = new ImageView(context);
                 showImage1.setId(R.id.show_image1);
                 showImage1.setAdjustViewBounds(true);
@@ -239,29 +222,16 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                     String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews3[i];
                     showImage.setLayoutParams(sizeParams);
+                    showImage.setBackgroundColor(picsColor.get(i));
                     Log.e(TAG, "img3 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
-                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                    //imageLoader.get(imgUrl, listener);
-                    //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
-                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,imageSize,imageSize);
                     registerImageEvent(showImage, showTime, i);
                     holder.showImageLayout.addView(showImage,lps3[i]);
                 }
 
                 break;
             case 4:
-                Log.e(TAG, "4 imgs");
-                /*
-                //加载图片布局xml文件, 获取布局对象
-                layout = (RelativeLayout) inflater.inflate(R.layout.show_image_4, null).findViewById(R.id.root_layout);
-                //设置图片
-                showImage1 = (ImageView)layout.findViewById(R.id.show_image1);
-                showImage2 = (ImageView)layout.findViewById(R.id.show_image2);
-                showImage3 = (ImageView)layout.findViewById(R.id.show_image3);
-                showImage4 = (ImageView)layout.findViewById(R.id.show_image4);
-                ImageView[] imageViews4 = {showImage1,showImage2,showImage3,showImage4};
-                */
-
                 showImage1 = new ImageView(context);
                 showImage1.setId(R.id.show_image1);
                 showImage1.setAdjustViewBounds(true);
@@ -302,11 +272,10 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                     String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews4[i];
                     showImage.setLayoutParams(sizeParams);
+                    showImage.setBackgroundColor(picsColor.get(i));
                     Log.e(TAG, "img4 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
-                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                    //imageLoader.get(imgUrl, listener);
-                    //VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,showImage.getWidth(),showImage.getHeight());
-                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,200,200);
+                    ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
+                    VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,imageSize,imageSize);
                     registerImageEvent(showImage, showTime, i);
                     holder.showImageLayout.addView(showImage,lps4[i]);
                 }
@@ -456,7 +425,6 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ShowImageActivity.class);
-                //Intent intent = new Intent(context, TmpActivity.class);
                 intent.putExtra("index", index);
                 intent.putStringArrayListExtra("images", item.getPictures());
                 activity.startActivity(intent);

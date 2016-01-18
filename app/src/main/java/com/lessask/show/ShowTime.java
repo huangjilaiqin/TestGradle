@@ -1,32 +1,19 @@
 package com.lessask.show;
 
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.lessask.dialog.StringPickerDialog;
-import com.lessask.model.ArrayListResponse;
-import com.lessask.crud.CRUD;
-import com.lessask.crud.DefaultGsonRequestCRUD;
 import com.lessask.model.CommentItem;
 import com.lessask.model.ResponseError;
-import com.lessask.recyclerview.BaseRecyclerAdapter;
-import com.lessask.recyclerview.RecyclerViewStatusSupport;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by JHuang on 2015/9/16.
  */
 public class ShowTime extends ResponseError implements Parcelable {
     private int id;
-    private int userid;
+    private int userId;
     private String nickname;
     private String headimg;
     private String time;
@@ -34,7 +21,8 @@ public class ShowTime extends ResponseError implements Parcelable {
     private String content;
     private ArrayList<String> pictures;
     //格式100,100;200,300;320,480
-    private ArrayList<String> picsSize;
+    private ArrayList<ArrayList<Integer>> picsSize;
+    private ArrayList<Integer> picsColor;
     //格式 #767876;#345412;#986745
     private int permission;
     private int likeSize;
@@ -48,9 +36,9 @@ public class ShowTime extends ResponseError implements Parcelable {
 
     public ShowTime(){}
 
-    public ShowTime(int id, int userid, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, int likeSize,int commentSize,int likeStatus,ArrayList<String> picsSize) {
+    public ShowTime(int id, int userId, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, int likeSize,int commentSize,int likeStatus,ArrayList<ArrayList<Integer>> picsSize) {
         this.id = id;
-        this.userid = userid;
+        this.userId = userId;
         this.nickname = nickname;
         this.headimg = headimg;
         this.time = time;
@@ -63,6 +51,22 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.commentSize=commentSize;
         this.likeStatus = likeStatus;
         this.picsSize=picsSize;
+    }
+
+    public ArrayList<ArrayList<Integer>> getPicsSize() {
+        return picsSize;
+    }
+
+    public void setPicsSize(ArrayList<ArrayList<Integer>> picsSize) {
+        this.picsSize = picsSize;
+    }
+
+    public ArrayList<Integer> getPicsColor() {
+        return picsColor;
+    }
+
+    public void setPicsColor(ArrayList<Integer> picsColor) {
+        this.picsColor = picsColor;
     }
 
     public int getLikeSize() {
@@ -105,12 +109,12 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.id = id;
     }
 
-    public int getUserid() {
-        return userid;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUserid(int userid) {
-        this.userid = userid;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getTime() {
@@ -169,14 +173,14 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.liker = liker;
     }
 
-    public void unlike(int userid){
-        liker.remove(new Integer(userid));
+    public void unlike(int userId){
+        liker.remove(new Integer(userId));
         setLikeStatus(0);
     }
-    public void like(int userid){
+    public void like(int userId){
         if(liker==null)
             liker = new ArrayList<>();
-        liker.add(new Integer(userid));
+        liker.add(new Integer(userId));
         setLikeStatus(1);
     }
 
@@ -203,7 +207,7 @@ public class ShowTime extends ResponseError implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
-        parcel.writeInt(userid);
+        parcel.writeInt(userId);
         parcel.writeString(nickname);
         parcel.writeString(headimg);
         parcel.writeString(time);
@@ -221,7 +225,7 @@ public class ShowTime extends ResponseError implements Parcelable {
              = new Creator<ShowTime>() {
          public ShowTime createFromParcel(Parcel in) {
              int id = in.readInt();
-             int userid = in.readInt();
+             int userId = in.readInt();
              String nickname = in.readString();
              String headimg = in.readString();
              String time = in.readString();
@@ -233,8 +237,8 @@ public class ShowTime extends ResponseError implements Parcelable {
              int likeSize = in.readInt();
              int commentSize = in.readInt();
              int likeStatus = in.readInt();
-             ArrayList<String> picsSize = in.readArrayList(null);
-             return new ShowTime(id,userid,nickname,headimg,time,adress,content,pictures,permission,ats,likeSize,commentSize,likeStatus,picsSize);
+             ArrayList<ArrayList<Integer>> picsSize = in.readArrayList(null);
+             return new ShowTime(id,userId,nickname,headimg,time,adress,content,pictures,permission,ats,likeSize,commentSize,likeStatus,picsSize);
          }
 
          public ShowTime[] newArray(int size) {

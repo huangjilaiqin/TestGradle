@@ -2,52 +2,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="com.lessask.show.ShowImageActivity">
+    tools:context="com.lessask.show.ShowImageActivity"
+    >
     <RelativeLayout
-        android:id="@+id/toolbar"
-        android:layout_width="wrap_content"
+        android:id="@+id/header"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#23282B"
+        android:background="#00bb9c"
+        android:minHeight="?attr/actionBarSize"
+        android:paddingTop="@dimen/toolbar_padding_top"
         >
-        <ImageView
-            android:id="@+id/back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/back"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
-            android:layout_centerVertical="true"
-            />
-        <View
-            android:id="@+id/divider"
-            android:layout_width="1dp"
-            android:layout_height="20dp"
-            android:layout_toRightOf="@id/back"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="#000"
-            ></View>
-        <TextView
-            android:id="@+id/index"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/divider"
-            android:layout_marginLeft="10dp"
-            android:layout_centerVertical="true"
-            android:textColor="#fff"
-            android:textSize="16dp"
-            android:text="1/4"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            app:title="1/4"
             />
         <ImageView
             android:id="@+id/delete"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_centerVertical="true"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:padding="16dp"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
             android:src="@drawable/delete"
             />
     </RelativeLayout>
