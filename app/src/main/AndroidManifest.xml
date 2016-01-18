@@ -133,7 +133,7 @@
             android:name=".show.ShowImageActivity"
             android:label="@string/title_activity_show_image"/>
         <activity
-            android:name=".show.ShowSelectedImageActivity"
+            android:name=".show.ShowLocalImageActivity"
             android:label="@string/title_activity_show_selected_image"/>
         <activity
             android:name=".show.CreateShowActivity"

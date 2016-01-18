@@ -219,4 +219,12 @@ public class ImageUtil {
         }
         return color;
     }
+    public static String getImageUrlWithWH(String url,int w,int h){
+        StringBuilder builder = new StringBuilder(url);
+        builder.append("!");
+        builder.append(w);
+        builder.append("_");
+        builder.append(h);
+        return builder.toString();
+    }
 }

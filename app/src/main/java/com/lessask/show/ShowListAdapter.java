@@ -128,7 +128,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
         int imageDeltaDp = 4;
         int imageDelta = ScreenUtil.dp2Px(context,imageDeltaDp);
         //多个图片的显示宽度
-        int imageSize = ScreenUtil.getMultiImgWidth(context,imageDeltaDp);
+        int imageSize = ScreenUtil.getMultiImgWidth(context, imageDeltaDp);
         //单个图片的显示宽度
         int singleImgSize = ScreenUtil.getMultiImgWidth(context,imageDeltaDp);
 
@@ -141,9 +141,10 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 showImage1.setAdjustViewBounds(true);
                 showImage1.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 showImage1.setBackgroundColor(picsColor.get(0));
+                registerImageEvent(showImage1, showTime, 0);
 
                 ArrayList<Integer> wh = picsSize.get(0);
-                Log.e(TAG, "w:"+wh.get(0)+", h:"+wh.get(1));
+                Log.e(TAG, "w:" + wh.get(0) + ", h:" + wh.get(1));
                 int w = wh.get(0);
                 int h = wh.get(1);
                 if(w<singleImgSize && h<singleImgSize){
@@ -172,7 +173,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 showImage2.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 lp2 = new RelativeLayout.LayoutParams(imageSize,imageSize);
                 lp2.setMargins(imageDelta,0,0,0);
-                lp2.addRule(RelativeLayout.RIGHT_OF,R.id.show_image1);
+                lp2.addRule(RelativeLayout.RIGHT_OF, R.id.show_image1);
                 ImageView[] imageViews2 = {showImage1,showImage2};
                 RelativeLayout.LayoutParams[] lps = {lp1,lp2};
 
@@ -203,7 +204,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 showImage2.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 lp2 = new RelativeLayout.LayoutParams(imageSize,imageSize);
                 lp2.setMargins(imageDelta,0,0,0);
-                lp2.addRule(RelativeLayout.RIGHT_OF,R.id.show_image1);
+                lp2.addRule(RelativeLayout.RIGHT_OF, R.id.show_image1);
 
                 showImage3 = new ImageView(context);
                 showImage3.setId(R.id.show_image3);
@@ -211,7 +212,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 showImage3.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 lp3 = new RelativeLayout.LayoutParams(imageSize,imageSize);
                 lp3.setMargins(0,imageDelta,0,0);
-                lp3.addRule(RelativeLayout.BELOW,R.id.show_image1);
+                lp3.addRule(RelativeLayout.BELOW, R.id.show_image1);
 
 
                 ImageView[] imageViews3 = {showImage1,showImage2,showImage3};
@@ -427,6 +428,14 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 Intent intent = new Intent(context, ShowImageActivity.class);
                 intent.putExtra("index", index);
                 intent.putStringArrayListExtra("images", item.getPictures());
+                ArrayList<ArrayList<Integer>> picsSize = item.getPicsSize();
+                ArrayList<Integer> newPicsSize = new ArrayList<>();
+                for(int i=0;i<picsSize.size();i++){
+                    newPicsSize.add(picsSize.get(i).get(0));
+                    newPicsSize.add(picsSize.get(i).get(1));
+                }
+                intent.putIntegerArrayListExtra("picsSize", newPicsSize);
+                intent.putIntegerArrayListExtra("picsColor", item.getPicsColor());
                 activity.startActivity(intent);
             }
         });

@@ -3,10 +3,6 @@ package com.lessask.show;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -28,8 +24,8 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 /*
 * 展示创建动态时选中的图片
 * */
-public class ShowSelectedImageActivity extends AppCompatActivity{
-    private final String TAG = ShowSelectedImageActivity.class.getName();
+public class ShowLocalImageActivity extends AppCompatActivity{
+    private final String TAG = ShowLocalImageActivity.class.getName();
     private ViewPager mViewPager;
     private CirclePageIndicator indicator;
     private ArrayList<String> photos;
@@ -59,7 +55,6 @@ public class ShowSelectedImageActivity extends AppCompatActivity{
 
         mToolbar.setTitle(mCurrentPosition + 1 + "/" + photos.size());
 
-        Log.e(TAG, "onCreate index:"+mCurrentPosition +", photos:"+photos);
 
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(this,photos);
         mViewPager = (ViewPager)findViewById(R.id.viewpager);
@@ -72,8 +67,6 @@ public class ShowSelectedImageActivity extends AppCompatActivity{
         indicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //mCurrentPosition = position;
-                //mToolbar.setTitle(mCurrentPosition + 1 + "/" + photos.size());
             }
 
             @Override
@@ -99,7 +92,7 @@ public class ShowSelectedImageActivity extends AppCompatActivity{
                 if(mCurrentPosition==-1){
                     finish();
                 }
-                mViewPager.setAdapter(myFragmentPagerAdapter);
+                //mViewPager.setAdapter(myFragmentPagerAdapter);
                 myFragmentPagerAdapter.notifyDataSetChanged();
                 //数据改变后一定要先notifyDataSetChanged
                 mViewPager.setCurrentItem(mCurrentPosition); //设置默认当前页
@@ -126,32 +119,42 @@ public class ShowSelectedImageActivity extends AppCompatActivity{
 
         @Override
         public int getCount() {
-            Log.e(TAG, "photos size:"+photos.size());
             return photos.size();
         }
 
         @Override
+        public int getItemPosition(Object object) {
+            ImageView imageView = (ImageView)object;
+            int position = photos.indexOf(imageView.getTag());
+            Log.e(TAG, "getItemPosition "+position);
+            return position!=-1?position:POSITION_NONE;
+        }
+
+        @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
+            Log.e(TAG, "destroyItem "+position);
             container.removeView((View)object);
         }
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            ImageView imageView = new ImageView(ShowSelectedImageActivity.this);
+            Log.e(TAG, "instantiateItem "+position);
+            ImageView imageView = new ImageView(ShowLocalImageActivity.this);
             imageView.setImageBitmap(ImageUtil.getOptimizeBitmapFromFile(photos.get(position)));
             PhotoViewAttacher mAttacher = new PhotoViewAttacher(imageView);
             mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
                 @Override
                 public void onPhotoTap(View view, float v, float v1) {
-                    ShowSelectedImageActivity.this.finish();
+                    ShowLocalImageActivity.this.finish();
                 }
             });
             mAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
                 @Override
                 public void onViewTap(View view, float v, float v1) {
-                    ShowSelectedImageActivity.this.finish();
+                    ShowLocalImageActivity.this.finish();
                 }
             });
+            imageView.setTag(photos.get(position));
             container.addView(imageView);
             return imageView;
         }

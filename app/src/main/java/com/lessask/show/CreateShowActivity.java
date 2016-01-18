@@ -26,7 +26,6 @@ import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ShowItem;
 import com.lessask.net.NetworkFileHelper;
 import com.lessask.util.ImageUtil;
 
@@ -353,7 +352,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CreateShowActivity.this, ShowSelectedImageActivity.class);
+                Intent intent = new Intent(CreateShowActivity.this, ShowLocalImageActivity.class);
                 intent.putExtra("index", index);
                 if (!isFull) {
                     Log.e(TAG, "2 " + photos.get(photos.size() - 1));
