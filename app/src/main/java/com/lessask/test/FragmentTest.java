@@ -63,6 +63,8 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             intentActivity.put(R.id.palette,PaletteActivity.class);
             rootView.findViewById(R.id.viewgroup).setOnClickListener(this);
             intentActivity.put(R.id.viewgroup,ViewGroupActivity.class);
+            rootView.findViewById(R.id.circle_img).setOnClickListener(this);
+            intentActivity.put(R.id.circle_img,CircleImageActivity.class);
         }
         return rootView;
     }

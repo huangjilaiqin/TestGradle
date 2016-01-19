@@ -38,7 +38,7 @@ public class ShowTime extends ResponseError implements Parcelable {
 
     public ShowTime(){}
 
-    public ShowTime(int id, int userId, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, int likeSize,int commentSize,int likeStatus,ArrayList<ArrayList<Integer>> picsSize) {
+    public ShowTime(int id, int userId, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, int likeSize,int commentSize,int likeStatus,ArrayList<ArrayList<Integer>> picsSize,ArrayList<Integer> picsColor) {
         this.id = id;
         this.userId = userId;
         this.nickname = nickname;
@@ -46,13 +46,14 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.time = time;
         this.address = address;
         this.content = content;
-        this.pictures = pictures;
         this.permission = permission;
         this.ats = ats;
         this.likeSize=likeSize;
         this.commentSize=commentSize;
         this.likeStatus = likeStatus;
+        this.pictures = pictures;
         this.picsSize=picsSize;
+        this.picsColor=picsColor;
     }
 
     public int getThumbnailHeight() {
@@ -238,6 +239,7 @@ public class ShowTime extends ResponseError implements Parcelable {
         parcel.writeInt(commentSize);
         parcel.writeInt(likeStatus);
         parcel.writeList(picsSize);
+        parcel.writeList(picsColor);
     }
     public static final Creator<ShowTime> CREATOR
              = new Creator<ShowTime>() {
@@ -256,7 +258,8 @@ public class ShowTime extends ResponseError implements Parcelable {
              int commentSize = in.readInt();
              int likeStatus = in.readInt();
              ArrayList<ArrayList<Integer>> picsSize = in.readArrayList(null);
-             return new ShowTime(id,userId,nickname,headimg,time,adress,content,pictures,permission,ats,likeSize,commentSize,likeStatus,picsSize);
+             ArrayList<Integer> picsColor = in.readArrayList(null);
+             return new ShowTime(id,userId,nickname,headimg,time,adress,content,pictures,permission,ats,likeSize,commentSize,likeStatus,picsSize,picsColor);
          }
 
          public ShowTime[] newArray(int size) {

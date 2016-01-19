@@ -306,12 +306,9 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             switch (requestCode){
                 case MainActivity.CREATE_SHOW:
                     Log.e(TAG, "发布状态成功");
-                    Toast.makeText(getContext(), "发布状态成功", Toast.LENGTH_SHORT).show();
                     ShowTime showTime = data.getParcelableExtra("showTime");
                     for(int i=0;i<showTime.getPictures().size();i++){
                         Log.e(TAG, showTime.getPictures().get(i));
-                        Log.e(TAG, "color:"+showTime.getPicsColor().get(i));
-                        Log.e(TAG, "size:"+showTime.getPicsSize().get(i).get(0)+", "+showTime.getPicsSize().get(i).get(1));
                     }
                     mRecyclerViewAdapter.appendToTop(showTime);
                     mRecyclerViewAdapter.notifyItemInserted(0);

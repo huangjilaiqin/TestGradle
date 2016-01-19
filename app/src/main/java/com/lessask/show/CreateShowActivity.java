@@ -43,8 +43,6 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
 
     private final String TAG = CreateShowActivity.class.getName();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
-    private ImageView mBack;
-    private Button mSend;
     private TextView mtvContent;
     private GridView mGridView;
     private ArrayList<String> photos;
@@ -91,6 +89,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
         mGridView.setAdapter(mGridViewAdapter);
 
         mShowTime = new ShowTime();
+        Log.e(TAG, ""+mShowTime);
     }
 
     @Override
@@ -127,17 +126,24 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
 
     private void createShow(){
         loadingDialog = new LoadingDialog(CreateShowActivity.this);
+        final ArrayList<String> pictures = new ArrayList<>();
+        final ArrayList<ArrayList<Integer>> picsSize = new ArrayList<>();
+        final ArrayList<Integer> picsColor = new ArrayList<>();
 
         NetworkFileHelper.getInstance().startPost(config.getAddShowtimeUrl(), ShowTime.class, new NetworkFileHelper.PostFileRequest() {
             @Override
             public void onStart() {
                 loadingDialog.show();
-                Log.e(TAG, "start create show");
+
             }
 
             @Override
             public void onResponse(Object response) {
                 loadingDialog.cancel();
+                Log.e(TAG, " show pics "+pictures.size());
+                Log.e(TAG, " show mShowTime pics "+mShowTime.getPictures().size());
+                Log.e(TAG, " show size "+mShowTime.getPicsSize().size());
+                Log.e(TAG, " show color "+mShowTime.getPicsColor().size());
                 ShowTime showTime = (ShowTime) response;
                 if(showTime.getError()!=null || showTime.getErrno()!=0){
                     Toast.makeText(CreateShowActivity.this, showTime.getError(),Toast.LENGTH_LONG).show();
@@ -150,6 +156,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                     mShowTime.setId(showId);
                     mShowTime.setTime(time);
                     mShowTime.setPictures(pictures);
+                    Log.e(TAG, "" + mShowTime);
 
                     mIntent.putExtra("showTime", mShowTime);
                     setResult(Activity.RESULT_OK, mIntent);
@@ -169,18 +176,13 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 HashMap<String, String> headers = new HashMap<>();
 
                 mShowTime.setUserId(globalInfos.getUserId());
+                mShowTime.setHeadimg(globalInfos.getUser().getHeadImg());
                 mShowTime.setNickname(globalInfos.getUser().getNickname());
                 mShowTime.setAddress("深圳市 南山区");
                 mShowTime.setContent(mtvContent.getText().toString().trim());
                 mShowTime.setPermission(1);
 
-                ArrayList<String> pictures = new ArrayList<>();
-                ArrayList<ArrayList<Integer>> picsSize = new ArrayList<>();
-                ArrayList<Integer> picsColor = new ArrayList<>();
-                int photosSize=0;
-                if(!isFull)
-                    photosSize = photos.size()-1;
-                int lastIndex = photosSize-1;
+                int photosSize=getPhotoSize();
                 for (int i=0;i<photosSize;i++){
                     String picPath = photos.get(i);
                     BitmapFactory.Options options = ImageUtil.getImageSize(picPath);
@@ -200,7 +202,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 mShowTime.setPicsSize(picsSize);
                 mShowTime.setPicsColor(picsColor);
                 headers.put("showTime", gson.toJson(mShowTime));
-                Log.e(TAG, "createShow getHeaders");
+                Log.e(TAG, "createShow getHeaders "+mShowTime.getPicsColor().size());
                 return headers;
             }
 
@@ -212,9 +214,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             @Override
             public HashMap<String, String> getImages() {
                 HashMap<String,String> images = new HashMap<>();
-                int photosSize=0;
-                if(!isFull)
-                    photosSize = photos.size()-1;
+                int photosSize=getPhotoSize();
                 for (int i=0;i<photosSize;i++){
                     File file = new File(photos.get(i));
                     images.put(file.getName(), photos.get(i));
@@ -222,6 +222,9 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 return images;
             }
         });
+    }
+    private int getPhotoSize(){
+        return isFull?photos.size():photos.size()-1;
     }
     //自定义适配器
     class MyAdapter extends BaseAdapter {
@@ -296,7 +299,6 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                         for(int i = 0; i < selectedPhotos.size(); i++) {
                             photos.add(selectedPhotos.get(i));
                         }
-                        Log.e(TAG, "CreateShowActivity:" + photos);
                         if (photos.size() < 4) {
                             photos.add("" + R.drawable.image_add);
                             isFull = false;

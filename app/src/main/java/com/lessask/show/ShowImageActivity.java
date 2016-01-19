@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.android.volley.VolleyError;
@@ -95,7 +96,14 @@ public class ShowImageActivity extends FragmentActivity {
             bg.setAdjustViewBounds(true);
             bg.setScaleType(ImageView.ScaleType.CENTER_CROP);
             bg.setBackgroundColor(picsColor.get(position));
-            rootLayout.addView(bg,bgParams);
+            rootLayout.addView(bg, bgParams);
+
+            final ProgressBar progressBar = new ProgressBar(ShowImageActivity.this);
+            progressBar.setAlpha(0.3f);
+            RelativeLayout.LayoutParams barParams = new RelativeLayout.LayoutParams(100, 100);
+            barParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+            rootLayout.addView(progressBar, bgParams);
+
 
             final ImageView imageView = new ImageView(ShowImageActivity.this);
             //imageView.setAdjustViewBounds(true);
@@ -111,6 +119,7 @@ public class ShowImageActivity extends FragmentActivity {
                 public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                     if(imageContainer.getBitmap()!=null) {
                         bg.setVisibility(View.INVISIBLE);
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                     imageView.setImageBitmap(imageContainer.getBitmap());
                     PhotoViewAttacher mAttacher = new PhotoViewAttacher(imageView);

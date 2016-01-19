@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 import com.github.captain_miao.recyclerviewutils.BaseLoadMoreRecyclerAdapter;
 
@@ -76,8 +77,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
         //头像
         String headImgUrl = imageUrlPrefix+showTime.getHeadimg();
         //Log.e(TAG, headImgUrl);
-        ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead ,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 200, 200);
+        ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead,0,0);
+        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
 
         showTime.getUserId();
         holder.tvName.setText(showTime.getNickname());
@@ -265,7 +266,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 showImage4.setAdjustViewBounds(true);
                 showImage4.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 lp4 = new RelativeLayout.LayoutParams(imageSize,imageSize);
-                lp4.setMargins(0,imageDelta,0,0);
+                lp4.setMargins(imageDelta,imageDelta,0,0);
                 lp4.addRule(RelativeLayout.BELOW, R.id.show_image2);
                 lp4.addRule(RelativeLayout.RIGHT_OF,R.id.show_image3);
 
@@ -296,7 +297,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        ImageView ivHead;
+        CircleImageView ivHead;
         TextView tvName;
         TextView tvTime;
         TextView tvAddress;
@@ -308,7 +309,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
         RelativeLayout showImageLayout;
         public ViewHolder(View itemView) {
             super(itemView);
-            ivHead = (ImageView)itemView.findViewById(R.id.head_img);
+            ivHead = (CircleImageView)itemView.findViewById(R.id.head_img);
             tvName = (TextView)itemView.findViewById(R.id.name);
             tvTime = (TextView)itemView.findViewById(R.id.time);
             tvAddress = (TextView)itemView.findViewById(R.id.address);
