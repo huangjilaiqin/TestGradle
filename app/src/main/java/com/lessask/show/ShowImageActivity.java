@@ -3,21 +3,17 @@ package com.lessask.show;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.lessask.R;
+import com.lessask.fixed.ViewPagerFixed;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.net.VolleyHelper;
@@ -27,7 +23,6 @@ import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
 
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -37,7 +32,8 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ShowImageActivity extends FragmentActivity {
     private final String TAG = ShowImageActivity.class.getName();
-    private ViewPager mViewPager;
+    //private ViewPager mViewPager;
+    private ViewPagerFixed mViewPager;
     private ArrayList<String> photos;
     private ArrayList<Integer> picsSize;
     private ArrayList<Integer> picsColor;
@@ -48,6 +44,8 @@ public class ShowImageActivity extends FragmentActivity {
     private int screenWidth;
     private int screenHeight;
     private int mCurrentPosition;
+    private int thumbnailWidth;
+    private int thumbnailHeight;
 
 
     @Override
@@ -59,10 +57,12 @@ public class ShowImageActivity extends FragmentActivity {
         picsSize = mIntent.getIntegerArrayListExtra("picsSize");
         picsColor = mIntent.getIntegerArrayListExtra("picsColor");
         mCurrentPosition = mIntent.getIntExtra("index", 0);
+        thumbnailWidth = mIntent.getIntExtra("thumbnailWidth",200);
+        thumbnailHeight = mIntent.getIntExtra("thumbnailHeight",200);
 
 
         MyPagerAdapter adapter = new MyPagerAdapter(photos);
-        mViewPager = (ViewPager)findViewById(R.id.viewpager);
+        mViewPager = (ViewPagerFixed)findViewById(R.id.viewpager);
         mViewPager.setAdapter(adapter);
         mViewPager.setCurrentItem(mCurrentPosition); //设置默认当前页
 
@@ -86,41 +86,32 @@ public class ShowImageActivity extends FragmentActivity {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            int w = picsSize.get(position);
-            int h = picsSize.get(position+1);
-            Log.e(TAG, "cumtome image size before w:" + w + ", h:" + h);
-            if(w>screenWidth || h>screenHeight){
-                h=screenWidth*h/w;
-                w=screenWidth;
-            }
-            Log.e(TAG, "cumtome image size w:" + w + ", h:" + h);
-            //*
+            //动态添加布局一定要有一个跟布局,即使只有一个image,没有根布局居中都做不了
+            RelativeLayout rootLayout = new RelativeLayout(ShowImageActivity.this);
+
+            final ImageView bg = new ImageView(ShowImageActivity.this);
+            RelativeLayout.LayoutParams bgParams = new RelativeLayout.LayoutParams(thumbnailWidth,thumbnailHeight);
+            bgParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+            bg.setAdjustViewBounds(true);
+            bg.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            bg.setBackgroundColor(picsColor.get(position));
+            rootLayout.addView(bg,bgParams);
+
             final ImageView imageView = new ImageView(ShowImageActivity.this);
             //imageView.setAdjustViewBounds(true);
             //imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(w,h);
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(screenWidth,screenHeight);
             lp.addRule(RelativeLayout.CENTER_IN_PARENT);
-            imageView.setBackgroundColor(picsColor.get(position));
-            //imageView.setLayoutParams(lp);
-            //imageView.setImageResource(R.drawable.women);
-            ViewGroup.LayoutParams params = new ActionBar.LayoutParams(200,200);
-            container.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            container.addView(imageView,params);
+            rootLayout.addView(imageView,lp);
+            container.addView(rootLayout);
             //*/
-
-            /*
-            LayoutInflater inflater = getLayoutInflater();
-            View root = inflater.inflate(R.layout.image_test, null);
-            root.setLayoutParams(new RelativeLayout.LayoutParams(w,h));
-            final ImageView imageView = (ImageView)root.findViewById(R.id.image);
-            imageView.setBackgroundColor(picsColor.get(position));
-            container.addView(root);
-            //*/
-            //container.setLayoutParams(new RelativeLayout.LayoutParams(screenWidth, screenHeight));
 
             ImageLoader.ImageListener listener1 = new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                    if(imageContainer.getBitmap()!=null) {
+                        bg.setVisibility(View.INVISIBLE);
+                    }
                     imageView.setImageBitmap(imageContainer.getBitmap());
                     PhotoViewAttacher mAttacher = new PhotoViewAttacher(imageView);
                     mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
@@ -135,7 +126,6 @@ public class ShowImageActivity extends FragmentActivity {
                             ShowImageActivity.this.finish();
                         }
                     });
-
                 }
 
                 @Override
@@ -143,26 +133,15 @@ public class ShowImageActivity extends FragmentActivity {
 
                 }
             };
-            ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageView, 0,0);
-            String imgUrl = ImageUtil.getImageUrlWithWH(imageUrlPrefix+photos.get(position),w,h);
+            ImageLoader.ImageListener listener = ImageLoader.getImageListener(imageView, 0, 0);
+            String imgUrl = imageUrlPrefix+photos.get(position);
+            Log.e(TAG, "show image:"+imgUrl);
             VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener1);
-            //imageView.setImageBitmap(ImageUtil.getOptimizeBitmapFromFile(photos.get(position)));
-            /*
-            PhotoViewAttacher mAttacher = new PhotoViewAttacher(imageView);
-            mAttacher.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
-                @Override
-                public void onPhotoTap(View view, float v, float v1) {
-                    ShowImageActivity.this.finish();
-                }
-            });
-            mAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
-                @Override
-                public void onViewTap(View view, float v, float v1) {
-                    ShowImageActivity.this.finish();
-                }
-            });
-            //*/
-            return imageView;
+
+            ImageLoader.ImageListener bgListener = ImageLoader.getImageListener(bg, 0, 0);
+            String bgImgUrl = ImageUtil.getImageUrlWithWH(imageUrlPrefix+photos.get(position),thumbnailWidth,thumbnailHeight);
+            VolleyHelper.getInstance().getImageLoader().get(bgImgUrl, bgListener,thumbnailWidth,thumbnailHeight);
+            return rootLayout;
         }
 
         @Override

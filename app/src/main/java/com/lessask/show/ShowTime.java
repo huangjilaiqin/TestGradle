@@ -20,6 +20,8 @@ public class ShowTime extends ResponseError implements Parcelable {
     private String address;
     private String content;
     private ArrayList<String> pictures;
+    private int thumbnailWidth;
+    private int thumbnailHeight;
     //格式100,100;200,300;320,480
     private ArrayList<ArrayList<Integer>> picsSize;
     private ArrayList<Integer> picsColor;
@@ -51,6 +53,22 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.commentSize=commentSize;
         this.likeStatus = likeStatus;
         this.picsSize=picsSize;
+    }
+
+    public int getThumbnailHeight() {
+        return thumbnailHeight;
+    }
+
+    public void setThumbnailHeight(int thumbnailHeight) {
+        this.thumbnailHeight = thumbnailHeight;
+    }
+
+    public int getThumbnailWidth() {
+        return thumbnailWidth;
+    }
+
+    public void setThumbnailWidth(int thumbnailWidth) {
+        this.thumbnailWidth = thumbnailWidth;
     }
 
     public ArrayList<ArrayList<Integer>> getPicsSize() {

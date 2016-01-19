@@ -310,6 +310,8 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
                     ShowTime showTime = data.getParcelableExtra("showTime");
                     for(int i=0;i<showTime.getPictures().size();i++){
                         Log.e(TAG, showTime.getPictures().get(i));
+                        Log.e(TAG, "color:"+showTime.getPicsColor().get(i));
+                        Log.e(TAG, "size:"+showTime.getPicsSize().get(i).get(0)+", "+showTime.getPicsSize().get(i).get(1));
                     }
                     mRecyclerViewAdapter.appendToTop(showTime);
                     mRecyclerViewAdapter.notifyItemInserted(0);

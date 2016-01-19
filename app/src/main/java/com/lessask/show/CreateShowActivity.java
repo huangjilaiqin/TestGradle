@@ -174,15 +174,6 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                 mShowTime.setContent(mtvContent.getText().toString().trim());
                 mShowTime.setPermission(1);
 
-                /*
-                headers.put("userId", globalInfos.getUserId()+"");
-                headers.put("address", "深圳市 南山区");
-                headers.put("content", mtvContent.getText().toString().trim());
-                headers.put("permission", "1");
-                headers.put("ats", "");
-                */
-
-
                 ArrayList<String> pictures = new ArrayList<>();
                 ArrayList<ArrayList<Integer>> picsSize = new ArrayList<>();
                 ArrayList<Integer> picsColor = new ArrayList<>();
@@ -204,11 +195,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
                     picsColor.add(ImageUtil.getImageMainColor(picPath));
                 }
                 Gson gson = new Gson();
-                /*
-                headers.put("pictures", gson.toJson(pictures));
-                headers.put("picsSize", gson.toJson(picsSize));
-                headers.put("picsColor", gson.toJson(picsColor));
-                */
+
                 mShowTime.setPictures(pictures);
                 mShowTime.setPicsSize(picsSize);
                 mShowTime.setPicsColor(picsColor);

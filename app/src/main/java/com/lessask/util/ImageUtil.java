@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by huangji on 2016/1/4.
@@ -226,5 +227,34 @@ public class ImageUtil {
         builder.append("_");
         builder.append(h);
         return builder.toString();
+    }
+
+    //矩形a根据矩形b的大小进行自动适配
+    public static ArrayList<Integer> getRecAFitB(int aWidth,int aHeight,int bWidth,int bHeight){
+        ArrayList<Integer> fitSize = new ArrayList<>();
+        float wrate = bWidth/(float)aWidth;
+        float hrate = bHeight/(float)aHeight;
+        if(aWidth>bWidth && aHeight<=bHeight){
+            fitSize.add(bWidth);
+            fitSize.add((int)(wrate*aHeight));
+        }else if(aWidth<=bWidth && aHeight>bHeight){
+            fitSize.add((int)(hrate*aWidth));
+            fitSize.add(bHeight);
+        }else if(aWidth>bWidth && aHeight>bHeight){
+            if(wrate>hrate){
+                fitSize.add((int)(hrate*aWidth));
+                fitSize.add(bHeight);
+            }else if(wrate<hrate){
+                fitSize.add(bWidth);
+                fitSize.add((int)(wrate*aHeight));
+            }else {
+                fitSize.add(bWidth);
+                fitSize.add(bHeight);
+            }
+        }else {
+            fitSize.add(aWidth);
+            fitSize.add(aHeight);
+        }
+        return fitSize;
     }
 }

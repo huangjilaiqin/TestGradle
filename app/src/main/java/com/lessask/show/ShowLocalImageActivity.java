@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.lessask.R;
+import com.lessask.fixed.ViewPagerFixed;
 import com.lessask.util.ImageUtil;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -26,7 +27,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 * */
 public class ShowLocalImageActivity extends AppCompatActivity{
     private final String TAG = ShowLocalImageActivity.class.getName();
-    private ViewPager mViewPager;
+    private ViewPagerFixed mViewPager;
     private CirclePageIndicator indicator;
     private ArrayList<String> photos;
     private ImageView mDelete;
@@ -57,7 +58,7 @@ public class ShowLocalImageActivity extends AppCompatActivity{
 
 
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(this,photos);
-        mViewPager = (ViewPager)findViewById(R.id.viewpager);
+        mViewPager = (ViewPagerFixed)findViewById(R.id.viewpager);
         mViewPager.setAdapter(myFragmentPagerAdapter);
         mViewPager.setCurrentItem(0); //设置默认当前页
 

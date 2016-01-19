@@ -25,6 +25,7 @@ import com.lessask.model.LikeResponse;
 import com.lessask.model.UnlikeResponse;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.util.ImageUtil;
 import com.lessask.util.ScreenUtil;
 import com.lessask.util.TimeHelper;
 
@@ -129,10 +130,12 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
         int imageDelta = ScreenUtil.dp2Px(context,imageDeltaDp);
         //多个图片的显示宽度
         int imageSize = ScreenUtil.getMultiImgWidth(context, imageDeltaDp);
-        //单个图片的显示宽度
-        int singleImgSize = ScreenUtil.getMultiImgWidth(context,imageDeltaDp);
+        showTime.setThumbnailWidth(imageSize);
+        showTime.setThumbnailHeight(imageSize);
 
-        ViewGroup.LayoutParams sizeParams = new RelativeLayout.LayoutParams(imageSize,imageSize);
+        //单个图片的显示宽度
+        int singleImgMaxSize = ScreenUtil.getSingleImgWidth(context);
+
         RelativeLayout.LayoutParams lp1,lp2,lp3,lp4;
         switch (pictures.size()){
             case 1:
@@ -147,15 +150,17 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 Log.e(TAG, "w:" + wh.get(0) + ", h:" + wh.get(1));
                 int w = wh.get(0);
                 int h = wh.get(1);
-                if(w<singleImgSize && h<singleImgSize){
-                    singleImgSize = Math.min(w,h);
-                }
-                Log.e(TAG, "singleImgSize:"+singleImgSize);
-                lp1 = new RelativeLayout.LayoutParams(singleImgSize,singleImgSize);
+                ArrayList<Integer> fitSize = ImageUtil.getRecAFitB(w, h, singleImgMaxSize, singleImgMaxSize);
+                w=fitSize.get(0);
+                h=fitSize.get(1);
+                Log.e(TAG, "fit w:" + w + ", h:" + h);
+                lp1 = new RelativeLayout.LayoutParams(w,h);
+                showTime.setThumbnailWidth(w);
+                showTime.setThumbnailHeight(h);
 
-                String imgUrl1 = imageUrlPrefix+pictures.get(0)+"!"+singleImgSize+"_"+singleImgSize;
+                String imgUrl1 = imageUrlPrefix+pictures.get(0)+"!"+w+"_"+h;
                 ImageLoader.ImageListener listener1 = ImageLoader.getImageListener(showImage1,0,0);
-                VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,singleImgSize,singleImgSize);
+                VolleyHelper.getInstance().getImageLoader().get(imgUrl1, listener1,w,h);
 
                 holder.showImageLayout.removeAllViews();
                 holder.showImageLayout.addView(showImage1,lp1);
@@ -222,7 +227,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews3[i];
-                    showImage.setLayoutParams(sizeParams);
+                    //showImage.setLayoutParams(sizeParams);
                     showImage.setBackgroundColor(picsColor.get(i));
                     Log.e(TAG, "img3 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
@@ -272,7 +277,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 for(int i=0;i<pictures.size();i++){
                     String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews4[i];
-                    showImage.setLayoutParams(sizeParams);
+                    //showImage.setLayoutParams(sizeParams);
                     showImage.setBackgroundColor(picsColor.get(i));
                     Log.e(TAG, "img4 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
@@ -436,6 +441,8 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 }
                 intent.putIntegerArrayListExtra("picsSize", newPicsSize);
                 intent.putIntegerArrayListExtra("picsColor", item.getPicsColor());
+                intent.putExtra("thumbnailWidth", item.getThumbnailWidth());
+                intent.putExtra("thumbnailHeight", item.getThumbnailHeight());
                 activity.startActivity(intent);
             }
         });

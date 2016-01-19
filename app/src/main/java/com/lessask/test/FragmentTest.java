@@ -61,6 +61,8 @@ public class FragmentTest  extends Fragment implements View.OnClickListener{
             intentActivity.put(R.id.dynamicload_img, DynamicLoadImgActivity.class);
             rootView.findViewById(R.id.palette).setOnClickListener(this);
             intentActivity.put(R.id.palette,PaletteActivity.class);
+            rootView.findViewById(R.id.viewgroup).setOnClickListener(this);
+            intentActivity.put(R.id.viewgroup,ViewGroupActivity.class);
         }
         return rootView;
     }

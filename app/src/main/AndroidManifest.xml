@@ -211,6 +211,8 @@
         <activity android:name=".test.DynamicLoadImgActivity"/>
         <activity android:name=".test.PaletteActivity">
         </activity>
+        <activity android:name=".test.ViewGroupActivity">
+        </activity>
     </application>
 
 </manifest>
