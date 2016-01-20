@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -99,11 +100,10 @@ public class ShowImageActivity extends FragmentActivity {
             rootLayout.addView(bg, bgParams);
 
             final ProgressBar progressBar = new ProgressBar(ShowImageActivity.this);
-            progressBar.setAlpha(0.3f);
+            progressBar.setAlpha(0.4f);
             RelativeLayout.LayoutParams barParams = new RelativeLayout.LayoutParams(100, 100);
             barParams.addRule(RelativeLayout.CENTER_IN_PARENT);
             rootLayout.addView(progressBar, bgParams);
-
 
             final ImageView imageView = new ImageView(ShowImageActivity.this);
             //imageView.setAdjustViewBounds(true);

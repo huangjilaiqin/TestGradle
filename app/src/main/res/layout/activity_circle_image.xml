@@ -10,7 +10,6 @@
     tools:context="com.lessask.test.CircleImageActivity">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profile_image"
         android:layout_width="96dp"
         android:layout_height="96dp"
@@ -23,8 +22,36 @@
         android:layout_below="@id/profile_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:scrollbarStyle="insideInset"
         android:layout_centerHorizontal="true"
-        android:progressDrawable="@drawable/progressbar"
         />
+    <ProgressBar
+        android:id="@+id/bar1"
+        android:layout_below="@id/bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbarStyle="insideOverlay"
+        style="@style/Base.TextAppearance.AppCompat.Large"
+        android:layout_centerHorizontal="true"
+        />
+    <ProgressBar
+        android:id="@+id/bar2"
+        android:layout_below="@id/bar1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbarStyle="outsideInset"
+        style="@android:style/Widget.ProgressBar.Large.Inverse"
+        android:layout_centerHorizontal="true"
+        />
+    <ProgressBar
+        android:id="@+id/bar3"
+        android:layout_below="@id/bar2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbarStyle="outsideOverlay"
+        style="@android:style/Widget.ProgressBar.Small.Inverse"
+        android:layout_centerHorizontal="true"
+        />
+
 
 </RelativeLayout>
