@@ -34,6 +34,7 @@ import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ArrayListResponse;
 import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
 import com.lessask.net.GsonRequest;
@@ -46,6 +47,7 @@ import com.lessask.util.ArrayUtil;
 import com.lessask.util.ImageUtil;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -507,18 +509,25 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
         return selectedActionsId;
     }
     private void loadLessonAtions(final int userId,final int lessonId){
-        GsonRequest getActionsRequest = new GsonRequest<>(Request.Method.POST, config.getLessonActionsUrl(), new TypeToken<List<LessonAction>>() {}.getType(), new GsonRequest.PostGsonRequest<ArrayList<LessonAction>>() {
+        Type type = new TypeToken<ArrayListResponse<LessonAction>>() {}.getType();
+        GsonRequest getActionsRequest = new GsonRequest<>(Request.Method.POST, config.getLessonActionsUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse<LessonAction>>() {
             @Override
             public void onStart() {
                 mActionsRecycleView.showLoadingView();
             }
 
             @Override
-            public void onResponse(ArrayList<LessonAction> response) {
-                int size = mAdapter.getItemCount();
-                mAdapter.appendToList((ArrayList) response);
-                //mAdapter.notifyItemRangeInserted(size, response.size());
-                mAdapter.notifyDataSetChanged();
+            public void onResponse(ArrayListResponse<LessonAction> response) {
+                if(response.getError()!=null || response.getErrno()!=0){
+                    Toast.makeText(EditLessonActivity.this,response.getError(),Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, response.getError());
+
+                }else {
+                    int size = mAdapter.getItemCount();
+                    mAdapter.appendToList(response.getDatas());
+                    //mAdapter.notifyItemRangeInserted(size, response.size());
+                    mAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -536,7 +545,7 @@ public class EditLessonActivity extends AppCompatActivity implements View.OnClic
             @Override
             public Map getPostData() {
                 Map datas = new HashMap();
-                datas.put("userid", "" + globalInfos.getUserId());
+                datas.put("userId", "" + globalInfos.getUserId());
                 datas.put("lessonId", "" + lessonId);
                 return datas;
             }

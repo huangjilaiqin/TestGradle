@@ -2,21 +2,18 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:layout_height="96dp"
     android:background="@color/background_white_not_transparent"
     android:id="@+id/lesson_item"
     >
     <ImageView
         android:id="@+id/cover"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
         android:src="@drawable/man"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
+        android:layout_marginLeft="16dp"
         />
     <TextView
         android:id="@+id/name"
@@ -24,38 +21,69 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/cover"
         android:layout_marginLeft="16dp"
-        android:textSize="18sp"
+        android:layout_marginTop="12dp"
+        android:textSize="13dp"
         android:textColor="@color/black"
         android:text="30天无敌减脂"
         />
-    <LinearLayout
-        android:id="@+id/info2"
+    <RelativeLayout
+        android:id="@+id/info1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/cover"
+        android:layout_height="15dp"
+        android:layout_below="@id/name"
         android:layout_alignLeft="@id/name"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="13dp"
         >
         <ImageView
+            android:id="@+id/heat_label"
+            android:layout_width="12dp"
+            android:layout_height="15dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/heat"
+            />
+        <TextView
+            android:id="@+id/heat"
+            android:layout_marginLeft="7dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/heat_label"
+            android:textSize="9dp"
+            android:text="325大卡"
+            />
+        <ImageView
             android:id="@+id/purpose_label"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="center_vertical"
+            android:layout_width="14dp"
+            android:layout_height="11dp"
+            android:layout_centerVertical="true"
             android:src="@drawable/purpose"
+            android:layout_toRightOf="@id/heat_label"
+            android:layout_marginLeft="64dp"
             />
         <TextView
             android:id="@+id/purpose"
             android:layout_marginLeft="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/purpose_label"
+            android:textSize="9dp"
             android:text="减脂"
             />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@id/info2"
+        android:layout_width="wrap_content"
+        android:layout_height="12dp"
+        android:layout_below="@id/info1"
+        android:layout_marginTop="7dp"
+        android:layout_alignLeft="@id/name"
+        >
         <ImageView
             android:id="@+id/bodies_label"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginLeft="10dp"
+            android:layout_width="15dp"
+            android:layout_height="12dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/bodies"
             />
@@ -65,36 +93,35 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/bodies_label"
+            android:textSize="12dp"
             android:text="臀部 大腿"
             />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@id/info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/info2"
-        android:layout_alignLeft="@id/name"
-        >
         <ImageView
             android:id="@+id/time_label"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
+            android:layout_width="11dp"
+            android:layout_height="12dp"
             android:src="@drawable/time_grey"
             android:layout_gravity="center_vertical"
+            android:layout_toRightOf="@id/bodies_label"
+            android:layout_marginLeft="64dp"
             />
         <TextView
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/time_label"
+            android:layout_marginLeft="7dp"
             android:layout_gravity="center_vertical"
+            android:textSize="12dp"
             android:text="30分钟"
             />
         <ImageView
             android:id="@+id/address_label"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:layout_marginLeft="10dp"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_toRightOf="@id/time_label"
+            android:layout_marginLeft="64dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/address"
             />
@@ -102,10 +129,43 @@
             android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/address_label"
             android:layout_marginLeft="5dp"
             android:layout_gravity="center_vertical"
+            android:textSize="9dp"
             android:text="家里"
             />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/info3"
+        android:layout_width="match_parent"
+        android:layout_height="9dp"
+        android:layout_below="@id/info2"
+        android:layout_marginTop="6dp"
+        android:layout_alignLeft="@id/name"
+        >
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/fat_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="8dp"
+            android:text="减脂"
+            />
+        <TextView
+            android:id="@+id/muscle_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/fat_label"
+            android:layout_marginLeft="60dp"
+            android:textSize="8dp"
+            android:text="增肌"
+            />
+    </RelativeLayout>
+    <ImageView
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/mon45"
+        />
 </RelativeLayout>
