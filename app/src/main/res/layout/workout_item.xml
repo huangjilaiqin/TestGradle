@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="130dp"
-    android:background="@color/background_white_not_transparent"
-    android:id="@+id/lesson_item"
-    >
+    android:id="@+id/lesson_item">
     <ImageView
         android:id="@+id/cover"
         android:layout_width="98dp"
@@ -23,14 +21,13 @@
         android:layout_alignTop="@id/cover"
         android:layout_marginLeft="16dp"
         android:includeFontPadding="false"
-        android:textSize="18dp"
-        android:textColor="@color/black"
+        android:textSize="18sp"
         android:text="30天无敌减脂"
         />
     <RelativeLayout
         android:id="@+id/info1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="17dp"
         android:layout_alignLeft="@id/name"
         android:layout_marginTop="49dp"
         >
@@ -74,8 +71,8 @@
     </RelativeLayout>
     <RelativeLayout
         android:id="@id/info2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="17dp"
         android:layout_below="@id/info1"
         android:layout_marginTop="8dp"
         android:layout_alignLeft="@id/name"
@@ -94,6 +91,8 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="8dp"
             android:layout_toRightOf="@id/bodies_label"
+            android:includeFontPadding="false"
+            android:layout_centerVertical="true"
             android:textSize="14dp"
             android:text="臀部 大腿"
             />
@@ -101,7 +100,7 @@
             android:id="@+id/time_label"
             android:layout_width="17dp"
             android:layout_height="17dp"
-            android:src="@drawable/time_grey"
+            android:src="@drawable/costtime"
             android:layout_gravity="center_vertical"
             android:layout_toRightOf="@id/bodies_label"
             android:layout_marginLeft="88dp"
@@ -133,6 +132,21 @@
             android:layout_centerVertical="true"
             android:src="@drawable/fat"
             />
+        <com.lessask.custom.RatingBar
+            android:id="@+id/fat_start"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@id/fat_label"
+            android:layout_centerVertical="true"
+            android:rating="1"
+            android:isIndicator="false"
+            custom:starCount="5"
+            custom:starEmpty="@drawable/unstar"
+            custom:starFill="@drawable/star"
+            custom:starImageSize="15dp"
+            />
         <ImageView
             android:id="@+id/muscle_label"
             android:layout_width="17dp"
@@ -144,13 +158,25 @@
             android:textSize="8dp"
             android:text="增肌"
             />
+        <com.lessask.custom.RatingBar
+            android:id="@+id/muscle_start"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@id/muscle_label"
+            android:layout_centerVertical="true"
+            android:rating="1"
+            android:isIndicator="false"
+            custom:starCount="5"
+            custom:starEmpty="@drawable/unstar"
+            custom:starFill="@drawable/star"
+            custom:starImageSize="16dp"
+            />
     </RelativeLayout>
-    <TextView
-        android:id="@+id/address"
-        android:visibility="invisible"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+
     <ImageView
+        android:id="@+id/week"
         android:layout_width="42dp"
         android:layout_height="42dp"
         android:layout_alignParentRight="true"

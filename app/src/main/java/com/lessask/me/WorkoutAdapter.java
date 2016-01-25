@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.lessask.custom.RatingBar;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
@@ -22,13 +23,12 @@ import com.lessask.model.Lesson;
 import com.lessask.model.Workout;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
-import com.lessask.recyclerview.RecyclerViewDragHolder;
 import com.lessask.util.ArrayUtil;
 
 /**
  * Created by JHuang on 2015/11/24.
  */
-public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.ViewHolder> {
+public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, WorkoutAdapter.MyViewHolder> {
 
     private static final String TAG=WorkoutAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
@@ -38,24 +38,20 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
     private Config config = globalInfos.getConfig();
 
     private Context context;
+    private int [] weekSrc = {R.drawable.mon45,R.drawable.tues45,R.drawable.wed45,R.drawable.thur45,R.drawable.fri45,R.drawable.sat45,R.drawable.sun45};
 
     public WorkoutAdapter(Context context){
         this.context = context;
     }
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View mybg,view;
-        Log.e(TAG, "type: "+viewType);
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view;
         if(viewType==1){
-            mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_menu, null);
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_item, parent, false);
         }else {
-            mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_reset_menu, null);
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workout_reset_item, parent, false);
         }
-        mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        return new MyViewHolder(context, mybg, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
+        return new MyViewHolder(view);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
@@ -69,8 +65,7 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        final MyViewHolder myHolder = (MyViewHolder)RecyclerViewDragHolder.getHolder(holder);
+    public void onBindViewHolder(MyViewHolder myHolder, final int position) {
         Workout data = getItem(position);
         Lesson lesson = data.getLesson();
         if(lesson!=null){
@@ -79,64 +74,27 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
             myHolder.time.setText(lesson.getCostTime()+"分钟");
             myHolder.purpose.setText(lesson.getPurpose());
             myHolder.bodies.setText(ArrayUtil.join(lesson.getBodies(), " "));
+            myHolder.fatBar.setStar(lesson.getFatEffect());
+            myHolder.fatBar.setClickable(false);
+            myHolder.muscleBar.setStar(lesson.getMuscleEffect());
+            myHolder.muscleBar.setClickable(false);
+
             ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.cover,R.drawable.man, R.drawable.women);
             VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + lesson.getCover(), listener);
-            myHolder.reset.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onItemMenuClickListener != null) {
-                        onItemMenuClickListener.onItemMenuClick(v, position);
-                    }
-                }
-            });
-            myHolder.change.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onItemMenuClickListener != null) {
-                        onItemMenuClickListener.onItemMenuClick(v, position);
-                    }
-                }
-            });
-        }else {
-            //休息日的item处理
-            myHolder.add.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onItemMenuClickListener != null) {
-                        onItemMenuClickListener.onItemMenuClick(v, position);
-                    }
-                }
-            });
-
         }
+        myHolder.week.setImageResource(weekSrc[position]);
 
-
-        //处理菜单打开和未打开是的单击事件
-        myHolder.getTopView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (myHolder.isOpen()) {
-                    myHolder.close();
-                } else {
-                    if (onItemClickListener != null) {
-                        onItemClickListener.onItemClick(v, position);
-                    }
-                }
-            }
-        });
-        myHolder.getTopView().setOnLongClickListener(new View.OnLongClickListener() {
+        myHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 if (onItemLongClickListener != null) {
-                    Vibrator vib = (Vibrator)context.getSystemService(Service.VIBRATOR_SERVICE);
+                    Vibrator vib = (Vibrator) context.getSystemService(Service.VIBRATOR_SERVICE);
                     vib.vibrate(5);
                     onItemLongClickListener.onItemLongClick(view, position);
                 }
                 return false;
             }
         });
-
-
     }
 
     @Override
@@ -144,29 +102,21 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
         return getItem(position).getId()>0?1:0;
     }
 
-    public static class MyViewHolder extends RecyclerViewDragHolder{
+    public static class MyViewHolder extends RecyclerView.ViewHolder{
+        View itemView;
         ImageView cover;
         TextView name;
         TextView time;
         TextView address;
         TextView purpose;
         TextView bodies;
+        RatingBar fatBar;
+        RatingBar muscleBar;
+        ImageView week;
 
-        //左滑菜单
-        TextView reset;
-        TextView change;
-        TextView add;
-
-        public MyViewHolder(Context context, View bgView, View topView) {
-            super(context, bgView, topView);
-        }
-
-        public MyViewHolder(Context context, View bgView, View topView, int mTrackingEdges) {
-            super(context, bgView, topView, mTrackingEdges);
-        }
-
-        @Override
-        public void initView(View itemView) {
+        public MyViewHolder(View itemView) {
+            super(itemView);
+            this.itemView = itemView;
             cover = (ImageView)itemView.findViewById(R.id.cover);
             name = (TextView)itemView.findViewById(R.id.name);
             time = (TextView)itemView.findViewById(R.id.time);
@@ -174,9 +124,15 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
             purpose = (TextView)itemView.findViewById(R.id.purpose);
             bodies = (TextView)itemView.findViewById(R.id.bodies);
 
+            /*
             reset = (TextView) itemView.findViewById(R.id.reset);
             change = (TextView) itemView.findViewById(R.id.change);
             add = (TextView) itemView.findViewById(R.id.add);
+            */
+
+            fatBar = (RatingBar) itemView.findViewById(R.id.fat_start);
+            muscleBar = (RatingBar) itemView.findViewById(R.id.muscle_start);
+            week = (ImageView)itemView.findViewById(R.id.week);
         }
     }
 
