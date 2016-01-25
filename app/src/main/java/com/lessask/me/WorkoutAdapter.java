@@ -75,7 +75,7 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
         Lesson lesson = data.getLesson();
         if(lesson!=null){
             myHolder.name.setText(lesson.getName());
-            myHolder.address.setText(lesson.getAddress());
+            //myHolder.address.setText(lesson.getAddress());
             myHolder.time.setText(lesson.getCostTime()+"分钟");
             myHolder.purpose.setText(lesson.getPurpose());
             myHolder.bodies.setText(ArrayUtil.join(lesson.getBodies(), " "));
@@ -170,7 +170,7 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, RecyclerView.Vi
             cover = (ImageView)itemView.findViewById(R.id.cover);
             name = (TextView)itemView.findViewById(R.id.name);
             time = (TextView)itemView.findViewById(R.id.time);
-            address = (TextView)itemView.findViewById(R.id.address);
+            //address = (TextView)itemView.findViewById(R.id.address);
             purpose = (TextView)itemView.findViewById(R.id.purpose);
             bodies = (TextView)itemView.findViewById(R.id.bodies);
 
