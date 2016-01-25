@@ -141,8 +141,15 @@
             android:layout_gravity="center_vertical"
             android:layout_toRightOf="@id/fat_label"
             android:layout_marginLeft="88dp"
+            android:textSize="8dp"
+            android:text="增肌"
             />
     </RelativeLayout>
+    <TextView
+        android:id="@+id/address"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     <ImageView
         android:layout_width="42dp"
         android:layout_height="42dp"
