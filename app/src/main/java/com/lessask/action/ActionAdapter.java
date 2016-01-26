@@ -57,7 +57,7 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
         View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.action_menu, null);
         mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.action_item, parent, false);
-        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        //view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return new MyViewHolder(context, mybg, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
     }
 

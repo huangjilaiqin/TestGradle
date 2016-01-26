@@ -21,6 +21,26 @@ public class RatingBar extends LinearLayout {
     private float starImageSize;
     private Drawable starEmptyDrawable;
     private Drawable starFillDrawable;
+    private int starPaddingLeft=0;
+    private int starPaddingTop=0;
+    private int starPaddingRight=0;
+    private int starPaddingBottom=0;
+
+    public void setStarPaddingLeft(int starPaddingLeft) {
+        this.starPaddingLeft = starPaddingLeft;
+    }
+
+    public void setStarPaddingTop(int starPaddingTop) {
+        this.starPaddingTop = starPaddingTop;
+    }
+
+    public void setStarPaddingRight(int starPaddingRight) {
+        this.starPaddingRight = starPaddingRight;
+    }
+
+    public void setStarPaddingBottom(int starPaddingBottom) {
+        this.starPaddingBottom = starPaddingBottom;
+    }
 
     public void setOnRatingChangeListener(OnRatingChangeListener onRatingChangeListener) {
         this.onRatingChangeListener = onRatingChangeListener;
@@ -88,7 +108,7 @@ public class RatingBar extends LinearLayout {
                 Math.round(starImageSize)
         );
         imageView.setLayoutParams(para);
-        imageView.setPadding(0, 0, 0, 0);
+        imageView.setPadding(starPaddingLeft, starPaddingTop, starPaddingRight, starPaddingBottom);
         imageView.setImageDrawable(starEmptyDrawable);
         imageView.setMaxWidth(10);
         imageView.setMaxHeight(10);

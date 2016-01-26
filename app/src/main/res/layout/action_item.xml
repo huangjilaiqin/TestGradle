@@ -2,24 +2,27 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:layout_height="76dp"
     android:background="@color/background_white_not_transparent"
     >
     <ImageView
         android:id="@+id/video"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
         android:src="@drawable/man"
         />
     <ImageView
         android:id="@+id/video_icon"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:padding="16dp"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignLeft="@id/video"
+        android:layout_marginLeft="2dp"
+        android:layout_alignBottom="@id/video"
+        android:layout_marginBottom="2dp"
         android:src="@drawable/video"
         />
     <TextView
@@ -27,8 +30,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/video"
+        android:layout_marginLeft="8dp"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="18dp"
+        android:layout_marginTop="16dp"
+        android:includeFontPadding="false"
         android:textColor="@color/black"
         android:textSize="18sp"
         android:text="深蹲"
@@ -39,8 +44,11 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/name"
         android:layout_marginLeft="-3dp"
-        android:layout_alignBottom="@id/video"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
         android:textColor="@color/main_color"
+        android:includeFontPadding="false"
         android:text="减脂  增肌"
+        android:textSize="14sp"
         />
 </RelativeLayout>
