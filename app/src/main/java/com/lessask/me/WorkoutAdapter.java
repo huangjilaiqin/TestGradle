@@ -75,9 +75,9 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, WorkoutAdapter.
             myHolder.purpose.setText(lesson.getPurpose());
             myHolder.bodies.setText(ArrayUtil.join(lesson.getBodies(), " "));
             myHolder.fatBar.setStar(lesson.getFatEffect());
-            myHolder.fatBar.setClickable(false);
+            myHolder.fatBar.setmClickable(false);
             myHolder.muscleBar.setStar(lesson.getMuscleEffect());
-            myHolder.muscleBar.setClickable(false);
+            myHolder.muscleBar.setmClickable(false);
 
             ImageLoader.ImageListener listener = ImageLoader.getImageListener(myHolder.cover,R.drawable.man, R.drawable.women);
             VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + lesson.getCover(), listener);
@@ -89,7 +89,7 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, WorkoutAdapter.
             public boolean onLongClick(View view) {
                 if (onItemLongClickListener != null) {
                     Vibrator vib = (Vibrator) context.getSystemService(Service.VIBRATOR_SERVICE);
-                    vib.vibrate(5);
+                    vib.vibrate(10);
                     onItemLongClickListener.onItemLongClick(view, position);
                 }
                 return false;
@@ -130,8 +130,8 @@ public class WorkoutAdapter extends BaseRecyclerAdapter<Workout, WorkoutAdapter.
             add = (TextView) itemView.findViewById(R.id.add);
             */
 
-            fatBar = (RatingBar) itemView.findViewById(R.id.fat_start);
-            muscleBar = (RatingBar) itemView.findViewById(R.id.muscle_start);
+            fatBar = (RatingBar) itemView.findViewById(R.id.fat_star);
+            muscleBar = (RatingBar) itemView.findViewById(R.id.muscle_star);
             week = (ImageView)itemView.findViewById(R.id.week);
         }
     }

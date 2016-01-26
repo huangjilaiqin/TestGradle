@@ -70,7 +70,7 @@
 
     </RelativeLayout>
     <RelativeLayout
-        android:id="@id/info2"
+        android:id="@+id/info2"
         android:layout_width="match_parent"
         android:layout_height="17dp"
         android:layout_below="@id/info1"
@@ -133,7 +133,7 @@
             android:src="@drawable/fat"
             />
         <com.lessask.custom.RatingBar
-            android:id="@+id/fat_start"
+            android:id="@+id/fat_star"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
             android:text="增肌"
             />
         <com.lessask.custom.RatingBar
-            android:id="@+id/muscle_start"
+            android:id="@+id/muscle_star"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

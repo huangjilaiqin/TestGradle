@@ -1,7 +1,9 @@
 package com.lessask.action;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Vibrator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.lessask.recyclerview.OnItemClickListener;
+import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
@@ -29,10 +32,11 @@ import java.util.ArrayList;
 /**
  * Created by JHuang on 2015/11/24.
  */
-public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.ViewHolder> {
+public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, ActionAdapter.MyViewHolder> {
 
     private static final String TAG=ActionAdapter.class.getSimpleName();
     private OnItemClickListener onItemClickListener;
+    private OnItemLongClickListener onItemLongClickListener;
     private OnItemMenuClickListener onItemMenuClickListener;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
@@ -48,24 +52,23 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
         this.onItemClickListener = onItemClickListener;
     }
 
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+        this.onItemLongClickListener = onItemLongClickListener;
+    }
+
     public void setOnItemMenuClickListener(OnItemMenuClickListener onItemMenuClickListener) {
         this.onItemMenuClickListener = onItemMenuClickListener;
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View mybg = LayoutInflater.from(parent.getContext()).inflate(R.layout.action_menu, null);
-        mybg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.action_item, parent, false);
-        //view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        return new MyViewHolder(context, mybg, view, RecyclerViewDragHolder.EDGE_RIGHT).getDragViewHolder();
+        return new MyViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(MyViewHolder myHolder, final int position) {
 
-        Log.e(TAG, "onBindViewHolder:"+position);
-        final MyViewHolder myHolder = (MyViewHolder)RecyclerViewDragHolder.getHolder(holder);
         final ActionItem data = getItem(position);
         myHolder.name.setText(data.getName());
         myHolder.video.setOnClickListener(new View.OnClickListener() {
@@ -89,24 +92,23 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
         Log.e(TAG, "load video img:" + config.getImgUrl() + data.getActionImage());
         VolleyHelper.getInstance().getImageLoader().get(config.getImgUrl() + data.getActionImage(), listener);
 
-        myHolder.getTopView().setOnClickListener(new View.OnClickListener() {
+        myHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(myHolder.isOpen()){
-                    myHolder.close();
-                }else {
-                    if (onItemClickListener != null) {
-                        onItemClickListener.onItemClick(v, position);
-                    }
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, position);
                 }
             }
         });
-        myHolder.deleteItem.setOnClickListener(new View.OnClickListener() {
+        myHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                if(onItemMenuClickListener!=null){
-                    onItemMenuClickListener.onItemMenuClick(v, position);
+            public boolean onLongClick(View view) {
+                if (onItemLongClickListener!= null) {
+                    Vibrator vib = (Vibrator) context.getSystemService(Service.VIBRATOR_SERVICE);
+                    vib.vibrate(10);
+                    onItemLongClickListener.onItemLongClick(view, position);
                 }
+                return false;
             }
         });
 
@@ -124,29 +126,18 @@ public class ActionAdapter extends BaseRecyclerAdapter<ActionItem, RecyclerView.
 
     }
 
-    public static class MyViewHolder extends RecyclerViewDragHolder{
+    public static class MyViewHolder extends RecyclerView.ViewHolder{
+        View itemView;
         ImageView video;
         TextView name;
         TextView tags;
 
-        //左滑菜单
-        TextView deleteItem;
-
-        public MyViewHolder(Context context, View bgView, View topView) {
-            super(context, bgView, topView);
-        }
-
-        public MyViewHolder(Context context, View bgView, View topView, int mTrackingEdges) {
-            super(context, bgView, topView, mTrackingEdges);
-        }
-
-        @Override
-        public void initView(View itemView) {
+        public MyViewHolder(View itemView) {
+            super(itemView);
+            this.itemView = itemView;
             video = (ImageView)itemView.findViewById(R.id.video);
             name = (TextView)itemView.findViewById(R.id.name);
             tags = (TextView)itemView.findViewById(R.id.tags);
-
-            deleteItem = (TextView) itemView.findViewById(R.id.delete);
         }
     }
 }

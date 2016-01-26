@@ -16,7 +16,10 @@ import android.view.ViewGroup;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.lessask.DividerItemDecoration;
+import com.lessask.dialog.MenuDialog;
+import com.lessask.dialog.OnSelectMenu;
 import com.lessask.recyclerview.OnItemClickListener;
+import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.R;
 import com.lessask.global.Config;
@@ -80,6 +83,50 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                     intent.putExtra("actionItem", mRecyclerViewAdapter.getItem(position));
                     intent.putExtra("position", position);
                     startActivityForResult(intent, EDIT_ACTION);
+
+                }
+            });
+            mRecyclerViewAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+                @Override
+                public void onItemLongClick(View view, int position) {
+
+                }
+            });
+            mRecyclerViewAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
+                @Override
+                public void onItemLongClick(View view, final int position) {
+                    final ActionItem actionItem = mRecyclerViewAdapter.getItem(position);
+                    final MenuDialog menuDialog = new MenuDialog(getContext(), new String[]{"删除"},
+                    new OnSelectMenu() {
+                        @Override
+                        public void onSelectMenu(int menupos) {
+                            Intent intent;
+                            switch (menupos){
+                                case 0:
+                                    //删除动作
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(FragmentAction.this.getContext());
+                                    builder.setMessage("确认删除吗？position:"+position+", name:"+actionItem.getName());
+                                    builder.setTitle("提示");
+                                    builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            //网络协议
+                                            deleteAction(position);
+                                        }
+                                    });
+                                    builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+                                    builder.create().show();
+                                    break;
+                            }
+                        }
+                    });
+                    menuDialog.show();
 
                 }
             });
