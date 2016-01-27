@@ -1,5 +1,6 @@
 package com.lessask.test;
 
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,7 +19,7 @@ import com.lessask.me.FragmentWorkout;
 import java.util.ArrayList;
 
 public class CoordinatorLayoutActivity extends AppCompatActivity {
-    private ArrayList<Fragment> fragmentDatas;
+    private TabLayout tabLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,18 +34,34 @@ public class CoordinatorLayoutActivity extends AppCompatActivity {
         });
         mToolbar.setTitle("CoordinatorLayout");
         ViewPager viewPager = (ViewPager)findViewById(R.id.viewpager);
-        fragmentDatas = new ArrayList<>();
-        fragmentDatas.add(new FragmentStatus());
-        fragmentDatas.add(new FragmentTimeline());
-        fragmentDatas.add(new FragmentWorkout());
 
-        //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
         MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+        myFragmentPagerAdapter.addFragment(new FragmentStatus(), "状态");
+        myFragmentPagerAdapter.addFragment(new FragmentTimeline(), "时间轴");
+        myFragmentPagerAdapter.addFragment(new FragmentWorkout(), "训练");
         viewPager.setAdapter(myFragmentPagerAdapter);
+
+        tabLayout = (TabLayout)findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
+         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+         collapsingToolbar.setTitle("Title");
+
     }
+
     class MyFragmentPagerAdapter extends FragmentPagerAdapter {
+        private ArrayList<Fragment> fragmentDatas;
+        private ArrayList<String> fragmentNames;
         public MyFragmentPagerAdapter(FragmentManager fm) {
             super(fm);
+
+            fragmentDatas = new ArrayList<>();
+            fragmentNames = new ArrayList<>();
+        }
+
+        public void addFragment(Fragment fragment, String name){
+            fragmentDatas.add(fragment);
+            fragmentNames.add(name);
         }
 
         @Override
@@ -58,5 +75,9 @@ public class CoordinatorLayoutActivity extends AppCompatActivity {
             return fragmentDatas.size();
         }
 
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return fragmentNames.get(position);
+        }
     }
 }
