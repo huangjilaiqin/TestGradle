@@ -247,6 +247,8 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:tabSelectedTextColor="@color/white"
+            app:tabIndicatorColor="@color/white"
             app:tabMode="fixed"
             />
     </android.support.design.widget.AppBarLayout>

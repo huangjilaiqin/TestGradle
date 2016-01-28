@@ -54,6 +54,7 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
     private final int EDIT_LESSON = 0;
     private final int CREATE_LESSON = 1;
+    private final int SHOW_LESSON = 2;
     private FloatingActionButton mAdd;
 
     @Nullable
@@ -82,17 +83,17 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, final int position) {
-                    Intent intent = new Intent(getActivity(), EditLessonActivity.class);
+                    Intent intent = new Intent(getActivity(), ShowLessonActivity.class);
                     intent.putExtra("lesson", mRecyclerViewAdapter.getItem(position));
                     intent.putExtra("position", position);
-                    startActivityForResult(intent, EDIT_LESSON);
+                    startActivityForResult(intent, SHOW_LESSON);
                 }
             });
             mRecyclerViewAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
                 @Override
                 public void onItemLongClick(View view,final int position) {
                     final Lesson lesson = mRecyclerViewAdapter.getItem(position);
-                    final MenuDialog menuDialog = new MenuDialog(getContext(), new String[]{"删除","分配课程"},
+                    final MenuDialog menuDialog = new MenuDialog(getContext(), new String[]{"删除","编辑","分配课程"},
                     new OnSelectMenu() {
                         @Override
                         public void onSelectMenu(int menupos) {
@@ -120,6 +121,11 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
                                     builder.create().show();
                                     break;
                                 case 1:
+                                    intent = new Intent(getActivity(), EditLessonActivity.class);
+                                    intent.putExtra("lesson", mRecyclerViewAdapter.getItem(position));
+                                    intent.putExtra("position", position);
+                                    startActivityForResult(intent, EDIT_LESSON);
+                                case 2:
                                     //分配课程
                                     Toast.makeText(FragmentLesson.this.getContext(), "分配课程", Toast.LENGTH_SHORT).show();
                                     break;

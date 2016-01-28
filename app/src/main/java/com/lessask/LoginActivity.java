@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.*;
 import android.os.Message;
+import android.support.design.widget.TextInputLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -106,23 +107,23 @@ public class LoginActivity extends Activity {
 
         Log.e(TAG, "onCreate");
         Button bLogin = (Button)findViewById(R.id.login);
-        final EditText tUsername = (EditText)findViewById(R.id.tUsername);
-        final EditText tPassword = (EditText)findViewById(R.id.tPassword);
+        final TextInputLayout tUsername = (TextInputLayout)findViewById(R.id.username);
+        final TextInputLayout tPassword = (TextInputLayout)findViewById(R.id.passwd);
 
         Intent intent = getIntent();
         username = intent.getStringExtra("mail");
         passwd = intent.getStringExtra("passwd");
         if (username != null && passwd != null) {
-            tUsername.setText(username);
-            tPassword.setText(passwd);
+            tUsername.getEditText().setText(username);
+            tPassword.getEditText().setText(passwd);
         }
 
 
         bLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                username = tUsername.getText().toString().trim();
-                passwd = tPassword.getText().toString().trim();
+                username = tUsername.getEditText().getText().toString().trim();
+                passwd = tPassword.getEditText().getText().toString().trim();
                 if(username.length()==0 || passwd.length()==0){
                     //*
                     username = "1577594730@qq.com";

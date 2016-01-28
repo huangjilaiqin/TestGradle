@@ -40,28 +40,39 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/logo"
         >
-        <EditText
-            android:id="@+id/tUsername"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/username"
             android:layout_marginLeft="26dp"
             android:layout_marginRight="26dp"
             android:paddingLeft="10dp"
             android:layout_marginTop="48dp"
-            android:hint="邮箱"
-            />
-        <EditText
-            android:id="@+id/tPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tUsername"
+            android:layout_height="wrap_content">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="邮箱"
+                />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/passwd"
             android:layout_marginTop="8dp"
             android:layout_marginLeft="26dp"
             android:layout_marginRight="26dp"
             android:paddingLeft="10dp"
-            android:hint="密码"
-            android:inputType="textPassword"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/username"
+            >
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="密码"
+                android:inputType="textPassword"
+                />
+        </android.support.design.widget.TextInputLayout>
+
     </RelativeLayout>
     <Button
         android:id="@+id/login"
