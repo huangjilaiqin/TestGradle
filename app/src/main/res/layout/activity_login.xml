@@ -34,35 +34,11 @@
             android:textSize="16dp"
             />
     </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/enter_layout"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_below="@id/logo"
-        >
-        <TextView
-            android:id="@+id/word"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textSize="22sp"
-            android:textColor="@color/darkgray"
-            android:text="发现更多的好身材"
-            />
-        <ImageView
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:padding="16dp"
-            android:src="@drawable/arrow_forward"
-            android:layout_toRightOf="@id/word"
-            android:layout_centerVertical="true"
-            />
-    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/enter_layout"
+        android:layout_below="@id/logo"
         >
         <EditText
             android:id="@+id/tUsername"
@@ -71,6 +47,7 @@
             android:layout_marginLeft="26dp"
             android:layout_marginRight="26dp"
             android:paddingLeft="10dp"
+            android:layout_marginTop="48dp"
             android:hint="邮箱"
             />
         <EditText
@@ -107,5 +84,4 @@
         android:background="@color/selected_bg"
         />
 </RelativeLayout>
-
 

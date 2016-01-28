@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lessask">
+<manifest package="com.lessask"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <!-- SDK1.5需要android.permission.GET_TASKS权限判断本程序是否为当前运行的应用? -->
-    <uses-permission android:name="android.permission.GET_TASKS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <!-- 这个权限用于进行网络定位 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- 这个权限用于访问GPS定位 -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- 用于访问wifi网络信息，wifi信息会用于进行网络定位 -->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <!-- 获取运营商信息，用于支持提供运营商信息相关的接口 -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <!-- 这个权限用于获取wifi的获取权限，wifi信息会用来进行网络定位 -->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <!-- 用于读取手机当前的状态 -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!-- 写入扩展存储，向扩展卡写入数据，用于写入离线定位数据 -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <!-- 访问网络，网络定位需要上网 -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- SD卡读取权限，用户写入离线定位数据 -->
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
     <!-- 允许应用读取低级别的系统日志文件 -->
-    <uses-permission android:name="android.permission.READ_LOGS" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
 
     <application
         android:name=".MyApplication"
@@ -48,170 +48,170 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="rStUWfxj01iRMw2RnmcTUyIn" />
+            android:value="rStUWfxj01iRMw2RnmcTUyIn"/>
 
         <activity
             android:name=".StartupActivity"
             android:label="@string/title_activity_startup">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"/>
         <activity
             android:name=".RegisterActivity"
-            android:label="@string/title_activity_register" />
+            android:label="@string/title_activity_register"/>
         <activity
             android:name=".test.TestActivity"
-            android:label="@string/title_activity_test" />
+            android:label="@string/title_activity_test"/>
         <activity
             android:name=".chat.ChatActivity"
             android:label="@string/title_activity_chat"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity
             android:name=".test.StoreFileActivity"
-            android:label="@string/title_activity_store_file" />
+            android:label="@string/title_activity_store_file"/>
         <activity
             android:name=".test.ExampleActivity"
-            android:label="@string/title_activity_example" />
+            android:label="@string/title_activity_example"/>
         <activity
             android:name=".test.SharePreferencesActivity"
-            android:label="@string/title_activity_share_preferences" />
+            android:label="@string/title_activity_share_preferences"/>
 
         <service
             android:name=".test.FirstService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"/>
 
         <activity
             android:name=".test.FirstServiceActivity"
-            android:label="@string/title_activity_first_service" />
+            android:label="@string/title_activity_first_service"/>
         <activity
             android:name=".test.SocketIOActivity"
-            android:label="@string/title_activity_socket_io" />
+            android:label="@string/title_activity_socket_io"/>
         <activity
             android:name=".test.SubThreadActivity"
-            android:label="@string/title_activity_sub_thread" />
+            android:label="@string/title_activity_sub_thread"/>
         <activity
             android:name=".test.HeadImgActivity"
-            android:label="@string/title_activity_head_img" />
+            android:label="@string/title_activity_head_img"/>
         <activity
             android:name=".friends.FriendsActivity"
-            android:label="@string/title_activity_friends" />
+            android:label="@string/title_activity_friends"/>
         <activity
             android:name=".FragmentMainActivity"
-            android:label="@string/title_activity_fragment" />
+            android:label="@string/title_activity_fragment"/>
         <activity
             android:name=".test.SwipeRefreshLayoutTest"
-            android:label="@string/title_activity_swipe_refresh_layout_test" />
+            android:label="@string/title_activity_swipe_refresh_layout_test"/>
         <activity
             android:name=".test.TestSocket"
-            android:label="@string/title_activity_test_socket" />
+            android:label="@string/title_activity_test_socket"/>
         <activity
             android:name=".sports.RunActivity"
-            android:label="@string/title_activity_test_map" />
+            android:label="@string/title_activity_test_map"/>
         <activity
             android:name=".test.LocationDemo"
-            android:label="@string/title_activity_location_demo" />
+            android:label="@string/title_activity_location_demo"/>
         <activity
             android:name="me.iwf.photopicker.PhotoPickerActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
         <activity
             android:name="me.iwf.photopicker.PhotoPagerActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote" />
+            android:process=":remote"/>
 
         <activity
             android:name=".show.ShowImageActivity"
-            android:label="@string/title_activity_show_image" />
+            android:label="@string/title_activity_show_image"/>
         <activity
             android:name=".show.ShowLocalImageActivity"
-            android:label="@string/title_activity_show_selected_image" />
+            android:label="@string/title_activity_show_selected_image"/>
         <activity
             android:name=".show.CreateShowActivity"
-            android:label="@string/title_activity_create_show" />
+            android:label="@string/title_activity_create_show"/>
         <activity
             android:name=".sports.SquatsActivity"
-            android:label="@string/title_activity_squats" />
+            android:label="@string/title_activity_squats"/>
         <activity
             android:name=".action.RecordActionActivity"
             android:label="@string/title_activity_video_record"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
         <activity
             android:name=".action.CreateActionActivity"
-            android:label="@string/title_activity_vedio_play" />
+            android:label="@string/title_activity_vedio_play"/>
         <activity
             android:name=".tag.SelectTagsActivity"
-            android:label="@string/title_activity_select_tag" />
+            android:label="@string/title_activity_select_tag"/>
         <activity
             android:name=".lesson.LessonsActivity"
-            android:label="@string/title_activity_lessons" />
+            android:label="@string/title_activity_lessons"/>
         <activity
             android:name=".lesson.CreateLessonActivity"
             android:label="@string/title_activity_create_lesson"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".action.SelectActionActivity"
-            android:label="@string/title_activity_select_action" />
+            android:label="@string/title_activity_select_action"/>
         <activity
             android:name=".me.ChangePersonInfoActivity"
-            android:label="@string/title_activity_change_person_info" />
+            android:label="@string/title_activity_change_person_info"/>
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main" />
+            android:label="@string/title_activity_main"/>
         <activity
             android:name=".test.TmpActivity"
-            android:label="@string/title_activity_tmp" />
+            android:label="@string/title_activity_tmp"/>
         <activity
             android:name=".test.SwipeRefreshAndLoadMoreActivity"
-            android:label="@string/title_activity_swipe_refresh_and_load_more" />
-        <activity android:name=".video.PlayVideoActiviy" />
-        <activity android:name=".video.RecordVideoActivity" />
+            android:label="@string/title_activity_swipe_refresh_and_load_more"/>
+        <activity android:name=".video.PlayVideoActiviy"/>
+        <activity android:name=".video.RecordVideoActivity"/>
         <activity
             android:name=".test.SlideMenuActivity"
-            android:label="@string/title_activity_slide_menu" />
+            android:label="@string/title_activity_slide_menu"/>
         <activity
             android:name=".test.SlideMenu1Activity"
-            android:label="title_activity_slide_menu1" />
+            android:label="title_activity_slide_menu1"/>
         <activity
             android:name=".test.MainActivity1"
-            android:label="activity_main1" />
+            android:label="activity_main1"/>
         <activity
             android:name=".test.ItemTouchHelperActivity"
-            android:label="activity_item_touch_helper" />
+            android:label="activity_item_touch_helper"/>
         <activity
             android:name=".test.StorageActivity"
-            android:label="@string/title_activity_storage" />
+            android:label="@string/title_activity_storage"/>
         <activity
             android:name=".action.EditActionActivity"
-            android:label="EditActionActivity" />
+            android:label="EditActionActivity"/>
         <activity
             android:name=".test.TestVolleyActivity"
             android:label="@string/title_activity_test_volley"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".test.NestedScrollActivity" />
-        <activity android:name=".test.CoordinatorLayoutActivity" />
-        <activity android:name=".lesson.EditLessonActivity" />
+            android:theme="@style/AppTheme"/>
+        <activity android:name=".test.NestedScrollActivity"/>
+        <activity android:name=".test.CoordinatorLayoutActivity"/>
+        <activity android:name=".lesson.EditLessonActivity"/>
         <activity
             android:name=".test.ReplaceChildActivity"
             android:label="@string/title_activity_replace_child"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"/>
         <activity
             android:name=".lesson.SelectLessonActivity"
             android:label="@string/title_activity_select_lesson"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".test.DynamicLoadImgActivity" />
-        <activity android:name=".test.PaletteActivity"></activity>
-        <activity android:name=".test.ViewGroupActivity"></activity>
-        <activity android:name=".test.CircleImageActivity"></activity>
+            android:theme="@style/AppTheme"/>
+        <activity android:name=".test.DynamicLoadImgActivity"/>
+        <activity android:name=".test.PaletteActivity"/>
+        <activity android:name=".test.ViewGroupActivity"/>
+        <activity android:name=".test.CircleImageActivity"/>
     </application>
 
 </manifest>
