@@ -4,7 +4,8 @@
     <!-- Theme.AppCompat.Light.DarkActionBar android:Theme.Material-->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-    </style>
+
+</style>
 
     <style name="tips_dialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowIsFloating">true</item>
@@ -53,6 +54,11 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
     <style name="LessonExpandedTitle" parent="@android:style/TextAppearance">
         <item name="android:textSize">36sp</item>
+    </style>
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/main_color</item>
+        <item name="colorPrimaryDark">@color/main_color_dark</item>
+        <item name="colorAccent">#FF4081</item>
     </style>
 
 </resources>

@@ -3,6 +3,7 @@
     android:layout_height="match_parent"
     tools:context="com.lessask.StartupActivity"
     android:background="@color/main_color"
+    android:fitsSystemWindows="true"
     >
 
     <TextView

@@ -1,5 +1,6 @@
 package com.lessask.test;
 
+import android.graphics.Color;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -24,6 +25,8 @@ public class CoordinatorLayoutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coordinator_layout);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {

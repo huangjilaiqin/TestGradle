@@ -2,9 +2,12 @@ package com.lessask;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.action.FragmentAction;
@@ -42,9 +46,11 @@ import com.viewpagerindicator.IconPageIndicator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,NavigationView.OnNavigationItemSelectedListener{
     private String TAG = MainActivity.class.getSimpleName();
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
@@ -53,10 +59,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DrawerAdapter mAdapter;
     private ArrayList<DrawerItem> datas;
     private RelativeLayout mDrawerView;
+    private NavigationView navigationView;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private Gson gson = new Gson();
-    private ArrayList<Fragment> fragments ;
+    private Map<Integer,Fragment> fragments ;
     private ArrayList<LinearLayout> toolActons;
     private IconPageIndicator iconPageIndicator;
     private Fragment currentFragment;
@@ -77,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+
         File videoFile = getBaseContext().getExternalFilesDir("video");
         if(videoFile==null)
             videoFile = this.getFileStreamPath("file1");
@@ -90,22 +99,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         globalInfos.setScreenWidth(width);
         globalInfos.setScreenHeight(height);
 
-        fragments = new ArrayList<>();
+        fragments = new HashMap<>();
         fragmentMain = new FragmentMain();
         iconPageIndicator = (IconPageIndicator)findViewById(R.id.main_indicator);
         fragmentMain.setIconPageIndicator(iconPageIndicator);
-        fragments.add(fragmentMain);
-        fragments.add(new FragmentLibrary());
-        fragments.add(new FragmentContacts());
-        fragments.add(new FragmentLesson());
+        fragments.put(R.id.main, fragmentMain);
+        fragments.put(R.id.libary, new FragmentLibrary());
+        fragments.put(R.id.contact,new FragmentContacts());
+        fragments.put(R.id.lesson,new FragmentLesson());
         fragmentAction = new FragmentAction();
-        fragments.add(fragmentAction);
-        fragments.add(new FragmentMe());
-        fragments.add(new FragmentTest());
+        fragments.put(R.id.action,fragmentAction);
+        fragments.put(R.id.me,new FragmentMe());
+        fragments.put(R.id.test, new FragmentTest());
 
         //工具栏布局
         toolActons = new ArrayList<>();
-        toolActons.add((LinearLayout)findViewById(R.id.main_tool));
+        toolActons.add((LinearLayout) findViewById(R.id.main_tool));
         toolActons.add(null);
         toolActons.add(null);
         toolActons.add(null);
@@ -126,14 +135,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDrawerToggle.syncState();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        mDrawerView = (RelativeLayout) findViewById(R.id.drawer_view);
+        //mDrawerView = (RelativeLayout) findViewById(R.id.drawer_view);
+        navigationView = (NavigationView) findViewById(R.id.drawer_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
-        mDrawerList = (ListView) findViewById(R.id.listview_drawer);
+        //mDrawerList = (ListView) findViewById(R.id.listview_drawer);
         //获取drawer目录
         datas = getDatas();
         mAdapter = new DrawerAdapter(this, datas);
-        mDrawerList.setAdapter(mAdapter);
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        //mDrawerList.setAdapter(mAdapter);
+        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         initToolBar();
 
@@ -297,7 +308,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     private void selectItemManual(int position) {
         // Create a new fragment and specify the planet to show based on position
-        Fragment fragment = fragments.get(position);
+        //Fragment fragment = fragments.get(position);
+        Fragment fragment = fragments.get(R.id.main);
         currentFragment = fragment;
         currentToolAction = mainToolAction;
 
@@ -313,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             .commit();
 
         // Highlight the selected item, update the title, and close the drawer
-        mDrawerList.setItemChecked(position, true);
+        //mDrawerList.setItemChecked(position, true);
         setTitle(datas.get(position).getName());
         mAdapter.setSelectItem(position);
         mAdapter.notifyDataSetChanged();
@@ -360,9 +372,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 currentToolAction=toolAction;
             }
             // Highlight the selected item, update the title, and close the drawer
-            mDrawerList.setItemChecked(position, true);
+            //mDrawerList.setItemChecked(position, true);
             setTitle(datas.get(position).getName());
-            mDrawerLayout.closeDrawer(mDrawerView);
+            //mDrawerLayout.closeDrawer(mDrawerView);
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        Fragment fragment = fragments.get(id);
+        if(fragment==null){
+            Toast.makeText(this, "菜单项没有实现", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+            .replace(R.id.main_fragment_container, fragment)
+            .commit();
+
+
+        /*
+        if (id == R.id.main) {
+            // Handle the camera action
+        } else if (id == R.id.libary) {
+
+        } else if (id == R.id.contact) {
+
+        } else if (id == R.id.lesson) {
+
+        } else if (id == R.id.action) {
+
+        } else if (id == R.id.me) {
+
+        }else if (id == R.id.test){
+
+        }
+        */
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

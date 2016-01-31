@@ -1,6 +1,7 @@
 package com.lessask.lesson;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -38,6 +39,7 @@ public class ShowLessonActivity extends AppCompatActivity {
 
         mIntent = getIntent();
         lesson = mIntent.getParcelableExtra("lesson");
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);

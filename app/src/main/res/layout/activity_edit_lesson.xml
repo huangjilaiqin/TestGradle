@@ -7,19 +7,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/coordinator_layout"
+    android:fitsSystemWindows="true"
     tools:context="com.lessask.lesson.EditLessonActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/main_color"
-        android:paddingTop="@dimen/toolbar_padding_top"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         >
         <RelativeLayout
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#00bb9c"
             android:minHeight="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
             >

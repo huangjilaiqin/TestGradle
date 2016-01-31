@@ -13,14 +13,17 @@
           android:id="@+id/pager"
           android:layout_width="match_parent"
           android:layout_height="match_parent"/>
+        <!--
+        -->
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/create"
             app:layout_behavior="com.lessask.recyclerview.ScrollAwareFABBehavior"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
-            app:layout_anchor="@id/pager"
             app:layout_anchorGravity="bottom|right|end"
+            app:layout_anchor="@id/pager"
+            android:layout_margin="@dimen/fab_margin"
             android:src="@drawable/camera"
             app:elevation="6dp"
             app:pressedTranslationZ="12dp"

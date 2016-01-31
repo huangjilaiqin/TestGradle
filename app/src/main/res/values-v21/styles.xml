@@ -1,2 +1,6 @@
 <resources>>
+    <style name="AppTheme" parent="BaseAppTheme">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/holo_blue_dark</item>
+    </style>
 </resources>

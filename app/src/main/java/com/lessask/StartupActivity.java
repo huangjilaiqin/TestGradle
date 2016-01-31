@@ -3,13 +3,14 @@ package com.lessask;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 
-public class StartupActivity extends ActionBarActivity implements View.OnClickListener {
+public class StartupActivity extends AppCompatActivity implements View.OnClickListener {
     private Button login;
     private Button register;
 
@@ -17,6 +18,7 @@ public class StartupActivity extends ActionBarActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_startup);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.main_color));
 
         login = (Button) findViewById(R.id.login);
         login.setOnClickListener(this);

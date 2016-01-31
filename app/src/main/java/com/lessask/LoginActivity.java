@@ -77,6 +77,7 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        getWindow().setStatusBarColor(getResources().getColor(R.color.main_color));
         //Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
 
         File headImgDir = getApplicationContext().getExternalFilesDir("headImg");
