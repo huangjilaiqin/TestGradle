@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <declare-styleable name="ImprovedSwipeLayoutAttrs">
         <attr name="scrollableChildId" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="RatingBar" tools:ignore="ResourceName">
+        <!--尺寸值-->
+        <attr name="starImageSize" format="dimension"/>
+        <attr name="starCount" format="integer"/>
+        <!--资源文件值-->
+        <attr name="starEmpty" format="reference"/>
+        <!--资源文件值-->
+        <attr name="starFill" format="reference"/>
+        <!--资源文件值-->
+        <attr name="starHalf" format="reference"/>
+        <!--boolean值-->
+        <attr name="clickable" format="boolean"/>
     </declare-styleable>
 </resources>

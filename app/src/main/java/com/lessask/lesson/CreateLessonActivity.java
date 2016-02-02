@@ -20,10 +20,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.hedgehog.ratingbar.RatingBar;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.action.SelectActionActivity;
+import com.lessask.custom.RatingBar;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.dialog.TagsPickerDialog;
