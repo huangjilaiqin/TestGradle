@@ -3,14 +3,15 @@
     android:layout_height="match_parent">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/main"
+            android:id="@+id/on_the_load"
             android:icon="@drawable/head"
             android:checked="true"
-            android:title="首页" />
+            android:title="在路上" />
         <item
-            android:id="@+id/libary"
+            android:id="@+id/discover"
             android:icon="@drawable/head"
-            android:title="图书馆" />
+            android:checked="true"
+            android:title="发现" />
         <item
             android:id="@+id/contact"
             android:icon="@drawable/head"
@@ -33,6 +34,7 @@
             android:title="测试" />
     </group>
 
+    <!-- 子菜单
     <item android:title="Communicate">
         <menu>
             <item
@@ -41,5 +43,5 @@
                 android:title="Share" />
         </menu>
     </item>
-
+    -->
 </menu>

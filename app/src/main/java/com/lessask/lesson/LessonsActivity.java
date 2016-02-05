@@ -18,11 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lessask.MyAppCompatActivity;
 import com.lessask.R;
 
 import java.util.ArrayList;
 
-public class LessonsActivity extends Activity implements View.OnClickListener{
+public class LessonsActivity extends MyAppCompatActivity implements View.OnClickListener{
     private String TAG = LessonsActivity.class.getSimpleName();
     private int CREATE_LESSON = 1;
     private ImageView mBack;

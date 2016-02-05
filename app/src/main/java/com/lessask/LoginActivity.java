@@ -22,7 +22,7 @@ import com.lessask.model.User;
 import java.io.File;
 
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends MyAppCompatActivity{
     private static final String TAG= LoginActivity.class.getName();
     private Chat chat = Chat.getInstance();
     private Gson gson = new Gson();
@@ -77,7 +77,6 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        getWindow().setStatusBarColor(getResources().getColor(R.color.main_color));
         //Thread.setDefaultUncaughtExceptionHandler(new DefaultExceptionHandler());
 
         File headImgDir = getApplicationContext().getExternalFilesDir("headImg");

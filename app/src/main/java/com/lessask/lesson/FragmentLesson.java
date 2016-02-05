@@ -21,6 +21,7 @@ import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.dialog.MenuDialog;
 import com.lessask.dialog.OnSelectMenu;
+import com.lessask.model.ArrayListResponse;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.recyclerview.OnItemMenuClickListener;
@@ -234,18 +235,22 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
     }
     private void loadLessons(){
-        Type type = new TypeToken<ArrayList<Lesson>>() {}.getType();
-        GsonRequest  gsonRequest = new GsonRequest<ArrayList<Lesson>>(Request.Method.POST,config.getLessonsUrl(),type,new GsonRequest.PostGsonRequest<ArrayList<Lesson>>(){
+        Type type = new TypeToken<ArrayListResponse<Lesson>>() {}.getType();
+
+        GsonRequest gsonRequest = new GsonRequest<ArrayListResponse<Lesson>>(Request.Method.POST,config.getLessonsUrl(),type,new GsonRequest.PostGsonRequest<ArrayListResponse<Lesson>>(){
             @Override
             public void onStart() {
                 mRecyclerView.showLoadingView();
             }
 
             @Override
-            public void onResponse(ArrayList<Lesson> response) {
-                Lesson l = response.get(0);
-                mRecyclerViewAdapter.appendToList(response);
-                mRecyclerViewAdapter.notifyDataSetChanged();
+            public void onResponse(ArrayListResponse<Lesson> response) {
+                if(response.getError()!=null || response.getErrno()!=0){
+                    Toast.makeText(FragmentLesson.this.getContext(), response.getError(), Toast.LENGTH_SHORT).show();
+                }else {
+                    mRecyclerViewAdapter.appendToList(response.getDatas());
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override

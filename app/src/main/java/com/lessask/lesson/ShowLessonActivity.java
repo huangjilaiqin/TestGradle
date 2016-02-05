@@ -2,6 +2,7 @@ package com.lessask.lesson;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.Gson;
+import com.lessask.MyAppCompatActivity;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -24,7 +26,7 @@ import com.lessask.net.VolleyHelper;
 
 import java.util.ArrayList;
 
-public class ShowLessonActivity extends AppCompatActivity {
+public class ShowLessonActivity extends MyAppCompatActivity {
     private Intent mIntent;
     private Lesson lesson;
 
@@ -35,11 +37,16 @@ public class ShowLessonActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.setStatusTransparent();
         setContentView(R.layout.activity_show_lesson);
+        /*
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.transparent));
+        }
+        */
 
         mIntent = getIntent();
         lesson = mIntent.getParcelableExtra("lesson");
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);

@@ -2,7 +2,6 @@ package com.lessask;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -10,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -27,7 +25,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.action.FragmentAction;
@@ -35,14 +32,12 @@ import com.lessask.contacts.FragmentContacts;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.lesson.FragmentLesson;
-import com.lessask.library.FragmentLibrary;
 import com.lessask.me.FragmentMe;
 import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;
 import com.lessask.tag.TagNet;
 import com.lessask.test.FragmentTest;
-import com.viewpagerindicator.IconPageIndicator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,13 +45,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends MyAppCompatActivity implements View.OnClickListener,NavigationView.OnNavigationItemSelectedListener{
     private String TAG = MainActivity.class.getSimpleName();
     private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private ListView mDrawerList;
-    private DrawerAdapter mAdapter;
     private ArrayList<DrawerItem> datas;
     private RelativeLayout mDrawerView;
     private NavigationView navigationView;
@@ -64,8 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Config config = globalInfos.getConfig();
     private Gson gson = new Gson();
     private Map<Integer,Fragment> fragments ;
-    private ArrayList<LinearLayout> toolActons;
-    private IconPageIndicator iconPageIndicator;
+    private Map<Integer,String> titles;
     private Fragment currentFragment;
     private LinearLayout currentToolAction;
     private LinearLayout mainToolAction;
@@ -76,15 +69,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private FragmentAction fragmentAction;
-    private FragmentMain fragmentMain;
+    private FragmentOnTheLoad fragmentOnTheLoad;
+    private FragmentDiscover fragmentDiscover;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setStatusTransparent();
         setContentView(R.layout.activity_main);
-
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
 
         File videoFile = getBaseContext().getExternalFilesDir("video");
         if(videoFile==null)
@@ -100,34 +93,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         globalInfos.setScreenHeight(height);
 
         fragments = new HashMap<>();
-        fragmentMain = new FragmentMain();
-        iconPageIndicator = (IconPageIndicator)findViewById(R.id.main_indicator);
-        fragmentMain.setIconPageIndicator(iconPageIndicator);
-        fragments.put(R.id.main, fragmentMain);
-        fragments.put(R.id.libary, new FragmentLibrary());
-        fragments.put(R.id.contact,new FragmentContacts());
+        titles = new HashMap<>();
+        fragmentDiscover = new FragmentDiscover();
+        fragmentOnTheLoad = new FragmentOnTheLoad();
+        fragments.put(R.id.on_the_load, fragmentOnTheLoad);
+        titles.put(R.id.on_the_load, "在路上");
+        fragments.put(R.id.discover, fragmentDiscover);
+        titles.put(R.id.discover, "发现");
+        fragments.put(R.id.contact, new FragmentContacts());
+        titles.put(R.id.contact, "通讯录");
         fragments.put(R.id.lesson,new FragmentLesson());
+        titles.put(R.id.lesson, "课程");
         fragmentAction = new FragmentAction();
-        fragments.put(R.id.action,fragmentAction);
-        fragments.put(R.id.me,new FragmentMe());
+        fragments.put(R.id.action, fragmentAction);
+        titles.put(R.id.action, "动作");
+        fragments.put(R.id.me, new FragmentMe());
+        titles.put(R.id.me, "我");
         fragments.put(R.id.test, new FragmentTest());
-
-        //工具栏布局
-        toolActons = new ArrayList<>();
-        toolActons.add((LinearLayout) findViewById(R.id.main_tool));
-        toolActons.add(null);
-        toolActons.add(null);
-        toolActons.add(null);
-        toolActons.add(null);
-        toolActons.add(null);
-        toolActons.add(null);
+        titles.put(R.id.test, "测试");
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.inflateMenu(R.menu.menu_main);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        mainToolAction = (LinearLayout)findViewById(R.id.main_tool);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
@@ -135,37 +123,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDrawerToggle.syncState();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        //mDrawerView = (RelativeLayout) findViewById(R.id.drawer_view);
         navigationView = (NavigationView) findViewById(R.id.drawer_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //mDrawerList = (ListView) findViewById(R.id.listview_drawer);
-        //获取drawer目录
-        datas = getDatas();
-        mAdapter = new DrawerAdapter(this, datas);
-        //mDrawerList.setAdapter(mAdapter);
-        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        initToolBar();
-
         //设置选中 发现 界面
-        selectItemManual(0);
+        replaceFragment(fragmentOnTheLoad);
+        setTitle(titles.get(R.id.on_the_load));
 
         loadData();
     }
-    private void initToolBar(){
-    }
-    private ArrayList<DrawerItem> getDatas(){
-        ArrayList<DrawerItem> datas = new ArrayList<>();
-        datas.add(new DrawerItem(R.id.head, "首页"));
-        datas.add(new DrawerItem(R.id.head, "图书馆"));
-        datas.add(new DrawerItem(R.id.head, "通讯录"));
-        datas.add(new DrawerItem(R.id.head, "课程"));
-        datas.add(new DrawerItem(R.id.head, "动作库"));
-        datas.add(new DrawerItem(R.id.head, "我"));
-        datas.add(new DrawerItem(R.id.head, "测试"));
-        return  datas;
-    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //父类处理fragment的startActivityForresult
@@ -217,8 +184,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return result;
     }
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -249,168 +214,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    class DrawerAdapter extends BaseAdapter{
-        private ArrayList<DrawerItem> datas;
-        private Context context;
-        private int selectItem;
-
-        public DrawerAdapter(Context context, ArrayList<DrawerItem> datas){
-            this.context = context;
-            this.datas = datas;
-        }
-
-        @Override
-        public int getCount() {
-            return datas.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.drawer_item, null);
-            TextView name = (TextView)convertView.findViewById(R.id.name);
-            DrawerItem data = datas.get(position);
-            name.setText(data.getName());
-            if(position==selectItem){
-                convertView.setBackgroundColor(getResources().getColor(R.color.background_white_not_transparent));
-                name.setTextColor(getResources().getColor(R.color.main_color));
-            }else {
-                convertView.setBackgroundColor(getResources().getColor(R.color.white));
-                name.setTextColor(getResources().getColor(R.color.black_40));
-            }
-
-            return convertView;
-        }
-        public  void setSelectItem(int selectItem) {
-             this.selectItem = selectItem;
-        }
-    }
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
-            selectItem(position);
-        }
-    }
-
-    public void changeToolbar(int position){
-        mDrawerList.setItemChecked(position, true);
-        setTitle(datas.get(position).getName());
-        Log.e(TAG, "scroll setTitle:"+datas.get(position).getName());
-    }
-    private void selectItemManual(int position) {
-        // Create a new fragment and specify the planet to show based on position
-        //Fragment fragment = fragments.get(position);
-        Fragment fragment = fragments.get(R.id.main);
-        currentFragment = fragment;
-        currentToolAction = mainToolAction;
-
-        FragmentMain f = (FragmentMain)fragment;
-        //f.selectViewPagerItem(position);
-        f.setCurrentPager(position);
-
-
-        // Insert the fragment by replacing any existing fragment
+    private void replaceFragment(Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
             .replace(R.id.main_fragment_container, fragment)
             .commit();
-
-        // Highlight the selected item, update the title, and close the drawer
-        //mDrawerList.setItemChecked(position, true);
-        setTitle(datas.get(position).getName());
-        mAdapter.setSelectItem(position);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    public void changeDrawerMenu(int position){
-        mAdapter.setSelectItem(position);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    /** Swaps fragments in the main content view */
-    private void selectItem(int position) {
-        // Create a new fragment and specify the planet to show based on position
-        mAdapter.setSelectItem(position);
-        mAdapter.notifyDataSetChanged();
-
-
-
-        // Insert the fragment by replacing any existing fragment
-        Fragment fragment = fragments.get(position);
-        if(currentFragment!=fragment) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            if (!fragment.isAdded()) {
-                fragmentManager.beginTransaction()
-                        .hide(currentFragment)
-                        .add(R.id.main_fragment_container, fragment)
-                        .commit();
-            }else{
-                fragmentManager.beginTransaction()
-                        .hide(currentFragment)
-                        .show(fragment)
-                        .commit();
-            }
-            currentFragment=fragment;
-            //设置fragment对应的toolbar布局
-            LinearLayout toolAction = toolActons.get(position);
-            if(toolAction!=currentToolAction) {
-                if(currentToolAction!=null){
-                    currentToolAction.setVisibility(View.INVISIBLE);
-                }
-                if(toolAction!=null){
-                    toolAction.setVisibility(View.VISIBLE);
-                }
-                currentToolAction=toolAction;
-            }
-            // Highlight the selected item, update the title, and close the drawer
-            //mDrawerList.setItemChecked(position, true);
-            setTitle(datas.get(position).getName());
-            //mDrawerLayout.closeDrawer(mDrawerView);
-        }
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        Fragment fragment = fragments.get(id);
-        if(fragment==null){
-            Toast.makeText(this, "菜单项没有实现", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-            .replace(R.id.main_fragment_container, fragment)
-            .commit();
-
-
-        /*
-        if (id == R.id.main) {
-            // Handle the camera action
-        } else if (id == R.id.libary) {
-
+        if (id == R.id.on_the_load) {
+            replaceFragment(fragments.get(id));
+            setTitle(titles.get(id));
+        } else if (id == R.id.discover) {
+            setTitle(titles.get(id));
+            replaceFragment(fragments.get(id));
         } else if (id == R.id.contact) {
-
+            setTitle(titles.get(id));
+            replaceFragment(fragments.get(id));
         } else if (id == R.id.lesson) {
-
+            setTitle(titles.get(id));
+            replaceFragment(fragments.get(id));
         } else if (id == R.id.action) {
-
+            setTitle(titles.get(id));
+            replaceFragment(fragments.get(id));
         } else if (id == R.id.me) {
-
+            setTitle(titles.get(id));
+            replaceFragment(fragments.get(id));
         }else if (id == R.id.test){
-
+            setTitle(titles.get(id));
+            replaceFragment(fragments.get(id));
         }
-        */
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
