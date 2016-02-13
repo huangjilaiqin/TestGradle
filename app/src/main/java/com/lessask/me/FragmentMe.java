@@ -40,7 +40,7 @@ public class FragmentMe extends Fragment{
     private ArrayList<Fragment> fragmentDatas;
     private ArrayList<String> fragmentNames;
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
-    private FragmentWorkout fragmentWorkout;
+    private FragmentWorkoutPlan fragmentWorkoutPlan;
     public final static int WORKOUT_ADD=1;
     public final static int WORKOUT_CHANGE=2;
 
@@ -50,9 +50,9 @@ public class FragmentMe extends Fragment{
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_me, null);
             fragmentDatas = new ArrayList<>();
-            fragmentWorkout = new FragmentWorkout();
+            fragmentWorkoutPlan = new FragmentWorkoutPlan();
             fragmentDatas.add(new FragmentStatus());
-            fragmentDatas.add(fragmentWorkout);
+            fragmentDatas.add(fragmentWorkoutPlan);
             fragmentNames = new ArrayList<>();
             fragmentNames.add("动态");
             fragmentNames.add("训练");
@@ -101,7 +101,7 @@ public class FragmentMe extends Fragment{
             switch (requestCode){
                 case WORKOUT_ADD:
                 case WORKOUT_CHANGE:
-                    fragmentWorkout.onActivityResult(requestCode,resultCode,data);
+                    fragmentWorkoutPlan.onActivityResult(requestCode,resultCode,data);
                     break;
             }
         }

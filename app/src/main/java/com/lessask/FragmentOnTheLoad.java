@@ -3,8 +3,6 @@ package com.lessask;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -14,23 +12,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.widget.Toast;
 
-import com.lessask.chat.FragmentChat;
 import com.lessask.library.FragmentLibrary;
-import com.lessask.me.FragmentWorkout;
+import com.lessask.FragmentWorkout;
 import com.lessask.show.CreateShowActivity;
-import com.lessask.show.FragmentShow;
-import com.lessask.sports.FragmentSports;
 import com.viewpagerindicator.IconPageIndicator;
 
 import java.util.ArrayList;
 
 import me.iwf.photopicker.PhotoPickerActivity;
-import me.iwf.photopicker.utils.PhotoPickerIntent;
 
 public class FragmentOnTheLoad extends Fragment implements View.OnClickListener {
 
@@ -43,7 +34,6 @@ public class FragmentOnTheLoad extends Fragment implements View.OnClickListener 
     private MainActivity mainActivity;
     private int currentPager;
     private boolean onlyOut;
-    private IconPageIndicator iconPageIndicator;
     private FloatingActionButton mCreate;
 
     private final int CAHNGE_FAB_COLOR = 1;
@@ -57,20 +47,20 @@ public class FragmentOnTheLoad extends Fragment implements View.OnClickListener 
             rootView = inflater.inflate(R.layout.fragment_on_the_load, null);
             mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
 
-
-
             MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
             fragmentWorkout = new FragmentWorkout();
+            Log.e(TAG, fragmentWorkout.toString());
             myFragmentPagerAdapter.addFragment(fragmentWorkout, "训练");
 
             fragmentLibrary = new FragmentLibrary();
-            myFragmentPagerAdapter.addFragment(fragmentLibrary,"图书馆");
+            myFragmentPagerAdapter.addFragment(fragmentLibrary, "图书馆");
 
             mViewPager.setAdapter(myFragmentPagerAdapter);
 
             TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(mViewPager);
             mainActivity = (MainActivity) getActivity();
+            Log.e(TAG, "FragmentOnTheLoad");
         }
         return rootView;
     }
@@ -79,7 +69,6 @@ public class FragmentOnTheLoad extends Fragment implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-
         }
     }
 

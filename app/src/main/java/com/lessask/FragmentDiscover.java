@@ -41,65 +41,25 @@ public class FragmentDiscover extends Fragment implements View.OnClickListener {
     private MainActivity mainActivity;
     private int currentPager;
     private boolean onlyOut;
-    private IconPageIndicator iconPageIndicator;
     private FloatingActionButton mCreate;
 
     private final int CAHNGE_FAB_COLOR = 1;
     private FragmentShow fragmentShow;
-    private FragmentSports fragmentSports;
-    private FragmentLibrary fragmentLibrary;
     private FragmentChat fragmentChat;
-
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "login handler:" + msg.what);
-            switch (msg.what) {
-                case CAHNGE_FAB_COLOR:
-                    Log.e(TAG, "handler currentpager:" + currentPager);
-                    if (currentPager == 0) {
-                        mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.main_color));
-                        mCreate.setImageResource(R.drawable.camera);
-                    } else if (currentPager == 1) {
-                        mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.red_fab));
-                        mCreate.setImageResource(R.drawable.add);
-                    } else if (currentPager == 2) {
-                        mCreate.setBackgroundTintList(getResources().getColorStateList(R.color.purple_fab));
-                    }
-                    Animation ani2 = new ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                    ani2.setInterpolator(new DecelerateInterpolator());
-                    ani2.setDuration(250);
-                    mCreate.startAnimation(ani2);
-
-                default:
-                    break;
-            }
-        }
-    };
-
-
-    public void setIconPageIndicator(IconPageIndicator iconPageIndicator) {
-        this.iconPageIndicator = iconPageIndicator;
-    }
-
-    public void setCurrentPager(int position) {
-        this.currentPager = position;
-    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_main, null);
+            rootView = inflater.inflate(R.layout.fragment_on_the_load, null);
             mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
 
             MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
-            fragmentShow = new FragmentShow();
-            myFragmentPagerAdapter.addFragment(fragmentShow, "动态");
+            //fragmentShow = new FragmentShow();
+            myFragmentPagerAdapter.addFragment(new FragmentWorkout(), "动态");
 
-            fragmentChat = new FragmentChat();
-            myFragmentPagerAdapter.addFragment(fragmentChat,"消息");
+            //fragmentChat = new FragmentChat();
+            myFragmentPagerAdapter.addFragment(new FragmentWorkout(),"消息");
 
             mViewPager.setAdapter(myFragmentPagerAdapter);
 

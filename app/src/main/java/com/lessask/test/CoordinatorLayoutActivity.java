@@ -15,7 +15,7 @@ import android.view.View;
 import com.lessask.R;
 import com.lessask.me.FragmentStatus;
 import com.lessask.me.FragmentTimeline;
-import com.lessask.me.FragmentWorkout;
+import com.lessask.me.FragmentWorkoutPlan;
 
 import java.util.ArrayList;
 
@@ -41,7 +41,7 @@ public class CoordinatorLayoutActivity extends AppCompatActivity {
         MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
         myFragmentPagerAdapter.addFragment(new FragmentStatus(), "状态");
         myFragmentPagerAdapter.addFragment(new FragmentTimeline(), "时间轴");
-        myFragmentPagerAdapter.addFragment(new FragmentWorkout(), "训练");
+        myFragmentPagerAdapter.addFragment(new FragmentWorkoutPlan(), "训练");
         viewPager.setAdapter(myFragmentPagerAdapter);
 
         tabLayout = (TabLayout)findViewById(R.id.tabs);

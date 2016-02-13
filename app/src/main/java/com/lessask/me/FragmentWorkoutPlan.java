@@ -43,11 +43,11 @@ import java.util.Map;
 /**
  * Created by JHuang on 2015/10/22.
  */
-public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
+public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>{
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
 
-    private String TAG = FragmentWorkout.class.getSimpleName();
+    private String TAG = FragmentWorkoutPlan.class.getSimpleName();
 
     private View rootView;
     private WorkoutAdapter mRecyclerViewAdapter;
@@ -58,7 +58,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null){
-            rootView = inflater.inflate(R.layout.fragment_workout, null);
+            rootView = inflater.inflate(R.layout.fragment_workout_plan, null);
             rootView.findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -93,7 +93,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
                             switch (menupos){
                                 case 0:
                                     //选择课程
-                                    intent = new Intent(FragmentWorkout.this.getContext(), SelectLessonActivity.class);
+                                    intent = new Intent(FragmentWorkoutPlan.this.getContext(), SelectLessonActivity.class);
                                     intent.putExtra("position", position);
                                     getParentFragment().startActivityForResult(intent, FragmentMe.WORKOUT_ADD);
                                     break;
@@ -114,7 +114,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
                                     break;
                                 case 1:
                                     //更改课程
-                                    intent = new Intent(FragmentWorkout.this.getContext(), SelectLessonActivity.class);
+                                    intent = new Intent(FragmentWorkoutPlan.this.getContext(), SelectLessonActivity.class);
                                     startActivityForResult(intent, FragmentMe.WORKOUT_CHANGE);
                                     intent.putExtra("position", position);
                                     break;
@@ -149,13 +149,13 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
                     final Workout workout = mRecyclerViewAdapter.getItem(position);
                     switch (view.getId()) {
                         case R.id.reset:
-                            Toast.makeText(FragmentWorkout.this.getContext(), "reset", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FragmentWorkoutPlan.this.getContext(), "reset", Toast.LENGTH_SHORT).show();
                             break;
                         case R.id.change:
-                            Toast.makeText(FragmentWorkout.this.getContext(), "change", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FragmentWorkoutPlan.this.getContext(), "change", Toast.LENGTH_SHORT).show();
                             break;
                         case R.id.add:
-                            Toast.makeText(FragmentWorkout.this.getContext(), "add", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FragmentWorkoutPlan.this.getContext(), "add", Toast.LENGTH_SHORT).show();
                             break;
                     }
                 }
@@ -179,7 +179,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
                 case FragmentMe.WORKOUT_ADD:
                     position = data.getIntExtra("position", -1);
                     if(position==-1){
-                        Toast.makeText(FragmentWorkout.this.getContext(),"错误的星期",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FragmentWorkoutPlan.this.getContext(),"错误的星期",Toast.LENGTH_SHORT).show();
                         return;
                     }
                     lesson = data.getParcelableExtra("lesson");
@@ -191,7 +191,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
                     workout = data.getParcelableExtra("workout");
                     position = data.getIntExtra("position", -1);
                     if(position==-1){
-                        Toast.makeText(FragmentWorkout.this.getContext(),"错误的星期",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FragmentWorkoutPlan.this.getContext(),"错误的星期",Toast.LENGTH_SHORT).show();
                         return;
                     }
                     workout = data.getParcelableExtra("workout");
@@ -207,7 +207,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
     private void addWorkout(final Workout workout, final int position){
         GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getAddWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
 
-            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkoutPlan.this.getContext());
             @Override
             public void onStart() {
                 loadingDialog.show();
@@ -217,7 +217,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
             public void onResponse(WorkoutResponse response) {
                 loadingDialog.cancel();
                 if(response.getError()!=null || response.getErrno()!=0){
-                    Toast.makeText(FragmentWorkout.this.getContext(), response.getError(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FragmentWorkoutPlan.this.getContext(), response.getError(), Toast.LENGTH_SHORT).show();
                     return;
                 }else {
                     workout.setId(response.getId());
@@ -229,7 +229,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
             @Override
             public void onError(VolleyError error) {
                 loadingDialog.cancel();
-                Toast.makeText(FragmentWorkout.this.getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(FragmentWorkoutPlan.this.getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -252,7 +252,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
     private void deleteWorkout(final int position, final Workout workout){
         GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getDeleteWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
 
-            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkoutPlan.this.getContext());
             @Override
             public void onStart() {
                 loadingDialog.show();
@@ -292,7 +292,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
     private void updateWorkout(final int position,final Workout workout){
         GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getUpdateWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
 
-            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkoutPlan.this.getContext());
             @Override
             public void onStart() {
                 loadingDialog.show();
@@ -402,7 +402,7 @@ public class FragmentWorkout extends Fragment implements CRUDExtend<Workout>{
     public void deleteAndAdd(final Workout obj, final int position) {
         GsonRequest gsonRequest = new GsonRequest<WorkoutResponse>(Request.Method.POST,config.getDeleteWorkoutUrl(),WorkoutResponse.class,new GsonRequest.PostGsonRequest<WorkoutResponse>(){
 
-            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkout.this.getContext());
+            final LoadingDialog loadingDialog = new LoadingDialog(FragmentWorkoutPlan.this.getContext());
             @Override
             public void onStart() {
                 loadingDialog.show();

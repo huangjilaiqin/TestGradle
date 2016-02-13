@@ -94,11 +94,11 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
 
         fragments = new HashMap<>();
         titles = new HashMap<>();
-        fragmentDiscover = new FragmentDiscover();
+        //fragmentDiscover = new FragmentDiscover();
         fragmentOnTheLoad = new FragmentOnTheLoad();
         fragments.put(R.id.on_the_load, fragmentOnTheLoad);
         titles.put(R.id.on_the_load, "在路上");
-        fragments.put(R.id.discover, fragmentDiscover);
+        fragments.put(R.id.discover, new FragmentMe());
         titles.put(R.id.discover, "发现");
         fragments.put(R.id.contact, new FragmentContacts());
         titles.put(R.id.contact, "通讯录");
@@ -127,7 +127,8 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         navigationView.setNavigationItemSelectedListener(this);
 
         //设置选中 发现 界面
-        replaceFragment(fragmentOnTheLoad);
+        addFragment(fragmentOnTheLoad);
+
         setTitle(titles.get(R.id.on_the_load));
 
         loadData();
@@ -214,6 +215,13 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         }
     }
 
+    private void addFragment(Fragment fragment){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+            .add(R.id.main_fragment_container, fragment)
+            .commit();
+    }
+
     private void replaceFragment(Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -231,6 +239,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         } else if (id == R.id.discover) {
             setTitle(titles.get(id));
             replaceFragment(fragments.get(id));
+            Log.e(TAG, "discover");
         } else if (id == R.id.contact) {
             setTitle(titles.get(id));
             replaceFragment(fragments.get(id));
