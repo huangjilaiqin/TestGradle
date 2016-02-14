@@ -48,24 +48,31 @@ public class FragmentMe extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null){
-            rootView = inflater.inflate(R.layout.fragment_me, null);
-            fragmentDatas = new ArrayList<>();
-            fragmentWorkoutPlan = new FragmentWorkoutPlan();
-            fragmentDatas.add(new FragmentStatus());
-            fragmentDatas.add(fragmentWorkoutPlan);
-            fragmentNames = new ArrayList<>();
-            fragmentNames.add("动态");
-            fragmentNames.add("训练");
+            rootView = inflater.inflate(R.layout.fragment_me, container,false);
 
-            myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
-            mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
-            mViewPager.setAdapter(myFragmentPagerAdapter);
-
-            tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
-            tabLayout.setupWithViewPager(mViewPager);
 
         }
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        fragmentDatas = new ArrayList<>();
+        fragmentWorkoutPlan = new FragmentWorkoutPlan();
+        fragmentDatas.add(new FragmentStatus());
+        fragmentDatas.add(fragmentWorkoutPlan);
+        fragmentNames = new ArrayList<>();
+        fragmentNames.add("动态");
+        fragmentNames.add("训练");
+
+        myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
+        //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
+        mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
+        mViewPager.setAdapter(myFragmentPagerAdapter);
+
+        tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
     }
 
     class MyFragmentPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter {

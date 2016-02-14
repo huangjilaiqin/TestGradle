@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,27 +45,39 @@ public class FragmentOnTheLoad extends Fragment implements View.OnClickListener 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_on_the_load, null);
-            mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
+            rootView = inflater.inflate(R.layout.fragment_on_the_load, container, false);
 
-            MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
-            fragmentWorkout = new FragmentWorkout();
-            Log.e(TAG, fragmentWorkout.toString());
-            myFragmentPagerAdapter.addFragment(fragmentWorkout, "训练");
-
-            fragmentLibrary = new FragmentLibrary();
-            myFragmentPagerAdapter.addFragment(fragmentLibrary, "图书馆");
-
-            mViewPager.setAdapter(myFragmentPagerAdapter);
-
-            TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
-            tabLayout.setupWithViewPager(mViewPager);
-            mainActivity = (MainActivity) getActivity();
-            Log.e(TAG, "FragmentOnTheLoad");
         }
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
+
+        Toolbar mToolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        mToolbar.setTitle("在路上");
+        mToolbar.inflateMenu(R.menu.menu_main);
+        mToolbar.setNavigationIcon(R.drawable.man);
+        //setSupportActionBar(mToolbar);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
+        fragmentWorkout = new FragmentWorkout();
+        Log.e(TAG, fragmentWorkout.toString());
+        myFragmentPagerAdapter.addFragment(fragmentWorkout, "训练");
+
+        fragmentLibrary = new FragmentLibrary();
+        myFragmentPagerAdapter.addFragment(fragmentLibrary, "图书馆");
+
+        mViewPager.setAdapter(myFragmentPagerAdapter);
+
+        TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+        mainActivity = (MainActivity) getActivity();
+        Log.e(TAG, "FragmentOnTheLoad");
+    }
 
     @Override
     public void onClick(View v) {

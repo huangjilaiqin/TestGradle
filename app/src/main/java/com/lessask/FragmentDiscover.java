@@ -54,12 +54,12 @@ public class FragmentDiscover extends Fragment implements View.OnClickListener {
             rootView = inflater.inflate(R.layout.fragment_on_the_load, null);
             mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
 
-            MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
-            //fragmentShow = new FragmentShow();
-            myFragmentPagerAdapter.addFragment(new FragmentWorkout(), "动态");
+            MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
+            fragmentShow = new FragmentShow();
+            myFragmentPagerAdapter.addFragment(fragmentShow, "动态");
 
-            //fragmentChat = new FragmentChat();
-            myFragmentPagerAdapter.addFragment(new FragmentWorkout(),"消息");
+            fragmentChat = new FragmentChat();
+            myFragmentPagerAdapter.addFragment(fragmentChat,"消息");
 
             mViewPager.setAdapter(myFragmentPagerAdapter);
 

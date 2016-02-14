@@ -59,7 +59,6 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
     private Gson gson = new Gson();
     private Map<Integer,Fragment> fragments ;
     private Map<Integer,String> titles;
-    private Fragment currentFragment;
     private LinearLayout currentToolAction;
     private LinearLayout mainToolAction;
 
@@ -71,6 +70,8 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
     private FragmentAction fragmentAction;
     private FragmentOnTheLoad fragmentOnTheLoad;
     private FragmentDiscover fragmentDiscover;
+
+    private Fragment currentFragment;
 
 
     @Override
@@ -98,7 +99,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         fragmentOnTheLoad = new FragmentOnTheLoad();
         fragments.put(R.id.on_the_load, fragmentOnTheLoad);
         titles.put(R.id.on_the_load, "在路上");
-        fragments.put(R.id.discover, new FragmentMe());
+        fragments.put(R.id.discover, new FragmentDiscover());
         titles.put(R.id.discover, "发现");
         fragments.put(R.id.contact, new FragmentContacts());
         titles.put(R.id.contact, "通讯录");
@@ -112,22 +113,23 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         fragments.put(R.id.test, new FragmentTest());
         titles.put(R.id.test, "测试");
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbar.inflateMenu(R.menu.menu_main);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        //mToolbar.inflateMenu(R.menu.menu_main);
+        //setSupportActionBar(mToolbar);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
-        //少了这句就没有动画了
-        mDrawerToggle.syncState();
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        ////少了这句就没有动画了
+        //mDrawerToggle.syncState();
+        //mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         navigationView = (NavigationView) findViewById(R.id.drawer_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         //设置选中 发现 界面
         addFragment(fragmentOnTheLoad);
+
 
         setTitle(titles.get(R.id.on_the_load));
 
@@ -220,13 +222,16 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         fragmentManager.beginTransaction()
             .add(R.id.main_fragment_container, fragment)
             .commit();
+        currentFragment = fragment;
     }
 
     private void replaceFragment(Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
             .replace(R.id.main_fragment_container, fragment)
+            .addToBackStack(null)
             .commit();
+        currentFragment = fragment;
     }
 
     @Override
@@ -235,6 +240,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
 
         if (id == R.id.on_the_load) {
             replaceFragment(fragments.get(id));
+            //replaceFragment(new FragmentOnTheLoad());
             setTitle(titles.get(id));
         } else if (id == R.id.discover) {
             setTitle(titles.get(id));
