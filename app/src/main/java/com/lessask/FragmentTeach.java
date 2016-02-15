@@ -28,12 +28,14 @@ import android.widget.Toast;
 
 import com.lessask.action.FragmentAction;
 import com.lessask.chat.FragmentChat;
+import com.lessask.lesson.CreateLessonActivity;
 import com.lessask.lesson.FragmentLesson;
 import com.lessask.recyclerview.RecycleViewScrollListener;
 import com.lessask.recyclerview.ScrollAwareFABBehavior;
 import com.lessask.show.CreateShowActivity;
 import com.lessask.show.FragmentShow;
 import com.lessask.util.ScreenUtil;
+import com.lessask.video.RecordVideoActivity;
 
 import java.util.ArrayList;
 
@@ -57,20 +59,27 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
     private FragmentLesson fragmentLesson;
     private FragmentAction fragmentAction;
     private FloatingActionButton mFab;
-    private void animateIn(FloatingActionButton button) {
-            button.setVisibility(View.VISIBLE);
-        if (Build.VERSION.SDK_INT >= 14) {
-            ViewCompat.animate(button).scaleX(1.0F).scaleY(1.0F).alpha(1.0F)
-                    .setInterpolator(new FastOutSlowInInterpolator()).withLayer().setListener(null)
-                    .start();
-        } else {
-            Animation anim = AnimationUtils.loadAnimation(button.getContext(), R.anim.fab_in);
-            anim.setDuration(200L);
-            anim.setInterpolator(new FastOutSlowInInterpolator());
-            button.startAnimation(anim);
-        }
-    }
+
+    public static final int RECORD_ACTION = 3;
+    public static final int CREATE_SHOW = 4;
+    private final int CREATE_LESSON = 1;
+
     private ScrollAwareFABBehavior scrollAwareFABBehavior;
+
+    private View.OnClickListener createLessonLintener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(getContext(), CreateLessonActivity.class);
+            startActivityForResult(intent, CREATE_LESSON);
+        }
+    };
+    private View.OnClickListener createActionLintener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(getContext(), RecordVideoActivity.class);
+            startActivityForResult(intent, RECORD_ACTION);
+        }
+    };
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -89,7 +98,6 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
             mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
 
             MyFragmentPagerAdapter myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
-            fragmentShow = new FragmentShow();
             fragmentLesson = new FragmentLesson();
             //
             RecycleViewScrollListener recycleViewScrollListener = new RecycleViewScrollListener() {
@@ -98,11 +106,9 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
                     Log.e(TAG, "dy:"+dy);
                     if(dy>0){
                         //向上滚动
-                        //scrollAwareFABBehavior.animateOut(mFab);
                         mFab.hide();
                     }else if(dy<0){
                         //向下滚动
-                        //animateIn(mFab);
                         mFab.show();
                     }
                 }
@@ -110,7 +116,6 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
             fragmentLesson.setRecycleViewScrollListener(recycleViewScrollListener);
             myFragmentPagerAdapter.addFragment(fragmentLesson, "课程");
 
-            fragmentChat = new FragmentChat();
             fragmentAction = new FragmentAction();
             myFragmentPagerAdapter.addFragment(fragmentAction, "动作库");
 
@@ -118,7 +123,37 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
 
             TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(mViewPager);
-            mainActivity = (MainActivity) getActivity();
+            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    mFab.hide(new FloatingActionButton.OnVisibilityChangedListener() {
+                        @Override
+                        public void onHidden(FloatingActionButton fab) {
+                            super.onHidden(fab);
+                            mFab.show();
+                        }
+                    });
+                    Log.e(TAG, "tabSelected");
+                    switch (tab.getPosition()){
+                        case 0:
+                            mFab.setOnClickListener(createLessonLintener);
+                            break;
+                        case 1:
+                            mFab.setOnClickListener(createActionLintener);
+                            break;
+                    }
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+                    Log.e(TAG, "tabUnSelected");
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
 
 
 

@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ import com.lessask.model.ArrayListResponse;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.ImprovedSwipeLayout;
+import com.lessask.recyclerview.RecycleViewScrollListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.lang.reflect.Type;
@@ -58,6 +60,11 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
     private final int GETPICTURE_REQUEST = 100;
 
     private boolean loadBackward = false;
+    private RecycleViewScrollListener recycleViewScrollListener;
+
+    public void setRecycleViewScrollListener(RecycleViewScrollListener recycleViewScrollListener) {
+        this.recycleViewScrollListener = recycleViewScrollListener;
+    }
 
 
     @Nullable
@@ -79,6 +86,15 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mRecyclerViewAdapter.setHasMoreData(true);
             mRecyclerViewAdapter.setHasFooter(false);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
+            mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (recycleViewScrollListener != null) {
+                        recycleViewScrollListener.onRecycleViewScroll(recyclerView, dx, dy);
+                    }
+                }
+            });
 
             mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

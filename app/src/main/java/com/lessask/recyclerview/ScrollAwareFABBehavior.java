@@ -43,7 +43,7 @@ public class ScrollAwareFABBehavior extends FloatingActionButton.Behavior{
             animateIn(child);
         }
     }
-    public void animateOut(final FloatingActionButton button) {
+    private void animateOut(final FloatingActionButton button) {
         if (Build.VERSION.SDK_INT >= 14) {
             ViewCompat.animate(button).scaleX(0.0F).scaleY(0.0F).alpha(0.0F)
                     .setInterpolator(INTERPOLATOR).withLayer()

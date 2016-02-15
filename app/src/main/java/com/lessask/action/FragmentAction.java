@@ -64,7 +64,7 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                     loadAtions();
                 }
             });
-            rootView.findViewById(R.id.add).setOnClickListener(this);
+            //rootView.findViewById(R.id.add).setOnClickListener(this);
 
 
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.action_list);
@@ -292,10 +292,12 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         Intent intent;
         switch (v.getId()){
+            /*
             case R.id.add:
                 intent = new Intent(getContext(), RecordVideoActivity.class);
                 startActivityForResult(intent, RECORD_ACTION);
                 break;
+                */
         }
     }
 }
