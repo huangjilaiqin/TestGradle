@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -39,7 +41,7 @@ import me.iwf.photopicker.utils.PhotoPickerIntent;
 /*
 * 发布状态
 * */
-public class CreateShowActivity extends AppCompatActivity implements View.OnClickListener{
+public class CreateShowActivity extends AppCompatActivity implements View.OnClickListener,MenuItem.OnMenuItemClickListener{
 
     private final String TAG = CreateShowActivity.class.getName();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -74,6 +76,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
         }
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setOnClickListener(this);
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +85,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             }
         });
 
-        findViewById(R.id.send).setOnClickListener(this);
+        //findViewById(R.id.send).setOnClickListener(this);
         mtvContent = (TextView) findViewById(R.id.content);
         mGridView = (GridView) findViewById(R.id.image_grid);
         mGridViewAdapter = new MyAdapter(this, photos);
@@ -90,6 +93,22 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
 
         mShowTime = new ShowTime();
         Log.e(TAG, ""+mShowTime);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_create_show, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.action_send:
+                Toast.makeText(getBaseContext(),"send",Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return false;
     }
 
     @Override
@@ -118,9 +137,11 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             case R.id.back:
                 finish();
                 break;
+            /*
             case R.id.send:
                 createShow();
                 break;
+                */
         }
     }
 

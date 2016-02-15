@@ -3,33 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context="com.lessask.show.CreateShowActivity">
 
-    <RelativeLayout
-        android:id="@+id/header"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:background="@color/main_color"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#00bb9c"
-        android:minHeight="?attr/actionBarSize"
-        android:paddingTop="@dimen/toolbar_padding_top"
-        >
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:title="发表状态"
-            />
-        <ImageView
-            android:id="@+id/send"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:padding="16dp"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/send"
-            />
-    </RelativeLayout>
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:title="发表状态"
+        />
 
     <EditText
         android:id="@+id/content"
@@ -37,13 +22,13 @@
         android:layout_height="100dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="5dp"
-        android:hint="跟这个世界说点什么。。。"
+        android:layout_marginTop="16dp"
         android:background="@null"
+        android:hint="跟这个世界说点什么..."
         android:textColorHint="#979797"
-        android:layout_below="@id/header"
+        android:layout_below="@id/toolbar"
         android:lines="4"
-        android:textSize="15dp"
+        android:textSize="16dp"
         android:gravity="left|top"
         />
     <GridView
@@ -65,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/content"
         android:layout_below="@id/image_grid"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/location"
         />
     <TextView
@@ -73,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/location_img"
         android:layout_alignTop="@id/location_img"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="16dp"
         android:text="所在位置"
         />
 
