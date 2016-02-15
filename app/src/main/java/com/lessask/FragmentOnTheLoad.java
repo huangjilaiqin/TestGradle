@@ -58,8 +58,8 @@ public class FragmentOnTheLoad extends Fragment implements View.OnClickListener 
 
         Toolbar mToolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
         mToolbar.setTitle("在路上");
-        mToolbar.inflateMenu(R.menu.menu_main);
-        mToolbar.setNavigationIcon(R.drawable.man);
+        mToolbar.setNavigationIcon(R.drawable.ic_menu_white);
+        //mToolbar.inflateMenu(R.menu.menu_main);
         //setSupportActionBar(mToolbar);
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

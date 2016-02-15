@@ -77,6 +77,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate");
         setStatusTransparent();
         setContentView(R.layout.activity_main);
 
@@ -103,11 +104,15 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         titles.put(R.id.discover, "发现");
         fragments.put(R.id.contact, new FragmentContacts());
         titles.put(R.id.contact, "通讯录");
+        /*
         fragments.put(R.id.lesson,new FragmentLesson());
         titles.put(R.id.lesson, "课程");
         fragmentAction = new FragmentAction();
         fragments.put(R.id.action, fragmentAction);
         titles.put(R.id.action, "动作");
+        */
+        fragments.put(R.id.teach,new FragmentTeach());
+        titles.put(R.id.teach, "教学");
         fragments.put(R.id.me, new FragmentMe());
         titles.put(R.id.me, "我");
         fragments.put(R.id.test, new FragmentTest());
@@ -128,9 +133,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         navigationView.setNavigationItemSelectedListener(this);
 
         //设置选中 发现 界面
-        addFragment(fragmentOnTheLoad);
-
-
+        replaceFragment(fragmentOnTheLoad);
         setTitle(titles.get(R.id.on_the_load));
 
         loadData();
@@ -249,16 +252,13 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         } else if (id == R.id.contact) {
             setTitle(titles.get(id));
             replaceFragment(fragments.get(id));
-        } else if (id == R.id.lesson) {
-            setTitle(titles.get(id));
-            replaceFragment(fragments.get(id));
-        } else if (id == R.id.action) {
+        } else if (id == R.id.teach) {
             setTitle(titles.get(id));
             replaceFragment(fragments.get(id));
         } else if (id == R.id.me) {
             setTitle(titles.get(id));
             replaceFragment(fragments.get(id));
-        }else if (id == R.id.test){
+        } else if (id == R.id.test){
             setTitle(titles.get(id));
             replaceFragment(fragments.get(id));
         }

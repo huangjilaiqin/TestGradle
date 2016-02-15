@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.lessask.model.HandleLessonResponse;
 import com.lessask.model.Lesson;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.recyclerview.RecycleViewScrollListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.lang.reflect.Type;
@@ -58,12 +60,18 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
     private final int SHOW_LESSON = 2;
     private FloatingActionButton mAdd;
 
+    private RecycleViewScrollListener recycleViewScrollListener;
+
+    public void setRecycleViewScrollListener(RecycleViewScrollListener recycleViewScrollListener) {
+        this.recycleViewScrollListener = recycleViewScrollListener;
+    }
+
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null) {
             rootView = inflater.inflate(R.layout.fragment_lesson, null);
-            rootView.findViewById(R.id.add).setOnClickListener(this);
+            //rootView.findViewById(R.id.add).setOnClickListener(this);
 
             rootView.findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -72,12 +80,23 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
                 }
             });
 
+
             mRecyclerView = (RecyclerViewStatusSupport)rootView.findViewById(R.id.lesson_list);
             mRecyclerView.setStatusViews(rootView.findViewById(R.id.loading_view), rootView.findViewById(R.id.empty_view), rootView.findViewById(R.id.error_view));
+
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
             mRecyclerView.setClickable(true);
+            mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (recycleViewScrollListener != null) {
+                        recycleViewScrollListener.onRecycleViewScroll(recyclerView, dx, dy);
+                    }
+                }
+            });
 
             mRecyclerViewAdapter = new LessonAdapter(getContext());
             //设置点击事件, 编辑动作
@@ -92,47 +111,47 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
             });
             mRecyclerViewAdapter.setOnItemLongClickListener(new OnItemLongClickListener() {
                 @Override
-                public void onItemLongClick(View view,final int position) {
+                public void onItemLongClick(View view, final int position) {
                     final Lesson lesson = mRecyclerViewAdapter.getItem(position);
-                    final MenuDialog menuDialog = new MenuDialog(getContext(), new String[]{"删除","编辑","分配课程"},
-                    new OnSelectMenu() {
-                        @Override
-                        public void onSelectMenu(int menupos) {
-                            Intent intent;
-                            switch (menupos){
-                                case 0:
-                                    //删除课程
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(FragmentLesson.this.getContext());
-                                    builder.setMessage("确认删除吗？position:" + position + ", name:" + lesson.getName());
-                                    builder.setTitle("提示");
-                                    builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            //网络协议
-                                            deleteAction(position);
-                                        }
-                                    });
-                                    builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    });
-                                    builder.create().show();
-                                    break;
-                                case 1:
-                                    intent = new Intent(getActivity(), EditLessonActivity.class);
-                                    intent.putExtra("lesson", mRecyclerViewAdapter.getItem(position));
-                                    intent.putExtra("position", position);
-                                    startActivityForResult(intent, EDIT_LESSON);
-                                case 2:
-                                    //分配课程
-                                    Toast.makeText(FragmentLesson.this.getContext(), "分配课程", Toast.LENGTH_SHORT).show();
-                                    break;
-                            }
-                        }
-                    });
+                    final MenuDialog menuDialog = new MenuDialog(getContext(), new String[]{"删除", "编辑", "分配课程"},
+                            new OnSelectMenu() {
+                                @Override
+                                public void onSelectMenu(int menupos) {
+                                    Intent intent;
+                                    switch (menupos) {
+                                        case 0:
+                                            //删除课程
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(FragmentLesson.this.getContext());
+                                            builder.setMessage("确认删除吗？position:" + position + ", name:" + lesson.getName());
+                                            builder.setTitle("提示");
+                                            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                    //网络协议
+                                                    deleteAction(position);
+                                                }
+                                            });
+                                            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                            builder.create().show();
+                                            break;
+                                        case 1:
+                                            intent = new Intent(getActivity(), EditLessonActivity.class);
+                                            intent.putExtra("lesson", mRecyclerViewAdapter.getItem(position));
+                                            intent.putExtra("position", position);
+                                            startActivityForResult(intent, EDIT_LESSON);
+                                        case 2:
+                                            //分配课程
+                                            Toast.makeText(FragmentLesson.this.getContext(), "分配课程", Toast.LENGTH_SHORT).show();
+                                            break;
+                                    }
+                                }
+                            });
                     menuDialog.show();
                 }
             });
@@ -227,10 +246,13 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            /*
+            创建课程
             case R.id.add:
                 Intent intent = new Intent(getContext(), CreateLessonActivity.class);
                 startActivityForResult(intent, CREATE_LESSON);
                 break;
+                */
         }
 
     }
