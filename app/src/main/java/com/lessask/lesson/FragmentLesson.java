@@ -258,6 +258,7 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
     }
     private void loadLessons(){
         Type type = new TypeToken<ArrayListResponse<Lesson>>() {}.getType();
+        Log.e(TAG, "loadLessons");
 
         GsonRequest gsonRequest = new GsonRequest<ArrayListResponse<Lesson>>(Request.Method.POST,config.getLessonsUrl(),type,new GsonRequest.PostGsonRequest<ArrayListResponse<Lesson>>(){
             @Override
@@ -282,11 +283,13 @@ public class FragmentLesson extends Fragment implements View.OnClickListener{
 
             @Override
             public void setPostData(Map datas) {
+                Log.e(TAG, "userid:"+globalInfos.getUserId());
                 datas.put("userId", "" + globalInfos.getUserId());
             }
             @Override
             public Map getPostData() {
                 Map datas = new HashMap();
+                Log.e(TAG, "userid:"+globalInfos.getUserId());
                 datas.put("userId", globalInfos.getUserId() + "");
                 return datas;
             }

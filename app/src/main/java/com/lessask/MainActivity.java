@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.action.FragmentAction;
@@ -90,9 +91,9 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
 
         WindowManager wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
-		wm.getDefaultDisplay().getMetrics(outMetrics);
-		int width = outMetrics.widthPixels;
-		int height = outMetrics.heightPixels;
+        wm.getDefaultDisplay().getMetrics(outMetrics);
+        int width = outMetrics.widthPixels;
+        int height = outMetrics.heightPixels;
         globalInfos.setScreenWidth(width);
         globalInfos.setScreenHeight(height);
 
@@ -139,32 +140,33 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
 
         navigationView = (NavigationView) findViewById(R.id.drawer_view);
         navigationView.setNavigationItemSelectedListener(this);
+        loadData();
 
-        //设置选中 发现 界面
-        if(currentFragmentId!=0){
-            Log.e(TAG, "fragments size:"+fragments.size()+ " currentFragmentId:"+currentFragmentId);
-            replaceFragment(fragments.get(currentFragmentId));
-            setTitle(titles.get(currentFragmentId));
-        }else {
+        if(savedInstanceState==null){
+            //设置选中 发现 界面
             replaceFragment(fragmentOnTheLoad);
             setTitle(titles.get(R.id.on_the_load));
         }
-
-        loadData();
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        int currentFragmentId = savedInstanceState.getInt("currentFragmentId");
+        currentFragmentId = savedInstanceState.getInt("currentFragmentId");
+        globalInfos.setUserId(savedInstanceState.getInt("userId"));
         Log.e(TAG, "onRestoreInstanceState currentFragmentId:"+currentFragmentId);
+        Log.e(TAG, "fragments size:"+fragments.size()+ " currentFragmentId:"+currentFragmentId);
+        replaceFragment(fragments.get(currentFragmentId));
+        setTitle(titles.get(currentFragmentId));
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putInt("currentFragmentId", 36);
-        Log.e(TAG, "onSaveInstanceState currentFragmentId:"+currentFragmentId);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("currentFragmentId", currentFragmentId);
+        outState.putInt("userId", globalInfos.getUserId());
+        //outState.putParcelable("user", globalInfos.getUser());
+        Log.e(TAG, "onSaveInstanceState currentFragmentId:" + currentFragmentId);
     }
 
     @Override
