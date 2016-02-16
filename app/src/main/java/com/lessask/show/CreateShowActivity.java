@@ -41,7 +41,7 @@ import me.iwf.photopicker.utils.PhotoPickerIntent;
 /*
 * 发布状态
 * */
-public class CreateShowActivity extends AppCompatActivity implements View.OnClickListener,MenuItem.OnMenuItemClickListener{
+public class CreateShowActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener{
 
     private final String TAG = CreateShowActivity.class.getName();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
@@ -76,8 +76,8 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
         }
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbar.setOnClickListener(this);
         setSupportActionBar(mToolbar);
+        mToolbar.setOnMenuItemClickListener(this);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,7 +105,7 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.action_send:
-                Toast.makeText(getBaseContext(),"send",Toast.LENGTH_SHORT).show();
+                createShow();
                 break;
         }
         return false;
@@ -129,20 +129,6 @@ public class CreateShowActivity extends AppCompatActivity implements View.OnClic
             }
         });
         builder.create().show();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.back:
-                finish();
-                break;
-            /*
-            case R.id.send:
-                createShow();
-                break;
-                */
-        }
     }
 
     private void createShow(){

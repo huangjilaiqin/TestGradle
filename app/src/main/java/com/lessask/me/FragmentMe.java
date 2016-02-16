@@ -10,7 +10,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,13 +47,28 @@ public class FragmentMe extends Fragment{
     public final static int WORKOUT_ADD=1;
     public final static int WORKOUT_CHANGE=2;
 
+    private DrawerLayout mDrawerLayout;
+    public void setmDrawerLayout(DrawerLayout mDrawerLayout) {
+        this.mDrawerLayout = mDrawerLayout;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_me, container,false);
 
-
+            Toolbar mToolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+            mToolbar.setTitle("我");
+            mToolbar.setNavigationIcon(R.drawable.ic_menu_white);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mDrawerLayout != null) {
+                        mDrawerLayout.openDrawer(Gravity.LEFT);
+                    }
+                }
+            });
         }
         return rootView;
     }

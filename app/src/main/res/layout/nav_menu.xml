@@ -4,29 +4,29 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/on_the_load"
-            android:icon="@drawable/head"
+            android:icon="@drawable/ic_home"
             android:checked="true"
             android:title="在路上" />
         <item
             android:id="@+id/discover"
-            android:icon="@drawable/head"
+            android:icon="@drawable/ic_explore"
             android:checked="true"
             android:title="发现" />
         <item
             android:id="@+id/contact"
-            android:icon="@drawable/head"
+            android:icon="@drawable/ic_people"
             android:title="通讯录" />
         <item
             android:id="@+id/teach"
-            android:icon="@drawable/head"
+            android:icon="@drawable/ic_teach"
             android:title="教学" />
         <item
             android:id="@+id/me"
-            android:icon="@drawable/head"
+            android:icon="@drawable/ic_me"
             android:title="我" />
         <item
             android:id="@+id/test"
-            android:icon="@drawable/head"
+            android:icon="@drawable/ic_settings"
             android:title="测试" />
     </group>
 

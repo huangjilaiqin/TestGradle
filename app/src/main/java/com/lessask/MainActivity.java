@@ -3,6 +3,7 @@ package com.lessask;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -71,7 +72,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
     private FragmentOnTheLoad fragmentOnTheLoad;
     private FragmentDiscover fragmentDiscover;
 
-    private Fragment currentFragment;
+    private int currentFragmentId;
 
 
     @Override
@@ -80,6 +81,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         Log.e(TAG, "onCreate");
         setStatusTransparent();
         setContentView(R.layout.activity_main);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         File videoFile = getBaseContext().getExternalFilesDir("video");
         if(videoFile==null)
@@ -98,23 +100,30 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         titles = new HashMap<>();
         //fragmentDiscover = new FragmentDiscover();
         fragmentOnTheLoad = new FragmentOnTheLoad();
+        fragmentOnTheLoad.setmDrawerLayout(mDrawerLayout);
         fragments.put(R.id.on_the_load, fragmentOnTheLoad);
         titles.put(R.id.on_the_load, "在路上");
-        fragments.put(R.id.discover, new FragmentDiscover());
+
+        FragmentDiscover fragmentDiscover = new FragmentDiscover();
+        fragmentDiscover.setmDrawerLayout(mDrawerLayout);
+        fragments.put(R.id.discover, fragmentDiscover);
         titles.put(R.id.discover, "发现");
-        fragments.put(R.id.contact, new FragmentContacts());
+
+        FragmentContacts fragmentContacts = new FragmentContacts();
+        fragmentContacts.setmDrawerLayout(mDrawerLayout);
+        fragments.put(R.id.contact, fragmentContacts);
         titles.put(R.id.contact, "通讯录");
-        /*
-        fragments.put(R.id.lesson,new FragmentLesson());
-        titles.put(R.id.lesson, "课程");
-        fragmentAction = new FragmentAction();
-        fragments.put(R.id.action, fragmentAction);
-        titles.put(R.id.action, "动作");
-        */
-        fragments.put(R.id.teach,new FragmentTeach());
+
+        FragmentTeach fragmentTeach = new FragmentTeach();
+        fragmentTeach.setmDrawerLayout(mDrawerLayout);
+        fragments.put(R.id.teach, fragmentTeach);
         titles.put(R.id.teach, "教学");
-        fragments.put(R.id.me, new FragmentMe());
+
+        FragmentMe fragmentMe = new FragmentMe();
+        fragmentMe.setmDrawerLayout(mDrawerLayout);
+        fragments.put(R.id.me, fragmentMe);
         titles.put(R.id.me, "我");
+
         fragments.put(R.id.test, new FragmentTest());
         titles.put(R.id.test, "测试");
 
@@ -123,7 +132,6 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         //setSupportActionBar(mToolbar);
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
         ////少了这句就没有动画了
         //mDrawerToggle.syncState();
@@ -133,10 +141,30 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         navigationView.setNavigationItemSelectedListener(this);
 
         //设置选中 发现 界面
-        replaceFragment(fragmentOnTheLoad);
-        setTitle(titles.get(R.id.on_the_load));
+        if(currentFragmentId!=0){
+            Log.e(TAG, "fragments size:"+fragments.size()+ " currentFragmentId:"+currentFragmentId);
+            replaceFragment(fragments.get(currentFragmentId));
+            setTitle(titles.get(currentFragmentId));
+        }else {
+            replaceFragment(fragmentOnTheLoad);
+            setTitle(titles.get(R.id.on_the_load));
+        }
 
         loadData();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        int currentFragmentId = savedInstanceState.getInt("currentFragmentId");
+        Log.e(TAG, "onRestoreInstanceState currentFragmentId:"+currentFragmentId);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt("currentFragmentId", 36);
+        Log.e(TAG, "onSaveInstanceState currentFragmentId:"+currentFragmentId);
     }
 
     @Override
@@ -225,7 +253,6 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         fragmentManager.beginTransaction()
             .add(R.id.main_fragment_container, fragment)
             .commit();
-        currentFragment = fragment;
     }
 
     private void replaceFragment(Fragment fragment){
@@ -234,12 +261,13 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
             .replace(R.id.main_fragment_container, fragment)
             .addToBackStack(null)
             .commit();
-        currentFragment = fragment;
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
+        currentFragmentId = id;
+        Log.e(TAG, "onNavigationItemSelected currentFragmentId:"+currentFragmentId+", "+titles.get(id));
 
         if (id == R.id.on_the_load) {
             replaceFragment(fragments.get(id));

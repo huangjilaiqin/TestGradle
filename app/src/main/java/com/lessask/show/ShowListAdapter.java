@@ -82,7 +82,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
 
         showTime.getUserId();
         holder.tvName.setText(showTime.getNickname());
-        Log.e(TAG, "showTime:" + showTime.getTime());
+        //Log.e(TAG, "showTime:" + showTime.getTime());
         holder.tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showTime.getTime())));
         holder.tvAddress.setText(showTime.getAddress());
         if(showTime.getContent().length()==0){
@@ -148,13 +148,13 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                 registerImageEvent(showImage1, showTime, 0);
 
                 ArrayList<Integer> wh = picsSize.get(0);
-                Log.e(TAG, "w:" + wh.get(0) + ", h:" + wh.get(1));
+                //Log.e(TAG, "w:" + wh.get(0) + ", h:" + wh.get(1));
                 int w = wh.get(0);
                 int h = wh.get(1);
                 ArrayList<Integer> fitSize = ImageUtil.getRecAFitB(w, h, singleImgMaxSize, singleImgMaxSize);
                 w=fitSize.get(0);
                 h=fitSize.get(1);
-                Log.e(TAG, "fit w:" + w + ", h:" + h);
+                //Log.e(TAG, "fit w:" + w + ", h:" + h);
                 lp1 = new RelativeLayout.LayoutParams(w,h);
                 showTime.setThumbnailWidth(w);
                 showTime.setThumbnailHeight(h);
@@ -188,7 +188,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                     String imgUrl = imageUrlPrefix+pictures.get(i)+"!"+imageSize+"_"+imageSize;
                     showImage = imageViews2[i];
                     showImage.setBackgroundColor(picsColor.get(i));
-                    Log.e(TAG, "img2 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
+                    //Log.e(TAG, "img2 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
                     VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,imageSize,imageSize);
                     registerImageEvent(showImage, showTime, i);
@@ -230,7 +230,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                     showImage = imageViews3[i];
                     //showImage.setLayoutParams(sizeParams);
                     showImage.setBackgroundColor(picsColor.get(i));
-                    Log.e(TAG, "img3 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
+                    //Log.e(TAG, "img3 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
                     VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,imageSize,imageSize);
                     registerImageEvent(showImage, showTime, i);
@@ -280,7 +280,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
                     showImage = imageViews4[i];
                     //showImage.setLayoutParams(sizeParams);
                     showImage.setBackgroundColor(picsColor.get(i));
-                    Log.e(TAG, "img4 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
+                    //Log.e(TAG, "img4 w:"+showImage.getWidth()+" h:"+showImage.getHeight());
                     ImageLoader.ImageListener listener = ImageLoader.getImageListener(showImage,0,0);
                     VolleyHelper.getInstance().getImageLoader().get(imgUrl, listener,imageSize,imageSize);
                     registerImageEvent(showImage, showTime, i);
