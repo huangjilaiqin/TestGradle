@@ -14,6 +14,7 @@ public class Config {
     private String imgUrl = "http://123.59.40.113/imgs/";
     private String registerUrl = "http://123.59.40.113/httproute/register/";
     private String getShowUrl = "http://123.59.40.113/httproute/getshow/";
+    private String getShowByUseridUrl = "http://123.59.40.113/httproute/getshowbyuserid/";
     private String likeUrl = "http://123.59.40.113/httproute/like/";
     private String unlikeUrl = "http://123.59.40.113/httproute/unlike/";
     private String videoUrl = "http://123.59.40.113/videos/";
@@ -135,5 +136,9 @@ public class Config {
 
     public String getRegisterUrl() {
         return registerUrl;
+    }
+
+    public String getGetShowByUseridUrl() {
+        return getShowByUseridUrl;
     }
 }

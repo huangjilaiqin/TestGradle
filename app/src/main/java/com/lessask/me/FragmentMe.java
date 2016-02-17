@@ -24,6 +24,7 @@ import com.lessask.chat.Chat;
 import com.lessask.global.GlobalInfos;
 
 import java.util.ArrayList;
+import com.lessask.MyFragmentPagerAdapter;
 
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TitlePageIndicator;
@@ -78,45 +79,15 @@ public class FragmentMe extends Fragment{
         super.onActivityCreated(savedInstanceState);
         fragmentDatas = new ArrayList<>();
         fragmentWorkoutPlan = new FragmentWorkoutPlan();
-        fragmentDatas.add(new FragmentStatus());
-        fragmentDatas.add(fragmentWorkoutPlan);
-        fragmentNames = new ArrayList<>();
-        fragmentNames.add("动态");
-        fragmentNames.add("训练");
 
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
-        //myFragmentPagerAdapter = new MyFragmentPagerAdapter(getActivity().getSupportFragmentManager());
+        myFragmentPagerAdapter.addFragment(new FragmentStatus(), "动态");
+        myFragmentPagerAdapter.addFragment(fragmentWorkoutPlan, "训练");
         mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
         mViewPager.setAdapter(myFragmentPagerAdapter);
 
         tabLayout = (TabLayout)rootView.findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-    }
-
-    class MyFragmentPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
-        public MyFragmentPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            Log.e(TAG, "fragmentMe getitem:"+fragmentDatas.get(position));
-            return fragmentDatas.get(position);
-        }
-
-        @Override
-        public int getIconResId(int index) {
-            return 0;
-        }
-
-        @Override
-        public int getCount() {
-            return fragmentDatas.size();
-        }
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return fragmentNames.get(position);
-        }
     }
 
     @Override
