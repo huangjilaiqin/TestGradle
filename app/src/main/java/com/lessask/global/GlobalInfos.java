@@ -170,5 +170,4 @@ public class GlobalInfos {
     public void setUserId(int userId) {
         this.userId = userId;
     }
-
 }

@@ -79,7 +79,6 @@ public class FragmentShow extends Fragment implements View.OnClickListener {
             mLinearLayoutManager = new LinearLayoutManager(getContext());
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
-            //mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
             mSwipeRefreshLayout = (ImprovedSwipeLayout) mRootView.findViewById(R.id.swiperefresh);
 
             mRecyclerViewAdapter = new ShowListAdapter(getActivity());

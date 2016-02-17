@@ -3,6 +3,7 @@ package com.lessask.me;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -44,7 +45,6 @@ import java.util.Map;
 public class FragmentStatus extends Fragment{
     private String TAG = FragmentStatus.class.getSimpleName();
     private View rootView;
-    //private ShowTimeAdapter mRecyclerViewAdapter;
     private ShowListAdapter mRecyclerViewAdapter;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
@@ -67,12 +67,10 @@ public class FragmentStatus extends Fragment{
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.setStatusViews(rootView.findViewById(R.id.loading_view), rootView.findViewById(R.id.empty_view), rootView.findViewById(R.id.error_view));
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
-            //MyAdapter mRecyclerViewAdapter = new MyAdapter();
-            //mRecyclerViewAdapter = new ShowTimeAdapter(getContext());
             mRecyclerViewAdapter = new ShowListAdapter(getActivity());
+            mRecyclerViewAdapter.setHasMoreData(true);
+            mRecyclerViewAdapter.setHasFooter(false);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
-            //ShowTime showTime = new ShowTime();
-            //showTime.read(getContext(),mRecyclerViewAdapter,mRecyclerView,"http://123.59.40.113/httproute/getshow1/");
 
             rootView.findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,6 +79,78 @@ public class FragmentStatus extends Fragment{
                 }
             });
             mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
+            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    //下拉刷新
+                    Type type = new TypeToken<ArrayListResponse<ShowTime>>() {
+                    }.getType();
+                    GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getGetShowByUseridUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
+                        @Override
+                        public void onStart() {
+
+                        }
+
+                        @Override
+                        public void onResponse(ArrayListResponse response) {
+                            if (response.getError() != null && response.getError() != "" || response.getErrno() != 0) {
+                                //Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
+                                mRecyclerView.showErrorView(response.getError());
+                            } else {
+                                ArrayList<ShowTime> showdatas = response.getDatas();
+                                //最新状态
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                for (int i = showdatas.size() - 1; i >= 0; i--) {
+                                    mRecyclerViewAdapter.appendToTop(showdatas.get(i));
+                                }
+                                if (showdatas.size() > 0) {
+                                    newShowId = showdatas.get(0).getId();
+                                    mRecyclerViewAdapter.notifyDataSetChanged();
+                                    //Log.e(TAG, "newShowId:"+newShowId);
+                                } else if (showdatas.size() == 0 && mRecyclerViewAdapter.getItemCount() == 0) {
+                                    Log.e(TAG, "showEmptyView");
+                                    mRecyclerView.showEmptyView();
+                                }
+                                mRecyclerView.scrollToPosition(0);
+
+                                //mRecyclerViewAdapter.appendToList((List)response.getDatas());
+                                //mRecyclerViewAdapter.notifyDataSetChanged();
+                            }
+
+
+                        }
+
+                        @Override
+                        public void onError(VolleyError error) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(FragmentStatus.this.getContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void setPostData(Map datas) {
+                            datas.put("userid", "" + globalInfos.getUserId());
+                            datas.put("insterestUserid", ""+globalInfos.getUserId());
+                            datas.put("id", "" + newShowId);
+                            datas.put("direct", "forward");
+                            datas.put("pagenum", "" + pageNum);
+
+                        }
+
+                        @Override
+                        public Map getPostData() {
+                            Map datas = new HashMap();
+                            datas.put("userid", "" + globalInfos.getUserId());
+                            datas.put("insterestUserid", ""+globalInfos.getUserId());
+                            datas.put("id", "" + newShowId);
+                            datas.put("direct", "forward");
+                            datas.put("pagenum", "" + pageNum);
+                            return datas;
+                        }
+                    });
+                    VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+                }
+            });
+
             mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLinearLayoutManager) {
 
                 @Override
@@ -147,6 +217,7 @@ public class FragmentStatus extends Fragment{
                             @Override
                             public void setPostData(Map datas) {
                                 datas.put("userId", "" + globalInfos.getUserId());
+                                datas.put("insterestUserid", ""+globalInfos.getUserId());
                                 datas.put("id", "" + oldShowId);
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
@@ -156,6 +227,7 @@ public class FragmentStatus extends Fragment{
                             public Map getPostData() {
                                 Map datas = new HashMap();
                                 datas.put("userId", "" + globalInfos.getUserId());
+                                datas.put("insterestUserid", ""+globalInfos.getUserId());
                                 datas.put("id", "" + oldShowId);
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
@@ -210,18 +282,17 @@ public class FragmentStatus extends Fragment{
 
                 @Override
                 public void setPostData(Map datas) {
-                    datas.put("userId", "" + globalInfos.getUserId());
+                    datas.put("userid", "" + globalInfos.getUserId());
+                    datas.put("insterestUserid", globalInfos.getUserId() + "");
                     datas.put("pagenum", ""+4);
                 }
 
                 @Override
                 public Map getPostData() {
                     Map datas = new HashMap();
-                    datas.put("userId", "" + globalInfos.getUserId());
-                    datas.put("pagenum", ""+4);
-                    datas.put("userid", globalInfos.getUserId() + "");
+                    datas.put("userid", "" + globalInfos.getUserId());
                     datas.put("insterestUserid", globalInfos.getUserId() + "");
-                    datas.put("pagenum", "10");
+                    datas.put("pagenum", ""+pageNum);
                     return datas;
 
                 }
