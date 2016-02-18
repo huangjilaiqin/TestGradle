@@ -1,6 +1,8 @@
 package com.lessask.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Rect;
 
 /**
  * Created by JHuang on 2016/1/11.
@@ -28,5 +30,12 @@ public class ScreenUtil {
         if(multiImgWidth==0)
             multiImgWidth=(int)((ScreenUtil.getScreenWidth(context)-ScreenUtil.dp2Px(context,80+imageDeltaDp))/2);
         return multiImgWidth;
+    }
+
+    public static int getStatusBarHeight(Activity activity){
+        Rect frame = new Rect();
+        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
+        int statusBarHeight = frame.top;
+        return statusBarHeight;
     }
 }

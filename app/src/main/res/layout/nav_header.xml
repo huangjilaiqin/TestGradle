@@ -5,30 +5,37 @@
     android:layout_height="160dp"
     android:background="@color/main_color"
     android:fitsSystemWindows="true"
+    android:paddingTop="20dp"
+    android:id="@+id/nav_header"
     >
     <RelativeLayout
         android:id="@+id/person_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="24dp"
+        android:paddingTop="16dp"
         android:paddingLeft="16dp"
         android:paddingBottom="8dp"
         >
-        <ImageView
-            android:id="@+id/head"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:src="@drawable/head"
-            />
-        <TextView
-            android:id="@+id/name"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:text="唐三炮"
-            android:layout_below="@id/head"
-            android:layout_marginTop="8dp"
-            />
+            android:layout_height="match_parent">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/head"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/head"
+                />
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:textSize="14sp"
+                android:text="唐三炮"
+                android:layout_below="@id/head"
+                android:layout_marginTop="8dp"
+                />
+        </RelativeLayout>
 
     </RelativeLayout>
 
