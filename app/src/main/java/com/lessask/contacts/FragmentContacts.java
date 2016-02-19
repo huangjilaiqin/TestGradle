@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,19 +17,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
+import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
+import com.lessask.crud.CRUDExtend;
+import com.lessask.global.Config;
+import com.lessask.global.GlobalInfos;
+import com.lessask.model.ArrayListResponse;
+import com.lessask.model.User;
+import com.lessask.net.GsonRequest;
+import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by huangji on 2015/11/24.
  */
-public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClickListener{
+public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClickListener {
     private View rootView;
 
     private FloatingActionButton mSearch;
     private RecyclerViewStatusSupport mRecyclerView;
     private ContactsAdapter mRecyclerViewAdapter;
+
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
+    private VolleyHelper volleyHelper = VolleyHelper.getInstance();
 
     private DrawerLayout mDrawerLayout;
     public void setmDrawerLayout(DrawerLayout mDrawerLayout) {
@@ -82,9 +102,63 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
             mRecyclerViewAdapter = new ContactsAdapter();
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
-            mRecyclerView.showEmptyView();
+            mRecyclerView.showLoadingView();
+            loadAtions();
         }
         return rootView;
+    }
+
+    private void loadAtions(){
+        Type type = new TypeToken<ArrayListResponse<User>>() {}.getType();
+        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getFriendsUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onResponse(ArrayListResponse response) {
+
+                if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
+                    //Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
+                    mRecyclerView.showErrorView(response.getError());
+                }else {
+                    ArrayList<User> datas = response.getDatas();
+                    //历史状态
+                    int position = mRecyclerViewAdapter.getItemCount();
+                    if (datas.size() == 0) {
+                        if (mRecyclerViewAdapter.getItemCount() == 0) {
+                            mRecyclerView.showEmptyView();
+                        }
+                        return;
+                    }
+                    mRecyclerViewAdapter.appendToList(datas);
+
+                    if (datas.size() > 0) {
+                        mRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(getContext(), "网络错误" + error, Toast.LENGTH_SHORT);
+                mRecyclerView.showErrorView(error.toString());
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userId", "" + globalInfos.getUserId());
+            }
+
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userId", "" + globalInfos.getUserId());
+                return datas;
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
     }
 
     @Override
@@ -103,4 +177,5 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
         }
         return false;
     }
+
 }

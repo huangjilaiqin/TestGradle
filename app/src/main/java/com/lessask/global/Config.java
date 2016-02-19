@@ -36,6 +36,12 @@ public class Config {
     private String updateWorkoutUrl = "http://123.59.40.113/httproute/workout/update";
     private String workoutsUrl = "http://123.59.40.113/httproute/workouts";
 
+    private String friendsUrl = "http://123.59.40.113/httproute/friends/";
+
+    public String getFriendsUrl() {
+        return friendsUrl;
+    }
+
     public String getAddShowtimeUrl() {
         return addShowtimeUrl;
     }
