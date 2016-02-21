@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.github.captain_miao.recyclerviewutils.listener.OnRecyclerItemClickListener;
 import com.lessask.R;
+import com.lessask.UserActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.LikeResponse;
@@ -79,6 +80,13 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
         //Log.e(TAG, headImgUrl);
         ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.ivHead,0,0);
         VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
+        holder.ivHead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context,UserActivity.class);
+                activity.startActivity(intent);
+            }
+        });
 
         showTime.getUserId();
         holder.tvName.setText(showTime.getNickname());

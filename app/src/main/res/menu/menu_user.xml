@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context="com.lessask.UserActivity">
+    <item android:id="@+id/action_add"
+        android:title="加好友"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_ask"
+        android:title="拜师"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_chat"
+        android:title="私信"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+</menu>

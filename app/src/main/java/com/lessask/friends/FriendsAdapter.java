@@ -76,15 +76,15 @@ public class FriendsAdapter extends BaseAdapter{
         return 0;
     }
     private Bitmap decodeUriAsBitmap(Uri uri){
-      Bitmap bitmap = null;
-      try {
-          //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-          bitmap = BitmapFactory.decodeFile(uri.getPath());
-      } catch (Exception e) {
-          e.printStackTrace();
-          return null;
-      }
-      return bitmap;
+        Bitmap bitmap = null;
+        try {
+            //bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+            bitmap = BitmapFactory.decodeFile(uri.getPath());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return bitmap;
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {

@@ -66,5 +66,7 @@
     <string name="title_activity_test_volley">TestVolleyActivity</string>
     <string name="title_activity_replace_child">ReplaceChildActivity</string>
     <string name="title_activity_select_lesson">SelectLessonActivity</string>
+    <string name="title_activity_find_friend">FindFriendActivity</string>
+    <string name="title_activity_user">UserActivity</string>
 
 </resources>

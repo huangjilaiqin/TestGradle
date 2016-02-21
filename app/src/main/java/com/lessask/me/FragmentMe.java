@@ -39,10 +39,7 @@ public class FragmentMe extends Fragment{
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private View rootView;
     private ViewPager mViewPager;
-    private TitlePageIndicator indicator;
     private TabLayout tabLayout;
-    private ArrayList<Fragment> fragmentDatas;
-    private ArrayList<String> fragmentNames;
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
     private FragmentWorkoutPlan fragmentWorkoutPlan;
     public final static int WORKOUT_ADD=1;
@@ -77,9 +74,7 @@ public class FragmentMe extends Fragment{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        fragmentDatas = new ArrayList<>();
         fragmentWorkoutPlan = new FragmentWorkoutPlan();
-
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
         myFragmentPagerAdapter.addFragment(new FragmentStatus(), "动态");
         myFragmentPagerAdapter.addFragment(fragmentWorkoutPlan, "训练");
