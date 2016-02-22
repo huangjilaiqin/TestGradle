@@ -115,8 +115,10 @@ public class FragmentDiscover extends Fragment implements View.OnClickListener {
                 public void onTabSelected(TabLayout.Tab tab) {
                     if (tab.getPosition()==0){
                         mFab.show();
+                        mViewPager.setCurrentItem(0);
                     }else {
                         mFab.hide();
+                        mViewPager.setCurrentItem(1);
                     }
                 }
 

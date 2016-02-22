@@ -152,9 +152,11 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
                     switch (tab.getPosition()){
                         case 0:
                             mFab.setOnClickListener(createLessonLintener);
+                            mViewPager.setCurrentItem(0);
                             break;
                         case 1:
                             mFab.setOnClickListener(createActionLintener);
+                            mViewPager.setCurrentItem(1);
                             break;
                     }
                 }
