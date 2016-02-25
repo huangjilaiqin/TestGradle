@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -182,7 +181,7 @@ public class CreateShowActivity extends AppCompatActivity implements Toolbar.OnM
             public HashMap<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
 
-                mShowTime.setUserId(globalInfos.getUserId());
+                mShowTime.setUserid(globalInfos.getUserId());
                 mShowTime.setHeadimg(globalInfos.getUser().getHeadImg());
                 mShowTime.setNickname(globalInfos.getUser().getNickname());
                 mShowTime.setAddress("深圳市 南山区");

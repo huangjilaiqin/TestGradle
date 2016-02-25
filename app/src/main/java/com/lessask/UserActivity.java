@@ -1,10 +1,12 @@
 package com.lessask;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,16 +21,19 @@ public class UserActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
     private FragmentWorkoutPlan fragmentWorkoutPlan;
+    private int userid;
+    private String TAG = UserActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
-
+        Intent intent = getIntent();
+        userid = intent.getIntExtra("userid", -1);
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle(intent.getStringExtra("nickname"));
         //没有这句话右侧的菜单栏不会显示
         setSupportActionBar(mToolbar);
-        mToolbar.setTitle("用户名");
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -37,14 +42,20 @@ public class UserActivity extends AppCompatActivity {
         });
 
         fragmentWorkoutPlan = new FragmentWorkoutPlan();
+        fragmentWorkoutPlan.setUserid(userid);
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
-        myFragmentPagerAdapter.addFragment(new FragmentStatus(), "动态");
+
+        FragmentStatus fragmentStatus = new FragmentStatus();
+        fragmentStatus.setInsterestUserid(userid);
+        myFragmentPagerAdapter.addFragment(fragmentStatus, "动态");
         myFragmentPagerAdapter.addFragment(fragmentWorkoutPlan, "训练");
         mViewPager = (ViewPager)findViewById(R.id.viewpager);
         mViewPager.setAdapter(myFragmentPagerAdapter);
 
         tabLayout = (TabLayout)findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+
     }
 
     @Override

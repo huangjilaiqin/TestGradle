@@ -75,8 +75,11 @@ public class FragmentMe extends Fragment{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         fragmentWorkoutPlan = new FragmentWorkoutPlan();
+        fragmentWorkoutPlan.setUserid(globalInfos.getUserId());
+        FragmentStatus fragmentStatus = new FragmentStatus();
+        fragmentStatus.setInsterestUserid(globalInfos.getUserId());
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
-        myFragmentPagerAdapter.addFragment(new FragmentStatus(), "动态");
+        myFragmentPagerAdapter.addFragment(fragmentStatus, "动态");
         myFragmentPagerAdapter.addFragment(fragmentWorkoutPlan, "训练");
         mViewPager = (ViewPager)rootView.findViewById(R.id.viewpager);
         mViewPager.setAdapter(myFragmentPagerAdapter);

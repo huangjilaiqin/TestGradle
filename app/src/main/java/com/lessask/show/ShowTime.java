@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class ShowTime extends ResponseError implements Parcelable {
     private int id;
-    private int userId;
+    private int userid;
     private String nickname;
     private String headimg;
     private String time;
@@ -38,9 +38,9 @@ public class ShowTime extends ResponseError implements Parcelable {
 
     public ShowTime(){}
 
-    public ShowTime(int id, int userId, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, int likeSize,int commentSize,int likeStatus,ArrayList<ArrayList<Integer>> picsSize,ArrayList<Integer> picsColor) {
+    public ShowTime(int id, int userid, String nickname, String headimg, String time, String address, String content, ArrayList<String> pictures, int permission, String ats, int likeSize, int commentSize, int likeStatus, ArrayList<ArrayList<Integer>> picsSize, ArrayList<Integer> picsColor) {
         this.id = id;
-        this.userId = userId;
+        this.userid = userid;
         this.nickname = nickname;
         this.headimg = headimg;
         this.time = time;
@@ -128,12 +128,12 @@ public class ShowTime extends ResponseError implements Parcelable {
         this.id = id;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getUserid() {
+        return userid;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserid(int userid) {
+        this.userid = userid;
     }
 
     public String getTime() {
@@ -226,7 +226,7 @@ public class ShowTime extends ResponseError implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
-        parcel.writeInt(userId);
+        parcel.writeInt(userid);
         parcel.writeString(nickname);
         parcel.writeString(headimg);
         parcel.writeString(time);

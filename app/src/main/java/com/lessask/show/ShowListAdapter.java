@@ -73,7 +73,7 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
     @Override
     public void onBindItemViewHolder(final ViewHolder holder, int position) {
         final int myPosition = position;
-        ShowTime showTime = getItem(myPosition);
+        final ShowTime showTime = getItem(myPosition);
 
         //头像
         String headImgUrl = imageUrlPrefix+showTime.getHeadimg();
@@ -84,11 +84,13 @@ public class ShowListAdapter extends BaseLoadMoreRecyclerAdapter<ShowTime, ShowL
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context,UserActivity.class);
+                intent.putExtra("userid",showTime.getUserid());
+                intent.putExtra("nickname",showTime.getNickname());
                 activity.startActivity(intent);
             }
         });
 
-        showTime.getUserId();
+        showTime.getUserid();
         holder.tvName.setText(showTime.getNickname());
         //Log.e(TAG, "showTime:" + showTime.getTime());
         holder.tvTime.setText(TimeHelper.date2Show(TimeHelper.utcStr2Date(showTime.getTime())));

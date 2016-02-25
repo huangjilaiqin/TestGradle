@@ -2,17 +2,13 @@ package com.lessask;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,22 +17,16 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.ScaleAnimation;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.lessask.action.FragmentAction;
-import com.lessask.chat.FragmentChat;
+import com.lessask.chat.FragmentMessage;
 import com.lessask.lesson.CreateLessonActivity;
 import com.lessask.lesson.FragmentLesson;
 import com.lessask.recyclerview.RecycleViewScrollListener;
 import com.lessask.recyclerview.ScrollAwareFABBehavior;
 import com.lessask.show.CreateShowActivity;
 import com.lessask.show.FragmentShow;
-import com.lessask.util.ScreenUtil;
 import com.lessask.video.RecordVideoActivity;
 
 import java.util.ArrayList;
@@ -56,8 +46,6 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
     private boolean onlyOut;
 
     private final int CAHNGE_FAB_COLOR = 1;
-    private FragmentShow fragmentShow;
-    private FragmentChat fragmentChat;
     private FragmentLesson fragmentLesson;
     private FragmentAction fragmentAction;
     private FloatingActionButton mFab;
@@ -198,9 +186,6 @@ public class FragmentTeach extends Fragment implements View.OnClickListener {
                     Intent intent = new Intent(getActivity(), CreateShowActivity.class);
                     intent.putStringArrayListExtra("images", data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
                     startActivityForResult(intent, MainActivity.CREATE_SHOW);
-                    break;
-                case MainActivity.CREATE_SHOW:
-                    fragmentShow.onActivityResult(requestCode, resultCode, data);
                     break;
             }
         }

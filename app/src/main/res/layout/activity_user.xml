@@ -22,14 +22,13 @@
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"
         >
-
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/main_color"
             android:fitsSystemWindows="true"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-            <include layout="@layout/user_home_info"/>
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            <include layout="@layout/home_header"/>
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"

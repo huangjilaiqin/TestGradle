@@ -54,6 +54,11 @@ public class FragmentStatus extends Fragment{
     private int pageNum = 10;
     private ImprovedSwipeLayout mSwipeRefreshLayout;
     private RecyclerViewStatusSupport mRecyclerView;
+    private int interestUserid;
+
+    public void setInsterestUserid(int interestUserid) {
+        this.interestUserid = interestUserid;
+    }
 
     @Nullable
     @Override
@@ -129,7 +134,7 @@ public class FragmentStatus extends Fragment{
                         @Override
                         public void setPostData(Map datas) {
                             datas.put("userid", "" + globalInfos.getUserId());
-                            datas.put("insterestUserid", ""+globalInfos.getUserId());
+                            datas.put("interestUserid", ""+interestUserid);
                             datas.put("id", "" + newShowId);
                             datas.put("direct", "forward");
                             datas.put("pagenum", "" + pageNum);
@@ -140,7 +145,7 @@ public class FragmentStatus extends Fragment{
                         public Map getPostData() {
                             Map datas = new HashMap();
                             datas.put("userid", "" + globalInfos.getUserId());
-                            datas.put("insterestUserid", ""+globalInfos.getUserId());
+                            datas.put("interestUserid", ""+interestUserid);
                             datas.put("id", "" + newShowId);
                             datas.put("direct", "forward");
                             datas.put("pagenum", "" + pageNum);
@@ -217,7 +222,7 @@ public class FragmentStatus extends Fragment{
                             @Override
                             public void setPostData(Map datas) {
                                 datas.put("userId", "" + globalInfos.getUserId());
-                                datas.put("insterestUserid", ""+globalInfos.getUserId());
+                                datas.put("interestUserid", ""+interestUserid);
                                 datas.put("id", "" + oldShowId);
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
@@ -227,7 +232,7 @@ public class FragmentStatus extends Fragment{
                             public Map getPostData() {
                                 Map datas = new HashMap();
                                 datas.put("userId", "" + globalInfos.getUserId());
-                                datas.put("insterestUserid", ""+globalInfos.getUserId());
+                                datas.put("interestUserid", ""+interestUserid);
                                 datas.put("id", "" + oldShowId);
                                 datas.put("direct", "backward");
                                 datas.put("pagenum", "" + pageNum);
@@ -283,7 +288,7 @@ public class FragmentStatus extends Fragment{
                 @Override
                 public void setPostData(Map datas) {
                     datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("insterestUserid", globalInfos.getUserId() + "");
+                    datas.put("interestUserid", interestUserid + "");
                     datas.put("pagenum", ""+4);
                 }
 
@@ -291,7 +296,7 @@ public class FragmentStatus extends Fragment{
                 public Map getPostData() {
                     Map datas = new HashMap();
                     datas.put("userid", "" + globalInfos.getUserId());
-                    datas.put("insterestUserid", globalInfos.getUserId() + "");
+                    datas.put("interestUserid", interestUserid + "");
                     datas.put("pagenum", ""+pageNum);
                     return datas;
 

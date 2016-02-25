@@ -53,6 +53,11 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
     private WorkoutAdapter mRecyclerViewAdapter;
     private RecyclerViewStatusSupport mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
+    private int userid;
+
+    public void setUserid(int userid) {
+        this.userid = userid;
+    }
 
     @Nullable
     @Override
@@ -62,7 +67,6 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
             rootView.findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //loadWorkouts();
                     read(mRecyclerView);
                 }
             });
@@ -162,7 +166,6 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
-            //loadWorkouts();
             read(mRecyclerView);
         }
         return rootView;
@@ -183,8 +186,7 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
                         return;
                     }
                     lesson = data.getParcelableExtra("lesson");
-                    workout = new Workout(-1,lesson.getId(),globalInfos.getUserId(),position+1,lesson);
-                    //addWorkout(workout,position);
+                    workout = new Workout(-1,lesson.getId(),userid,position+1,lesson);
                     create(workout,position);
                     break;
                 case FragmentMe.WORKOUT_CHANGE:
@@ -234,14 +236,14 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userId",""+globalInfos.getUserId());
+                datas.put("userid",""+userid);
                 datas.put("lessonId", "" + workout.getLessonId());
                 datas.put("week", "" + workout.getWeek());
             }
             @Override
             public Map getPostData() {
                 Map datas = new HashMap();
-                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("userid", userid + "");
                 datas.put("lessonId", "" + workout.getLessonId());
                 datas.put("week", "" + workout.getWeek());
                 return datas;
@@ -276,13 +278,13 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userId", ""+globalInfos.getUserId());
+                datas.put("userid", ""+userid);
                 datas.put("id", ""+workout.getId());
             }
             @Override
             public Map getPostData() {
                 Map datas = new HashMap();
-                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("userid", userid + "");
                 datas.put("id", ""+workout.getId());
                 return datas;
             }
@@ -315,84 +317,17 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userId", ""+globalInfos.getUserId());
+                datas.put("userid", ""+userid);
                 datas.put("lessonId", ""+workout.getLessonId());
                 datas.put("week", ""+workout.getWeek());
             }
             @Override
             public Map getPostData() {
                 Map datas = new HashMap();
-                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("userid", userid + "");
                 datas.put("lessonId", ""+workout.getLessonId());
                 datas.put("week", ""+workout.getWeek());
                 return datas;
-            }
-        });
-        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
-    }
-
-    private void loadWorkouts(){
-        Type type = new TypeToken<ArrayListResponse<Workout>>() {}.getType();
-        GsonRequest gsonRequest = new GsonRequest<ArrayListResponse<Workout>>(Request.Method.POST,config.getWorkoutsUrl(),type,new GsonRequest.PostGsonRequest<ArrayListResponse<Workout>>(){
-            @Override
-            public void onStart() {
-                mRecyclerView.showLoadingView();
-            }
-
-            @Override
-            public void onResponse(ArrayListResponse<Workout> response) {
-                if(response.getError()!=null || response.getErrno()!=0){
-                    mRecyclerView.showErrorView(response.getError());
-                    Toast.makeText(getContext(), response.getError(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, response.getError());
-                }else {
-                    ArrayList<Workout> showWorkouts = new ArrayList<>();
-                    ArrayList<Workout> workouts = response.getDatas();
-                    Log.e(TAG, "workouts size:"+workouts.size());
-                    int currentWeek = 1;
-                    Workout workout;
-                    if(workouts.size()!=7) {
-                        for (int i=0;i<workouts.size();i++){
-                            workout = workouts.get(i);
-                            int week = workout.getWeek();
-                            Log.e(TAG, "week: "+week);
-                            while (currentWeek<week){
-                                Workout resetWorkout = new Workout();
-                                resetWorkout.setWeek(currentWeek);
-                                showWorkouts.add(resetWorkout);
-                                Log.e(TAG, "reset week: "+currentWeek);
-                                currentWeek++;
-                            }
-                            currentWeek=week+1;
-                            showWorkouts.add(workout);
-                        }
-                        while (currentWeek<8){
-                            Workout resetWorkout = new Workout();
-                            resetWorkout.setWeek(currentWeek);
-                            showWorkouts.add(resetWorkout);
-                            currentWeek++;
-                        }
-                        mRecyclerViewAdapter.appendToList(showWorkouts);
-                    }else {
-                        mRecyclerViewAdapter.appendToList(workouts);
-                    }
-                    mRecyclerViewAdapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onError(VolleyError error) {
-                mRecyclerView.showErrorView(error.getMessage());
-            }
-            @Override
-            public Map getPostData() {
-                Map datas = new HashMap();
-                datas.put("userId", globalInfos.getUserId() + "");
-                return datas;
-            }
-            @Override
-            public void setPostData(Map datas) {
-                datas.put("userId", ""+globalInfos.getUserId());
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
@@ -426,13 +361,13 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
 
             @Override
             public void setPostData(Map datas) {
-                datas.put("userId", ""+globalInfos.getUserId());
+                datas.put("userid", ""+userid);
                 datas.put("id", "" + obj.getId());
             }
             @Override
             public Map getPostData() {
                 Map datas = new HashMap();
-                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("userid", userid + "");
                 datas.put("id", ""+obj.getId());
                 return datas;
             }
@@ -446,7 +381,7 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
         DefaultGsonRequestCRUD  crud = new DefaultGsonRequestCRUD();
         Type type = new TypeToken<Workout>() {}.getType();
         Map datas = new HashMap();
-        datas.put("userId", globalInfos.getUserId() + "");
+        datas.put("userid", userid + "");
         datas.put("lessonId", "" + obj.getLessonId());
         datas.put("week", "" + obj.getWeek());
         crud.create(getContext(),mRecyclerViewAdapter,config.getAddWorkoutUrl(),type,datas,position);
@@ -509,12 +444,12 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
             @Override
             public Map getPostData() {
                 Map datas = new HashMap();
-                datas.put("userId", globalInfos.getUserId() + "");
+                datas.put("userid", userid + "");
                 return datas;
             }
             @Override
             public void setPostData(Map datas) {
-                datas.put("userId", ""+globalInfos.getUserId());
+                datas.put("userid", ""+userid);
             }
         });
         VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
@@ -526,7 +461,7 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
         DefaultGsonRequestCRUD  crud = new DefaultGsonRequestCRUD();
         Type type = new TypeToken<Workout>() {}.getType();
         Map datas = new HashMap();
-        datas.put("userId", ""+globalInfos.getUserId());
+        datas.put("userid", ""+userid);
         datas.put("lessonId", ""+obj.getLessonId());
         datas.put("week", ""+obj.getWeek());
         crud.update(getContext(), mRecyclerViewAdapter, config.getAddWorkoutUrl(), type, datas, position);
@@ -537,7 +472,7 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
         DefaultGsonRequestCRUD  crud = new DefaultGsonRequestCRUD();
         Type type = new TypeToken<Workout>() {}.getType();
         Map datas = new HashMap();
-        datas.put("userId", globalInfos.getUserId() + "");
+        datas.put("userid", userid + "");
         datas.put("lessonId", "" + obj.getId());
         crud.delete(getContext(), mRecyclerViewAdapter, config.getAddWorkoutUrl(), type, datas, position);
 

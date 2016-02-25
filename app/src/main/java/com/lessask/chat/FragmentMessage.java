@@ -24,12 +24,13 @@ import java.util.ArrayList;
 
 /**
  * Created by JHuang on 2015/8/23.
+ * 聊天列表
  */
-public class FragmentChat extends Fragment{
+public class FragmentMessage extends Fragment{
     private Chat chat = Chat.getInstance();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
-    private static final String TAG = FragmentChat.class.getName();
+    private static final String TAG = FragmentMessage.class.getName();
     private static final int ON_FRIENDS = 0;
 
     private ListView lvFriends;

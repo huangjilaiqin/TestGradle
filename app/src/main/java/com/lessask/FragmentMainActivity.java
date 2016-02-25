@@ -17,7 +17,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.google.gson.Gson;
-import com.lessask.chat.FragmentChat;
+import com.lessask.chat.FragmentMessage;
 import com.lessask.global.GlobalInfos;
 import com.lessask.me.FragmentMe;
 import com.lessask.show.FragmentShow;
@@ -33,7 +33,7 @@ public class FragmentMainActivity extends FragmentActivity implements ViewPager.
 
     private LayoutInflater layoutInflater;
     private int REQUEST_CODE = 100;
-    private Class fragmentArray[] = {FragmentShow.class, FragmentSports.class, FragmentChat.class, FragmentMe.class};
+    private Class fragmentArray[] = {FragmentShow.class, FragmentSports.class, FragmentMessage.class, FragmentMe.class};
     private String mTextviewArray[] = {"发现", "运动", "好友", "我"};
     private int fragmentImg[] = {R.drawable.show,R.drawable.show_selected,R.drawable.sports,R.drawable.sports_selected,R.drawable.chat,R.drawable.chat_selected,R.drawable.me,R.drawable.me_selected};
     private static final String TAG = FragmentMainActivity.class.getName();
@@ -111,7 +111,7 @@ public class FragmentMainActivity extends FragmentActivity implements ViewPager.
         list.add(fgShow);
         FragmentSports fgSports = new FragmentSports();
         list.add(fgSports);
-        FragmentChat fgFriends = new FragmentChat();
+        FragmentMessage fgFriends = new FragmentMessage();
         list.add(fgFriends);
         FragmentMe fgMe = new FragmentMe();
         list.add(fgMe);

@@ -18,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.lessask.chat.FragmentChat;
+import com.lessask.chat.FragmentMessage;
 import com.lessask.recyclerview.RecycleViewScrollListener;
 import com.lessask.show.CreateShowActivity;
 import com.lessask.show.FragmentShow;
@@ -42,7 +42,7 @@ public class FragmentDiscover extends Fragment implements View.OnClickListener {
 
     private final int CAHNGE_FAB_COLOR = 1;
     private FragmentShow fragmentShow;
-    private FragmentChat fragmentChat;
+    private FragmentMessage fragmentMessage;
     public static final int CREATE_SHOW = 4;
     private FloatingActionButton mFab;
     private DrawerLayout mDrawerLayout;
@@ -100,8 +100,8 @@ public class FragmentDiscover extends Fragment implements View.OnClickListener {
             fragmentShow.setRecycleViewScrollListener(recycleViewScrollListener);
             myFragmentPagerAdapter.addFragment(fragmentShow, "动态");
 
-            fragmentChat = new FragmentChat();
-            myFragmentPagerAdapter.addFragment(fragmentChat, "消息");
+            fragmentMessage = new FragmentMessage();
+            myFragmentPagerAdapter.addFragment(fragmentMessage, "消息");
 
             mViewPager.setAdapter(myFragmentPagerAdapter);
 
