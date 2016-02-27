@@ -20,6 +20,7 @@
         android:layout_marginLeft="16dp"
         android:layout_centerVertical="true"
         android:textSize="18sp"
+        android:textColor="@color/black_40"
         android:text="唐三炮"
         />
 </RelativeLayout>

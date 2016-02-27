@@ -37,9 +37,14 @@ public class Config {
     private String workoutsUrl = "http://123.59.40.113/httproute/workouts";
 
     private String friendsUrl = "http://123.59.40.113/httproute/friends/";
+    private String chatGroupUrl = "http://123.59.40.113/httproute/chatgroup";
 
     public String getFriendsUrl() {
         return friendsUrl;
+    }
+
+    public String getChatGroupUrl() {
+        return chatGroupUrl;
     }
 
     public String getAddShowtimeUrl() {

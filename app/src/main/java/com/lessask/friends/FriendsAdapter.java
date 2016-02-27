@@ -89,7 +89,7 @@ public class FriendsAdapter extends BaseAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         User user = (User)getItem(position);
-        convertView = LayoutInflater.from(context).inflate(R.layout.friend_item, null);
+        convertView = LayoutInflater.from(context).inflate(R.layout.contact_item, null);
         ImageView ivHead = (ImageView)convertView.findViewById(R.id.head_img);
         TextView tvName = (TextView)convertView.findViewById(R.id.name);
         TextView tvContent = (TextView)convertView.findViewById(R.id.content);

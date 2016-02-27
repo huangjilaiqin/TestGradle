@@ -68,7 +68,7 @@ public class FriendsActivity extends Activity {
                 Intent intent = new Intent(FriendsActivity.this, ChatActivity.class);
                 User user = (User)parent.getAdapter().getItem(position);
                 intent.putExtra("friendId", user.getUserid());
-                Log.e(TAG, "friend_item click, userid:" + user.getUserid());
+                Log.e(TAG, "contact_item click, userid:" + user.getUserid());
                 startActivity(intent);
             }
         });

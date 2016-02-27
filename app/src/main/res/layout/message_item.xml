@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/man"
+        android:id="@+id/head_img"/>
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/head_img"
+        android:layout_marginLeft="16dp"
+        android:layout_alignTop="@id/head_img"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:text="唐三炮"
+        />
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/head_img"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:textSize="12sp"
+        android:text="早上 10:26"
+        />
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/head_img"
+        android:layout_alignBottom="@id/head_img"
+        android:layout_alignLeft="@id/name"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textSize="14sp"
+        android:text="聊天记录"
+        />
+</RelativeLayout>
