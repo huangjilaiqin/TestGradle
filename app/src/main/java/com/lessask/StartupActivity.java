@@ -1,19 +1,25 @@
 package com.lessask;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.lessask.dialog.StringPickerDialog;
+import com.lessask.global.GlobalInfos;
+import com.lessask.model.User;
 
 
 public class StartupActivity extends MyAppCompatActivity implements View.OnClickListener {
     private Button login;
     private Button register;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private String TAG = StartupActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +35,45 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         login.setOnClickListener(this);
         register = (Button) findViewById(R.id.register);
         register.setOnClickListener(this);
+
+        SharedPreferences baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
+
+        //判断是否是第一次启动
+        if(!baseInfo.getBoolean("initDb", false)){
+            SharedPreferences.Editor editor = baseInfo.edit();
+            //初始化数据库
+            SQLiteDatabase db = globalInfos.getDb(getApplicationContext());
+            //获取基础信息
+            //个人信息
+            //聊天列表
+            db.execSQL("create table t_chatgroup(chatgroup_id varchar(19) primary key,`name` varchar(200) not null)");
+            //通讯录
+            db.execSQL("create table t_friend(userid int not null primary key,nickname varchar(20),headimg varchar(150))");
+
+            Log.e(TAG, "create db");
+
+            editor.putBoolean("initDb", true);
+            editor.commit();
+        }
+        int userid = baseInfo.getInt("userid", -1);
+        Log.e(TAG, "userid:"+userid);
+        if(userid!=-1){
+            globalInfos.setUserId(userid);
+            String headImg = baseInfo.getString("headImg", "");
+            String nickname = baseInfo.getString("nickname", "");
+            String mail = baseInfo.getString("mail", "");
+            globalInfos.setUser(userid, new User(userid, mail, nickname, -1, "", headImg));
+
+            //获取最新的用户数据
+            //to do
+
+            Intent intent = new Intent(StartupActivity.this, MainActivity.class);
+            //清除 activity栈中的内容
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 
     @Override

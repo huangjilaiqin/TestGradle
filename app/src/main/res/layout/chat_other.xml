@@ -3,24 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/layout_other_msg"
+    android:padding="8dp"
     >
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/head_img"
         android:layout_width="38dp"
         android:layout_height="38dp"
-        android:layout_gravity="top"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="6dp"
         android:src="@mipmap/ic_launcher"/>
     <TextView
         android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="17sp"
+        android:textSize="18sp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:background="@drawable/sk"
-        android:layout_marginRight="55dp"
-        android:layout_marginTop="10dp"
         android:layout_toRightOf="@id/head_img"
+        android:layout_marginLeft="4dp"
         />
 </RelativeLayout>

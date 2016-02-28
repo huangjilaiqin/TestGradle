@@ -1,5 +1,10 @@
 package com.lessask.contacts;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -19,9 +24,12 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
+import com.lessask.chat.ChatActivity;
+import com.lessask.chat.ChatGroup;
 import com.lessask.crud.CRUDExtend;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -29,6 +37,7 @@ import com.lessask.model.ArrayListResponse;
 import com.lessask.model.User;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
+import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
 import java.lang.reflect.Type;
@@ -41,6 +50,7 @@ import java.util.Map;
  */
 public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClickListener {
     private View rootView;
+    private String TAG = FragmentContacts.class.getSimpleName();
 
     private FloatingActionButton mSearch;
     private RecyclerViewStatusSupport mRecyclerView;
@@ -99,66 +109,52 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
 
-            mRecyclerViewAdapter = new ContactsAdapter();
+            mRecyclerViewAdapter = new ContactsAdapter(getContext());
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
+            mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, final int position) {
+                    Intent intent = new Intent(getActivity(), ChatActivity.class);
+                    User user = mRecyclerViewAdapter.getItem(position);
+                    int friendId = user.getUserid();
+                    int userid = globalInfos.getUserId();
+                    String chatgroupId = userid<friendId?userid+""+friendId:friendId+""+userid;
+                    SQLiteDatabase db = globalInfos.getDb(getContext());
+                    Cursor cursor = db.rawQuery("select * from t_chatgroup where chatgroup_id=?", new String[]{chatgroupId});
+                    //向t_chatgroup插入一条数据
+                    if(!cursor.isAfterLast()){
+                        ContentValues values = new ContentValues();
+                        values.put("chatgroup_id", chatgroupId);
+                        values.put("name", user.getNickname());
+                        db.insert("t_chatgroup", "", values);
+                    }
+
+                    intent.putExtra("friend", user);
+                    startActivity(intent);
+                }
+            });
+
             mRecyclerView.showLoadingView();
-            loadAtions();
+            loadContact();
         }
         return rootView;
     }
-
-    private void loadAtions(){
-        Type type = new TypeToken<ArrayListResponse<User>>() {}.getType();
-        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getFriendsUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
-            @Override
-            public void onStart() {
-
-            }
-
-            @Override
-            public void onResponse(ArrayListResponse response) {
-
-                if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
-                    //Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
-                    mRecyclerView.showErrorView(response.getError());
-                }else {
-                    ArrayList<User> datas = response.getDatas();
-                    //历史状态
-                    int position = mRecyclerViewAdapter.getItemCount();
-                    if (datas.size() == 0) {
-                        if (mRecyclerViewAdapter.getItemCount() == 0) {
-                            mRecyclerView.showEmptyView();
-                        }
-                        return;
-                    }
-                    mRecyclerViewAdapter.appendToList(datas);
-
-                    if (datas.size() > 0) {
-                        mRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-
-            @Override
-            public void onError(VolleyError error) {
-                Toast.makeText(getContext(), "网络错误" + error, Toast.LENGTH_SHORT);
-                mRecyclerView.showErrorView(error.toString());
-            }
-
-            @Override
-            public void setPostData(Map datas) {
-                datas.put("userId", "" + globalInfos.getUserId());
-            }
-
-            @Override
-            public Map getPostData() {
-                Map datas = new HashMap();
-                datas.put("userId", "" + globalInfos.getUserId());
-                return datas;
-            }
-        });
-        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+    private void loadContact(){
+        mRecyclerView.showLoadingView();
+        SQLiteDatabase db = globalInfos.getDb(getContext());
+        Cursor cursor = db.rawQuery("select * from t_friend", null);
+        while (cursor.moveToNext()){
+            mRecyclerViewAdapter.append(new User(cursor.getInt(0), cursor.getString(1), cursor.getString(2)));
+            Log.e(TAG, "name:"+cursor.getString(1));
+        }
+        int count = cursor.getColumnCount();
+        Log.e(TAG, "query db, chatgroup size:"+count);
+        if(count==0){
+            mRecyclerView.showEmptyView();
+        }else {
+            mRecyclerViewAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override

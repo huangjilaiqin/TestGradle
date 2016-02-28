@@ -5,22 +5,14 @@ package com.lessask.model;
  */
 public class ChatMessageResponse extends ResponseError{
     private int id;
-    private int friendid;
+    private String chatgroupId;
     private int seq;
 
-    public ChatMessageResponse(int errno, String error, int id, int friendid, int seq) {
+    public ChatMessageResponse(int errno, String error,int id, String chatgroupId, int seq) {
         super(errno, error);
-        this.id = id;
-        this.friendid = friendid;
+        this.id=id;
+        this.chatgroupId = chatgroupId;
         this.seq = seq;
-    }
-
-    public int getFriendid() {
-        return friendid;
-    }
-
-    public void setFriendid(int friendid) {
-        this.friendid = friendid;
     }
 
     public int getId() {
@@ -29,6 +21,14 @@ public class ChatMessageResponse extends ResponseError{
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getChatgroupId() {
+        return chatgroupId;
+    }
+
+    public void setChatgroupId(String chatgroupId) {
+        this.chatgroupId = chatgroupId;
     }
 
     public int getSeq() {

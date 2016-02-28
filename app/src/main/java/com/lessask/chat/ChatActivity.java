@@ -5,11 +5,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -27,6 +32,8 @@ import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.History;
 import com.lessask.model.ResponseError;
+import com.lessask.model.User;
+import com.lessask.util.ScreenUtil;
 import com.lessask.util.Utils;
 
 
@@ -52,6 +59,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
     private int seq;
 
     private ArrayList<ChatMessage> messageList;
+    private User friend;
 
     private Handler handler = new Handler() {
         @Override
@@ -112,10 +120,12 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
         userId = globalInfos.getUserId();
-        friendId = intent.getIntExtra("friendId", -1);
+        friend = intent.getParcelableExtra("friend");
+        friendId = friend.getUserid();
+        String chatgroupId = userId<friendId?userId+""+friendId:friendId+""+userId;
         seq = 0;
 
-        messageList = globalInfos.getChatContent(friendId);
+        messageList = globalInfos.getChatContent(chatgroupId);
 
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
@@ -168,14 +178,45 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         //输入框
         etContent = (EditText) findViewById(R.id.content);
         //发送
-        ImageView ivSend = (ImageView) findViewById(R.id.send);
+        final ImageView ivMore = (ImageView) findViewById(R.id.more);
+        final Button send = (Button) findViewById(R.id.send);
+        int screenWidth = ScreenUtil.getScreenWidth(getBaseContext());
+
+        ViewGroup.LayoutParams params = etContent.getLayoutParams();
+        Log.e(TAG, "width:"+params.width);
+        params.width = screenWidth-ivMore.getLayoutParams().width-ivContentType.getLayoutParams().width;
+        Log.e(TAG, "width:"+params.width);
+        etContent.setLayoutParams(params);
+
+        etContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(count==0){
+                    ivMore.setVisibility(View.VISIBLE);
+                    send.setVisibility(View.INVISIBLE);
+                }else{
+                    ivMore.setVisibility(View.INVISIBLE);
+                    send.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         ivContentType.setTag(R.drawable.tn);
 
         //一进来就显示最新的聊天消息
         chatAdapter.notifyDataSetChanged();
 
-        ivSend.setOnClickListener(new View.OnClickListener() {
+        send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String content = etContent.getText().toString().trim();
@@ -184,7 +225,8 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                     return;
                 }
 
-                ChatMessage msg = new ChatMessage(userId, friendId, ChatMessage.MSG_TYPE_TEXT, content, Utils.date2Chat(new Date()), seq, ChatMessage.VIEW_TYPE_SEND);
+                String chatgroupId = userId<friendId?userId+""+friendId:friendId+""+userId;
+                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()) , seq, ChatMessage.VIEW_TYPE_SEND);
                 messageList.add(msg);
 
                 etContent.setText("");
@@ -193,7 +235,10 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
                 //Log.d(TAG, "userid:"+userId);
                 Log.d(TAG, "gson:"+gson.toJson(msg));
+
                 chat.emit("message", gson.toJson(msg));
+                //to do 第一次接收到信息 聊天列表 要增加一条记录
+
 
             }
         });
@@ -248,11 +293,13 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         swipeView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                /*
                 swipeView.setRefreshing(true);
                 //请求历史数据
                 History history = new History(userId, friendId, globalInfos.getHistoryIds(friendId));
                 Log.e(TAG, "history:"+gson.toJson(history));
                 chat.emit("history", gson.toJson(history));
+                */
             }
         });
 

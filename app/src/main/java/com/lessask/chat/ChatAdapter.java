@@ -126,7 +126,7 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                             convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_me, null);
                             meViewHolder = new MeViewHolder();
                             convertView.setTag(meViewHolder);
-                            meViewHolder.headImg = (ImageView) convertView.findViewById(R.id.head_img);
+                            //meViewHolder.headImg = (ImageView) convertView.findViewById(R.id.head_img);
                             meViewHolder.msg = (TextView) convertView.findViewById(R.id.content);
                             break;
                     }
@@ -152,7 +152,7 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                         otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
                         //设置动态加载的资源
                         String friendHeadImgUrl = globalInfos.getHeadImgHost()+itemData.getUserid()+".jpg";
-                        File friendHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getFriendid()+".jpg");
+                        File friendHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid()+".jpg");
                         //Utils.getImgFromLocalOrNet(friendHeadImgFile, friendHeadImgUrl, otherViewHolder.headImg);
                         ImageListener listener = ImageLoader.getImageListener(otherViewHolder.headImg,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                         //Log.e(TAG, "received:"+friendHeadImgUrl);
@@ -164,13 +164,15 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                 switch (msgType) {
                     case ChatMessage.MSG_TYPE_TEXT:
                         meViewHolder.msg.setText(itemData.getContent());
+
+                        /*
                         meViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
                         String userHeadImgUrl = globalInfos.getHeadImgHost()+itemData.getUserid()+".jpg";
                         File userHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid()+".jpg");
-
                         ImageListener listener = ImageLoader.getImageListener(meViewHolder.headImg,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
                         //Log.e(TAG, "send:"+userHeadImgUrl);
                         imageLoader.get(userHeadImgUrl, listener);
+                        */
                         break;
                 }
                 break;

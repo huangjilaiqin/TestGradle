@@ -3,6 +3,7 @@ package com.lessask;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.*;
 import android.os.Message;
 import android.support.design.widget.TextInputLayout;
@@ -56,9 +57,19 @@ public class LoginActivity extends MyAppCompatActivity{
                     //去掉转圈圈
                     loginDialog.cancel();
                     //跳转到首页
-                    //Intent intent = new Intent(LoginActivity.this, TestActivity.class);
-                    //Intent intent = new Intent(LoginActivity.this, FriendsActivity.class);
-                    //Intent intent = new Intent(LoginActivity.this, FragmentMainActivity.class);
+
+
+                    SharedPreferences baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = baseInfo.edit();
+                    User user = globalInfos.getUser();
+                    editor.putInt("userid",globalInfos.getUserId());
+                    editor.putString("headImg", user.getHeadImg());
+                    editor.putString("nickname", user.getNickname());
+                    editor.putString("mail", user.getMail());
+                    editor.putString("token", "mytoken");
+                    editor.commit();
+                    Log.e(TAG, "userid:"+baseInfo.getInt("userid",-1));
+
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     //清除 activity栈中的内容
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);

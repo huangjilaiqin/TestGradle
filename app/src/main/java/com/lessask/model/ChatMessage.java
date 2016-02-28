@@ -2,7 +2,7 @@ package com.lessask.model;
 /**
  * Created by JHuang on 2015/8/1.
  */
-public class ChatMessage {
+public class ChatMessage extends ResponseError {
     //用于判断显示使用的view类型
     public static final int VIEW_TYPE_RECEIVED= 0;
     public static final int VIEW_TYPE_SEND= 1;
@@ -17,6 +17,7 @@ public class ChatMessage {
     private int id;
     private int userid;
     private int friendid;
+    private String chatgroupId;
     private int type;
     private String content;
     private String time;
@@ -25,22 +26,32 @@ public class ChatMessage {
     //客户端使用
     private int viewType;
 
-    public ChatMessage(int userid, int friendid, int type, String content, String time, int seq, int viewType) {
-        this.friendid = friendid;
+    //发送消息的构造函数
+    public ChatMessage(int userid,int friendid, String chatgroupId, int type, String content, String time, int seq, int viewType) {
+        this.chatgroupId = chatgroupId;
         this.type = type;
+        this.friendid=friendid;
         this.userid = userid;
         this.content = content;
         this.time = time;
         this.seq = seq;
         this.viewType = viewType;
     }
-    public ChatMessage(int id,int userid, int friendid, int type, String content, String time) {
+    public ChatMessage(int id,int userid, String chatgroupId, int type, String content, String time) {
         this.id = id;
-        this.friendid = friendid;
+        this.chatgroupId = chatgroupId;
         this.type = type;
         this.userid = userid;
         this.content = content;
         this.time = time;
+    }
+
+    public int getFriendid() {
+        return friendid;
+    }
+
+    public void setFriendid(int friendid) {
+        this.friendid = friendid;
     }
 
     public int getId() {
@@ -67,12 +78,12 @@ public class ChatMessage {
         this.userid = userid;
     }
 
-    public int getFriendid() {
-        return friendid;
+    public String getChatgroupId() {
+        return chatgroupId;
     }
 
-    public void setFriendid(int friendid) {
-        this.friendid = friendid;
+    public void setChatgroupId(String chatgroupId) {
+        this.chatgroupId = chatgroupId;
     }
 
     public int getType() {

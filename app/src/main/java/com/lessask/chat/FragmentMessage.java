@@ -1,7 +1,10 @@
 package com.lessask.chat;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -70,63 +73,28 @@ public class FragmentMessage extends Fragment{
                     startActivity(intent);
                 }
             });
-            loadAtions();
+
+            globalInfos.setMessageAdapter(mRecyclerViewAdapter);
+            loadChatGroups();
 
         }
         return rootView;
     }
 
-    private void loadAtions(){
-        Type type = new TypeToken<ArrayListResponse<ChatGroup>>() {}.getType();
-        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getChatGroupUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
-            @Override
-            public void onStart() {
-
-            }
-
-            @Override
-            public void onResponse(ArrayListResponse response) {
-
-                if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
-                    //Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
-                    mRecyclerView.showErrorView(response.getError());
-                }else {
-                    ArrayList<ChatGroup> datas = response.getDatas();
-                    //历史状态
-                    int position = mRecyclerViewAdapter.getItemCount();
-                    if (datas.size() == 0) {
-                        if (mRecyclerViewAdapter.getItemCount() == 0) {
-                            mRecyclerView.showEmptyView();
-                        }
-                        return;
-                    }
-                    mRecyclerViewAdapter.appendToList(datas);
-
-                    if (datas.size() > 0) {
-                        mRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-
-            @Override
-            public void onError(VolleyError error) {
-                Toast.makeText(getContext(), "网络错误" + error, Toast.LENGTH_SHORT);
-                mRecyclerView.showErrorView(error.toString());
-            }
-
-            @Override
-            public void setPostData(Map datas) {
-                datas.put("userid", "" + globalInfos.getUserId());
-            }
-
-            @Override
-            public Map getPostData() {
-                Map datas = new HashMap();
-                datas.put("userid", "" + globalInfos.getUserId());
-                return datas;
-            }
-        });
-        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+    private void loadChatGroups(){
+        mRecyclerView.showLoadingView();
+        SQLiteDatabase db = globalInfos.getDb(getContext());
+        Cursor cursor = db.rawQuery("select * from t_chatgroup", null);
+        int count = cursor.getColumnCount();
+        while (cursor.moveToNext()){
+            mRecyclerViewAdapter.append(new ChatGroup(cursor.getString(0), cursor.getString(1)));
+        }
+        Log.e(TAG, "query db, chatgroup size:"+count);
+        if(count==0){
+            mRecyclerView.showEmptyView();
+        }else {
+            mRecyclerViewAdapter.notifyDataSetChanged();
+        }
     }
 
 
@@ -136,5 +104,8 @@ public class FragmentMessage extends Fragment{
         super.onResume();
         Log.e(TAG, "onResume");
         //低效率的刷新,只要再次显示这个界面都重新刷新一遍
+        mRecyclerViewAdapter.notifyDataSetChanged();
+        if(globalInfos.getChatGroups()!=null)
+            Log.e(TAG, "size:"+globalInfos.getChatGroups().size());
     }
 }

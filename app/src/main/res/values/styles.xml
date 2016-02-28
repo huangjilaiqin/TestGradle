@@ -58,7 +58,6 @@
     <style name="BaseAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/main_color</item>
         <item name="colorPrimaryDark">@color/main_color_dark</item>
-        <item name="colorAccent">#FF4081</item>
     </style>
 
 </resources>

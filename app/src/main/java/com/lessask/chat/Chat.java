@@ -43,6 +43,8 @@ public class Chat {
     private HistoryListener historyListener;
     private UploadRunListener uploadRunListener;
 
+
+
     private Chat(){
         mSocket = LASocketIO.getSocket();
         //注册回调函数
@@ -64,19 +66,30 @@ public class Chat {
     private static class LazyHolder {
         private static final Chat INSTANCE = new Chat();
     }
+
+
+
+    //受到信息
     private Emitter.Listener onMessage = new Emitter.Listener(){
         @Override
         public void call(Object... args) {
             Log.e(TAG, "onMessage:" + args[0].toString());
-            //to do 响应message要有两套机制,一个是message回应, 一个是好友发过来的message
-            //修改用户的信息列表
-            //Type type = new TypeToken<Map<String, String>>(){}.getType();
-            //Map<String, String> map = gson.fromJson(args[0].toString(), type);
-            //String id = map.get("id");
+
             ChatMessage message = gson.fromJson(args[0].toString(), ChatMessage.class);
+            if(message.getErrno()!=0 || message.getError()!=null){
+                Log.e(TAG, "error:"+message.getError());
+                return;
+            }
             message.setViewType(ChatMessage.VIEW_TYPE_RECEIVED);
             int friendId = message.getUserid();
-            ArrayList mList = globalInfos.getChatContent(message.getFriendid());
+            String chatGroupId = message.getChatgroupId();
+            //第一次接收到信息 聊天列表 要增加一条记录
+            if(!globalInfos.hasChatGroupId(chatGroupId)){
+                String friendName = globalInfos.getFriends().get(friendId).getNickname();
+                ChatGroup chatGroup = new ChatGroup(chatGroupId,friendName);
+                globalInfos.addChatGroup(chatGroup);
+            }
+            ArrayList mList = globalInfos.getChatContent(message.getChatgroupId());
             mList.add(message);
             if(globalInfos.getHistoryIds(friendId)==-1){
                 globalInfos.setHistoryIds(friendId, message.getId());
@@ -90,7 +103,7 @@ public class Chat {
             */
 
             //通知当前聊天activity
-            dataChangeListener.message(message.getFriendid(), message.getType());
+            dataChangeListener.message(message.getUserid(), message.getType());
             //通知消息列表更新
         }
     };
@@ -99,11 +112,14 @@ public class Chat {
         public void call(Object... args) {
             Log.e(TAG, "onMessageResp:" + args[0].toString());
             ChatMessageResponse response = gson.fromJson(args[0].toString(), ChatMessageResponse.class);
-            dataChangeListener.messageResponse(response);
-            if(globalInfos.getHistoryIds(response.getFriendid())==-1){
-                globalInfos.setHistoryIds(response.getFriendid(), response.getId());
-                Log.e(TAG, "historyId:" + globalInfos.getHistoryIds(response.getFriendid()));
+            if(response.getErrno()!=0 || response.getError()!=null){
+                Log.e(TAG, "error:"+response.getError());
+                return;
             }
+
+
+            dataChangeListener.messageResponse(response);
+
         }
     };
     private Emitter.Listener onLogin = new Emitter.Listener(){
@@ -134,6 +150,7 @@ public class Chat {
                 historyListener.history(historyResponse,historyResponse.getFriendid(),0);
             }else {
                 ArrayList<ChatMessage> messages = historyResponse.getMessages();
+                /*
                 if(messages.size()>0){
                     int myId = globalInfos.getUserId();
                     int friendId = 0;
@@ -164,6 +181,7 @@ public class Chat {
                     Log.e(TAG,"historyId:"+globalInfos.getHistoryIds(friendId));
                 }
                 historyListener.history(null, historyResponse.getFriendid(), messages.size());
+                */
             }
         }
     };

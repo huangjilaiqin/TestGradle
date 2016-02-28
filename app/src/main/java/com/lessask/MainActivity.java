@@ -1,7 +1,10 @@
 package com.lessask;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.design.widget.NavigationView;
@@ -29,13 +32,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lessask.action.FragmentAction;
+import com.lessask.chat.ChatGroup;
 import com.lessask.contacts.FragmentContacts;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.lesson.FragmentLesson;
 import com.lessask.me.FragmentMe;
+import com.lessask.model.ArrayListResponse;
+import com.lessask.model.User;
+import com.lessask.net.GsonRequest;
+import com.lessask.net.VolleyHelper;
 import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;
@@ -43,6 +54,7 @@ import com.lessask.tag.TagNet;
 import com.lessask.test.FragmentTest;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,11 +88,19 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
 
     private int currentFragmentId;
 
+    private SharedPreferences baseInfo;
+    private SharedPreferences.Editor editor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
+        editor = baseInfo.edit();
         Log.e(TAG, "onCreate");
+        //加载数据
+        loadBaseData();
+
         setStatusTransparent();
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -148,6 +168,118 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
             replaceFragment(fragmentOnTheLoad);
             setTitle(titles.get(R.id.on_the_load));
         }
+    }
+
+    //加载基础数据
+    private void loadBaseData(){
+
+        if(!baseInfo.getBoolean("syncData", false)) {
+            SQLiteDatabase db = globalInfos.getDb(getBaseContext());
+            loadChatGroups(db);
+            loadFriends(db);
+
+            editor.putBoolean("syncData", true);
+            editor.commit();
+        }
+    }
+
+    //加载用户聊天列表
+    private void loadChatGroups(final SQLiteDatabase db){
+        Type type = new TypeToken<ArrayListResponse<ChatGroup>>() {}.getType();
+        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getChatGroupUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onResponse(ArrayListResponse response) {
+
+                if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
+                    //Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
+                }else {
+                    ArrayList<ChatGroup> datas = response.getDatas();
+                    //入库,本地化
+                    for(int i=0;i<datas.size();i++){
+                        ChatGroup chatGroup = datas.get(i);
+                        ContentValues values = new ContentValues();
+                        values.put("chatgroup_id", chatGroup.getChatgroupId());
+                        values.put("name", chatGroup.getName());
+                        db.insert("t_chatgroup", "", values);
+                    }
+                    Log.e(TAG, "insert db");
+
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(MainActivity.this, "网络错误:加载聊天列表" + error, Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userid", "" + globalInfos.getUserId());
+            }
+
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userid", "" + globalInfos.getUserId());
+                return datas;
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+    }
+
+    //加载用户聊天列表
+    private void loadFriends(final SQLiteDatabase db){
+        Type type = new TypeToken<ArrayListResponse<User>>() {}.getType();
+        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getFriendsUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onResponse(ArrayListResponse response) {
+
+                if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
+                    Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
+                }else {
+                    ArrayList<User> datas = response.getDatas();
+                    //入库,本地化
+                    for(int i=0;i<datas.size();i++){
+                        User user = datas.get(i);
+                        ContentValues values = new ContentValues();
+                        values.put("userid", user.getUserid());
+                        values.put("nickname", user.getNickname());
+                        values.put("headImg", user.getHeadImg());
+                        db.insert("t_friend", "", values);
+                        Log.e(TAG, "insert db:"+user.getNickname());
+                    }
+
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(MainActivity.this, "网络错误:加载好友列表" + error, Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userid", "" + globalInfos.getUserId());
+            }
+
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userid", "" + globalInfos.getUserId());
+                return datas;
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
     }
 
     @Override

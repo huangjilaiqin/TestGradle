@@ -94,7 +94,10 @@ public class FriendsAdapter extends BaseAdapter{
         TextView tvName = (TextView)convertView.findViewById(R.id.name);
         TextView tvContent = (TextView)convertView.findViewById(R.id.content);
         TextView tvTime = (TextView)convertView.findViewById(R.id.time);
-        ArrayList chatContent = globalInfos.getChatContent(user.getUserid());
+        int userid = globalInfos.getUserId();
+        int friendid = user.getUserid();
+        String chatgroupId = userid<friendid?userid+""+friendid:friendid+""+userid;
+        ArrayList chatContent = globalInfos.getChatContent(chatgroupId);
         ChatMessage msg = null;
         if(chatContent.size()>0) {
             msg = (ChatMessage) chatContent.get(chatContent.size()-1);

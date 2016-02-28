@@ -1,7 +1,11 @@
 package com.lessask.global;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.lessask.chat.ChatGroup;
+import com.lessask.chat.MessageAdapter;
 import com.lessask.model.ActionItem;
 import com.lessask.model.User;
 import com.lessask.action.ActionTagsHolder;
@@ -10,7 +14,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by huangji on 2015/8/12.
@@ -22,7 +28,7 @@ public class GlobalInfos {
     private int userId;
     private User user;
     //聊天信息
-    private HashMap<Integer, ArrayList> chatContents;
+    private HashMap<String, ArrayList> chatContents;
     //历史记录id
     private HashMap<Integer, Integer> historyIds;
     //好友哈希表
@@ -31,6 +37,10 @@ public class GlobalInfos {
     private ArrayList<User> friends;
     private HashMap<Integer, ActionItem> actionsInfo;
 
+    //聊天列表
+    private ArrayList<ChatGroup> chatGroups;
+    private Set<String> chatGroupIds;
+
     private File headImgDir;
     private String headImgHost;
 
@@ -38,6 +48,8 @@ public class GlobalInfos {
     private int screenHeight;
     private ActionTagsHolder actionTagsHolder;
     private Config config;
+    private MessageAdapter messageAdapter;
+    SQLiteDatabase db;
 
     private GlobalInfos(){
         historyIds = new HashMap<>();
@@ -46,12 +58,54 @@ public class GlobalInfos {
         actionTagsHolder = new ActionTagsHolder();
         config = new Config();
     }
+
+    public SQLiteDatabase getDb(Context context){
+        if(db==null){
+            db = context.openOrCreateDatabase("lessask.db", Context.MODE_PRIVATE, null);
+        }
+        return db;
+    }
+
+    public void setMessageAdapter(MessageAdapter messageAdapter) {
+        this.messageAdapter = messageAdapter;
+    }
+    public ArrayList<ChatGroup> getChatGroups() {
+        return chatGroups;
+    }
+
+    public void addChatGroups(ArrayList<ChatGroup> chatGroups) {
+        if(this.chatGroups==null)
+            this.chatGroups = new ArrayList<>();
+        this.chatGroups.addAll(chatGroups);
+
+        if(chatGroupIds==null)
+            chatGroupIds=new HashSet<>();
+        for(int i=0;i<chatGroups.size();i++)
+            chatGroupIds.add(chatGroups.get(i).getChatgroupId());
+    }
+
+    public void addChatGroup(ChatGroup chatGroup){
+        chatGroups.add(0,chatGroup);
+        chatGroupIds.add(chatGroup.getChatgroupId());
+        messageAdapter.append(chatGroup);
+        messageAdapter.notifyItemInserted(messageAdapter.getItemCount()-1);
+    }
+
+    public boolean hasChatGroupId(String chatGroupId){
+        if(chatGroupIds==null){
+            chatGroups=new ArrayList<>();
+            chatGroupIds=new HashSet<>();
+        }
+        return chatGroupIds.contains(chatGroupId);
+    }
+
     public static final GlobalInfos getInstance(){
         return LazyHolder.INSTANCE;
     }
     private static class LazyHolder {
         private static final GlobalInfos INSTANCE = new GlobalInfos();
     }
+
 
     public ArrayList<ActionItem> getActions(){
         Collection<ActionItem> collection = actionsInfo.values();
@@ -137,7 +191,7 @@ public class GlobalInfos {
     }
 
     //好友消息用好友id, 群消息用群id
-    public ArrayList getChatContent(int id){
+    public ArrayList getChatContent(String id){
         ArrayList chatContent = chatContents.get(id);
         if(chatContent == null){
             chatContent = new ArrayList();
@@ -147,6 +201,11 @@ public class GlobalInfos {
     }
     public ArrayList<User> getFriends() {
         return friends;
+    }
+
+    public User getFriend(int id){
+        User user = friends.get(id);
+        return user;
     }
 
     public void setFriends(ArrayList<User> friends) {

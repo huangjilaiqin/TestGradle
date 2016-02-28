@@ -1,13 +1,16 @@
 package com.lessask.model;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by JHuang on 2015/8/16.
  */
-public class User {
+public class User implements Parcelable {
     private int userid;
     private String mail;
     private String nickname;
@@ -15,6 +18,43 @@ public class User {
     private String passwd;
     private String headImg;
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(userid);
+        dest.writeString(mail);
+        dest.writeString(nickname);
+        dest.writeInt(status);
+        dest.writeString(passwd);
+        dest.writeString(headImg);
+    }
+
+    public static final Parcelable.Creator<User> CREATOR
+             = new Parcelable.Creator<User>() {
+         public User createFromParcel(Parcel in) {
+             int userid = in.readInt();
+             String mail = in.readString();
+             String nickname = in.readString();
+             int status = in.readInt();
+             String passwd = in.readString();
+             String headImg = in.readString();
+             return new User(userid,mail,nickname,status,passwd,headImg);
+         }
+
+         public User[] newArray(int size) {
+             return new User[size];
+         }
+    };
+
+    public User(int userid, String nickname, String headImg) {
+        this.userid = userid;
+        this.nickname = nickname;
+        this.headImg = headImg;
+    }
     public User(int userid, String mail, String nickname, int status, String passwd) {
         this.userid = userid;
         this.mail = mail;
