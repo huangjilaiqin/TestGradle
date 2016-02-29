@@ -1,7 +1,9 @@
 package com.lessask.chat;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -59,7 +61,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
     private int seq;
 
     private ArrayList<ChatMessage> messageList;
-    private User friend;
+    private ChatGroup chatGroup;
 
     private Handler handler = new Handler() {
         @Override
@@ -120,12 +122,10 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
         userId = globalInfos.getUserId();
-        friend = intent.getParcelableExtra("friend");
-        friendId = friend.getUserid();
-        String chatgroupId = userId<friendId?userId+""+friendId:friendId+""+userId;
+        chatGroup = intent.getParcelableExtra("chatGroup");
         seq = 0;
 
-        messageList = globalInfos.getChatContent(chatgroupId);
+        messageList = globalInfos.getChatContent(chatGroup.getChatgroupId());
 
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
@@ -225,8 +225,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                     return;
                 }
 
-                String chatgroupId = userId<friendId?userId+""+friendId:friendId+""+userId;
-                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()) , seq, ChatMessage.VIEW_TYPE_SEND);
+                ChatMessage msg = new ChatMessage(userId,chatGroup.getChatgroupId(), ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()) , seq, ChatMessage.VIEW_TYPE_SEND);
                 messageList.add(msg);
 
                 etContent.setText("");
@@ -238,7 +237,11 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
                 chat.emit("message", gson.toJson(msg));
                 //to do 第一次接收到信息 聊天列表 要增加一条记录
-
+                SQLiteDatabase db = globalInfos.getDb(ChatActivity.this);
+                ContentValues values = new ContentValues();
+                values.put("chatgroup_id", chatGroup.getChatgroupId());
+                values.put("name", chatGroup.getName());
+                db.insert("t_chatgroup", "", values);
 
             }
         });

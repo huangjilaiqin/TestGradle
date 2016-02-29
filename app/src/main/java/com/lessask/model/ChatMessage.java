@@ -27,6 +27,15 @@ public class ChatMessage extends ResponseError {
     private int viewType;
 
     //发送消息的构造函数
+    public ChatMessage(int userid, String chatgroupId, int type, String content, String time, int seq, int viewType) {
+        this.chatgroupId = chatgroupId;
+        this.type = type;
+        this.userid = userid;
+        this.content = content;
+        this.time = time;
+        this.seq = seq;
+        this.viewType = viewType;
+    }
     public ChatMessage(int userid,int friendid, String chatgroupId, int type, String content, String time, int seq, int viewType) {
         this.chatgroupId = chatgroupId;
         this.type = type;

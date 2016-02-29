@@ -120,6 +120,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                     int friendId = user.getUserid();
                     int userid = globalInfos.getUserId();
                     String chatgroupId = userid<friendId?userid+""+friendId:friendId+""+userid;
+                    ChatGroup chatGroup = new ChatGroup(chatgroupId, user.getNickname());
                     SQLiteDatabase db = globalInfos.getDb(getContext());
                     Cursor cursor = db.rawQuery("select * from t_chatgroup where chatgroup_id=?", new String[]{chatgroupId});
                     //向t_chatgroup插入一条数据
@@ -130,7 +131,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                         db.insert("t_chatgroup", "", values);
                     }
 
-                    intent.putExtra("friend", user);
+                    intent.putExtra("chatgroup", chatGroup);
                     startActivity(intent);
                 }
             });

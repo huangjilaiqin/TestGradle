@@ -68,8 +68,8 @@ public class FragmentMessage extends Fragment{
                 @Override
                 public void onItemClick(View view, final int position) {
                     Intent intent = new Intent(getActivity(), ChatActivity.class);
-                    intent.putExtra("userid", position);
-                    //startActivityForResult(intent, SHOW_LESSON);
+                    ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
+                    intent.putExtra("chatGroup", chatGroup);
                     startActivity(intent);
                 }
             });
