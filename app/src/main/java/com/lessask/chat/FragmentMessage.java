@@ -22,6 +22,8 @@ import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.Config;
+import com.lessask.global.DbHelper;
+import com.lessask.global.DbInsertListener;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ArrayListResponse;
 import com.lessask.net.GsonRequest;
@@ -83,7 +85,7 @@ public class FragmentMessage extends Fragment{
 
     private void loadChatGroups(){
         mRecyclerView.showLoadingView();
-        SQLiteDatabase db = globalInfos.getDb(getContext());
+        SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
         Cursor cursor = db.rawQuery("select * from t_chatgroup", null);
         int count = cursor.getColumnCount();
         while (cursor.moveToNext()){
@@ -95,6 +97,16 @@ public class FragmentMessage extends Fragment{
         }else {
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+
+        //设置数据库监听
+        DbHelper.getInstance(getContext()).appendInsertListener("t_chatgroup", new DbInsertListener() {
+            @Override
+            public void callback(Object obj) {
+                ChatGroup chatGroup = (ChatGroup)obj;
+                mRecyclerViewAdapter.append(chatGroup);
+                Log.e(TAG, "insert callback");
+            }
+        });
     }
 
 

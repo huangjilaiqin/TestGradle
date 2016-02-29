@@ -49,7 +49,6 @@ public class GlobalInfos {
     private ActionTagsHolder actionTagsHolder;
     private Config config;
     private MessageAdapter messageAdapter;
-    SQLiteDatabase db;
 
     private GlobalInfos(){
         historyIds = new HashMap<>();
@@ -60,10 +59,7 @@ public class GlobalInfos {
     }
 
     public SQLiteDatabase getDb(Context context){
-        if(db==null){
-            db = context.openOrCreateDatabase("lessask.db", Context.MODE_PRIVATE, null);
-        }
-        return db;
+        return DbHelper.getInstance(context).getDb();
     }
 
     public void setMessageAdapter(MessageAdapter messageAdapter) {

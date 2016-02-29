@@ -204,7 +204,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
                         ChatGroup chatGroup = datas.get(i);
                         ContentValues values = new ContentValues();
                         values.put("chatgroup_id", chatGroup.getChatgroupId());
-                        values.put("name", chatGroup.getName());
+                    values.put("name", chatGroup.getName());
                         db.insert("t_chatgroup", "", values);
                     }
                     Log.e(TAG, "insert db");

@@ -32,6 +32,7 @@ import com.lessask.chat.ChatActivity;
 import com.lessask.chat.ChatGroup;
 import com.lessask.crud.CRUDExtend;
 import com.lessask.global.Config;
+import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ArrayListResponse;
 import com.lessask.model.User;
@@ -121,17 +122,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                     int userid = globalInfos.getUserId();
                     String chatgroupId = userid<friendId?userid+""+friendId:friendId+""+userid;
                     ChatGroup chatGroup = new ChatGroup(chatgroupId, user.getNickname());
-                    SQLiteDatabase db = globalInfos.getDb(getContext());
-                    Cursor cursor = db.rawQuery("select * from t_chatgroup where chatgroup_id=?", new String[]{chatgroupId});
-                    //向t_chatgroup插入一条数据
-                    if(!cursor.isAfterLast()){
-                        ContentValues values = new ContentValues();
-                        values.put("chatgroup_id", chatgroupId);
-                        values.put("name", user.getNickname());
-                        db.insert("t_chatgroup", "", values);
-                    }
-
-                    intent.putExtra("chatgroup", chatGroup);
+                    intent.putExtra("chatGroup", chatGroup);
                     startActivity(intent);
                 }
             });
@@ -143,7 +134,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
     }
     private void loadContact(){
         mRecyclerView.showLoadingView();
-        SQLiteDatabase db = globalInfos.getDb(getContext());
+        SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
         Cursor cursor = db.rawQuery("select * from t_friend", null);
         while (cursor.moveToNext()){
             mRecyclerViewAdapter.append(new User(cursor.getInt(0), cursor.getString(1), cursor.getString(2)));

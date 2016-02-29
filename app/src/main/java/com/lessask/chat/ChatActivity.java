@@ -29,6 +29,7 @@ import android.os.Handler;
 
 import com.google.gson.Gson;
 import com.lessask.R;
+import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
@@ -236,13 +237,11 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 Log.d(TAG, "gson:"+gson.toJson(msg));
 
                 chat.emit("message", gson.toJson(msg));
-                //to do 第一次接收到信息 聊天列表 要增加一条记录
-                SQLiteDatabase db = globalInfos.getDb(ChatActivity.this);
+
                 ContentValues values = new ContentValues();
                 values.put("chatgroup_id", chatGroup.getChatgroupId());
                 values.put("name", chatGroup.getName());
-                db.insert("t_chatgroup", "", values);
-
+                DbHelper.getInstance(getBaseContext()).insert("t_chatgroup",null,values);
             }
         });
         etContent.setOnClickListener(new View.OnClickListener() {

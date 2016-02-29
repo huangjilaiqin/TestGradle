@@ -15,8 +15,6 @@ public class ChatMessage extends ResponseError {
     public static final int MSG_TYPE_VIDEO = 4;
 
     private int id;
-    private int userid;
-    private int friendid;
     private String chatgroupId;
     private int type;
     private String content;
@@ -25,6 +23,9 @@ public class ChatMessage extends ResponseError {
     private int seq;
     //客户端使用
     private int viewType;
+
+    private int userid;
+    private int friendid;
 
     //发送消息的构造函数
     public ChatMessage(int userid, String chatgroupId, int type, String content, String time, int seq, int viewType) {
