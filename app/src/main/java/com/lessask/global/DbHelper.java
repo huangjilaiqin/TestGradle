@@ -62,13 +62,16 @@ public class DbHelper {
     public void insert(String table,String nullColumnHack,ContentValues values){
         db.insert(table,nullColumnHack,values);
 
+        Object obj=null;
+        switch (table){
+            case "t_chatgroup":
+                obj = new ChatGroup(values.getAsString("chatgroup_id"),values.getAsString("name"));
+                break;
+            case "t_chatrecord":
+                obj = new ChatGroup();
+                break;
+        }
         for(DbInsertListener listener:insertCallbacks.get(table)){
-            Object obj=null;
-            switch (table){
-                case "t_chatgroup":
-                    obj = new ChatGroup(values.getAsString("chatgroup_id"),values.getAsString("name"));
-                    break;
-            }
             listener.callback(obj);
         }
     }

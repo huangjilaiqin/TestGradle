@@ -1,7 +1,12 @@
 package com.lessask.chat;
 
+import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 /**
  * Created by JHuang on 2016/2/27.
@@ -10,11 +15,17 @@ import android.os.Parcelable;
 public class ChatGroup implements Parcelable {
     private String chatgroupId;
     private String name;
+    private String img;
+    private List<Message> messageList;
+    private Queue<Message> messagesQueue;
+    //一个高效的缓存结构
 
 
     public ChatGroup(String chatgroupId, String name) {
         this.chatgroupId = chatgroupId;
         this.name = name;
+        //聊天列表缓存一定数量的消息，保证进入聊天界面不会因为查数据库而产生卡顿
+        this.messageList = new LinkedList<>();
     }
     @Override
     public int describeContents() {

@@ -119,7 +119,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
         userId = globalInfos.getUserId();
@@ -234,14 +234,19 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
                 //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
                 //Log.d(TAG, "userid:"+userId);
-                Log.d(TAG, "gson:"+gson.toJson(msg));
+                Log.d(TAG, "gson:" + gson.toJson(msg));
 
                 chat.emit("message", gson.toJson(msg));
 
-                ContentValues values = new ContentValues();
-                values.put("chatgroup_id", chatGroup.getChatgroupId());
-                values.put("name", chatGroup.getName());
-                DbHelper.getInstance(getBaseContext()).insert("t_chatgroup",null,values);
+                //该聊天记录不在聊天列表里
+                if(intent.getBooleanExtra("notInContacts", false)) {
+                    ContentValues values = new ContentValues();
+                    values.put("chatgroup_id", chatGroup.getChatgroupId());
+                    values.put("name", chatGroup.getName());
+                    DbHelper.getInstance(getBaseContext()).insert("t_chatgroup", null, values);
+                }
+
+                //聊天消息入库
             }
         });
         etContent.setOnClickListener(new View.OnClickListener() {

@@ -40,20 +40,7 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
 
         //判断是否是第一次启动
         if(!baseInfo.getBoolean("initDb", false)){
-            SharedPreferences.Editor editor = baseInfo.edit();
-            //初始化数据库
-            SQLiteDatabase db = globalInfos.getDb(getApplicationContext());
-            //获取基础信息
-            //个人信息
-            //聊天列表
-            db.execSQL("create table t_chatgroup(chatgroup_id varchar(19) primary key,`name` varchar(200) not null)");
-            //通讯录
-            db.execSQL("create table t_friend(userid int not null primary key,nickname varchar(20),headimg varchar(150))");
-
-            Log.e(TAG, "create db");
-
-            editor.putBoolean("initDb", true);
-            editor.commit();
+            initDb(baseInfo);
         }
         int userid = baseInfo.getInt("userid", -1);
         Log.e(TAG, "userid:"+userid);
@@ -74,6 +61,25 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
             startActivity(intent);
             finish();
         }
+    }
+
+    private void initDb(SharedPreferences baseInfo){
+        SharedPreferences.Editor editor = baseInfo.edit();
+        //初始化数据库
+        SQLiteDatabase db = globalInfos.getDb(getApplicationContext());
+        //获取基础信息
+        //个人信息
+        //聊天列表
+        db.execSQL("create table t_chatgroup(chatgroup_id varchar(19) primary key,`name` varchar(200) not null)");
+        //通讯录
+        db.execSQL("create table t_friend(userid int not null primary key,nickname varchar(20),headimg varchar(150))");
+        //消息列表
+        db.execSQL("create table `t_chatrecord`(`id` int not null auto_increment,`chatgroup_id` varchar(19) not null,`status` tinyint not null,`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,`userid` int not null,`type` tinyint not null,`content` varchar(500) not null,primary key(id),key(chatgroup_id))");
+
+        Log.e(TAG, "create db");
+
+        editor.putBoolean("initDb", true);
+        editor.commit();
     }
 
     @Override

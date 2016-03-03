@@ -180,7 +180,18 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
 
             editor.putBoolean("syncData", true);
             editor.commit();
+        }else{
+            SQLiteDatabase db = globalInfos.getDb(getBaseContext());
+            loadChatGroupsFromDb(db);
+            loadFriendsFromDb(db);
         }
+    }
+
+    private void loadChatGroupsFromDb(SQLiteDatabase db){
+
+    }
+    private void loadFriendsFromDb(SQLiteDatabase db){
+
     }
 
     //加载用户聊天列表
@@ -188,9 +199,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         Type type = new TypeToken<ArrayListResponse<ChatGroup>>() {}.getType();
         GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getChatGroupUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
             @Override
-            public void onStart() {
-
-            }
+            public void onStart() {}
 
             @Override
             public void onResponse(ArrayListResponse response) {
@@ -208,7 +217,6 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
                         db.insert("t_chatgroup", "", values);
                     }
                     Log.e(TAG, "insert db");
-
                 }
             }
 

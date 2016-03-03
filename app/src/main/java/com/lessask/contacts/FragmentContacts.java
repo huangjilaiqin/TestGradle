@@ -123,6 +123,11 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                     String chatgroupId = userid<friendId?userid+""+friendId:friendId+""+userid;
                     ChatGroup chatGroup = new ChatGroup(chatgroupId, user.getNickname());
                     intent.putExtra("chatGroup", chatGroup);
+                    SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
+                    Cursor cursor = db.rawQuery("select 1 from t_contact where chatgroup_id=?", new String[]{chatgroupId});
+                    if(!cursor.moveToNext())
+                        intent.putExtra("notInContacts", true);
+                    cursor.close();
                     startActivity(intent);
                 }
             });
