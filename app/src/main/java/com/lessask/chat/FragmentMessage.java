@@ -13,21 +13,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
 import com.lessask.global.DbInsertListener;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ArrayListResponse;
-import com.lessask.net.GsonRequest;
-import com.lessask.net.VolleyHelper;
+import com.lessask.model.ChatMessage;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 
@@ -51,6 +45,8 @@ public class FragmentMessage extends Fragment{
     private RecyclerViewStatusSupport mRecyclerView;
     private View rootView;
     private Config config = globalInfos.getConfig();
+
+    private Map<String,ChatGroup> chatGroupMap;
 
     @Nullable
     @Override
@@ -89,7 +85,9 @@ public class FragmentMessage extends Fragment{
         Cursor cursor = db.rawQuery("select * from t_chatgroup", null);
         int count = cursor.getColumnCount();
         while (cursor.moveToNext()){
-            mRecyclerViewAdapter.append(new ChatGroup(cursor.getString(0), cursor.getString(1)));
+            ChatGroup chatGroup = new ChatGroup(cursor.getString(0), cursor.getString(1));
+            chatGroupMap.put(cursor.getString(0), chatGroup);
+            mRecyclerViewAdapter.append(chatGroup);
         }
         Log.e(TAG, "query db, chatgroup size:"+count);
         if(count==0){
@@ -104,6 +102,15 @@ public class FragmentMessage extends Fragment{
             public void callback(Object obj) {
                 ChatGroup chatGroup = (ChatGroup)obj;
                 mRecyclerViewAdapter.append(chatGroup);
+                Log.e(TAG, "insert callback");
+            }
+        });
+        DbHelper.getInstance(getContext()).appendInsertListener("t_chatrecord", new DbInsertListener() {
+            @Override
+            public void callback(Object obj) {
+                ChatMessage msg = (ChatMessage) obj;
+                //更新列表项
+                mRecyclerViewAdapter.get
                 Log.e(TAG, "insert callback");
             }
         });

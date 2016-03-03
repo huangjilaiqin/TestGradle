@@ -226,7 +226,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                     return;
                 }
 
-                ChatMessage msg = new ChatMessage(userId,chatGroup.getChatgroupId(), ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()) , seq, ChatMessage.VIEW_TYPE_SEND);
+                ChatMessage msg = new ChatMessage(userId,chatGroup.getChatgroupId(), ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()), seq,ChatMessage.MSG_SENDING, ChatMessage.VIEW_TYPE_SEND);
                 messageList.add(msg);
 
                 etContent.setText("");
@@ -247,6 +247,14 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 }
 
                 //聊天消息入库
+                ContentValues values = new ContentValues();
+                values.put("chatgroup_id", chatGroup.getChatgroupId());
+                values.put("userid",""+userId);
+                values.put("type", ""+msg.getType());
+                values.put("content", msg.getContent());
+                values.put("status", msg.getStatus());
+                values.put("time", msg.getTime());
+                DbHelper.getInstance(getBaseContext()).insert("t_chatrecord", null, values);
             }
         });
         etContent.setOnClickListener(new View.OnClickListener() {

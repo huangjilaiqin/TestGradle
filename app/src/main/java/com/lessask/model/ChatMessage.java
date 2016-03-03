@@ -14,11 +14,17 @@ public class ChatMessage extends ResponseError {
     public static final int MSG_TYPE_VOICE = 3;
     public static final int MSG_TYPE_VIDEO = 4;
 
+    public static final int MSG_SENDING = 0;
+    public static final int MSG_SEND = 1;
+    public static final int MSG_SEND_FAILED= 2;
+
     private int id;
     private String chatgroupId;
     private int type;
     private String content;
     private String time;
+    //0:发送中, 1:已发送, 2:发送失败
+    private int status;
     //每条消息的序号
     private int seq;
     //客户端使用
@@ -28,13 +34,14 @@ public class ChatMessage extends ResponseError {
     private int friendid;
 
     //发送消息的构造函数
-    public ChatMessage(int userid, String chatgroupId, int type, String content, String time, int seq, int viewType) {
+    public ChatMessage(int userid, String chatgroupId, int type, String content, String time, int seq,int status, int viewType) {
         this.chatgroupId = chatgroupId;
         this.type = type;
         this.userid = userid;
         this.content = content;
         this.time = time;
         this.seq = seq;
+        this.status=status;
         this.viewType = viewType;
     }
     public ChatMessage(int userid,int friendid, String chatgroupId, int type, String content, String time, int seq, int viewType) {
@@ -54,6 +61,14 @@ public class ChatMessage extends ResponseError {
         this.userid = userid;
         this.content = content;
         this.time = time;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public int getFriendid() {

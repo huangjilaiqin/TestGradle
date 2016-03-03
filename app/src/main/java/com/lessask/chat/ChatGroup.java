@@ -17,8 +17,7 @@ public class ChatGroup implements Parcelable {
     private String name;
     private String img;
     private List<Message> messageList;
-    private Queue<Message> messagesQueue;
-    //一个高效的缓存结构
+    //to do 一个高效的缓存结构
 
 
     public ChatGroup(String chatgroupId, String name) {
