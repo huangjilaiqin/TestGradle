@@ -3,8 +3,10 @@ package com.lessask.global;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.lessask.chat.ChatGroup;
+import com.lessask.model.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import java.util.Map;
  */
 public class DbHelper {
 
+    private String TAG = DbHelper.class.getSimpleName();
     private static Context context;
     private SQLiteDatabase db;
 
@@ -26,7 +29,7 @@ public class DbHelper {
         return db;
     }
 
-    public DbHelper() {
+    private DbHelper() {
         insertCallbacks = new HashMap<>();
         updateCallbacks = new HashMap<>();
         deleteCallbacks = new HashMap<>();
@@ -60,7 +63,6 @@ public class DbHelper {
     }
 
     public void insert(String table,String nullColumnHack,ContentValues values){
-        db.insert(table,nullColumnHack,values);
 
         Object obj=null;
         switch (table){
@@ -68,11 +70,17 @@ public class DbHelper {
                 obj = new ChatGroup(values.getAsString("chatgroup_id"),values.getAsString("name"));
                 break;
             case "t_chatrecord":
-                obj = new ChatGroup();
+                Log.e(TAG, values.toString());
+                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),values.getAsString("time"),values.getAsInteger("seq"),values.getAsInteger("status"),values.getAsInteger("view_type"));
                 break;
         }
-        for(DbInsertListener listener:insertCallbacks.get(table)){
-            listener.callback(obj);
+        db.insert(table,nullColumnHack,values);
+
+        Log.e(TAG, "DbInsertListener size:"+insertCallbacks.size());
+        if(insertCallbacks.size()>0) {
+            for (DbInsertListener listener : insertCallbacks.get(table)) {
+                listener.callback(obj);
+            }
         }
     }
 }

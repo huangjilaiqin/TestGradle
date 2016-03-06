@@ -123,8 +123,10 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                     String chatgroupId = userid<friendId?userid+""+friendId:friendId+""+userid;
                     ChatGroup chatGroup = new ChatGroup(chatgroupId, user.getNickname());
                     intent.putExtra("chatGroup", chatGroup);
+
+                    //查看是否存在聊天列表
                     SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
-                    Cursor cursor = db.rawQuery("select 1 from t_contact where chatgroup_id=?", new String[]{chatgroupId});
+                    Cursor cursor = db.rawQuery("select 1 from t_chatgroup where chatgroup_id=?", new String[]{chatgroupId});
                     if(!cursor.moveToNext())
                         intent.putExtra("notInContacts", true);
                     cursor.close();
@@ -140,7 +142,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
     private void loadContact(){
         mRecyclerView.showLoadingView();
         SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
-        Cursor cursor = db.rawQuery("select * from t_friend", null);
+        Cursor cursor = db.rawQuery("select * from t_contact", null);
         while (cursor.moveToNext()){
             mRecyclerViewAdapter.append(new User(cursor.getInt(0), cursor.getString(1), cursor.getString(2)));
             Log.e(TAG, "name:"+cursor.getString(1));

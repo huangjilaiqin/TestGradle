@@ -263,7 +263,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
                         values.put("userid", user.getUserid());
                         values.put("nickname", user.getNickname());
                         values.put("headImg", user.getHeadImg());
-                        db.insert("t_friend", "", values);
+                        db.insert("t_contact", "", values);
                         Log.e(TAG, "insert db:"+user.getNickname());
                     }
 

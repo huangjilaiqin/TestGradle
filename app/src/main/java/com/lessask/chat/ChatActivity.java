@@ -24,6 +24,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.os.Handler;
 
@@ -54,14 +56,15 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
     private EditText etContent;
 
-    private Chat chat = Chat.getInstance();
+    private Chat chat = Chat.getInstance(getBaseContext());
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private int userId;
     private int friendId;
     private int seq;
 
-    private ArrayList<ChatMessage> messageList;
+    private List<ChatMessage> messageList;
+    //private LinkedList<ChatMessage> messageList;
     private ChatGroup chatGroup;
 
     private Handler handler = new Handler() {
@@ -71,11 +74,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
             switch (msg.what){
                 case ChatMessage.VIEW_TYPE_RECEIVED:
-                    if(msg.arg1 == friendId){
-                        chatAdapter.notifyDataSetChanged();
-                    }else {
-                        //对数据做一个标红
-                    }
+                    chatAdapter.notifyDataSetChanged();
                     //通知friendActivity更新
 
                     break;
@@ -126,16 +125,20 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         chatGroup = intent.getParcelableExtra("chatGroup");
         seq = 0;
 
-        messageList = globalInfos.getChatContent(chatGroup.getChatgroupId());
+        messageList =  chatGroup.getMessageList();
+        //messageList = globalInfos.getChatContent(chatGroup.getChatgroupId());
 
         chat.setDataChangeListener(new Chat.DataChangeListener() {
             @Override
             public void message(int friendId, int type) {
                 Message msg = new Message();
-                msg.what = ChatMessage.VIEW_TYPE_RECEIVED;
-                msg.arg1 = friendId;
-                msg.arg2 = type;
-                handler.sendMessage(msg);
+
+                if(msg.arg1 == friendId) {
+                    msg.what = ChatMessage.VIEW_TYPE_RECEIVED;
+                    msg.arg1 = friendId;
+                    msg.arg2 = type;
+                    handler.sendMessage(msg);
+                }
             }
 
             @Override
@@ -238,6 +241,8 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
                 chat.emit("message", gson.toJson(msg));
 
+                //本地主动发送的消息入库
+
                 //该聊天记录不在聊天列表里
                 if(intent.getBooleanExtra("notInContacts", false)) {
                     ContentValues values = new ContentValues();
@@ -254,6 +259,9 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 values.put("content", msg.getContent());
                 values.put("status", msg.getStatus());
                 values.put("time", msg.getTime());
+                values.put("view_type", ChatMessage.VIEW_TYPE_SEND);
+                //to do 为每一条消息分配一个seq
+                values.put("seq", 0);
                 DbHelper.getInstance(getBaseContext()).insert("t_chatrecord", null, values);
             }
         });

@@ -1,9 +1,12 @@
 package com.lessask.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by huangji on 2015/8/12.
  */
-public class ResponseError {
+public class ResponseError implements Parcelable {
     private String error;
     private int errno;
 
@@ -13,6 +16,29 @@ public class ResponseError {
         this.errno = errno;
         this.error = error;
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(error);
+        dest.writeInt(errno);
+    }
+
+    public static final Parcelable.Creator<ResponseError> CREATOR
+             = new Parcelable.Creator<ResponseError>() {
+         public ResponseError createFromParcel(Parcel in) {
+             String error = in.readString();
+             int errno = in.readInt();
+
+             return new ResponseError(errno,error);
+         }
+
+         public ResponseError[] newArray(int size) {
+             return new ResponseError[size];
+         }
+    };
 
     public String getError() {
         return error;

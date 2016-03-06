@@ -1,5 +1,8 @@
 package com.lessask.chat;
 
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.util.Log;
 
 import io.socket.emitter.Emitter;
@@ -8,6 +11,7 @@ import io.socket.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.global.Config;
+import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
@@ -42,6 +46,8 @@ public class Chat {
     private ChangeUserInfoListener changeUserInfoListener;
     private HistoryListener historyListener;
     private UploadRunListener uploadRunListener;
+    //to do Chat.getInstance 传入上下文,
+    private static Context context;
 
 
 
@@ -60,7 +66,8 @@ public class Chat {
         friendsMap = globalInfos.getFriendsinMap();
     }
 
-    public static final Chat getInstance(){
+    public static final Chat getInstance(Context context){
+        Chat.context = context;
         return LazyHolder.INSTANCE;
     }
     private static class LazyHolder {
@@ -69,7 +76,7 @@ public class Chat {
 
 
 
-    //受到信息
+    //收到信息,发送消息也会调用这里
     private Emitter.Listener onMessage = new Emitter.Listener(){
         @Override
         public void call(Object... args) {
@@ -80,27 +87,30 @@ public class Chat {
                 Log.e(TAG, "error:"+message.getError());
                 return;
             }
+
+            //区分是接受还是发送 并进行处理
             message.setViewType(ChatMessage.VIEW_TYPE_RECEIVED);
             int friendId = message.getUserid();
             String chatGroupId = message.getChatgroupId();
+
             //第一次接收到信息 聊天列表 要增加一条记录
             if(!globalInfos.hasChatGroupId(chatGroupId)){
                 String friendName = globalInfos.getFriends().get(friendId).getNickname();
-                ChatGroup chatGroup = new ChatGroup(chatGroupId,friendName);
-                globalInfos.addChatGroup(chatGroup);
+
+                ContentValues values = new ContentValues();
+                values.put("chatgroup_id", chatGroupId);
+                values.put("name", friendName);
+                DbHelper.getInstance(context).insert("t_chatgroup", null, values);
             }
-            ArrayList mList = globalInfos.getChatContent(message.getChatgroupId());
-            mList.add(message);
-            if(globalInfos.getHistoryIds(friendId)==-1){
-                globalInfos.setHistoryIds(friendId, message.getId());
-            }
-            /*
-            Iterator ite = mList.iterator();
-            while (ite.hasNext()){
-                ChatMessage msg = (ChatMessage)ite.next();
-                Log.e(TAG, msg.getContent());
-            }
-            */
+            //聊天消息入库
+            ContentValues values = new ContentValues();
+            values.put("chatgroup_id", chatGroupId);
+            values.put("userid",""+message.getUserid());
+            values.put("type", ""+message.getType());
+            values.put("content", message.getContent());
+            values.put("status", message.getStatus());
+            values.put("time", message.getTime());
+            DbHelper.getInstance(context).insert("t_chatrecord", null, values);
 
             //通知当前聊天activity
             dataChangeListener.message(message.getUserid(), message.getType());

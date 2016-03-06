@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 public class FriendsActivity extends Activity {
 
-    private Chat chat = Chat.getInstance();
+    private Chat chat = Chat.getInstance(getBaseContext());
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private static final String TAG = FriendsActivity.class.getName();

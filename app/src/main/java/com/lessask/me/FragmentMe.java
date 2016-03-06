@@ -34,7 +34,7 @@ import com.viewpagerindicator.TitlePageIndicator;
  */
 public class FragmentMe extends Fragment{
     private String TAG = FragmentMe.class.getSimpleName();
-    private Chat chat = Chat.getInstance();
+    private Chat chat = Chat.getInstance(getContext());
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private View rootView;

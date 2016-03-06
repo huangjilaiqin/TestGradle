@@ -25,7 +25,7 @@ import java.io.File;
 
 public class LoginActivity extends MyAppCompatActivity{
     private static final String TAG= LoginActivity.class.getName();
-    private Chat chat = Chat.getInstance();
+    private Chat chat = Chat.getInstance(getBaseContext());
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private ProgressDialog loginDialog;

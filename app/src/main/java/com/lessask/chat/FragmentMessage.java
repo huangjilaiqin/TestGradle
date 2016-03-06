@@ -35,13 +35,13 @@ import java.util.Map;
  * 聊天列表
  */
 public class FragmentMessage extends Fragment{
-    private Chat chat = Chat.getInstance();
+    private Chat chat = Chat.getInstance(getContext());
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private static final String TAG = FragmentMessage.class.getName();
     private static final int ON_FRIENDS = 0;
 
-    private MessageAdapter mRecyclerViewAdapter;
+    private TestMessageAdapter mRecyclerViewAdapter;
     private RecyclerViewStatusSupport mRecyclerView;
     private View rootView;
     private Config config = globalInfos.getConfig();
@@ -60,7 +60,7 @@ public class FragmentMessage extends Fragment{
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
 
-            mRecyclerViewAdapter = new MessageAdapter(getContext());
+            mRecyclerViewAdapter = new TestMessageAdapter(getContext());
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
@@ -72,7 +72,6 @@ public class FragmentMessage extends Fragment{
                 }
             });
 
-            globalInfos.setMessageAdapter(mRecyclerViewAdapter);
             loadChatGroups();
 
         }
@@ -82,11 +81,51 @@ public class FragmentMessage extends Fragment{
     private void loadChatGroups(){
         mRecyclerView.showLoadingView();
         SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
-        Cursor cursor = db.rawQuery("select * from t_chatgroup", null);
+        //Cursor cursor = db.rawQuery("select * from t_chatgroup", null);
+        String sql = "select a.* from t_chatrecord a where 10>(select count(*) from t_chatrecord where chatgroup_id=a.chatgroup_id and id>a.id) order by a.id";
+        Cursor cursor = db.rawQuery(sql, null);
         int count = cursor.getColumnCount();
+        chatGroupMap = new HashMap<>();
         while (cursor.moveToNext()){
-            ChatGroup chatGroup = new ChatGroup(cursor.getString(0), cursor.getString(1));
-            chatGroupMap.put(cursor.getString(0), chatGroup);
+            int id = cursor.getInt(0);
+            String chatgroupId = cursor.getString(1);
+            int status = cursor.getInt(2);
+            String time = cursor.getString(3);
+            int userid = cursor.getInt(4);
+            int type = cursor.getInt(5);
+            String content = cursor.getString(6);
+            int seq = cursor.getInt(7);
+            int viewType = cursor.getInt(8);
+            ChatGroup chatGroup;
+            Log.e(TAG, "id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", time:"+time);
+            if(!chatGroupMap.containsKey(chatgroupId)){
+                chatGroup = new ChatGroup(chatgroupId);
+                chatGroupMap.put(chatgroupId, chatGroup);
+            }else {
+                chatGroup = chatGroupMap.get(chatgroupId);
+            }
+
+            ChatMessage chatMessage = new ChatMessage(userid,chatgroupId,type,content,time,seq,status,viewType);
+            chatGroup.appendMsg(chatMessage);
+            Log.e(TAG, chatGroup.getChatgroupId()+":"+chatMessage.getContent());
+        }
+
+
+        sql = "select * from t_chatgroup";
+        cursor = db.rawQuery(sql,null);
+        while (cursor.moveToNext()){
+            String chatgroupId = cursor.getString(0);
+            String name = cursor.getString(1);
+            if(chatGroupMap.containsKey(chatgroupId)){
+                chatGroupMap.get(chatgroupId).setName(name);
+            }else {
+                chatGroupMap.put(chatgroupId, new ChatGroup(chatgroupId, name));
+            }
+        }
+
+        for(Map.Entry entry:chatGroupMap.entrySet()){
+            ChatGroup chatGroup = (ChatGroup) entry.getValue();
+            Log.e(TAG, "chatgroupid:"+chatGroup.getChatgroupId()+", msg size:"+chatGroup.getMessageList().size());
             mRecyclerViewAdapter.append(chatGroup);
         }
         Log.e(TAG, "query db, chatgroup size:"+count);
@@ -110,7 +149,11 @@ public class FragmentMessage extends Fragment{
             public void callback(Object obj) {
                 ChatMessage msg = (ChatMessage) obj;
                 //更新列表项
-                mRecyclerViewAdapter.get
+                int position = mRecyclerViewAdapter.getPositionById(msg.getChatgroupId());
+                ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
+                chatGroup.appendMsg(msg);
+                mRecyclerViewAdapter.notifyItemUpdate(position);
+
                 Log.e(TAG, "insert callback");
             }
         });

@@ -15,6 +15,7 @@ import com.lessask.R;
 import com.lessask.crud.AdapterAction;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ChatMessage;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.OnItemLongClickListener;
@@ -64,7 +65,15 @@ public class TestMessageAdapter extends RecyclerView.Adapter<TestMessageAdapter.
         VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
         */
         Log.e("MessageAdapter", new Date().toString());
-        holder.time.setText(TimeHelper.date2Chat(new Date()));
+
+        ChatMessage message = chatGroup.getLastMessage();
+        if(message!=null) {
+            holder.time.setText(message.getTime());
+            holder.content.setText(message.getContent());
+        }else {
+            holder.time.setText(TimeHelper.date2Chat(new Date()));
+            holder.content.setText("");
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,7 +114,6 @@ public class TestMessageAdapter extends RecyclerView.Adapter<TestMessageAdapter.
     //数据部分处理
     private final List<ChatGroup> mList = new LinkedList<>();
     private final Map<String,Integer> mapDatas = new HashMap<>();
-
 
     public List<ChatGroup> getList() {
         return mList;

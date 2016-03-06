@@ -1,12 +1,12 @@
 package com.lessask.chat;
 
-import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.LinkedList;
+import com.lessask.model.ChatMessage;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 /**
  * Created by JHuang on 2016/2/27.
@@ -16,16 +16,54 @@ public class ChatGroup implements Parcelable {
     private String chatgroupId;
     private String name;
     private String img;
-    private List<Message> messageList;
+    private ArrayList<ChatMessage> messageList;
     //to do 一个高效的缓存结构
 
-
+    public ChatGroup(String chatgroupId) {
+        this.chatgroupId = chatgroupId;
+        //聊天列表缓存一定数量的消息，保证进入聊天界面不会因为查数据库而产生卡顿
+        this.messageList = new ArrayList<ChatMessage>();
+    }
     public ChatGroup(String chatgroupId, String name) {
         this.chatgroupId = chatgroupId;
         this.name = name;
         //聊天列表缓存一定数量的消息，保证进入聊天界面不会因为查数据库而产生卡顿
-        this.messageList = new LinkedList<>();
+        this.messageList = new ArrayList<ChatMessage>();
     }
+
+    public ChatGroup(String chatgroupId, String name, String img, ArrayList<ChatMessage> messageList) {
+        this.chatgroupId = chatgroupId;
+        this.name = name;
+        this.img = img;
+        this.messageList = messageList;
+    }
+
+    public String getMsg(){
+        String content="";
+        if(messageList.size()>0)
+            content=messageList.get(0).getContent();
+        return content;
+    }
+
+    public ChatMessage getLastMessage(){
+        ChatMessage message = null;
+        int size = messageList.size();
+        if(size>0)
+            message=messageList.get(size-1);
+        return message;
+    }
+
+    public List getMessageList(){
+        return messageList;
+    }
+
+    public void appendTopMsg(ChatMessage msg){
+        messageList.add(0,msg);
+    }
+    public void appendMsg(ChatMessage msg){
+        messageList.add(msg);
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -34,6 +72,8 @@ public class ChatGroup implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(chatgroupId);
         dest.writeString(name);
+        dest.writeString(img);
+        dest.writeList(messageList);
     }
 
     public static final Parcelable.Creator<ChatGroup> CREATOR
@@ -41,7 +81,9 @@ public class ChatGroup implements Parcelable {
          public ChatGroup createFromParcel(Parcel in) {
              String chatgroupId = in.readString();
              String name = in.readString();
-             return new ChatGroup(chatgroupId, name);
+             String img = in.readString();
+             ArrayList<ChatMessage> messageList = in.readArrayList(ChatMessage.class.getClassLoader());
+             return new ChatGroup(chatgroupId, name, img, messageList);
          }
 
          public ChatGroup[] newArray(int size) {

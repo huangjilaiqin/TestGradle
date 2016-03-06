@@ -136,7 +136,7 @@ public class RunActivity extends Activity implements BaiduMap.OnMapDrawFrameCall
         setContentView(R.layout.activity_test_map);
         init();
         gson = new Gson();
-        chat = Chat.getInstance();
+        chat = Chat.getInstance(getBaseContext());
         uploadDialog = new ProgressDialog(RunActivity.this, ProgressDialog.STYLE_SPINNER);
         chat.setUploadRunListener(new Chat.UploadRunListener(){
             @Override

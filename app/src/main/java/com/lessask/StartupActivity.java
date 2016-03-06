@@ -72,9 +72,9 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         //聊天列表
         db.execSQL("create table t_chatgroup(chatgroup_id varchar(19) primary key,`name` varchar(200) not null)");
         //通讯录
-        db.execSQL("create table t_friend(userid int not null primary key,nickname varchar(20),headimg varchar(150))");
+        db.execSQL("create table t_contact(userid int not null primary key,nickname varchar(20),headimg varchar(150))");
         //消息列表
-        db.execSQL("create table `t_chatrecord`(`id` int not null auto_increment,`chatgroup_id` varchar(19) not null,`status` tinyint not null,`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,`userid` int not null,`type` tinyint not null,`content` varchar(500) not null,primary key(id),key(chatgroup_id))");
+        db.execSQL("create table t_chatrecord(`id` INTEGER primary key,`chatgroup_id` text not null,`status` tinyint not null,`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,`userid` integer not null,`type` integer not null,`content` text not null,seq interger not null,view_type interger not null)");
 
         Log.e(TAG, "create db");
 

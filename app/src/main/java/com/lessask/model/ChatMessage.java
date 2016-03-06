@@ -1,8 +1,12 @@
 package com.lessask.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by JHuang on 2015/8/1.
  */
-public class ChatMessage extends ResponseError {
+public class ChatMessage extends ResponseError implements Parcelable {
     //用于判断显示使用的view类型
     public static final int VIEW_TYPE_RECEIVED= 0;
     public static final int VIEW_TYPE_SEND= 1;
@@ -33,6 +37,45 @@ public class ChatMessage extends ResponseError {
     private int userid;
     private int friendid;
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(chatgroupId);
+        dest.writeInt(type);
+        dest.writeString(content);
+        dest.writeString(time);
+        dest.writeInt(status);
+        dest.writeInt(seq);
+        dest.writeInt(viewType);
+        dest.writeInt(userid);
+        dest.writeInt(friendid);
+    }
+
+    public static final Parcelable.Creator<ChatMessage> CREATOR
+             = new Parcelable.Creator<ChatMessage>() {
+         public ChatMessage createFromParcel(Parcel in) {
+             int id = in.readInt();
+             String chatgroupId = in.readString();
+             int type = in.readInt();
+             String content = in.readString();
+             String time = in.readString();
+             int status = in.readInt();
+             int seq = in.readInt();
+             int viewType = in.readInt();
+             int userid = in.readInt();
+             int friendid = in.readInt();
+             return new ChatMessage(id,chatgroupId,type,content,time,status,seq,viewType,userid,friendid);
+         }
+
+         public ChatMessage[] newArray(int size) {
+             return new ChatMessage[size];
+         }
+    };
+
     //发送消息的构造函数
     public ChatMessage(int userid, String chatgroupId, int type, String content, String time, int seq,int status, int viewType) {
         this.chatgroupId = chatgroupId;
@@ -44,15 +87,17 @@ public class ChatMessage extends ResponseError {
         this.status=status;
         this.viewType = viewType;
     }
-    public ChatMessage(int userid,int friendid, String chatgroupId, int type, String content, String time, int seq, int viewType) {
+    public ChatMessage(int id, String chatgroupId,int type,String content,String time,int status,int seq,int viewType,int userid,int friendid) {
+        this.id=id;
         this.chatgroupId = chatgroupId;
         this.type = type;
-        this.friendid=friendid;
-        this.userid = userid;
         this.content = content;
         this.time = time;
+        this.status = status;
         this.seq = seq;
         this.viewType = viewType;
+        this.userid = userid;
+        this.friendid=friendid;
     }
     public ChatMessage(int id,int userid, String chatgroupId, int type, String content, String time) {
         this.id = id;

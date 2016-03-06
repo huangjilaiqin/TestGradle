@@ -33,7 +33,7 @@ public class SocketIOActivity extends Activity implements View.OnClickListener{
         bDisconnect.setOnClickListener(this);
         bSend.setOnClickListener(this);
         etContent = (EditText) findViewById(R.id.content);
-        chat = Chat.getInstance();
+        chat = Chat.getInstance(getBaseContext());
     }
 
     @Override

@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 public class RegisterActivity extends Activity {
 
-    private Chat chat = Chat.getInstance();
+    private Chat chat = Chat.getInstance(getBaseContext());
     private Gson gson = new Gson();
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();

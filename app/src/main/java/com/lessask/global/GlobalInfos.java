@@ -48,7 +48,6 @@ public class GlobalInfos {
     private int screenHeight;
     private ActionTagsHolder actionTagsHolder;
     private Config config;
-    private MessageAdapter messageAdapter;
 
     private GlobalInfos(){
         historyIds = new HashMap<>();
@@ -62,9 +61,7 @@ public class GlobalInfos {
         return DbHelper.getInstance(context).getDb();
     }
 
-    public void setMessageAdapter(MessageAdapter messageAdapter) {
-        this.messageAdapter = messageAdapter;
-    }
+
     public ArrayList<ChatGroup> getChatGroups() {
         return chatGroups;
     }
@@ -78,13 +75,6 @@ public class GlobalInfos {
             chatGroupIds=new HashSet<>();
         for(int i=0;i<chatGroups.size();i++)
             chatGroupIds.add(chatGroups.get(i).getChatgroupId());
-    }
-
-    public void addChatGroup(ChatGroup chatGroup){
-        chatGroups.add(0,chatGroup);
-        chatGroupIds.add(chatGroup.getChatgroupId());
-        messageAdapter.append(chatGroup);
-        messageAdapter.notifyItemInserted(messageAdapter.getItemCount()-1);
     }
 
     public boolean hasChatGroupId(String chatGroupId){
