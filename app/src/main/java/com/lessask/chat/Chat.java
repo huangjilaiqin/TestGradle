@@ -88,14 +88,25 @@ public class Chat {
                 return;
             }
 
-            //区分是接受还是发送 并进行处理
-            message.setViewType(ChatMessage.VIEW_TYPE_RECEIVED);
-            int friendId = message.getUserid();
+
+            int userid = message.getUserid();
+            int friendId = message.getFriendid();
             String chatGroupId = message.getChatgroupId();
+
+            //区分是接受还是发送 并进行处理
+            boolean isReceive = true;
+            if(globalInfos.getUserId()==userid)
+                isReceive=false;
+
+
 
             //第一次接收到信息 聊天列表 要增加一条记录
             if(!globalInfos.hasChatGroupId(chatGroupId)){
-                String friendName = globalInfos.getFriends().get(friendId).getNickname();
+                String friendName;
+                if(isReceive)
+                    friendName = globalInfos.getFriends().get(userid).getNickname();
+                else
+                    friendName = globalInfos.getFriends().get(friendId).getNickname();
 
                 ContentValues values = new ContentValues();
                 values.put("chatgroup_id", chatGroupId);

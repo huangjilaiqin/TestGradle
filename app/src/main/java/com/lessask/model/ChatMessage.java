@@ -7,16 +7,20 @@ import android.os.Parcelable;
  * Created by JHuang on 2015/8/1.
  */
 public class ChatMessage extends ResponseError implements Parcelable {
+    /*
     //用于判断显示使用的view类型
     public static final int VIEW_TYPE_RECEIVED= 0;
     public static final int VIEW_TYPE_SEND= 1;
     public static final int VIEW_TYPE_TIME = 2;
+    */
 
-    public static final int MSG_TYPE_TEXT = 0;
-    public static final int MSG_TYPE_IMG = 1;
-    public static final int MSG_TYPE_FILE = 2;
-    public static final int MSG_TYPE_VOICE = 3;
-    public static final int MSG_TYPE_VIDEO = 4;
+    public static final int MSG_TYPE_TEXT = 1;
+    public static final int MSG_TYPE_TIME = 3;
+    public static final int MSG_TYPE_IMG = 5;
+    public static final int MSG_TYPE_FILE = 7;
+    public static final int MSG_TYPE_VOICE = 9;
+    public static final int MSG_TYPE_VIDEO = 11;
+    public static final int MSG_TYPE_SIZE = 12;
 
     public static final int MSG_SENDING = 0;
     public static final int MSG_SEND = 1;
@@ -32,7 +36,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
     //每条消息的序号
     private int seq;
     //客户端使用
-    private int viewType;
+    //private int viewType;
 
     private int userid;
     private int friendid;
@@ -50,7 +54,6 @@ public class ChatMessage extends ResponseError implements Parcelable {
         dest.writeString(time);
         dest.writeInt(status);
         dest.writeInt(seq);
-        dest.writeInt(viewType);
         dest.writeInt(userid);
         dest.writeInt(friendid);
     }
@@ -65,10 +68,9 @@ public class ChatMessage extends ResponseError implements Parcelable {
              String time = in.readString();
              int status = in.readInt();
              int seq = in.readInt();
-             int viewType = in.readInt();
              int userid = in.readInt();
              int friendid = in.readInt();
-             return new ChatMessage(id,chatgroupId,type,content,time,status,seq,viewType,userid,friendid);
+             return new ChatMessage(id,chatgroupId,type,content,time,status,seq,userid,friendid);
          }
 
          public ChatMessage[] newArray(int size) {
@@ -77,17 +79,28 @@ public class ChatMessage extends ResponseError implements Parcelable {
     };
 
     //发送消息的构造函数
-    public ChatMessage(int userid, String chatgroupId, int type, String content, String time, int seq,int status, int viewType) {
+    public ChatMessage(int userid,int friendid,String chatgroupId, int type, String content, String time, int seq,int status) {
         this.chatgroupId = chatgroupId;
+        this.friendid = friendid;
         this.type = type;
         this.userid = userid;
         this.content = content;
         this.time = time;
         this.seq = seq;
         this.status=status;
-        this.viewType = viewType;
     }
-    public ChatMessage(int id, String chatgroupId,int type,String content,String time,int status,int seq,int viewType,int userid,int friendid) {
+    //入库消息构造函数
+    public ChatMessage(int userid,String chatgroupId, int type, String content, String time, int seq,int status) {
+        this.chatgroupId = chatgroupId;
+        this.friendid = friendid;
+        this.type = type;
+        this.userid = userid;
+        this.content = content;
+        this.time = time;
+        this.seq = seq;
+        this.status=status;
+    }
+    public ChatMessage(int id, String chatgroupId,int type,String content,String time,int status,int seq,int userid,int friendid) {
         this.id=id;
         this.chatgroupId = chatgroupId;
         this.type = type;
@@ -95,7 +108,6 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.time = time;
         this.status = status;
         this.seq = seq;
-        this.viewType = viewType;
         this.userid = userid;
         this.friendid=friendid;
     }
@@ -178,12 +190,5 @@ public class ChatMessage extends ResponseError implements Parcelable {
 
     public void setSeq(int seq) {
         this.seq = seq;
-    }
-    public int getViewType() {
-        return viewType;
-    }
-
-    public void setViewType(int viewType) {
-        this.viewType = viewType;
     }
 }

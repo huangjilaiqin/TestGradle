@@ -95,7 +95,6 @@ public class FragmentMessage extends Fragment{
             int type = cursor.getInt(5);
             String content = cursor.getString(6);
             int seq = cursor.getInt(7);
-            int viewType = cursor.getInt(8);
             ChatGroup chatGroup;
             Log.e(TAG, "id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", time:"+time);
             if(!chatGroupMap.containsKey(chatgroupId)){
@@ -105,7 +104,7 @@ public class FragmentMessage extends Fragment{
                 chatGroup = chatGroupMap.get(chatgroupId);
             }
 
-            ChatMessage chatMessage = new ChatMessage(userid,chatgroupId,type,content,time,seq,status,viewType);
+            ChatMessage chatMessage = new ChatMessage(userid,0,chatgroupId,type,content,time,seq,status);
             chatGroup.appendMsg(chatMessage);
             Log.e(TAG, chatGroup.getChatgroupId()+":"+chatMessage.getContent());
         }
@@ -150,11 +149,11 @@ public class FragmentMessage extends Fragment{
                 ChatMessage msg = (ChatMessage) obj;
                 //更新列表项
                 int position = mRecyclerViewAdapter.getPositionById(msg.getChatgroupId());
+                Log.e(TAG, "insert callback, position:"+position);
                 ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
                 chatGroup.appendMsg(msg);
-                mRecyclerViewAdapter.notifyItemUpdate(position);
-
-                Log.e(TAG, "insert callback");
+                //越界
+                //mRecyclerViewAdapter.notifyItemUpdate(position);
             }
         });
     }

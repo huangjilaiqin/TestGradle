@@ -71,7 +71,7 @@ public class DbHelper {
                 break;
             case "t_chatrecord":
                 Log.e(TAG, values.toString());
-                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),values.getAsString("time"),values.getAsInteger("seq"),values.getAsInteger("status"),values.getAsInteger("view_type"));
+                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),values.getAsString("time"),values.getAsInteger("seq"),values.getAsInteger("status"));
                 break;
         }
         db.insert(table,nullColumnHack,values);

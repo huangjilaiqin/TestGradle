@@ -120,7 +120,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                     User user = mRecyclerViewAdapter.getItem(position);
                     int friendId = user.getUserid();
                     int userid = globalInfos.getUserId();
-                    String chatgroupId = userid<friendId?userid+""+friendId:friendId+""+userid;
+                    String chatgroupId = userid<friendId?userid+"_"+friendId:friendId+"_"+userid;
                     ChatGroup chatGroup = new ChatGroup(chatgroupId, user.getNickname());
                     intent.putExtra("chatGroup", chatGroup);
 

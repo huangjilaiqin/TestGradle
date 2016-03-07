@@ -3,11 +3,9 @@ package com.lessask.chat;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,9 +20,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.os.Handler;
@@ -35,16 +31,14 @@ import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
-import com.lessask.model.History;
 import com.lessask.model.ResponseError;
-import com.lessask.model.User;
 import com.lessask.util.ScreenUtil;
 import com.lessask.util.Utils;
 
 
 public class ChatActivity extends Activity implements AbsListView.OnScrollListener{
 
-    private static final int HANDLER_MESSAGE = 0;
+    private static final int HANDLER_MESSAGE_RECEIVE = 0;
     private static final int HANDLER_MESSAGE_RESP = 1;
     private static final int HANDLER_HISTORY_SUCCESS = 2;
     private static final int HANDLER_HISTORY_ERROR = 3;
@@ -60,7 +54,8 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Gson gson = new Gson();
     private int userId;
-    private int friendId;
+    private int friendId=0;
+    private String chatgroupId;
     private int seq;
 
     private List<ChatMessage> messageList;
@@ -73,7 +68,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
             super.handleMessage(msg);
 
             switch (msg.what){
-                case ChatMessage.VIEW_TYPE_RECEIVED:
+                case HANDLER_MESSAGE_RECEIVE:
                     chatAdapter.notifyDataSetChanged();
                     //通知friendActivity更新
 
@@ -123,6 +118,15 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
         userId = globalInfos.getUserId();
         chatGroup = intent.getParcelableExtra("chatGroup");
+        chatgroupId = chatGroup.getChatgroupId();
+        if(chatgroupId.contains("_")){
+            String[] ids = chatgroupId.split("_");
+            int id1 = Integer.parseInt(ids[0]);
+            if(id1==userId)
+                friendId = Integer.parseInt(ids[1]);
+            else
+                friendId = id1;
+        }
         seq = 0;
 
         messageList =  chatGroup.getMessageList();
@@ -134,7 +138,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 Message msg = new Message();
 
                 if(msg.arg1 == friendId) {
-                    msg.what = ChatMessage.VIEW_TYPE_RECEIVED;
+                    msg.what = HANDLER_MESSAGE_RECEIVE;
                     msg.arg1 = friendId;
                     msg.arg2 = type;
                     handler.sendMessage(msg);
@@ -229,7 +233,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                     return;
                 }
 
-                ChatMessage msg = new ChatMessage(userId,chatGroup.getChatgroupId(), ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()), seq,ChatMessage.MSG_SENDING, ChatMessage.VIEW_TYPE_SEND);
+                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()), seq,ChatMessage.MSG_SENDING);
                 messageList.add(msg);
 
                 etContent.setText("");
@@ -259,7 +263,6 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 values.put("content", msg.getContent());
                 values.put("status", msg.getStatus());
                 values.put("time", msg.getTime());
-                values.put("view_type", ChatMessage.VIEW_TYPE_SEND);
                 //to do 为每一条消息分配一个seq
                 values.put("seq", 0);
                 DbHelper.getInstance(getBaseContext()).insert("t_chatrecord", null, values);

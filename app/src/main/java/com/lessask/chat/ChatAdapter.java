@@ -61,13 +61,19 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
     * */
     @Override
     public int getItemViewType(int position) {
-        return getItem(position).getViewType();
+        int type=0;
+        ChatMessage msg = getItem(position);
+        if(msg.getUserid()!=globalInfos.getUserId())
+            type = msg.getType();
+        else
+            type = msg.getType()+1;
+        return type;
     }
 
     //返回消息的类型数量
     @Override
     public int getViewTypeCount() {
-        return 3;
+        return ChatMessage.MSG_TYPE_SIZE;
     }
 
     //listview只创建一屏+1的ItemView,可以通过convertView来复用这些对象
@@ -86,100 +92,90 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
 
         //获取数据对应的视图对象
         if(convertView!=null){
-            switch (viewType){
-                case ChatMessage.VIEW_TYPE_RECEIVED:
-                    switch (msgType){
-                        case ChatMessage.MSG_TYPE_TEXT:
-                            otherViewHolder = (OtherViewHolder)convertView.getTag();
-                            break;
-                    }
-                    break;
-                case ChatMessage.VIEW_TYPE_SEND:
-                    switch (msgType) {
-                        case ChatMessage.MSG_TYPE_TEXT:
-                            meViewHolder = (MeViewHolder) convertView.getTag();
-                            break;
-                    }
-                    break;
-                case ChatMessage.VIEW_TYPE_TIME:
-                    timeViewHolder = (TimeViewHolder)convertView.getTag();
+            //接收到的消息
+            if(globalInfos.getUserId()!=itemData.getUserid()) {
+                switch (msgType) {
+                    case ChatMessage.MSG_TYPE_TEXT:
+                        otherViewHolder = (OtherViewHolder) convertView.getTag();
+                        break;
+                    case ChatMessage.MSG_TYPE_TIME:
+                        timeViewHolder = (TimeViewHolder)convertView.getTag();
+                        break;
+                    default:
+                        break;
+                }
+            }else {
+                switch (msgType) {
+                    case ChatMessage.MSG_TYPE_TEXT:
+                        meViewHolder = (MeViewHolder) convertView.getTag();
+                        break;
+                }
+            }
+        }else{
+            if(globalInfos.getUserId()!=itemData.getUserid()) {
+                switch (msgType) {
+                    case ChatMessage.MSG_TYPE_TEXT:
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_other, null);
+                        otherViewHolder = new OtherViewHolder();
+                        convertView.setTag(otherViewHolder);
+                        otherViewHolder.headImg = (ImageView) convertView.findViewById(R.id.head_img);
+                        otherViewHolder.msg = (TextView) convertView.findViewById(R.id.content);
+                        break;
+                    case ChatMessage.MSG_TYPE_TIME:
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_time, null);
+                        timeViewHolder = new TimeViewHolder();
+                        convertView.setTag(timeViewHolder);
+                        timeViewHolder.time = (TextView)convertView.findViewById(R.id.time);
+                        break;
+                    default:
+                        break;
+                }
+            }else {
+                switch (msgType) {
+                    case ChatMessage.MSG_TYPE_TEXT:
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_me, null);
+                        meViewHolder = new MeViewHolder();
+                        convertView.setTag(meViewHolder);
+                        //meViewHolder.headImg = (ImageView) convertView.findViewById(R.id.head_img);
+                        meViewHolder.msg = (TextView) convertView.findViewById(R.id.content);
+                        break;
+                }
+            }
+        }
+        //将数据设置到视图中
+        if(globalInfos.getUserId()!=itemData.getUserid()) {
+            switch (msgType) {
+                case ChatMessage.MSG_TYPE_TEXT:
+                    otherViewHolder.msg.setText(itemData.getContent());
+                    //itemData.getFriendid() 根据好友id在本地存储图片
+                    //设置静态资源
+                    otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
+                    //设置动态加载的资源
+                    String friendHeadImgUrl = globalInfos.getHeadImgHost() + itemData.getUserid() + ".jpg";
+                    File friendHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid() + ".jpg");
+                    //Utils.getImgFromLocalOrNet(friendHeadImgFile, friendHeadImgUrl, otherViewHolder.headImg);
+                    ImageListener listener = ImageLoader.getImageListener(otherViewHolder.headImg, R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    //Log.e(TAG, "received:"+friendHeadImgUrl);
+                    imageLoader.get(friendHeadImgUrl, listener);
                     break;
                 default:
                     break;
             }
         }else{
-            switch (viewType){
-                case ChatMessage.VIEW_TYPE_RECEIVED:
-                    switch (msgType){
-                        case ChatMessage.MSG_TYPE_TEXT:
-                            convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_other, null);
-                            otherViewHolder = new OtherViewHolder();
-                            convertView.setTag(otherViewHolder);
-                            otherViewHolder.headImg = (ImageView)convertView.findViewById(R.id.head_img);
-                            otherViewHolder.msg = (TextView)convertView.findViewById(R.id.content);
-                            break;
-                    }
-                    break;
-                case ChatMessage.VIEW_TYPE_SEND:
-                    switch (msgType) {
-                        case ChatMessage.MSG_TYPE_TEXT:
-                            convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_me, null);
-                            meViewHolder = new MeViewHolder();
-                            convertView.setTag(meViewHolder);
-                            //meViewHolder.headImg = (ImageView) convertView.findViewById(R.id.head_img);
-                            meViewHolder.msg = (TextView) convertView.findViewById(R.id.content);
-                            break;
-                    }
-                    break;
-                case ChatMessage.VIEW_TYPE_TIME:
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.chat_time, null);
-                    timeViewHolder = new TimeViewHolder();
-                    convertView.setTag(timeViewHolder);
-                    timeViewHolder.time = (TextView)convertView.findViewById(R.id.time);
-                    break;
-                default:
+            switch (msgType) {
+                case ChatMessage.MSG_TYPE_TEXT:
+                    meViewHolder.msg.setText(itemData.getContent());
+
+                    /*
+                    meViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
+                    String userHeadImgUrl = globalInfos.getHeadImgHost()+itemData.getUserid()+".jpg";
+                    File userHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid()+".jpg");
+                    ImageListener listener = ImageLoader.getImageListener(meViewHolder.headImg,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                    //Log.e(TAG, "send:"+userHeadImgUrl);
+                    imageLoader.get(userHeadImgUrl, listener);
+                    */
                     break;
             }
-        }
-        //将数据设置到视图中
-        switch (viewType){
-            case ChatMessage.VIEW_TYPE_RECEIVED:
-                switch (msgType){
-                    case ChatMessage.MSG_TYPE_TEXT:
-                        otherViewHolder.msg.setText(itemData.getContent());
-                        //itemData.getFriendid() 根据好友id在本地存储图片
-                        //设置静态资源
-                        otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
-                        //设置动态加载的资源
-                        String friendHeadImgUrl = globalInfos.getHeadImgHost()+itemData.getUserid()+".jpg";
-                        File friendHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid()+".jpg");
-                        //Utils.getImgFromLocalOrNet(friendHeadImgFile, friendHeadImgUrl, otherViewHolder.headImg);
-                        ImageListener listener = ImageLoader.getImageListener(otherViewHolder.headImg,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                        //Log.e(TAG, "received:"+friendHeadImgUrl);
-                        imageLoader.get(friendHeadImgUrl, listener);
-                        break;
-                }
-                break;
-            case ChatMessage.VIEW_TYPE_SEND:
-                switch (msgType) {
-                    case ChatMessage.MSG_TYPE_TEXT:
-                        meViewHolder.msg.setText(itemData.getContent());
-
-                        /*
-                        meViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
-                        String userHeadImgUrl = globalInfos.getHeadImgHost()+itemData.getUserid()+".jpg";
-                        File userHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid()+".jpg");
-                        ImageListener listener = ImageLoader.getImageListener(meViewHolder.headImg,R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                        //Log.e(TAG, "send:"+userHeadImgUrl);
-                        imageLoader.get(userHeadImgUrl, listener);
-                        */
-                        break;
-                }
-                break;
-            case ChatMessage.VIEW_TYPE_TIME:
-                break;
-            default:
-                break;
         }
         return convertView;
     }
