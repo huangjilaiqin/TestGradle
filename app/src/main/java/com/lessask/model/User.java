@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by JHuang on 2015/8/16.
  */
-public class User implements Parcelable {
+public class User extends ResponseError implements Parcelable {
     private int userid;
     private String mail;
     private String nickname;

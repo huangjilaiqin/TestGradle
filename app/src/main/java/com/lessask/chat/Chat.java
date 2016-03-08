@@ -19,6 +19,7 @@ import com.lessask.model.HistoryResponse;
 import com.lessask.model.ResponseError;
 import com.lessask.model.RunDataResponse;
 import com.lessask.model.User;
+import com.lessask.model.VerifyToken;
 import com.lessask.util.Utils;
 import com.lessask.net.LASocketIO;
 
@@ -41,6 +42,8 @@ public class Chat {
     //更新不一样的activity应该有多个listener
     private DataChangeListener dataChangeListener;
     private LoginListener loginListener;
+    private LoadInitDataListener loadInitDataListener;
+    private VerifyTokenListener verifyTokenListener;
     private RegisterListener registerListener;
     private FriendsListener friendsListener;
     private ChangeUserInfoListener changeUserInfoListener;
@@ -54,10 +57,12 @@ public class Chat {
     private Chat(){
         mSocket = LASocketIO.getSocket();
         //注册回调函数
+        mSocket.on("login", onLogin);
+        mSocket.on("verifyToken", onVerifyToken);
+        mSocket.on("loadInitData", onLoadInitData);
+        mSocket.on("register", onRegister);
         mSocket.on("message", onMessage);
         mSocket.on("messageResp", onMessageResp);
-        mSocket.on("login", onLogin);
-        mSocket.on("register", onRegister);
         mSocket.on("friendsInfo", onFriends);
         mSocket.on("changeUserInfo", onChangeUserInfo);
         mSocket.on("history", onHistory);
@@ -147,6 +152,18 @@ public class Chat {
         @Override
         public void call(Object... args) {
             loginListener.login(args[0].toString());
+        }
+    };
+    private Emitter.Listener onLoadInitData = new Emitter.Listener(){
+        @Override
+        public void call(Object... args) {
+            loadInitDataListener.loadInitData(args[0].toString());
+        }
+    };
+    private Emitter.Listener onVerifyToken= new Emitter.Listener(){
+        @Override
+        public void call(Object... args) {
+            verifyTokenListener.verify(args[0].toString());
         }
     };
     private Emitter.Listener onRegister = new Emitter.Listener(){
@@ -266,6 +283,21 @@ public class Chat {
     public void setLoginListener(LoginListener listener){
         loginListener = listener;
     }
+
+    public interface LoadInitDataListener{
+        void loadInitData(String data);
+    }
+    public void setLoadInitDataListener(LoadInitDataListener listener){
+        loadInitDataListener = listener;
+    }
+
+    public interface VerifyTokenListener{
+        void verify(String data);
+    }
+    public void setVerifyTokenListener(VerifyTokenListener listener){
+        verifyTokenListener = listener;
+    }
+
     public interface RegisterListener{
         void register(String data);
     }

@@ -63,7 +63,6 @@ public class DbHelper {
     }
 
     public void insert(String table,String nullColumnHack,ContentValues values){
-
         Object obj=null;
         switch (table){
             case "t_chatgroup":

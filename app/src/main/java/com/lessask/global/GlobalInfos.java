@@ -26,6 +26,7 @@ public class GlobalInfos {
     private final static String TAG = GlobalInfos.class.getName();
 
     private int userId;
+    private String token;
     private User user;
     //聊天信息
     private HashMap<String, ArrayList> chatContents;
@@ -61,6 +62,13 @@ public class GlobalInfos {
         return DbHelper.getInstance(context).getDb();
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public ArrayList<ChatGroup> getChatGroups() {
         return chatGroups;
@@ -168,7 +176,7 @@ public class GlobalInfos {
         this.headImgDir = headImgDir;
     }
 
-    public void setUser(int userId, User user){
+    public void setUser(User user){
         Log.e(TAG, "globalInfos set user");
         this.user = user;
     }

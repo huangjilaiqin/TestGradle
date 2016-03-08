@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -172,9 +173,9 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
 
     //加载基础数据
     private void loadBaseData(){
-
         if(!baseInfo.getBoolean("syncData", false)) {
             SQLiteDatabase db = globalInfos.getDb(getBaseContext());
+            loadUser(db);
             loadChatGroups(db);
             loadFriends(db);
 
@@ -182,6 +183,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
             editor.commit();
         }else{
             SQLiteDatabase db = globalInfos.getDb(getBaseContext());
+            loadUserFromDb(db);
             loadChatGroupsFromDb(db);
             loadFriendsFromDb(db);
         }
@@ -193,7 +195,53 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
     private void loadFriendsFromDb(SQLiteDatabase db){
 
     }
+    private void loadUserFromDb(SQLiteDatabase db){
 
+    }
+
+    //加载用户自己的信息
+    private void loadUser(final SQLiteDatabase db){
+        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getUserUrl(), User.class, new GsonRequest.PostGsonRequest<User>() {
+            @Override
+            public void onStart() {}
+            @Override
+            public void onResponse(User user) {
+                if(user.getError()!=null && user.getError()!="" || user.getErrno()!=0){
+                    Log.e(TAG, "loadUser onResponse error:" + user.getError() + ", " + user.getErrno());
+                }else {
+                    ContentValues values = new ContentValues();
+                    values.put("userid", user.getUserid());
+                    values.put("nickname", user.getNickname());
+                    values.put("headimg", user.getHeadImg());
+                    Cursor cursor = db.rawQuery("select 1 from t_user where userid=?", new String[]{"" + user.getUserid()});
+                    if(cursor.getCount()==0){
+                        db.insert("t_user", "", values);
+                    }else {
+                        db.update("t_user", values,"userid=?", new String[]{""+user.getUserid()});
+                    }
+                    globalInfos.setUser(user);
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(MainActivity.this, "网络错误:加载聊天列表" + error, Toast.LENGTH_SHORT);
+            }
+            @Override
+            public void setPostData(Map datas) {
+                datas.put("userid", "" + globalInfos.getUserId());
+                datas.put("token", globalInfos.getToken());
+            }
+            @Override
+            public Map getPostData() {
+                Map datas = new HashMap();
+                datas.put("userid", "" + globalInfos.getUserId());
+                datas.put("token", globalInfos.getToken());
+                return datas;
+            }
+        });
+        VolleyHelper.getInstance().addToRequestQueue(gsonRequest);
+    }
     //加载用户聊天列表
     private void loadChatGroups(final SQLiteDatabase db){
         Type type = new TypeToken<ArrayListResponse<ChatGroup>>() {}.getType();

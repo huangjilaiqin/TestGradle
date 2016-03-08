@@ -10,16 +10,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.gson.Gson;
+import com.lessask.chat.Chat;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.Login;
 import com.lessask.model.User;
+import com.lessask.model.VerifyToken;
 
 
 public class StartupActivity extends MyAppCompatActivity implements View.OnClickListener {
     private Button login;
     private Button register;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
+    private Gson gson = new Gson();
     private String TAG = StartupActivity.class.getSimpleName();
+    private  Chat chat = Chat.getInstance(getBaseContext());
+    private SharedPreferences baseInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,37 +36,55 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.main_color));
         }
+        baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
+
+        chat.setVerifyTokenListener(new Chat.VerifyTokenListener(){
+            @Override
+            public void verify(String data) {
+                VerifyToken verifyToken = gson.fromJson(data,VerifyToken.class);
+                if (verifyToken.getErrno() != 0 || verifyToken.getError()!=null && verifyToken.getError().length() != 0) {
+                    //token 无效
+                    login.setVisibility(View.VISIBLE);
+                    register.setVisibility(View.VISIBLE);
+                    Intent intent = new Intent(StartupActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }else {
+                    //token有效
+                    int userid = verifyToken.getUserid();
+                    globalInfos.setUserId(userid);
+                    globalInfos.setToken(verifyToken.getToken());
+
+                    Intent intent = new Intent(StartupActivity.this, MainActivity.class);
+                    //清除 activity栈中的内容
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
 
 
         login = (Button) findViewById(R.id.login);
         login.setOnClickListener(this);
+        login.setVisibility(View.INVISIBLE);
         register = (Button) findViewById(R.id.register);
         register.setOnClickListener(this);
-
-        SharedPreferences baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
+        register.setVisibility(View.INVISIBLE);
 
         //判断是否是第一次启动
         if(!baseInfo.getBoolean("initDb", false)){
             initDb(baseInfo);
         }
         int userid = baseInfo.getInt("userid", -1);
-        Log.e(TAG, "userid:"+userid);
-        if(userid!=-1){
-            globalInfos.setUserId(userid);
-            String headImg = baseInfo.getString("headImg", "");
-            String nickname = baseInfo.getString("nickname", "");
-            String mail = baseInfo.getString("mail", "");
-            globalInfos.setUser(userid, new User(userid, mail, nickname, -1, "", headImg));
-
-            //获取最新的用户数据
-            //to do
-
-            Intent intent = new Intent(StartupActivity.this, MainActivity.class);
-            //清除 activity栈中的内容
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+        String token = baseInfo.getString("token", "");
+        Log.e(TAG, "userid:"+userid+", token:"+token);
+        if(token.length()!=0) {
+            //验证token有效性
+            chat.emit("verifyToken",gson.toJson(new VerifyToken(userid,token)));
+        }else {
+            login.setVisibility(View.VISIBLE);
+            register.setVisibility(View.VISIBLE);
         }
     }
 
@@ -69,6 +94,7 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         SQLiteDatabase db = globalInfos.getDb(getApplicationContext());
         //获取基础信息
         //个人信息
+        db.execSQL("create table t_user(userid int primary key,`nickname` text not null,`headimg` text not null)");
         //聊天列表
         db.execSQL("create table t_chatgroup(chatgroup_id varchar(19) primary key,`name` varchar(200) not null)");
         //通讯录

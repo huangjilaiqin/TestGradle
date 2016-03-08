@@ -1,16 +1,15 @@
 package com.lessask.model;
 
 /**
- * Created by huangji on 2015/8/12.
+ * Created by huangji on 2016/3/8.
  */
-public class LoginResponse extends ResponseError{
+public class VerifyToken extends ResponseError{
     private int userid;
     private String token;
 
-    public LoginResponse(int errno, String error,int userid,String token) {
-        super(errno, error);
-        this.userid=userid;
-        this.token= token;
+    public VerifyToken(int userid, String token) {
+        this.userid = userid;
+        this.token = token;
     }
 
     public int getUserid() {
