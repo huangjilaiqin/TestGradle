@@ -3,6 +3,7 @@ package com.lessask.chat;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,10 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.*;
 import com.android.volley.toolbox.Volley;
 import com.lessask.R;
+import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
+import com.lessask.net.VolleyHelper;
 
 import java.io.File;
 import java.util.List;
@@ -36,6 +39,8 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
     private final LruCache<String, Bitmap> lruCache = new LruCache<String, Bitmap>(20);
     private ImageCache imageCache;
     private ImageLoader imageLoader;
+    private Config config = globalInfos.getConfig();
+    private  String imageUrlPrefix = config.getImgUrl();
 
     public ChatAdapter(Context context, int textViewResourceId, List<ChatMessage> objects){
         super(context, textViewResourceId, objects);
@@ -151,12 +156,12 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                     //设置静态资源
                     otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
                     //设置动态加载的资源
-                    String friendHeadImgUrl = globalInfos.getHeadImgHost() + itemData.getUserid() + ".jpg";
-                    File friendHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid() + ".jpg");
+                    String friendHeadImgUrl = imageUrlPrefix + itemData.getUserid() + ".jpg";
+                    //File friendHeadImgFile = new File(globalInfos.getHeadImgDir().getAbsolutePath(), itemData.getUserid() + ".jpg");
                     //Utils.getImgFromLocalOrNet(friendHeadImgFile, friendHeadImgUrl, otherViewHolder.headImg);
                     ImageListener listener = ImageLoader.getImageListener(otherViewHolder.headImg, R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-                    //Log.e(TAG, "received:"+friendHeadImgUrl);
-                    imageLoader.get(friendHeadImgUrl, listener);
+                    Log.e(TAG, "received:"+friendHeadImgUrl);
+                    VolleyHelper.getInstance().getImageLoader().get(friendHeadImgUrl, listener, 100, 100);
                     break;
                 default:
                     break;

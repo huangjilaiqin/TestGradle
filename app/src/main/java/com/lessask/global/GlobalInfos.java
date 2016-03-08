@@ -84,6 +84,15 @@ public class GlobalInfos {
         for(int i=0;i<chatGroups.size();i++)
             chatGroupIds.add(chatGroups.get(i).getChatgroupId());
     }
+    public void addChatGroup(ChatGroup chatGroup) {
+        if(this.chatGroups==null)
+            this.chatGroups = new ArrayList<>();
+        this.chatGroups.add(chatGroup);
+
+        if(chatGroupIds==null)
+            chatGroupIds=new HashSet<>();
+        chatGroupIds.add(chatGroup.getChatgroupId());
+    }
 
     public boolean hasChatGroupId(String chatGroupId){
         if(chatGroupIds==null){
@@ -199,6 +208,9 @@ public class GlobalInfos {
 
     public User getFriend(int id){
         User user = friends.get(id);
+        if(user==null){
+
+        }
         return user;
     }
 

@@ -58,18 +58,6 @@ public class LoginActivity extends MyAppCompatActivity{
                     loginDialog.cancel();
                     //跳转到首页
 
-
-                    SharedPreferences baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = baseInfo.edit();
-                    User user = globalInfos.getUser();
-                    editor.putInt("userid",globalInfos.getUserId());
-                    editor.putString("headImg", user.getHeadImg());
-                    editor.putString("nickname", user.getNickname());
-                    editor.putString("mail", user.getMail());
-                    editor.putString("token", "mytoken");
-                    editor.commit();
-                    Log.e(TAG, "userid:"+baseInfo.getInt("userid",-1));
-
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     //清除 activity栈中的内容
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -109,8 +97,17 @@ public class LoginActivity extends MyAppCompatActivity{
                 }else {
                     userid =loginResponse.getUserid();
                     globalInfos.setUserId(userid);
+                    String token = loginResponse.getToken();
+                    Log.e(TAG, "login userid:"+userid+", token:"+token);
+
+                    SharedPreferences baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = baseInfo.edit();
+                    editor.putString("token", token);
+                    editor.putInt("userid", userid);
+                    editor.commit();
+
+                    globalInfos.setToken(token);
                     //to do 服务器端返回 昵称,客户端发生 状态(在线)
-                    globalInfos.setUser(userid, new User(userid, loginResponse.getMail(), loginResponse.getNickname(), loginResponse.getStatus(), loginResponse.getPasswd(), loginResponse.getHeadimg()));
                     handler.sendEmptyMessage(HANDLER_LOGING_SUCCESS);
                 }
             }

@@ -38,6 +38,7 @@ import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.action.FragmentAction;
+import com.lessask.chat.Chat;
 import com.lessask.chat.ChatGroup;
 import com.lessask.contacts.FragmentContacts;
 import com.lessask.global.Config;
@@ -46,6 +47,7 @@ import com.lessask.lesson.FragmentLesson;
 import com.lessask.me.FragmentMe;
 import com.lessask.model.ArrayListResponse;
 import com.lessask.model.User;
+import com.lessask.model.VerifyToken;
 import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 import com.lessask.tag.GetTagsRequest;
@@ -77,6 +79,7 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
     private Map<Integer,String> titles;
     private LinearLayout currentToolAction;
     private LinearLayout mainToolAction;
+    private Chat chat = Chat.getInstance(getBaseContext());
 
     private static final int CREATE_LESSON = 0;
     public static final int CREATE_SHOW = 4;
@@ -99,6 +102,14 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
         editor = baseInfo.edit();
         Log.e(TAG, "onCreate");
+
+        chat.setLoadInitDataListener(new Chat.LoadInitDataListener() {
+            @Override
+            public void loadInitData(String data) {
+
+            }
+        });
+
         //加载数据
         loadBaseData();
 
@@ -169,6 +180,8 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
             replaceFragment(fragmentOnTheLoad);
             setTitle(titles.get(R.id.on_the_load));
         }
+
+
     }
 
     //加载基础数据
@@ -187,16 +200,35 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
             loadChatGroupsFromDb(db);
             loadFriendsFromDb(db);
         }
+        chat.emit("loadInitData",gson.toJson(new VerifyToken(globalInfos.getUserId(),globalInfos.getToken())));
+        //todo 监听加载数据回调
     }
 
-    private void loadChatGroupsFromDb(SQLiteDatabase db){
 
+    private void loadChatGroupsFromDb(SQLiteDatabase db){
+        Cursor cursor = db.rawQuery("select * from t_chatgroup", null);
+        ArrayList<ChatGroup> chatGroups = new ArrayList<>();
+        while (cursor.moveToNext()){
+            String chatgroupId = cursor.getString(0);
+            String name = cursor.getString(1);
+            chatGroups.add(new ChatGroup(chatgroupId,name));
+        }
+        cursor.close();
+        globalInfos.addChatGroups(chatGroups);
     }
     private void loadFriendsFromDb(SQLiteDatabase db){
 
     }
     private void loadUserFromDb(SQLiteDatabase db){
-
+        Cursor cursor = db.rawQuery("select * from t_user where userid=?", new String[]{"" + globalInfos.getUserId()});
+        if(cursor.moveToNext()){
+            int userid = cursor.getInt(0);
+            String nickname = cursor.getString(1);
+            String headImg = cursor.getString(2);
+            User user = new User(userid,nickname,headImg);
+            globalInfos.setUser(user);
+        }
+        cursor.close();
     }
 
     //加载用户自己的信息
@@ -293,13 +325,9 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         Type type = new TypeToken<ArrayListResponse<User>>() {}.getType();
         GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getFriendsUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
             @Override
-            public void onStart() {
-
-            }
-
+            public void onStart() {}
             @Override
             public void onResponse(ArrayListResponse response) {
-
                 if(response.getError()!=null && response.getError()!="" || response.getErrno()!=0){
                     Log.e(TAG, "onResponse error:" + response.getError() + ", " + response.getErrno());
                 }else {
@@ -314,7 +342,6 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
                         db.insert("t_contact", "", values);
                         Log.e(TAG, "insert db:"+user.getNickname());
                     }
-
                 }
             }
 

@@ -28,6 +28,7 @@ import android.os.Handler;
 import com.google.gson.Gson;
 import com.lessask.R;
 import com.lessask.global.DbHelper;
+import com.lessask.global.DbInsertListener;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
@@ -109,6 +110,18 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         }
     };
 
+    private DbInsertListener chatRecorInsertListener = new DbInsertListener() {
+        @Override
+        public void callback(Object obj) {
+            ChatMessage message = (ChatMessage) obj;
+            if(message.getChatgroupId()==chatgroupId){
+                chatAdapter.add(message);
+                //chatAdapter.notifyDataSetChanged();
+            }
+            Log.e(TAG, "insert callback");
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,6 +184,9 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 }
             }
         });
+
+        DbHelper.getInstance(getBaseContext()).appendInsertListener("t_chatrecord", chatRecorInsertListener);
+
         //获取好友聊天内容
         chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_other, messageList);
         chatListView = (ListView) findViewById(R.id.chat_view);

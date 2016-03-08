@@ -6,9 +6,12 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
@@ -27,6 +30,28 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
     private String TAG = StartupActivity.class.getSimpleName();
     private  Chat chat = Chat.getInstance(getBaseContext());
     private SharedPreferences baseInfo;
+    private final int VERIFY_TOKEN_ERROR = 1;
+    private final int VERIFY_TOKEN_SUCCESS = 2;
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "login handler:"+msg.what);
+            switch (msg.what){
+                case VERIFY_TOKEN_ERROR:
+                    VerifyToken response = (VerifyToken) msg.obj;
+                    Log.e(TAG, "verifytoken errno:"+response.getErrno()+", error:"+response.getError());
+                    login.setVisibility(View.VISIBLE);
+                    register.setVisibility(View.VISIBLE);
+                    break;
+                case VERIFY_TOKEN_SUCCESS:
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +66,15 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         chat.setVerifyTokenListener(new Chat.VerifyTokenListener(){
             @Override
             public void verify(String data) {
+                Log.e(TAG, "verify");
                 VerifyToken verifyToken = gson.fromJson(data,VerifyToken.class);
                 if (verifyToken.getErrno() != 0 || verifyToken.getError()!=null && verifyToken.getError().length() != 0) {
                     //token 无效
-                    login.setVisibility(View.VISIBLE);
-                    register.setVisibility(View.VISIBLE);
-                    Intent intent = new Intent(StartupActivity.this, LoginActivity.class);
-                    startActivity(intent);
+                    Message msg = new Message();
+                    msg.what =VERIFY_TOKEN_ERROR ;
+                    msg.obj = verifyToken;
+                    handler.sendMessage(msg);
+                    return;
                 }else {
                     //token有效
                     int userid = verifyToken.getUserid();
@@ -79,7 +106,7 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         int userid = baseInfo.getInt("userid", -1);
         String token = baseInfo.getString("token", "");
         Log.e(TAG, "userid:"+userid+", token:"+token);
-        if(token.length()!=0) {
+        if(token.length()!=0 && userid!=-1) {
             //验证token有效性
             chat.emit("verifyToken",gson.toJson(new VerifyToken(userid,token)));
         }else {

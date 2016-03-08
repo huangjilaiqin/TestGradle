@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import io.socket.emitter.Emitter;
 import io.socket.client.Ack;
@@ -20,6 +21,7 @@ import com.lessask.model.ResponseError;
 import com.lessask.model.RunDataResponse;
 import com.lessask.model.User;
 import com.lessask.model.VerifyToken;
+import com.lessask.util.DbUtil;
 import com.lessask.util.Utils;
 import com.lessask.net.LASocketIO;
 
@@ -27,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TooManyListenersException;
 
 /**
  * Created by huangji on 2015/8/11.
@@ -79,8 +82,6 @@ public class Chat {
         private static final Chat INSTANCE = new Chat();
     }
 
-
-
     //收到信息,发送消息也会调用这里
     private Emitter.Listener onMessage = new Emitter.Listener(){
         @Override
@@ -108,28 +109,33 @@ public class Chat {
             //第一次接收到信息 聊天列表 要增加一条记录
             if(!globalInfos.hasChatGroupId(chatGroupId)){
                 String friendName;
-                if(isReceive)
-                    friendName = globalInfos.getFriends().get(userid).getNickname();
-                else
-                    friendName = globalInfos.getFriends().get(friendId).getNickname();
+                if(isReceive) {
+                    User user = DbUtil.loadUserFromDb(context,userid);
+                    friendName = user.getNickname();
+                }else {
+                    User user = DbUtil.loadUserFromDb(context,friendId);
+                    friendName = user.getNickname();
+                }
 
                 ContentValues values = new ContentValues();
                 values.put("chatgroup_id", chatGroupId);
                 values.put("name", friendName);
                 DbHelper.getInstance(context).insert("t_chatgroup", null, values);
             }
+
             //聊天消息入库
             ContentValues values = new ContentValues();
             values.put("chatgroup_id", chatGroupId);
             values.put("userid",""+message.getUserid());
             values.put("type", ""+message.getType());
             values.put("content", message.getContent());
+            values.put("seq", message.getSeq());
             values.put("status", message.getStatus());
             values.put("time", message.getTime());
             DbHelper.getInstance(context).insert("t_chatrecord", null, values);
 
             //通知当前聊天activity
-            dataChangeListener.message(message.getUserid(), message.getType());
+            //dataChangeListener.message(message.getUserid(), message.getType());
             //通知消息列表更新
         }
     };

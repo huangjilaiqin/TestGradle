@@ -59,7 +59,6 @@ public class DbHelper {
         if(!deleteCallbacks.containsKey(table))
             deleteCallbacks.put(table, new ArrayList<DbDeleteListener>());
         deleteCallbacks.get(table).add(listener);
-
     }
 
     public void insert(String table,String nullColumnHack,ContentValues values){
@@ -70,7 +69,11 @@ public class DbHelper {
                 break;
             case "t_chatrecord":
                 Log.e(TAG, values.toString());
-                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),values.getAsString("time"),values.getAsInteger("seq"),values.getAsInteger("status"));
+                int status=ChatMessage.MSG_RECEIVC;
+                if(values.get("status")!=null){
+                    status = values.getAsInteger("status");
+                }
+                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),values.getAsString("time"),values.getAsInteger("seq"),status);
                 break;
         }
         db.insert(table,nullColumnHack,values);

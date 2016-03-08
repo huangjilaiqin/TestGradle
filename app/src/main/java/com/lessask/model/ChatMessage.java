@@ -25,6 +25,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
     public static final int MSG_SENDING = 0;
     public static final int MSG_SEND = 1;
     public static final int MSG_SEND_FAILED= 2;
+    public static final int MSG_RECEIVC= 2;
 
     private int id;
     private String chatgroupId;
