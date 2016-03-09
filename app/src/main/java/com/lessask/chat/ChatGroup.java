@@ -19,6 +19,13 @@ public class ChatGroup implements Parcelable {
     private ArrayList<ChatMessage> messageList;
     //to do 一个高效的缓存结构
 
+
+    @Override
+    public boolean equals(Object o) {
+        ChatGroup chatGroup = (ChatGroup)o;
+        return this.chatgroupId.equals(chatGroup.getChatgroupId());
+    }
+
     public ChatGroup(String chatgroupId) {
         this.chatgroupId = chatgroupId;
         //聊天列表缓存一定数量的消息，保证进入聊天界面不会因为查数据库而产生卡顿

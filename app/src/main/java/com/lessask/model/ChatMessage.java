@@ -14,6 +14,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
     public static final int VIEW_TYPE_TIME = 2;
     */
 
+    //单数为自己
     public static final int MSG_TYPE_TEXT = 1;
     public static final int MSG_TYPE_TIME = 3;
     public static final int MSG_TYPE_IMG = 5;

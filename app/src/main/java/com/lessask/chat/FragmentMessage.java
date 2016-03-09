@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -41,12 +43,33 @@ public class FragmentMessage extends Fragment{
     private static final String TAG = FragmentMessage.class.getName();
     private static final int ON_FRIENDS = 0;
 
-    private TestMessageAdapter mRecyclerViewAdapter;
+    private MessageAdapter mRecyclerViewAdapter;
     private RecyclerViewStatusSupport mRecyclerView;
     private View rootView;
     private Config config = globalInfos.getConfig();
 
     private Map<String,ChatGroup> chatGroupMap;
+
+    private static final int HANDLER_MESSAGE_RECEIVE = 0;
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what){
+                case HANDLER_MESSAGE_RECEIVE:
+                    int position = msg.arg1;
+                    //通知friendActivity更新
+                    mRecyclerViewAdapter.notifyItemChanged(position);
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -60,12 +83,12 @@ public class FragmentMessage extends Fragment{
             mRecyclerView.setLayoutManager(mLinearLayoutManager);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL_LIST));
 
-            mRecyclerViewAdapter = new TestMessageAdapter(getContext());
+            mRecyclerViewAdapter = new MessageAdapter(getContext());
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, final int position) {
-                    Intent intent = new Intent(getActivity(), ChatActivity.class);
+                    Intent intent = new Intent(getActivity(), MyChatActivity.class);
                     ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
                     intent.putExtra("chatGroup", chatGroup);
                     startActivity(intent);
@@ -140,6 +163,7 @@ public class FragmentMessage extends Fragment{
             public void callback(Object obj) {
                 ChatGroup chatGroup = (ChatGroup)obj;
                 mRecyclerViewAdapter.append(chatGroup);
+                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
                 Log.e(TAG, "insert callback");
             }
         });
@@ -153,7 +177,10 @@ public class FragmentMessage extends Fragment{
                 ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
                 chatGroup.appendMsg(msg);
                 //越界
-                //mRecyclerViewAdapter.notifyItemUpdate(position);
+                Message message = new Message();
+                message.arg1 = position;
+                message.what = HANDLER_MESSAGE_RECEIVE;
+                handler.sendMessage(message);
             }
         });
     }

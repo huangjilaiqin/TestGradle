@@ -43,7 +43,7 @@ public class Chat {
     private Gson gson = new Gson();
     private HashMap<Integer, User> friendsMap;
     //更新不一样的activity应该有多个listener
-    private DataChangeListener dataChangeListener;
+    private OnMessageResponseListener onMessageResponseListener;
     private LoginListener loginListener;
     private LoadInitDataListener loadInitDataListener;
     private VerifyTokenListener verifyTokenListener;
@@ -147,17 +147,20 @@ public class Chat {
             if(response.getErrno()!=0 || response.getError()!=null){
                 Log.e(TAG, "error:"+response.getError());
                 return;
+            }else {
+                if(onMessageResponseListener!=null)
+                    onMessageResponseListener.messageResponse(response);
             }
 
 
-            dataChangeListener.messageResponse(response);
 
         }
     };
     private Emitter.Listener onLogin = new Emitter.Listener(){
         @Override
         public void call(Object... args) {
-            loginListener.login(args[0].toString());
+            if(loginListener!=null)
+                loginListener.login(args[0].toString());
         }
     };
     private Emitter.Listener onLoadInitData = new Emitter.Listener(){
@@ -276,11 +279,10 @@ public class Chat {
     }
 
 
-    public void setDataChangeListener(DataChangeListener dataChangeListener){
-        this.dataChangeListener = dataChangeListener;
+    public void setOnMessageResponseListener(OnMessageResponseListener onMessageResponseListener){
+        this.onMessageResponseListener = onMessageResponseListener;
     }
-    public interface DataChangeListener{
-        void message(int friendId, int type);
+    public interface OnMessageResponseListener{
         void messageResponse(ChatMessageResponse response);
     }
     public interface LoginListener{

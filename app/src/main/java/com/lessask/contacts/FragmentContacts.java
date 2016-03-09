@@ -143,6 +143,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
         mRecyclerView.showLoadingView();
         SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
         Cursor cursor = db.rawQuery("select * from t_contact", null);
+        Log.e(TAG, "query contact size:"+cursor.getCount());
         while (cursor.moveToNext()){
             mRecyclerViewAdapter.append(new User(cursor.getInt(0), cursor.getString(1), cursor.getString(2)));
             Log.e(TAG, "name:"+cursor.getString(1));

@@ -59,13 +59,7 @@ public class TestMessageAdapter extends RecyclerView.Adapter<TestMessageAdapter.
     public void onBindViewHolder(ViewHolder holder, final int position) {
         ChatGroup chatGroup = getItem(position);
         holder.name.setText(chatGroup.getName());
-        /*
-        String headImgUrl = imageUrlPrefix+user.getHeadImg();
-        ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.headImg, 0, 0);
-        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
-        */
         Log.e("MessageAdapter", new Date().toString());
-
         ChatMessage message = chatGroup.getLastMessage();
         if(message!=null) {
             holder.time.setText(message.getTime());
@@ -188,9 +182,19 @@ public class TestMessageAdapter extends RecyclerView.Adapter<TestMessageAdapter.
         return mList.size();
     }
 
+    public int getPositionById(String chatGroupId){
+        List<ChatGroup> chatGroups = getList();
+        for(int i=0;i<chatGroups.size();i++){
+            if(chatGroups.get(i).getChatgroupId().equals(chatGroupId))
+                return i;
+        }
+        return -1;
+    }
+    /*
     public int getPositionById(String id){
         return mapDatas.get(id);
     }
+    */
 
     public ChatGroup getItem(int position) {
         if (position > mList.size() - 1) {

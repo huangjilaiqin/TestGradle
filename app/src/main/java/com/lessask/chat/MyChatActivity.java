@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -20,12 +22,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.Date;
-import java.util.List;
-
-import android.os.Handler;
-
 import com.google.gson.Gson;
+import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.DbHelper;
 import com.lessask.global.DbInsertListener;
@@ -33,11 +31,17 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.ResponseError;
+import com.lessask.recyclerview.ImprovedSwipeLayout;
+import com.lessask.recyclerview.RecyclerViewStatusSupport;
+import com.lessask.show.ShowListAdapter;
 import com.lessask.util.ScreenUtil;
 import com.lessask.util.Utils;
 
+import java.util.Date;
+import java.util.List;
 
-public class ChatActivity extends Activity implements AbsListView.OnScrollListener{
+
+public class MyChatActivity extends Activity{
 
     private static final int HANDLER_MESSAGE_RECEIVE = 0;
     private static final int HANDLER_MESSAGE_RESP = 1;
@@ -46,8 +50,12 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
     private final static String TAG = "ChatActivity";
     private ListView chatListView;
-    private static ChatAdapter chatAdapter;
+    private MyChatAdapter mRecyclerViewAdapter;
+
     private SwipeRefreshLayout swipeView;
+    private RecyclerViewStatusSupport mRecyclerView;
+    private ImprovedSwipeLayout mSwipeRefreshLayout;
+    private LinearLayoutManager mLinearLayoutManager;
 
     private EditText etContent;
 
@@ -60,7 +68,6 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
     private int seq;
 
     private List<ChatMessage> messageList;
-    //private LinkedList<ChatMessage> messageList;
     private ChatGroup chatGroup;
 
     private Handler handler = new Handler() {
@@ -70,7 +77,9 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
             switch (msg.what){
                 case HANDLER_MESSAGE_RECEIVE:
-                    chatAdapter.notifyDataSetChanged();
+                    mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
+                    mRecyclerView.scrollToPosition(mRecyclerViewAdapter.getItemCount()-1);
+                    Log.e(TAG, "current chat insert callback");
                     //通知friendActivity更新
 
                     break;
@@ -84,23 +93,22 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                     Log.e(TAG, "HANDLER_HISTORY_SUCCESS:"+msgSize+", friendId:"+friendId);
                     if(msgSize>0){
                         //加载数据时保持当前数据不动, 当adapter中有数据时setSelection不起作用
-                        chatListView.setAdapter(chatAdapter);
+                        //chatListView.setAdapter(chatAdapter);
                         chatListView.setSelection(msgSize);
                         if(msgSize>1) {
                             msgSize--;
                             chatListView.scrollTo(msgSize,0);
                         }
-                        //chatAdapter.notifyDataSetChanged();
                         //chatListView.setSelection(0);
                     }else {
-                        Toast.makeText(ChatActivity.this, "没有更多数据", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MyChatActivity.this, "没有更多数据", Toast.LENGTH_SHORT).show();
                     }
                     Log.d(TAG, "onHistory notifyDataSetChanged");
                     swipeView.setRefreshing(false);
                     break;
                 case HANDLER_HISTORY_ERROR:
                     ResponseError error = (ResponseError)msg.obj;
-                    Toast.makeText(ChatActivity.this, "errno:"+error.getErrno()+",msg:"+error.getError(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyChatActivity.this, "errno:"+error.getErrno()+",msg:"+error.getError(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "onHistory error");
                     swipeView.setRefreshing(false);
                     break;
@@ -110,25 +118,13 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         }
     };
 
-    private DbInsertListener chatRecorInsertListener = new DbInsertListener() {
-        @Override
-        public void callback(Object obj) {
-            ChatMessage message = (ChatMessage) obj;
-            if(message.getChatgroupId()==chatgroupId){
-                chatAdapter.add(message);
-                //chatAdapter.notifyDataSetChanged();
-            }
-            Log.e(TAG, "insert callback");
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_my_chat);
+        //获取传递的数据
         final Intent intent = getIntent();
-        swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
-
         userId = globalInfos.getUserId();
         chatGroup = intent.getParcelableExtra("chatGroup");
         chatgroupId = chatGroup.getChatgroupId();
@@ -142,63 +138,55 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         }
         seq = 0;
 
-        messageList =  chatGroup.getMessageList();
-        //messageList = globalInfos.getChatContent(chatGroup.getChatgroupId());
+        //初始化控件
+        //swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
-        /*
-        chat.setDataChangeListener(new Chat.DataChangeListener() {
-            @Override
-            public void message(int friendId, int type) {
-                Message msg = new Message();
+        mRecyclerView = (RecyclerViewStatusSupport) findViewById(R.id.list);
+        mRecyclerView.setStatusViews(findViewById(R.id.loading_view), findViewById(R.id.empty_view), findViewById(R.id.error_view));
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        //mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        mSwipeRefreshLayout = (ImprovedSwipeLayout) findViewById(R.id.swiperefresh);
 
-                if(msg.arg1 == friendId) {
-                    msg.what = HANDLER_MESSAGE_RECEIVE;
-                    msg.arg1 = friendId;
-                    msg.arg2 = type;
-                    handler.sendMessage(msg);
-                }
-            }
+        mRecyclerViewAdapter = new MyChatAdapter(this);
 
+        mRecyclerView.setAdapter(mRecyclerViewAdapter);
+        mRecyclerViewAdapter.appendToList(chatGroup.getMessageList());
+        mRecyclerView.scrollToPosition(mRecyclerViewAdapter.getItemCount()-1);
+        mRecyclerViewAdapter.notifyDataSetChanged();
+
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+             @Override
+             public void onRefresh() {
+                 //mSwipeRefreshLayout.setRefreshing(false);
+             }
+         });
+
+        //监听聊天信息
+        DbHelper.getInstance(getBaseContext()).appendInsertListener("t_chatrecord", new DbInsertListener() {
             @Override
-            public void messageResponse(ChatMessageResponse response) {
-                Message msg = new Message();
-                msg.what = HANDLER_MESSAGE_RESP;
-                msg.obj = response;
-                handler.sendMessage(msg);
-            }
-        });
-        */
-        chat.setHistoryListener(new Chat.HistoryListener() {
-            @Override
-            public void history(ResponseError error, int mFriendid, int messageSize) {
-                Log.e(TAG, "chatActivity friendId:"+mFriendid+", messageSize:"+messageSize);
-                if(error!=null){
-                    Toast.makeText(getApplicationContext(), "historyError"+error.getError()+", errno:"+error.getErrno(), Toast.LENGTH_SHORT).show();
-                }else {
-                    //Log.e(TAG, mFriendid+", "+friendId);
-                    if(mFriendid == friendId){
+            public void callback(Object obj) {
+                //这个回调方法 发送跟接收到都会调用
+                ChatMessage message = (ChatMessage) obj;
+                if(message.getChatgroupId().equals(chatgroupId)){
+                    if (message.getUserid()!=globalInfos.getUserId()) {
+                        mRecyclerViewAdapter.append(message);
                         Message msg = new Message();
-                        msg.arg1 = messageSize;
-                        msg.what = HANDLER_HISTORY_SUCCESS;
+                        msg.what = HANDLER_MESSAGE_RECEIVE;
                         handler.sendMessage(msg);
-                        //Log.e(TAG, "history send HANDLER_HISTORY_SUCCESS");
                     }
                 }
             }
         });
 
-        DbHelper.getInstance(getBaseContext()).appendInsertListener("t_chatrecord", chatRecorInsertListener);
+        chat.setOnMessageResponseListener(new Chat.OnMessageResponseListener() {
+            @Override
+            public void messageResponse(ChatMessageResponse response) {
+                //todo 显示信息状态
+            }
+        });
 
-        //获取好友聊天内容
-        chatAdapter = new ChatAdapter(ChatActivity.this, R.layout.chat_other, messageList);
-        chatListView = (ListView) findViewById(R.id.chat_view);
-        chatListView.setItemsCanFocus(false);
-        chatListView.setAdapter(chatAdapter);
-        chatListView.setOnScrollListener(this);
-        //进入界面默认显示最后一条消息
-        chatListView.setSelection(messageList.size());
-        chatAdapter.notifyDataSetChanged();
-        final LayoutInflater layoutInflater = LayoutInflater.from(this);
         //消息类型
         final ImageView ivContentType = (ImageView) findViewById(R.id.content_type);
         //输入框
@@ -239,9 +227,6 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
 
         ivContentType.setTag(R.drawable.tn);
 
-        //一进来就显示最新的聊天消息
-        chatAdapter.notifyDataSetChanged();
-
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -252,15 +237,15 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 }
 
                 ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()), seq,ChatMessage.MSG_SENDING);
-                messageList.add(msg);
+                //mRecyclerViewAdapter.append(msg);
+                mRecyclerViewAdapter.append(msg);
+                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
+
 
                 etContent.setText("");
-                chatAdapter.notifyDataSetChanged();
 
                 //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
-                //Log.d(TAG, "userid:"+userId);
                 Log.d(TAG, "gson:" + gson.toJson(msg));
-
                 chat.emit("message", gson.toJson(msg));
 
                 //本地主动发送的消息入库
@@ -289,7 +274,6 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
         etContent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chatAdapter.notifyDataSetChanged();
             }
         });
         ivContentType.setOnClickListener(new View.OnClickListener() {
@@ -333,33 +317,18 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
             }
         });
         */
+        /*
         swipeView.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         swipeView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                /*
                 swipeView.setRefreshing(true);
                 //请求历史数据
                 History history = new History(userId, friendId, globalInfos.getHistoryIds(friendId));
                 Log.e(TAG, "history:"+gson.toJson(history));
                 chat.emit("history", gson.toJson(history));
-                */
             }
         });
-
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        Log.e(TAG, "firstVisibleItem:"+firstVisibleItem+", visibleItemCount:"+visibleItemCount+", totalItemCount:"+totalItemCount);
-        if (firstVisibleItem == 0)
-            swipeView.setEnabled(true);
-        else
-            swipeView.setEnabled(false);
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+        */
     }
 }

@@ -16,6 +16,7 @@ import com.lessask.R;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ChatMessage;
 import com.lessask.model.User;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.BaseRecyclerAdapter;
@@ -24,6 +25,7 @@ import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.util.TimeHelper;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by huangji on 2016/2/19.
@@ -57,13 +59,15 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
     public void onBindViewHolder(ViewHolder holder, final int position) {
         ChatGroup chatGroup = getItem(position);
         holder.name.setText(chatGroup.getName());
-        /*
-        String headImgUrl = imageUrlPrefix+user.getHeadImg();
-        ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(holder.headImg, 0, 0);
-        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
-        */
         Log.e("MessageAdapter", new Date().toString());
-        holder.time.setText(TimeHelper.date2Chat(new Date()));
+        ChatMessage message = chatGroup.getLastMessage();
+        if(message!=null) {
+            holder.time.setText(message.getTime());
+            holder.content.setText(message.getContent());
+        }else {
+            holder.time.setText(TimeHelper.date2Chat(new Date()));
+            holder.content.setText("");
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +86,15 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
                 return false;
             }
         });
+    }
+
+    public int getPositionById(String chatGroupId){
+        List<ChatGroup> chatGroups = getList();
+        for(int i=0;i<chatGroups.size();i++){
+            if(chatGroups.get(i).getChatgroupId().equals(chatGroupId))
+                return i;
+        }
+        return -1;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
