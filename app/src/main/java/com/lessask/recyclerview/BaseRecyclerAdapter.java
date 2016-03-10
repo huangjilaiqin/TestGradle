@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.lessask.crud.AdapterAction;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public abstract class BaseRecyclerAdapter <T, VH extends RecyclerView.ViewHolder
         }
         mList.addAll(list);
     }
+
 
     public void append(T t) {
         if (t == null) {

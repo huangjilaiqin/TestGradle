@@ -74,6 +74,7 @@ public class MyChatAdapter extends BaseRecyclerAdapter<ChatMessage, RecyclerView
             //itemData.getFriendid() 根据好友id在本地存储图片
             //设置静态资源
             String headImgUrl = imageUrlPrefix+itemData.getUserid()+".jpg";
+            Log.e(TAG, "other :"+headImgUrl);
             ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(otherViewHolder.headImg, 0, 0);
             VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
             //otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
@@ -84,6 +85,7 @@ public class MyChatAdapter extends BaseRecyclerAdapter<ChatMessage, RecyclerView
             //设置静态资源
             //meViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
             String headImgUrl = imageUrlPrefix+itemData.getUserid()+".jpg";
+            Log.e(TAG, "me:"+headImgUrl);
             ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(meViewHolder.headImg, 0, 0);
             VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
         }

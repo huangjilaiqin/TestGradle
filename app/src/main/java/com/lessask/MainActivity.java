@@ -211,7 +211,8 @@ public class MainActivity extends MyAppCompatActivity implements View.OnClickLis
         while (cursor.moveToNext()){
             String chatgroupId = cursor.getString(0);
             String name = cursor.getString(1);
-            chatGroups.add(new ChatGroup(chatgroupId,name));
+            int status = cursor.getInt(2);
+            chatGroups.add(new ChatGroup(chatgroupId,name,status));
         }
         cursor.close();
         globalInfos.addChatGroups(chatGroups);

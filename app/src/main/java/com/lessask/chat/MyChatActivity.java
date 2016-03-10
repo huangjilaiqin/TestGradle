@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
@@ -26,6 +27,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.DbHelper;
@@ -66,7 +68,9 @@ public class MyChatActivity extends Activity{
 
     private Chat chat = Chat.getInstance(getBaseContext());
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
-    private Gson gson = new Gson();
+    //private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:MM:ss").create();
+    private Gson gson = TimeHelper.gsonWithDate();
+
     private int userId;
     private int friendId=0;
     private String chatgroupId;
@@ -147,12 +151,24 @@ public class MyChatActivity extends Activity{
 
         //初始化控件
         //swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        //键盘弹起时，信息滚动到最后一条
+        final View activityRootView = findViewById(R.id.root);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+                int count = mRecyclerViewAdapter.getItemCount();
+                if (heightDiff > 100 && count>0) {
+                    mRecyclerView.smoothScrollToPosition(count - 1);
+                }
+            }
+        });
 
         mRecyclerView = (RecyclerViewStatusSupport) findViewById(R.id.list);
         mRecyclerView.setStatusViews(findViewById(R.id.loading_view), findViewById(R.id.empty_view), findViewById(R.id.error_view));
         mLinearLayoutManager = new LinearLayoutManager(this);
         //键盘弹起时 记录滚动到最后一条
-        mLinearLayoutManager.setStackFromEnd(true);
+        //mLinearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         //mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         mSwipeRefreshLayout = (ImprovedSwipeLayout) findViewById(R.id.swiperefresh);
@@ -187,17 +203,20 @@ public class MyChatActivity extends Activity{
                      int status = cursor.getInt(2);
                      Date time = TimeHelper.dateParse(cursor.getString(3));
                      int userid = cursor.getInt(4);
+                     Log.e(TAG, "load userid:"+userid);
                      int type = cursor.getInt(5);
                      String content = cursor.getString(6);
                      int seq = cursor.getInt(7);
                      Log.e(TAG, "seq:"+seq);
                      oldestSeq = seq;
-                     mRecyclerViewAdapter.appendToTop(new ChatMessage(id, userid, chatgroupId, type, content, time, status, seq));
+                     mRecyclerViewAdapter.appendToTop(new ChatMessage(id,chatgroupId,userid,type,content, time, status, seq));
                  }
                  Log.e(TAG, "oldestSeq:"+oldestSeq);
                  cursor.close();
                  mRecyclerViewAdapter.notifyItemRangeInserted(0,cursor.getCount());
                  mSwipeRefreshLayout.setRefreshing(false);
+                 if(oldestSeq==1)
+                     mSwipeRefreshLayout.setEnabled(false);
              }
          });
 
@@ -288,7 +307,7 @@ public class MyChatActivity extends Activity{
                 etContent.setText("");
 
                 //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
-                Log.d(TAG, "gson:" + gson.toJson(msg));
+                Log.e(TAG, "gson:" + gson.toJson(msg));
                 chat.emit("message", gson.toJson(msg));
 
                 //本地主动发送的消息入库
@@ -308,7 +327,7 @@ public class MyChatActivity extends Activity{
                 values.put("type", ""+msg.getType());
                 values.put("content", msg.getContent());
                 values.put("status", msg.getStatus());
-                values.put("time", TimeHelper.date2Chat(msg.getTime()));
+                values.put("time", TimeHelper.dateFormat(msg.getTime()));
                 values.put("seq", msg.getSeq());
                 DbHelper.getInstance(getBaseContext()).insert("t_chatrecord", null, values);
             }

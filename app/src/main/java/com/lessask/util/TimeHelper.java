@@ -1,7 +1,16 @@
 package com.lessask.util;
 
+import android.text.format.DateFormat;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -166,5 +175,24 @@ public class TimeHelper {
         }
 
         return buffer.toString();
+    }
+    public static Gson gsonWithDate() {
+        final GsonBuilder builder = new GsonBuilder();
+
+        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+
+            final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            @Override
+            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                try {
+                    return df.parse(json.getAsString());
+                } catch (final java.text.ParseException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        });
+        return builder.create();
     }
 }

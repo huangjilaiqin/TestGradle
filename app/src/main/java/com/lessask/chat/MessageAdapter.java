@@ -24,6 +24,7 @@ import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.util.TimeHelper;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -47,6 +48,10 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
+    }
+
+    public void sort(){
+        Collections.sort(getList());
     }
 
     @Override

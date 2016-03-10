@@ -93,6 +93,16 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.seq = seq;
         this.status=status;
     }
+    public ChatMessage(int id,String chatgroupId,int userid, int type, String content, Date time,int status,int seq) {
+        this.id = id;
+        this.userid = userid;
+        this.chatgroupId = chatgroupId;
+        this.type = type;
+        this.content = content;
+        this.time = time;
+        this.status = status;
+        this.seq = seq;
+    }
     //入库消息构造函数
     public ChatMessage(int userid,String chatgroupId, int type, String content, Date time, int seq,int status) {
         this.chatgroupId = chatgroupId;
@@ -123,6 +133,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.content = content;
         this.time = time;
     }
+
 
     public int getStatus() {
         return status;

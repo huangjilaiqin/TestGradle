@@ -10,6 +10,7 @@ import io.socket.emitter.Emitter;
 import io.socket.client.Ack;
 import io.socket.client.Socket;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
@@ -41,7 +42,8 @@ public class Chat {
     private Socket mSocket;
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
-    private Gson gson = new Gson();
+    //private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:MM:ss").create();
+    private Gson gson = TimeHelper.gsonWithDate();
     private HashMap<Integer, User> friendsMap;
     //更新不一样的activity应该有多个listener
     private OnMessageResponseListener onMessageResponseListener;
@@ -90,6 +92,7 @@ public class Chat {
             Log.e(TAG, "onMessage:" + args[0].toString());
 
             ChatMessage message = gson.fromJson(args[0].toString(), ChatMessage.class);
+            Log.e(TAG, "msg time:"+message.getTime()+", "+TimeHelper.dateFormat(message.getTime()));
             if(message.getErrno()!=0 || message.getError()!=null){
                 Log.e(TAG, "error:"+message.getError());
                 return;
@@ -132,7 +135,7 @@ public class Chat {
             values.put("content", message.getContent());
             values.put("seq", message.getSeq());
             values.put("status", message.getStatus());
-            values.put("time", TimeHelper.date2Show(message.getTime()));
+            values.put("time", TimeHelper.dateFormat(message.getTime()));
             DbHelper.getInstance(context).insert("t_chatrecord", null, values);
 
             //通知当前聊天activity
@@ -273,7 +276,7 @@ public class Chat {
 
 
     public void emit(String event, Object... args){
-        Log.e(TAG, event + ":" + args[0].toString());
+        Log.e(TAG, "emit "+event + ":" + args[0].toString());
         mSocket.emit(event, args);
     }
     public void emit(String event, Object[] args, Ack ask){

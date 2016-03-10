@@ -81,8 +81,8 @@ public class DbHelper {
         }
         db.insert(table,nullColumnHack,values);
 
-        Log.e(TAG, "DbInsertListener size:"+insertCallbacks.size());
-        if(insertCallbacks.size()>0) {
+        if(insertCallbacks.containsKey(table)) {
+            Log.e(TAG, table + "DbInsertListener size:"+insertCallbacks.get(table).size());
             for (DbInsertListener listener : insertCallbacks.get(table)) {
                 listener.callback(obj);
             }

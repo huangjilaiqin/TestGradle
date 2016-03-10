@@ -6,14 +6,16 @@ import android.os.Parcelable;
 import com.lessask.model.ChatMessage;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created by JHuang on 2016/2/27.
  * 聊天群信息
  */
-public class ChatGroup implements Parcelable {
+public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
     private String chatgroupId;
+    private int status;     //1:置顶,0:非置顶
     private String name;
     private String img;
     private ArrayList<ChatMessage> messageList;
@@ -26,22 +28,62 @@ public class ChatGroup implements Parcelable {
         return this.chatgroupId.equals(chatGroup.getChatgroupId());
     }
 
+    @Override
+    public int compareTo(ChatGroup another) {
+        //排序字段 消息时间,name
+        ArrayList<ChatMessage> anotherMsg = (ArrayList<ChatMessage>)another.getMessageList();
+        Date chatTime;
+        if(messageList.size()!=0)
+            chatTime=messageList.get(messageList.size()-1).getTime();
+        else
+            chatTime = new Date(0);
+        Date anotherChatTime;
+        if(anotherMsg.size()!=0)
+            anotherChatTime=anotherMsg.get(anotherMsg.size()-1).getTime();
+        else
+            anotherChatTime = new Date(0);
+
+        if(status>another.getStatus()){
+            return -1;
+        }else if(status<another.getStatus()){
+            return 1;
+        }else {
+            //比较时间
+            if (chatTime.getTime() > anotherChatTime.getTime()) {
+                return -1;
+            } else if (anotherChatTime.getTime() < chatTime.getTime()) {
+                return 1;
+            } else {
+                //比较名字
+                return name.compareTo(another.getName());
+            }
+        }
+    }
+
     public ChatGroup(String chatgroupId) {
         this.chatgroupId = chatgroupId;
         //聊天列表缓存一定数量的消息，保证进入聊天界面不会因为查数据库而产生卡顿
         this.messageList = new ArrayList<ChatMessage>();
     }
-    public ChatGroup(String chatgroupId, String name) {
+    public ChatGroup(String chatgroupId,String name) {
         this.chatgroupId = chatgroupId;
         this.name = name;
         //聊天列表缓存一定数量的消息，保证进入聊天界面不会因为查数据库而产生卡顿
         this.messageList = new ArrayList<ChatMessage>();
     }
+    public ChatGroup(String chatgroupId, String name,int status) {
+        this.chatgroupId = chatgroupId;
+        this.name = name;
+        this.status = status;
+        //聊天列表缓存一定数量的消息，保证进入聊天界面不会因为查数据库而产生卡顿
+        this.messageList = new ArrayList<ChatMessage>();
+    }
 
-    public ChatGroup(String chatgroupId, String name, String img, ArrayList<ChatMessage> messageList) {
+    public ChatGroup(String chatgroupId, String name,int status,String img, ArrayList<ChatMessage> messageList) {
         this.chatgroupId = chatgroupId;
         this.name = name;
         this.img = img;
+        this.status = status;
         this.messageList = messageList;
     }
 
@@ -79,6 +121,7 @@ public class ChatGroup implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(chatgroupId);
         dest.writeString(name);
+        dest.writeInt(status);
         dest.writeString(img);
         dest.writeList(messageList);
     }
@@ -88,15 +131,24 @@ public class ChatGroup implements Parcelable {
          public ChatGroup createFromParcel(Parcel in) {
              String chatgroupId = in.readString();
              String name = in.readString();
+             int status = in.readInt();
              String img = in.readString();
              ArrayList<ChatMessage> messageList = in.readArrayList(ChatMessage.class.getClassLoader());
-             return new ChatGroup(chatgroupId, name, img, messageList);
+             return new ChatGroup(chatgroupId, name,status, img, messageList);
          }
 
          public ChatGroup[] newArray(int size) {
              return new ChatGroup[size];
          }
     };
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
     public String getChatgroupId() {
         return chatgroupId;

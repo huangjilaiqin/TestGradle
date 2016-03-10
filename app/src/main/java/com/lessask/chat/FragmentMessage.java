@@ -50,7 +50,6 @@ public class FragmentMessage extends Fragment{
     private View rootView;
     private Config config = globalInfos.getConfig();
 
-    private Map<String,ChatGroup> chatGroupMap;
 
     private static final int HANDLER_MESSAGE_RECEIVE = 0;
 
@@ -63,7 +62,8 @@ public class FragmentMessage extends Fragment{
                 case HANDLER_MESSAGE_RECEIVE:
                     int position = msg.arg1;
                     //通知friendActivity更新
-                    mRecyclerViewAdapter.notifyItemChanged(position);
+                    //mRecyclerViewAdapter.notifyItemChanged(position);
+                    mRecyclerViewAdapter.notifyDataSetChanged();
 
                     break;
 
@@ -98,6 +98,33 @@ public class FragmentMessage extends Fragment{
             });
 
             loadChatGroups();
+            //设置数据库监听
+            DbHelper.getInstance(getContext()).appendInsertListener("t_chatgroup", new DbInsertListener() {
+                @Override
+                public void callback(Object obj) {
+                    ChatGroup chatGroup = (ChatGroup)obj;
+                    mRecyclerViewAdapter.append(chatGroup);
+                    mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
+                    Log.e(TAG, "insert callback");
+                }
+            });
+            DbHelper.getInstance(getContext()).appendInsertListener("t_chatrecord", new DbInsertListener() {
+                @Override
+                public void callback(Object obj) {
+                    ChatMessage msg = (ChatMessage) obj;
+                    //更新列表项
+                    int position = mRecyclerViewAdapter.getPositionById(msg.getChatgroupId());
+                    Log.e(TAG, "insert callback, position:"+position);
+                    ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
+                    chatGroup.appendMsg(msg);
+                    //越界
+                    Message message = new Message();
+                    message.arg1 = position;
+                    message.what = HANDLER_MESSAGE_RECEIVE;
+                    handler.sendMessage(message);
+                    mRecyclerViewAdapter.sort();
+                }
+            });
 
         }
         return rootView;
@@ -111,7 +138,7 @@ public class FragmentMessage extends Fragment{
         String sql = "select a.* from t_chatrecord a where 10>(select count(*) from t_chatrecord where chatgroup_id=a.chatgroup_id and id>a.id) order by a.id";
         Cursor cursor = db.rawQuery(sql, null);
         int count = cursor.getColumnCount();
-        chatGroupMap = new HashMap<>();
+        Map<String,ChatGroup> chatGroupMap = new HashMap<>();
         while (cursor.moveToNext()){
             int id = cursor.getInt(0);
             String chatgroupId = cursor.getString(1);
@@ -137,15 +164,17 @@ public class FragmentMessage extends Fragment{
         }
 
 
+        //设置每个聊天列表的名字,包括没有聊天记录的项
         sql = "select * from t_chatgroup";
         cursor = db.rawQuery(sql,null);
         while (cursor.moveToNext()){
             String chatgroupId = cursor.getString(0);
             String name = cursor.getString(1);
+            int status = cursor.getInt(2);
             if(chatGroupMap.containsKey(chatgroupId)){
                 chatGroupMap.get(chatgroupId).setName(name);
             }else {
-                chatGroupMap.put(chatgroupId, new ChatGroup(chatgroupId, name));
+                chatGroupMap.put(chatgroupId, new ChatGroup(chatgroupId,name,status));
             }
         }
 
@@ -154,41 +183,22 @@ public class FragmentMessage extends Fragment{
             Log.e(TAG, "chatgroupid:"+chatGroup.getChatgroupId()+", msg size:"+chatGroup.getMessageList().size());
             mRecyclerViewAdapter.append(chatGroup);
         }
+        mRecyclerViewAdapter.sort();
+        for(int i=0;i<mRecyclerViewAdapter.getItemCount();i++) {
+            ChatGroup chatGroup = mRecyclerViewAdapter.getItem(i);
+            ChatMessage msg =chatGroup.getLastMessage();
+            if(msg!=null)
+                Log.e(TAG, "sort:" + msg.getTime());
+            else
+                Log.e(TAG, "none");
+        }
         Log.e(TAG, "query db, chatgroup size:"+count);
         if(count==0){
             mRecyclerView.showEmptyView();
         }else {
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
-
-        //设置数据库监听
-        DbHelper.getInstance(getContext()).appendInsertListener("t_chatgroup", new DbInsertListener() {
-            @Override
-            public void callback(Object obj) {
-                ChatGroup chatGroup = (ChatGroup)obj;
-                mRecyclerViewAdapter.append(chatGroup);
-                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
-                Log.e(TAG, "insert callback");
-            }
-        });
-        DbHelper.getInstance(getContext()).appendInsertListener("t_chatrecord", new DbInsertListener() {
-            @Override
-            public void callback(Object obj) {
-                ChatMessage msg = (ChatMessage) obj;
-                //更新列表项
-                int position = mRecyclerViewAdapter.getPositionById(msg.getChatgroupId());
-                Log.e(TAG, "insert callback, position:"+position);
-                ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
-                chatGroup.appendMsg(msg);
-                //越界
-                Message message = new Message();
-                message.arg1 = position;
-                message.what = HANDLER_MESSAGE_RECEIVE;
-                handler.sendMessage(message);
-            }
-        });
     }
-
 
 
     @Override
