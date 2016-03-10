@@ -19,6 +19,7 @@ import com.lessask.R;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.User;
+import com.lessask.util.TimeHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class FriendsAdapter extends BaseAdapter{
         //获取对话内容
         if(msg!=null) {
             tvContent.setText(msg.getContent());
-            tvTime.setText(msg.getTime());
+            tvTime.setText(TimeHelper.date2Chat(msg.getTime()));
         }
 
         //先从内内存中找, 再从文件中找, 再服务器加载

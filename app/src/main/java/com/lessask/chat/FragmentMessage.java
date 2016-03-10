@@ -26,9 +26,11 @@ import com.lessask.global.GlobalInfos;
 import com.lessask.model.ChatMessage;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
+import com.lessask.util.TimeHelper;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,6 +107,7 @@ public class FragmentMessage extends Fragment{
         mRecyclerView.showLoadingView();
         SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
         //Cursor cursor = db.rawQuery("select * from t_chatgroup", null);
+        //每个聊天列表只查10条记录
         String sql = "select a.* from t_chatrecord a where 10>(select count(*) from t_chatrecord where chatgroup_id=a.chatgroup_id and id>a.id) order by a.id";
         Cursor cursor = db.rawQuery(sql, null);
         int count = cursor.getColumnCount();
@@ -113,7 +116,8 @@ public class FragmentMessage extends Fragment{
             int id = cursor.getInt(0);
             String chatgroupId = cursor.getString(1);
             int status = cursor.getInt(2);
-            String time = cursor.getString(3);
+            Log.e(TAG, "time:" + cursor.getString(3));
+            Date time = TimeHelper.dateParse(cursor.getString(3));
             int userid = cursor.getInt(4);
             int type = cursor.getInt(5);
             String content = cursor.getString(6);

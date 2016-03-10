@@ -62,7 +62,7 @@ public class TestMessageAdapter extends RecyclerView.Adapter<TestMessageAdapter.
         Log.e("MessageAdapter", new Date().toString());
         ChatMessage message = chatGroup.getLastMessage();
         if(message!=null) {
-            holder.time.setText(message.getTime());
+            holder.time.setText(TimeHelper.date2Chat(message.getTime()));
             holder.content.setText(message.getContent());
         }else {
             holder.time.setText(TimeHelper.date2Chat(new Date()));

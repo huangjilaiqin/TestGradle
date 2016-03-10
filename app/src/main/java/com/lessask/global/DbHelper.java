@@ -7,8 +7,10 @@ import android.util.Log;
 
 import com.lessask.chat.ChatGroup;
 import com.lessask.model.ChatMessage;
+import com.lessask.util.TimeHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,7 +75,8 @@ public class DbHelper {
                 if(values.get("status")!=null){
                     status = values.getAsInteger("status");
                 }
-                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),values.getAsString("time"),values.getAsInteger("seq"),status);
+                Date time = TimeHelper.dateParse(values.getAsString("time"));
+                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),time,values.getAsInteger("seq"),status);
                 break;
         }
         db.insert(table,nullColumnHack,values);

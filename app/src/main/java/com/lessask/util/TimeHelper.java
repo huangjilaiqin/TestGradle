@@ -84,6 +84,36 @@ public class TimeHelper {
 
         return buffer.toString();
     }
+
+    public static String dateFormat(Date date,String format){
+        SimpleDateFormat dateformat=new SimpleDateFormat(format);
+        return dateformat.format(date);
+    }
+    public static String dateFormat(Date date){
+        String format = "yyyy-MM-dd HH:mm:ss";
+        return dateFormat(date, format);
+    }
+    public static String dateFormat(){
+        String format = "yyyy-MM-dd HH:mm:ss";
+        return dateFormat(new Date(), format);
+    }
+
+    public static Date dateParse(String time,String format){
+        SimpleDateFormat dateformat=new SimpleDateFormat(format);
+        Date date = new Date();
+        try {
+            date = dateformat.parse(time);
+        }catch (ParseException e){
+            Log.e(TAG, "dateParse error, time:"+time+", format:"+format);
+        }
+        return date;
+    }
+
+    public static Date dateParse(String time){
+        String format = "yyyy-MM-dd HH:mm:ss";
+        return dateParse(time,format);
+    }
+
     public static String date2Chat(Date date) {
         String[] weakName = new String[]{"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
 

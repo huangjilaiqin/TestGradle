@@ -22,29 +22,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
-import com.google.gson.internal.Streams;
-import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
-import com.lessask.chat.ChatActivity;
 import com.lessask.chat.ChatGroup;
-import com.lessask.crud.CRUDExtend;
+import com.lessask.chat.MyChatActivity;
 import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ArrayListResponse;
 import com.lessask.model.User;
-import com.lessask.net.GsonRequest;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by huangji on 2015/11/24.
@@ -116,7 +104,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
             mRecyclerViewAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, final int position) {
-                    Intent intent = new Intent(getActivity(), ChatActivity.class);
+                    Intent intent = new Intent(getActivity(), MyChatActivity.class);
                     User user = mRecyclerViewAdapter.getItem(position);
                     int friendId = user.getUserid();
                     int userid = globalInfos.getUserId();
@@ -127,7 +115,7 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                     //查看是否存在聊天列表
                     SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
                     Cursor cursor = db.rawQuery("select 1 from t_chatgroup where chatgroup_id=?", new String[]{chatgroupId});
-                    if(!cursor.moveToNext())
+                    if(cursor.getCount()==0)
                         intent.putExtra("notInContacts", true);
                     cursor.close();
                     startActivity(intent);

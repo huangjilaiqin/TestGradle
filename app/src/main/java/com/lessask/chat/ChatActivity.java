@@ -34,6 +34,7 @@ import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.ResponseError;
 import com.lessask.util.ScreenUtil;
+import com.lessask.util.TimeHelper;
 import com.lessask.util.Utils;
 
 
@@ -57,6 +58,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
     private int userId;
     private int friendId=0;
     private String chatgroupId;
+    private boolean notInContacts=false;
     private int seq;
 
     private List<ChatMessage> messageList;
@@ -141,6 +143,9 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 friendId = id1;
         }
         seq = 0;
+
+        if(intent.getBooleanExtra("notInContacts", false))
+            notInContacts=true;
 
         messageList =  chatGroup.getMessageList();
         //messageList = globalInfos.getChatContent(chatGroup.getChatgroupId());
@@ -251,7 +256,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                     return;
                 }
 
-                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()), seq,ChatMessage.MSG_SENDING);
+                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT, content,new Date(), seq,ChatMessage.MSG_SENDING);
                 messageList.add(msg);
 
                 etContent.setText("");
@@ -266,7 +271,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 //本地主动发送的消息入库
 
                 //该聊天记录不在聊天列表里
-                if(intent.getBooleanExtra("notInContacts", false)) {
+                if(notInContacts) {
                     ContentValues values = new ContentValues();
                     values.put("chatgroup_id", chatGroup.getChatgroupId());
                     values.put("name", chatGroup.getName());
@@ -280,7 +285,7 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 values.put("type", ""+msg.getType());
                 values.put("content", msg.getContent());
                 values.put("status", msg.getStatus());
-                values.put("time", msg.getTime());
+                values.put("time", TimeHelper.dateFormat(msg.getTime()));
                 //to do 为每一条消息分配一个seq
                 values.put("seq", 0);
                 DbHelper.getInstance(getBaseContext()).insert("t_chatrecord", null, values);
@@ -346,7 +351,6 @@ public class ChatActivity extends Activity implements AbsListView.OnScrollListen
                 */
             }
         });
-
     }
 
     @Override

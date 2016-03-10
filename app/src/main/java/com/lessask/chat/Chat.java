@@ -22,6 +22,7 @@ import com.lessask.model.RunDataResponse;
 import com.lessask.model.User;
 import com.lessask.model.VerifyToken;
 import com.lessask.util.DbUtil;
+import com.lessask.util.TimeHelper;
 import com.lessask.util.Utils;
 import com.lessask.net.LASocketIO;
 
@@ -131,7 +132,7 @@ public class Chat {
             values.put("content", message.getContent());
             values.put("seq", message.getSeq());
             values.put("status", message.getStatus());
-            values.put("time", message.getTime());
+            values.put("time", TimeHelper.date2Show(message.getTime()));
             DbHelper.getInstance(context).insert("t_chatrecord", null, values);
 
             //通知当前聊天activity
@@ -197,6 +198,7 @@ public class Chat {
                 historyListener.history(historyResponse,historyResponse.getFriendid(),0);
             }else {
                 ArrayList<ChatMessage> messages = historyResponse.getMessages();
+
                 /*
                 if(messages.size()>0){
                     int myId = globalInfos.getUserId();

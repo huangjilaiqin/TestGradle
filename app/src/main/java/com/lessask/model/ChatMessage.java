@@ -3,6 +3,8 @@ package com.lessask.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 /**
  * Created by JHuang on 2015/8/1.
  */
@@ -32,7 +34,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
     private String chatgroupId;
     private int type;
     private String content;
-    private String time;
+    private Date time;
     //0:发送中, 1:已发送, 2:发送失败
     private int status;
     //每条消息的序号
@@ -53,7 +55,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
         dest.writeString(chatgroupId);
         dest.writeInt(type);
         dest.writeString(content);
-        dest.writeString(time);
+        dest.writeSerializable(time);
         dest.writeInt(status);
         dest.writeInt(seq);
         dest.writeInt(userid);
@@ -67,7 +69,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
              String chatgroupId = in.readString();
              int type = in.readInt();
              String content = in.readString();
-             String time = in.readString();
+             Date time = (Date)in.readSerializable();
              int status = in.readInt();
              int seq = in.readInt();
              int userid = in.readInt();
@@ -81,7 +83,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
     };
 
     //发送消息的构造函数
-    public ChatMessage(int userid,int friendid,String chatgroupId, int type, String content, String time, int seq,int status) {
+    public ChatMessage(int userid,int friendid,String chatgroupId, int type, String content, Date time, int seq,int status) {
         this.chatgroupId = chatgroupId;
         this.friendid = friendid;
         this.type = type;
@@ -92,7 +94,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.status=status;
     }
     //入库消息构造函数
-    public ChatMessage(int userid,String chatgroupId, int type, String content, String time, int seq,int status) {
+    public ChatMessage(int userid,String chatgroupId, int type, String content, Date time, int seq,int status) {
         this.chatgroupId = chatgroupId;
         this.friendid = friendid;
         this.type = type;
@@ -102,7 +104,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.seq = seq;
         this.status=status;
     }
-    public ChatMessage(int id, String chatgroupId,int type,String content,String time,int status,int seq,int userid,int friendid) {
+    public ChatMessage(int id, String chatgroupId,int type,String content,Date time,int status,int seq,int userid,int friendid) {
         this.id=id;
         this.chatgroupId = chatgroupId;
         this.type = type;
@@ -113,7 +115,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.userid = userid;
         this.friendid=friendid;
     }
-    public ChatMessage(int id,int userid, String chatgroupId, int type, String content, String time) {
+    public ChatMessage(int id,int userid, String chatgroupId, int type, String content, Date time) {
         this.id = id;
         this.chatgroupId = chatgroupId;
         this.type = type;
@@ -146,11 +148,11 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.id = id;
     }
 
-    public String getTime() {
+    public Date getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Date time) {
         this.time = time;
     }
 

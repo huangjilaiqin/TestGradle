@@ -3,6 +3,8 @@ package com.lessask.chat;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +14,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -35,8 +38,10 @@ import com.lessask.recyclerview.ImprovedSwipeLayout;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.show.ShowListAdapter;
 import com.lessask.util.ScreenUtil;
+import com.lessask.util.TimeHelper;
 import com.lessask.util.Utils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -65,7 +70,8 @@ public class MyChatActivity extends Activity{
     private int userId;
     private int friendId=0;
     private String chatgroupId;
-    private int seq;
+    private int oldestSeq=0;
+    private int newestSeq=0;
 
     private List<ChatMessage> messageList;
     private ChatGroup chatGroup;
@@ -119,6 +125,7 @@ public class MyChatActivity extends Activity{
     };
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,7 +143,7 @@ public class MyChatActivity extends Activity{
             else
                 friendId = id1;
         }
-        seq = 0;
+
 
         //初始化控件
         //swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
@@ -144,6 +151,8 @@ public class MyChatActivity extends Activity{
         mRecyclerView = (RecyclerViewStatusSupport) findViewById(R.id.list);
         mRecyclerView.setStatusViews(findViewById(R.id.loading_view), findViewById(R.id.empty_view), findViewById(R.id.error_view));
         mLinearLayoutManager = new LinearLayoutManager(this);
+        //键盘弹起时 记录滚动到最后一条
+        mLinearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         //mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         mSwipeRefreshLayout = (ImprovedSwipeLayout) findViewById(R.id.swiperefresh);
@@ -151,15 +160,44 @@ public class MyChatActivity extends Activity{
         mRecyclerViewAdapter = new MyChatAdapter(this);
 
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
-        mRecyclerViewAdapter.appendToList(chatGroup.getMessageList());
+        List<ChatMessage> messageList = chatGroup.getMessageList();
+        if(messageList.size()!=0){
+            oldestSeq = messageList.get(0).getSeq();
+            newestSeq = messageList.get(messageList.size()-1).getSeq();
+        }
+        mRecyclerViewAdapter.appendToList(messageList);
         mRecyclerView.scrollToPosition(mRecyclerViewAdapter.getItemCount()-1);
         mRecyclerViewAdapter.notifyDataSetChanged();
 
         mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
+
+        //下拉刷新监听
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
              @Override
              public void onRefresh() {
-                 //mSwipeRefreshLayout.setRefreshing(false);
+                 mSwipeRefreshLayout.setRefreshing(true);
+                 SQLiteDatabase db = globalInfos.getDb(getBaseContext());
+                 int expectSeq = oldestSeq-15;
+                 Log.e(TAG, "load history:"+expectSeq+","+oldestSeq);
+                 Cursor cursor = db.rawQuery("select * from t_chatrecord where chatgroup_id=? and seq>? and seq<? order by seq desc", new String[]{chatgroupId, ""+expectSeq,""+oldestSeq});
+                 Log.e(TAG, "load history size:"+cursor.getCount());
+                 while (cursor.moveToNext()){
+                     int id = cursor.getInt(0);
+                     String chatgroupId = cursor.getString(1);
+                     int status = cursor.getInt(2);
+                     Date time = TimeHelper.dateParse(cursor.getString(3));
+                     int userid = cursor.getInt(4);
+                     int type = cursor.getInt(5);
+                     String content = cursor.getString(6);
+                     int seq = cursor.getInt(7);
+                     Log.e(TAG, "seq:"+seq);
+                     oldestSeq = seq;
+                     mRecyclerViewAdapter.appendToTop(new ChatMessage(id, userid, chatgroupId, type, content, time, status, seq));
+                 }
+                 Log.e(TAG, "oldestSeq:"+oldestSeq);
+                 cursor.close();
+                 mRecyclerViewAdapter.notifyItemRangeInserted(0,cursor.getCount());
+                 mSwipeRefreshLayout.setRefreshing(false);
              }
          });
 
@@ -171,10 +209,14 @@ public class MyChatActivity extends Activity{
                 ChatMessage message = (ChatMessage) obj;
                 if(message.getChatgroupId().equals(chatgroupId)){
                     if (message.getUserid()!=globalInfos.getUserId()) {
+                        //接受信息
+                        newestSeq++;
                         mRecyclerViewAdapter.append(message);
                         Message msg = new Message();
                         msg.what = HANDLER_MESSAGE_RECEIVE;
                         handler.sendMessage(msg);
+                    }else {
+                        //发送信息
                     }
                 }
             }
@@ -210,10 +252,10 @@ public class MyChatActivity extends Activity{
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(count==0){
+                if (count == 0) {
                     ivMore.setVisibility(View.VISIBLE);
                     send.setVisibility(View.INVISIBLE);
-                }else{
+                } else {
                     ivMore.setVisibility(View.INVISIBLE);
                     send.setVisibility(View.VISIBLE);
                 }
@@ -227,6 +269,7 @@ public class MyChatActivity extends Activity{
 
         ivContentType.setTag(R.drawable.tn);
 
+
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -236,11 +279,11 @@ public class MyChatActivity extends Activity{
                     return;
                 }
 
-                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT, content,Utils.date2Chat(new Date()), seq,ChatMessage.MSG_SENDING);
-                //mRecyclerViewAdapter.append(msg);
+                newestSeq++;
+                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT,content,new Date(),newestSeq,ChatMessage.MSG_SENDING);
                 mRecyclerViewAdapter.append(msg);
-                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
-
+                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
+                mRecyclerView.smoothScrollToPosition(mRecyclerViewAdapter.getItemCount());
 
                 etContent.setText("");
 
@@ -265,9 +308,8 @@ public class MyChatActivity extends Activity{
                 values.put("type", ""+msg.getType());
                 values.put("content", msg.getContent());
                 values.put("status", msg.getStatus());
-                values.put("time", msg.getTime());
-                //to do 为每一条消息分配一个seq
-                values.put("seq", 0);
+                values.put("time", TimeHelper.date2Chat(msg.getTime()));
+                values.put("seq", msg.getSeq());
                 DbHelper.getInstance(getBaseContext()).insert("t_chatrecord", null, values);
             }
         });
