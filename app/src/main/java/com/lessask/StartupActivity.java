@@ -123,7 +123,7 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         //个人信息
         db.execSQL("create table t_user(userid int primary key,`nickname` text not null,`headimg` text not null)");
         //聊天列表
-        db.execSQL("create table t_chatgroup(chatgroup_id text primary key,`name` text not null,`status` int not null default 0)");
+        db.execSQL("create table t_chatgroup(chatgroup_id text primary key,`name` text not null,`status` int not null default 0,`unread_count` integer not null default 0)");
         //通讯录
         db.execSQL("create table t_contact(userid int not null primary key,nickname varchar(20),headimg varchar(150))");
         //消息列表

@@ -66,13 +66,13 @@ public class ChatMessage extends ResponseError implements Parcelable {
              = new Parcelable.Creator<ChatMessage>() {
          public ChatMessage createFromParcel(Parcel in) {
              long id = in.readLong();
-             int userid = in.readInt();
              String chatgroupId = in.readString();
              int type = in.readInt();
              String content = in.readString();
              Date time = (Date)in.readSerializable();
-             int seq = in.readInt();
              int status = in.readInt();
+             int seq = in.readInt();
+             int userid = in.readInt();
              int friendid = in.readInt();
              return new ChatMessage(id,userid,chatgroupId,type,content,time,status,friendid,seq);
          }

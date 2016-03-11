@@ -140,6 +140,8 @@ public class MyChatActivity extends MyAppCompatActivity {
         //获取传递的数据
         final Intent intent = getIntent();
         userId = globalInfos.getUserId();
+        ChatMessage j = (ChatMessage )intent.getParcelableExtra("test");
+        ArrayList l = intent.getParcelableArrayListExtra("list");
         chatGroup = intent.getParcelableExtra("chatGroup");
         chatgroupId = chatGroup.getChatgroupId();
         if(chatgroupId.contains("_")){
@@ -323,7 +325,7 @@ public class MyChatActivity extends MyAppCompatActivity {
                 }
 
                 newestSeq++;
-                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT,content,new Date(),newestSeq,ChatMessage.MSG_SENDING);
+                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT,content,new Date(),newestSeq,friendId);
                 mRecyclerViewAdapter.append(msg);
                 mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
                 mRecyclerView.smoothScrollToPosition(mRecyclerViewAdapter.getItemCount());

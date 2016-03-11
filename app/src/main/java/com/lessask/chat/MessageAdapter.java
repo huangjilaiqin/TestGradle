@@ -77,9 +77,14 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
             holder.content.setText("");
         }
 
-        //holder.badge.setText(""+chatGroup.getMessageList().size());
-        //holder.badge.show();
-
+        /*
+        if(chatGroup.getUnreadCout()>0) {
+            holder.badge.setText("" + chatGroup.getUnreadCout());
+            holder.badge.show();
+        }else {
+            holder.badge.hide();
+        }
+        */
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -125,9 +130,9 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
             name =(TextView)itemView.findViewById(R.id.name);
             content=(TextView)itemView.findViewById(R.id.content);
             time=(TextView)itemView.findViewById(R.id.time);
-            /*
             badge = new BadgeView(MessageAdapter.context, headImg);
-            //badge.setBadgePosition(BadgeView.POSITION_TOP_LEFT);
+            badge.setBadgePosition(BadgeView.POSITION_TOP_LEFT);
+            /*
             badge.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

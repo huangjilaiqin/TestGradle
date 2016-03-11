@@ -78,6 +78,7 @@ public class DbHelper {
                 Date time = TimeHelper.dateParse(values.getAsString("time"));
                 int userid = values.getAsInteger("userid");
                 int friendid = values.getAsInteger("friendid");
+                values.remove("friendid");
                 String chatgroupId = values.getAsString("chatgroup_id");
                 int type = values.getAsInteger("type");
                 String content = values.getAsString("content");

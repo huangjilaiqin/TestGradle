@@ -18,6 +18,7 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
     private int status;     //1:置顶,0:非置顶
     private String name;
     private String img;
+    private int unreadCout;     //未读消息条数
     private ArrayList<ChatMessage> messageList;
     //to do 一个高效的缓存结构
 
@@ -55,6 +56,8 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
                 return 1;
             } else {
                 //比较名字
+                if(another.getName()==null)
+                    return -1;
                 return name.compareTo(another.getName());
             }
         }
@@ -79,11 +82,12 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
         this.messageList = new ArrayList<ChatMessage>();
     }
 
-    public ChatGroup(String chatgroupId, String name,int status,String img, ArrayList<ChatMessage> messageList) {
+    public ChatGroup(String chatgroupId, String name,int status,String img,int unreadCout, ArrayList<ChatMessage> messageList) {
         this.chatgroupId = chatgroupId;
         this.name = name;
         this.img = img;
         this.status = status;
+        this.unreadCout = unreadCout;
         this.messageList = messageList;
     }
 
@@ -102,7 +106,7 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
         return message;
     }
 
-    public List getMessageList(){
+    public ArrayList<ChatMessage> getMessageList(){
         return messageList;
     }
 
@@ -123,7 +127,8 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
         dest.writeString(name);
         dest.writeInt(status);
         dest.writeString(img);
-        dest.writeList(messageList);
+        dest.writeInt(unreadCout);
+        dest.writeTypedList(messageList);
     }
 
     public static final Parcelable.Creator<ChatGroup> CREATOR
@@ -133,14 +138,23 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
              String name = in.readString();
              int status = in.readInt();
              String img = in.readString();
-             ArrayList<ChatMessage> messageList = in.readArrayList(ChatMessage.class.getClassLoader());
-             return new ChatGroup(chatgroupId, name,status, img, messageList);
+             int unreadCount = in.readInt();
+             ArrayList list = new ArrayList();
+             in.readTypedList(list,ChatMessage.CREATOR);
+             return new ChatGroup(chatgroupId,name,status,img,unreadCount,list);
          }
-
          public ChatGroup[] newArray(int size) {
              return new ChatGroup[size];
          }
     };
+
+    public int getUnreadCout() {
+        return unreadCout;
+    }
+
+    public void setUnreadCout(int unreadCout) {
+        this.unreadCout = unreadCout;
+    }
 
     public int getStatus() {
         return status;

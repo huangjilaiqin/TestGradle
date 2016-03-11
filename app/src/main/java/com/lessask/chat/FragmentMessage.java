@@ -49,6 +49,7 @@ public class FragmentMessage extends Fragment{
     private RecyclerViewStatusSupport mRecyclerView;
     private View rootView;
     private Config config = globalInfos.getConfig();
+    private String currentChatgroupId = "";
 
 
     private static final int HANDLER_MESSAGE_RECEIVE = 0;
@@ -75,7 +76,7 @@ public class FragmentMessage extends Fragment{
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_chat, container, false);
@@ -92,7 +93,13 @@ public class FragmentMessage extends Fragment{
                 public void onItemClick(View view, final int position) {
                     Intent intent = new Intent(getActivity(), MyChatActivity.class);
                     ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
+                    chatGroup.setUnreadCout(0);
+                    currentChatgroupId = chatGroup.getChatgroupId();
+                    ChatMessage m = chatGroup.getMessageList().get(0);
+                    intent.putExtra("test", m);
+                    intent.putParcelableArrayListExtra("list", chatGroup.getMessageList());
                     intent.putExtra("chatGroup", chatGroup);
+                    Log.e(TAG, "start MyChatActivity");
                     startActivity(intent);
                 }
             });
@@ -117,6 +124,9 @@ public class FragmentMessage extends Fragment{
                     Log.e(TAG, "insert callback, position:"+position);
                     ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
                     chatGroup.appendMsg(msg);
+                    if(currentChatgroupId!="" || currentChatgroupId!=chatGroup.getChatgroupId()){
+                        chatGroup.setUnreadCout(chatGroup.getUnreadCout()+1);
+                    }
                     //越界
                     Message message = new Message();
                     message.arg1 = position;
@@ -137,20 +147,19 @@ public class FragmentMessage extends Fragment{
         //每个聊天列表只查10条记录
         String sql = "select a.* from t_chatrecord a where 10>(select count(*) from t_chatrecord where chatgroup_id=a.chatgroup_id and id>a.id) order by a.id";
         Cursor cursor = db.rawQuery(sql, null);
-        int count = cursor.getColumnCount();
+        int count = cursor.getCount();
         Map<String,ChatGroup> chatGroupMap = new HashMap<>();
         while (cursor.moveToNext()){
             int id = cursor.getInt(0);
-            String chatgroupId = cursor.getString(1);
-            int status = cursor.getInt(2);
-            Log.e(TAG, "time:" + cursor.getString(3));
-            Date time = TimeHelper.dateParse(cursor.getString(3));
-            int userid = cursor.getInt(4);
-            int type = cursor.getInt(5);
-            String content = cursor.getString(6);
-            int seq = cursor.getInt(7);
+            int seq = cursor.getInt(1);
+            int userid = cursor.getInt(2);
+            String chatgroupId = cursor.getString(3);
+            int type = cursor.getInt(4);
+            String content = cursor.getString(5);
+            Date time = TimeHelper.dateParse(cursor.getString(6));
+            int status = cursor.getInt(7);
             ChatGroup chatGroup;
-            Log.e(TAG, "id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", time:"+time);
+            Log.e(TAG, "load record id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", content:"+content+", time:"+time);
             if(!chatGroupMap.containsKey(chatgroupId)){
                 chatGroup = new ChatGroup(chatgroupId);
                 chatGroupMap.put(chatgroupId, chatGroup);
@@ -158,9 +167,8 @@ public class FragmentMessage extends Fragment{
                 chatGroup = chatGroupMap.get(chatgroupId);
             }
 
-            ChatMessage chatMessage = new ChatMessage(userid,0,chatgroupId,type,content,time,seq,status);
+            ChatMessage chatMessage = new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status);
             chatGroup.appendMsg(chatMessage);
-            Log.e(TAG, chatGroup.getChatgroupId()+":"+chatMessage.getContent());
         }
 
 
@@ -184,6 +192,7 @@ public class FragmentMessage extends Fragment{
             mRecyclerViewAdapter.append(chatGroup);
         }
         mRecyclerViewAdapter.sort();
+        mRecyclerViewAdapter.getList();
         for(int i=0;i<mRecyclerViewAdapter.getItemCount();i++) {
             ChatGroup chatGroup = mRecyclerViewAdapter.getItem(i);
             ChatMessage msg =chatGroup.getLastMessage();
@@ -205,9 +214,10 @@ public class FragmentMessage extends Fragment{
     public void onResume() {
         super.onResume();
         Log.e(TAG, "onResume");
+        currentChatgroupId = "";
         //低效率的刷新,只要再次显示这个界面都重新刷新一遍
-        mRecyclerViewAdapter.notifyDataSetChanged();
-        if(globalInfos.getChatGroups()!=null)
-            Log.e(TAG, "size:"+globalInfos.getChatGroups().size());
+        //mRecyclerViewAdapter.notifyDataSetChanged();
+        //if(globalInfos.getChatGroups()!=null)
+        //    Log.e(TAG, "size:"+globalInfos.getChatGroups().size());
     }
 }
