@@ -76,10 +76,18 @@ public class DbHelper {
                     status = values.getAsInteger("status");
                 }
                 Date time = TimeHelper.dateParse(values.getAsString("time"));
-                obj = new ChatMessage(values.getAsInteger("userid"),values.getAsString("chatgroup_id"),values.getAsInteger("type"),values.getAsString("content"),time,values.getAsInteger("seq"),status);
+                int userid = values.getAsInteger("userid");
+                int friendid = values.getAsInteger("friendid");
+                String chatgroupId = values.getAsString("chatgroup_id");
+                int type = values.getAsInteger("type");
+                String content = values.getAsString("content");
+                //这个对象用于发送的
+                obj = new ChatMessage(0,userid,chatgroupId,type,content,time,status,friendid);
                 break;
         }
-        db.insert(table,nullColumnHack,values);
+        long rowId = db.insert(table,nullColumnHack,values);
+        if(obj instanceof ChatMessage)
+            ((ChatMessage) obj).setId(rowId);
 
         if(insertCallbacks.containsKey(table)) {
             Log.e(TAG, table + "DbInsertListener size:"+insertCallbacks.get(table).size());

@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +25,7 @@ import com.lessask.recyclerview.BaseRecyclerAdapter;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.OnItemLongClickListener;
 import com.lessask.util.TimeHelper;
+import com.readystatesoftware.viewbadger.BadgeView;
 
 import java.util.Collections;
 import java.util.Date;
@@ -37,7 +40,7 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private  String imageUrlPrefix = config.getImgUrl();
-    private Context context;
+    private static Context context;
     public MessageAdapter(Context context) {
         this.context = context;
     }
@@ -61,7 +64,7 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         ChatGroup chatGroup = getItem(position);
         holder.name.setText(chatGroup.getName());
         Log.e("MessageAdapter", new Date().toString());
@@ -73,6 +76,11 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
             holder.time.setText(TimeHelper.date2Chat(new Date()));
             holder.content.setText("");
         }
+
+        //holder.badge.setText(""+chatGroup.getMessageList().size());
+        //holder.badge.show();
+
+
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +116,7 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
         TextView name;
         TextView content;
         TextView time;
+        BadgeView badge;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -116,6 +125,19 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
             name =(TextView)itemView.findViewById(R.id.name);
             content=(TextView)itemView.findViewById(R.id.content);
             time=(TextView)itemView.findViewById(R.id.time);
+            /*
+            badge = new BadgeView(MessageAdapter.context, headImg);
+            //badge.setBadgePosition(BadgeView.POSITION_TOP_LEFT);
+            badge.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TranslateAnimation anim = new TranslateAnimation(-100, 0, 0, 0);
+                    anim.setInterpolator(new BounceInterpolator());
+                    anim.setDuration(1000);
+                    badge.toggle(anim, null);
+                }
+            });
+            */
         }
     }
 }

@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.lessask.DividerItemDecoration;
+import com.lessask.MyAppCompatActivity;
 import com.lessask.R;
 import com.lessask.global.DbHelper;
 import com.lessask.global.DbInsertListener;
@@ -42,13 +44,14 @@ import com.lessask.show.ShowListAdapter;
 import com.lessask.util.ScreenUtil;
 import com.lessask.util.TimeHelper;
 import com.lessask.util.Utils;
+import com.readystatesoftware.viewbadger.BadgeView;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 
-public class MyChatActivity extends Activity{
+public class MyChatActivity extends MyAppCompatActivity {
 
     private static final int HANDLER_MESSAGE_RECEIVE = 0;
     private static final int HANDLER_MESSAGE_RESP = 1;
@@ -150,6 +153,19 @@ public class MyChatActivity extends Activity{
 
 
         //初始化控件
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        mToolbar.setTitle(chatGroup.getName());
+
+        BadgeView badge = new BadgeView(this, mToolbar);
+        badge.setText("23");
+        badge.show();
         //swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
         //键盘弹起时，信息滚动到最后一条
         final View activityRootView = findViewById(R.id.root);
@@ -199,17 +215,17 @@ public class MyChatActivity extends Activity{
                  Log.e(TAG, "load history size:"+cursor.getCount());
                  while (cursor.moveToNext()){
                      int id = cursor.getInt(0);
-                     String chatgroupId = cursor.getString(1);
-                     int status = cursor.getInt(2);
-                     Date time = TimeHelper.dateParse(cursor.getString(3));
-                     int userid = cursor.getInt(4);
+                     int seq = cursor.getInt(1);
+                     int userid = cursor.getInt(2);
+                     String chatgroupId = cursor.getString(3);
+                     int type = cursor.getInt(4);
+                     String content = cursor.getString(5);
+                     Date time = TimeHelper.dateParse(cursor.getString(6));
+                     int status = cursor.getInt(7);
                      Log.e(TAG, "load userid:"+userid);
-                     int type = cursor.getInt(5);
-                     String content = cursor.getString(6);
-                     int seq = cursor.getInt(7);
                      Log.e(TAG, "seq:"+seq);
                      oldestSeq = seq;
-                     mRecyclerViewAdapter.appendToTop(new ChatMessage(id,chatgroupId,userid,type,content, time, status, seq));
+                     mRecyclerViewAdapter.appendToTop(new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status));
                  }
                  Log.e(TAG, "oldestSeq:"+oldestSeq);
                  cursor.close();
@@ -236,6 +252,9 @@ public class MyChatActivity extends Activity{
                         handler.sendMessage(msg);
                     }else {
                         //发送信息
+                        //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
+                        Log.e(TAG, "gson:" + gson.toJson(obj));
+                        chat.emit("message", gson.toJson(obj));
                     }
                 }
             }
@@ -245,6 +264,11 @@ public class MyChatActivity extends Activity{
             @Override
             public void messageResponse(ChatMessageResponse response) {
                 //todo 显示信息状态
+                String[] whereValues = new String[]{response.getId()+"", response.getChatgroupId()};
+                ContentValues values = new ContentValues();
+                values.put("seq", response.getSeq());
+                DbHelper.getInstance(MyChatActivity.this).getDb().update("t_chatrecord",values,"where id=? and chatgroup_id=?",whereValues);
+                // todo 更新界面
             }
         });
 
@@ -306,11 +330,6 @@ public class MyChatActivity extends Activity{
 
                 etContent.setText("");
 
-                //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
-                Log.e(TAG, "gson:" + gson.toJson(msg));
-                chat.emit("message", gson.toJson(msg));
-
-                //本地主动发送的消息入库
 
                 //该聊天记录不在聊天列表里
                 if(intent.getBooleanExtra("notInContacts", false)) {
@@ -322,13 +341,13 @@ public class MyChatActivity extends Activity{
 
                 //聊天消息入库
                 ContentValues values = new ContentValues();
-                values.put("chatgroup_id", chatGroup.getChatgroupId());
                 values.put("userid",""+userId);
+                values.put("chatgroup_id", chatGroup.getChatgroupId());
                 values.put("type", ""+msg.getType());
                 values.put("content", msg.getContent());
-                values.put("status", msg.getStatus());
                 values.put("time", TimeHelper.dateFormat(msg.getTime()));
-                values.put("seq", msg.getSeq());
+                values.put("status", msg.getStatus());
+                values.put("friendid", msg.getFriendid());
                 DbHelper.getInstance(getBaseContext()).insert("t_chatrecord", null, values);
             }
         });

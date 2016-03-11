@@ -75,7 +75,7 @@
         <activity
             android:name=".chat.MyChatActivity"
             android:label="title_activity_my_chat"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".test.StoreFileActivity"
             android:label="@string/title_activity_store_file" />

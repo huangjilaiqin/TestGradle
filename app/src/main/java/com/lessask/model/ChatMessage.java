@@ -30,20 +30,20 @@ public class ChatMessage extends ResponseError implements Parcelable {
     public static final int MSG_SEND_FAILED= 2;
     public static final int MSG_RECEIVC= 2;
 
-    private int id;
+    //客户端id,每条消息的序号,发送时本地产生一个唯一的id,返回时用于那条消息，更新对应的状态
+    private long id;
     private String chatgroupId;
+    private int userid;
+    //消息类型, 判断发送还是接受使用userid跟客户端的userid对应即可
     private int type;
     private String content;
     private Date time;
-    //0:发送中, 1:已发送, 2:发送失败
-    private int status;
-    //每条消息的序号
+    //服务器统一的seq
     private int seq;
-    //客户端使用
-    //private int viewType;
-
-    private int userid;
+    //让服务器快速找到好友对应的连接
     private int friendid;
+    //客户端使用 0:发送中, 1:已发送, 2:发送失败
+    private int status;
 
     @Override
     public int describeContents() {
@@ -51,7 +51,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
     }
 
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeLong(id);
         dest.writeString(chatgroupId);
         dest.writeInt(type);
         dest.writeString(content);
@@ -65,16 +65,16 @@ public class ChatMessage extends ResponseError implements Parcelable {
     public static final Parcelable.Creator<ChatMessage> CREATOR
              = new Parcelable.Creator<ChatMessage>() {
          public ChatMessage createFromParcel(Parcel in) {
-             int id = in.readInt();
+             long id = in.readLong();
+             int userid = in.readInt();
              String chatgroupId = in.readString();
              int type = in.readInt();
              String content = in.readString();
              Date time = (Date)in.readSerializable();
-             int status = in.readInt();
              int seq = in.readInt();
-             int userid = in.readInt();
+             int status = in.readInt();
              int friendid = in.readInt();
-             return new ChatMessage(id,chatgroupId,type,content,time,status,seq,userid,friendid);
+             return new ChatMessage(id,userid,chatgroupId,type,content,time,status,friendid,seq);
          }
 
          public ChatMessage[] newArray(int size) {
@@ -83,57 +83,63 @@ public class ChatMessage extends ResponseError implements Parcelable {
     };
 
     //发送消息的构造函数
-    public ChatMessage(int userid,int friendid,String chatgroupId, int type, String content, Date time, int seq,int status) {
-        this.chatgroupId = chatgroupId;
-        this.friendid = friendid;
-        this.type = type;
-        this.userid = userid;
-        this.content = content;
-        this.time = time;
-        this.seq = seq;
-        this.status=status;
-    }
-    public ChatMessage(int id,String chatgroupId,int userid, int type, String content, Date time,int status,int seq) {
+    public ChatMessage(long id,int userid,String chatgroupId,int type,String content,Date time,int status,int friendid) {
         this.id = id;
         this.userid = userid;
         this.chatgroupId = chatgroupId;
         this.type = type;
         this.content = content;
         this.time = time;
-        this.status = status;
-        this.seq = seq;
-    }
-    //入库消息构造函数
-    public ChatMessage(int userid,String chatgroupId, int type, String content, Date time, int seq,int status) {
-        this.chatgroupId = chatgroupId;
-        this.friendid = friendid;
-        this.type = type;
-        this.userid = userid;
-        this.content = content;
-        this.time = time;
-        this.seq = seq;
+        //客户端用
         this.status=status;
+        //服务端用
+        this.friendid = friendid;
     }
-    public ChatMessage(int id, String chatgroupId,int type,String content,Date time,int status,int seq,int userid,int friendid) {
-        this.id=id;
-        this.chatgroupId = chatgroupId;
-        this.type = type;
-        this.content = content;
-        this.time = time;
-        this.status = status;
-        this.seq = seq;
-        this.userid = userid;
-        this.friendid=friendid;
-    }
-    public ChatMessage(int id,int userid, String chatgroupId, int type, String content, Date time) {
+    //完整版
+    public ChatMessage(long id,int userid,String chatgroupId,int type,String content,Date time,int status,int friendid,int seq) {
         this.id = id;
+        this.userid = userid;
         this.chatgroupId = chatgroupId;
         this.type = type;
-        this.userid = userid;
         this.content = content;
         this.time = time;
+        //客户端用
+        this.status=status;
+        //服务端用
+        this.friendid = friendid;
+        this.seq = seq;
+    }
+    //读取数据库
+    public ChatMessage(long id,int seq,int userid,String chatgroupId,int type,String content,Date time,int status) {
+        this.id = id;
+        this.userid = userid;
+        this.chatgroupId = chatgroupId;
+        this.type = type;
+        this.content = content;
+        this.time = time;
+        //客户端用
+        this.status=status;
+        //服务端用
+        this.seq = seq;
+    }
+    //写数据库
+    public ChatMessage(int userid,String chatgroupId,int type,String content,Date time,int status) {
+        this.userid = userid;
+        this.chatgroupId = chatgroupId;
+        this.type = type;
+        this.content = content;
+        this.time = time;
+        //客户端用
+        this.status=status;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public int getStatus() {
         return status;
@@ -149,14 +155,6 @@ public class ChatMessage extends ResponseError implements Parcelable {
 
     public void setFriendid(int friendid) {
         this.friendid = friendid;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public Date getTime() {
