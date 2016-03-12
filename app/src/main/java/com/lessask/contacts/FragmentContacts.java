@@ -29,10 +29,13 @@ import com.lessask.chat.MyChatActivity;
 import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ChatMessage;
 import com.lessask.model.User;
 import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
+
+import java.util.List;
 
 /**
  * Created by huangji on 2015/11/24.
@@ -110,14 +113,16 @@ public class FragmentContacts extends Fragment implements Toolbar.OnMenuItemClic
                     int userid = globalInfos.getUserId();
                     String chatgroupId = userid<friendId?userid+"_"+friendId:friendId+"_"+userid;
                     ChatGroup chatGroup = new ChatGroup(chatgroupId, user.getNickname());
-                    intent.putExtra("chatGroup", chatGroup);
 
                     //查看是否存在聊天列表
-                    SQLiteDatabase db = DbHelper.getInstance(getContext()).getDb();
-                    Cursor cursor = db.rawQuery("select 1 from t_chatgroup where chatgroup_id=?", new String[]{chatgroupId});
-                    if(cursor.getCount()==0)
+                    if(!globalInfos.hasChatGroupId(chatgroupId))
                         intent.putExtra("notInContacts", true);
-                    cursor.close();
+                    else {
+                        //加载聊天信息
+                        List<ChatMessage> list = DbHelper.getChatMessage(chatgroupId, 10);
+                        chatGroup.appendList(list);
+                    }
+                    intent.putExtra("chatGroup", chatGroup);
                     startActivity(intent);
                 }
             });

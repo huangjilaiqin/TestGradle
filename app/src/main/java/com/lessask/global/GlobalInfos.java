@@ -96,10 +96,18 @@ public class GlobalInfos {
 
     public boolean hasChatGroupId(String chatGroupId){
         if(chatGroupIds==null){
-            chatGroups=new ArrayList<>();
             chatGroupIds=new HashSet<>();
         }
-        return chatGroupIds.contains(chatGroupId);
+        if(chatGroupIds.contains(chatGroupId)){
+            return true;
+        }else {
+            if(DbHelper.isChatgroupExist(chatGroupId)){
+                chatGroupIds.add(chatGroupId);
+                return true;
+            }else {
+                return false;
+            }
+        }
     }
 
     public static final GlobalInfos getInstance(){

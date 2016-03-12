@@ -28,7 +28,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
     public static final int MSG_SENDING = 0;
     public static final int MSG_SEND = 1;
     public static final int MSG_SEND_FAILED= 2;
-    public static final int MSG_RECEIVC= 2;
+    public static final int MSG_RECEIVC= 3;
 
     //客户端id,每条消息的序号,发送时本地产生一个唯一的id,返回时用于那条消息，更新对应的状态
     private long id;
@@ -44,6 +44,26 @@ public class ChatMessage extends ResponseError implements Parcelable {
     private int friendid;
     //客户端使用 0:发送中, 1:已发送, 2:发送失败
     private int status;
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("id:");
+        builder.append(id);
+        builder.append(", seq:");
+        builder.append(seq);
+        builder.append(", userid:");
+        builder.append(userid);
+        builder.append(", content:");
+        builder.append(content);
+        builder.append(", type:");
+        builder.append(type);
+        builder.append(", time:");
+        builder.append(time);
+        builder.append(", status:");
+        builder.append(status);
+        return super.toString();
+    }
 
     @Override
     public int describeContents() {
@@ -123,7 +143,7 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.seq = seq;
     }
     //写数据库
-    public ChatMessage(int userid,String chatgroupId,int type,String content,Date time,int status) {
+    public ChatMessage(int userid,String chatgroupId,int type,String content,Date time,int status,int friendid) {
         this.userid = userid;
         this.chatgroupId = chatgroupId;
         this.type = type;
@@ -131,6 +151,8 @@ public class ChatMessage extends ResponseError implements Parcelable {
         this.time = time;
         //客户端用
         this.status=status;
+        //服务器端使用,不写到数据库的
+        this.friendid=friendid;
     }
 
     public long getId() {

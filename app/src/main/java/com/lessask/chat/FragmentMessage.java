@@ -1,6 +1,7 @@
 package com.lessask.chat;
 
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,15 +16,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
 import com.lessask.global.DbInsertListener;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ArrayListResponse;
 import com.lessask.model.ChatMessage;
+import com.lessask.model.OfflineMsgRequest;
+import com.lessask.net.GsonRequest;
+import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.util.TimeHelper;
@@ -32,6 +41,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -93,11 +103,10 @@ public class FragmentMessage extends Fragment{
                 public void onItemClick(View view, final int position) {
                     Intent intent = new Intent(getActivity(), MyChatActivity.class);
                     ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
+                    //清空未读
                     chatGroup.setUnreadCout(0);
+                    mRecyclerViewAdapter.notifyItemChanged(position);
                     currentChatgroupId = chatGroup.getChatgroupId();
-                    ChatMessage m = chatGroup.getMessageList().get(0);
-                    intent.putExtra("test", m);
-                    intent.putParcelableArrayListExtra("list", chatGroup.getMessageList());
                     intent.putExtra("chatGroup", chatGroup);
                     Log.e(TAG, "start MyChatActivity");
                     startActivity(intent);
@@ -105,11 +114,42 @@ public class FragmentMessage extends Fragment{
             });
 
             loadChatGroups();
+            loadOfflineMessage();
+            //todo 加载完历史消息后，再次loadChatGroups
+
             //设置数据库监听
             DbHelper.getInstance(getContext()).appendInsertListener("t_chatgroup", new DbInsertListener() {
                 @Override
                 public void callback(Object obj) {
                     ChatGroup chatGroup = (ChatGroup)obj;
+                    /*
+                    //加载聊天信息，排序
+                    String sql = "select * from t_chatrecord where chatgroup_id=? order by id limite 10";
+                    Cursor cursor = DbHelper.getInstance(getContext()).getDb().rawQuery(sql, new String[]{chatGroup.getChatgroupId()});
+                    int count = cursor.getCount();
+                    Map<String,ChatGroup> chatGroupMap = new HashMap<>();
+                    while (cursor.moveToNext()){
+                        int id = cursor.getInt(0);
+                        int seq = cursor.getInt(1);
+                        int userid = cursor.getInt(2);
+                        String chatgroupId = cursor.getString(3);
+                        int type = cursor.getInt(4);
+                        String content = cursor.getString(5);
+                        Date time = TimeHelper.dateParse(cursor.getString(6));
+                        int status = cursor.getInt(7);
+                        ChatGroup chatGroup;
+                        Log.e(TAG, "load record id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", content:"+content+", time:"+time);
+                        if(!chatGroupMap.containsKey(chatgroupId)){
+                            chatGroup = new ChatGroup(chatgroupId);
+                            chatGroupMap.put(chatgroupId, chatGroup);
+                        }else {
+                            chatGroup = chatGroupMap.get(chatgroupId);
+                        }
+
+                        ChatMessage chatMessage = new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status);
+                        chatGroup.appendMsg(chatMessage);
+                    }
+                    */
                     mRecyclerViewAdapter.append(chatGroup);
                     mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
                     Log.e(TAG, "insert callback");
@@ -121,18 +161,20 @@ public class FragmentMessage extends Fragment{
                     ChatMessage msg = (ChatMessage) obj;
                     //更新列表项
                     int position = mRecyclerViewAdapter.getPositionById(msg.getChatgroupId());
-                    Log.e(TAG, "insert callback, position:"+position);
                     ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
                     chatGroup.appendMsg(msg);
-                    if(currentChatgroupId!="" || currentChatgroupId!=chatGroup.getChatgroupId()){
+                    Log.e(TAG, "insert callback, position:"+position+", time:"+msg.getTime());
+                    //标记未读信息 前提条件是接受到消息
+                    // 消息列表界面在顶层 或者 这个消息不是当前聊天人的消息
+                    if(msg.getUserid()!=globalInfos.getUserId() && (currentChatgroupId=="" || currentChatgroupId!=chatGroup.getChatgroupId())){
                         chatGroup.setUnreadCout(chatGroup.getUnreadCout()+1);
                     }
                     //越界
+                    mRecyclerViewAdapter.sort();
                     Message message = new Message();
                     message.arg1 = position;
                     message.what = HANDLER_MESSAGE_RECEIVE;
                     handler.sendMessage(message);
-                    mRecyclerViewAdapter.sort();
                 }
             });
 
@@ -207,6 +249,22 @@ public class FragmentMessage extends Fragment{
         }else {
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void loadOfflineMessage(){
+        List<ChatGroup> list = mRecyclerViewAdapter.getList();
+        OfflineMsgRequest request = new OfflineMsgRequest();
+        Map<String, Integer> args = new HashMap<>();
+        for(int i=0;i<list.size();i++){
+            ChatGroup chatGroup = list.get(i);
+            String chatgroupId = chatGroup.getChatgroupId();
+            int seq = chatGroup.getLastMessage().getSeq();
+            args.put(chatgroupId,seq);
+        }
+        request.setUserid(globalInfos.getUserId());
+        request.setArgs(args);
+        Log.e(TAG, "offlinemessage:"+gson.toJson(request));
+        chat.emit("offlinemessage", gson.toJson(request));
     }
 
 

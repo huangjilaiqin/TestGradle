@@ -2,6 +2,7 @@ package com.lessask.global;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -12,6 +13,7 @@ import com.lessask.util.TimeHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,7 +23,7 @@ public class DbHelper {
 
     private String TAG = DbHelper.class.getSimpleName();
     private static Context context;
-    private SQLiteDatabase db;
+    private static SQLiteDatabase db;
 
     private Map<String, ArrayList<DbInsertListener>> insertCallbacks;
     private Map<String, ArrayList<DbUpdateListener>> updateCallbacks;
@@ -49,13 +51,16 @@ public class DbHelper {
         if(!insertCallbacks.containsKey(table))
             insertCallbacks.put(table, new ArrayList<DbInsertListener>());
         insertCallbacks.get(table).add(listener);
-
+    }
+    public void removeInsertListener(String table,DbInsertListener listener){
+        ArrayList list = insertCallbacks.get(table);
+        if(list!=null)
+            list.remove(listener);
     }
     public void appendUpdateListener(String table,DbUpdateListener listener){
         if(!updateCallbacks.containsKey(table))
             updateCallbacks.put(table, new ArrayList<DbUpdateListener>());
         updateCallbacks.get(table).add(listener);
-
     }
     public void appendDeleteListener(String table,DbDeleteListener listener){
         if(!deleteCallbacks.containsKey(table))
@@ -96,5 +101,36 @@ public class DbHelper {
                 listener.callback(obj);
             }
         }
+    }
+    public static boolean isChatgroupExist(String chatgoupId){
+        boolean isExist = false;
+        Cursor cursor = db.rawQuery("select 1 from t_chatgroup where chatgroup_id=?", new String[]{chatgoupId});
+        if(cursor.getCount()==1){
+            isExist=true;
+        }
+        return isExist;
+    }
+
+    public static List<ChatMessage> getChatMessage(String chatgroupId, int num){
+        String sql = "select * from t_chatrecord where chatgroup_id=? order by id desc limit ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{chatgroupId,num+""});
+        int count = cursor.getCount();
+        ArrayList<ChatMessage> list = new ArrayList<>();
+        cursor.moveToLast();
+        do {
+            int id = cursor.getInt(0);
+            int seq = cursor.getInt(1);
+            int userid = cursor.getInt(2);
+            //String chatgroupId = cursor.getString(3);
+            int type = cursor.getInt(4);
+            String content = cursor.getString(5);
+            Date time = TimeHelper.dateParse(cursor.getString(6));
+            int status = cursor.getInt(7);
+
+            ChatMessage chatMessage = new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status);
+            list.add(chatMessage);
+        }while (cursor.moveToPrevious());
+
+        return list;
     }
 }

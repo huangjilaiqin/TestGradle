@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.lessask.R;
+import com.lessask.custom.CircleTextView;
 import com.lessask.dialog.LoadingDialog;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -77,14 +78,16 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
             holder.content.setText("");
         }
 
-        /*
         if(chatGroup.getUnreadCout()>0) {
-            holder.badge.setText("" + chatGroup.getUnreadCout());
-            holder.badge.show();
+            int count = chatGroup.getUnreadCout();
+            if(count<100)
+                holder.notify.setText(""+chatGroup.getUnreadCout());
+            else
+                holder.notify.setText("...");
+            holder.notify.setVisibility(View.VISIBLE);
         }else {
-            holder.badge.hide();
+            holder.notify.setVisibility(View.INVISIBLE);
         }
-        */
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -117,22 +120,27 @@ public class MessageAdapter extends BaseRecyclerAdapter<ChatGroup,MessageAdapter
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         View itemView;
+        //View notify;
         ImageView headImg;
         TextView name;
         TextView content;
         TextView time;
         BadgeView badge;
+        CircleTextView notify;
 
         public ViewHolder(View itemView) {
             super(itemView);
             this.itemView = itemView;
+            notify = (CircleTextView) itemView.findViewById(R.id.notify);
+            notify.setBackgroundColor(context.getResources().getColor(R.color.line_color_run_speed_13));
             headImg = (ImageView) itemView.findViewById(R.id.head_img);
             name =(TextView)itemView.findViewById(R.id.name);
             content=(TextView)itemView.findViewById(R.id.content);
             time=(TextView)itemView.findViewById(R.id.time);
-            badge = new BadgeView(MessageAdapter.context, headImg);
-            badge.setBadgePosition(BadgeView.POSITION_TOP_LEFT);
             /*
+            badge = new BadgeView(MessageAdapter.context, notify);
+            badge.setBadgePosition(BadgeView.POSITION_CENTER);
+            badge.setBadgeMargin(0,0);
             badge.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

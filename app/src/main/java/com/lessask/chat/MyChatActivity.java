@@ -57,8 +57,10 @@ public class MyChatActivity extends MyAppCompatActivity {
     private static final int HANDLER_MESSAGE_RESP = 1;
     private static final int HANDLER_HISTORY_SUCCESS = 2;
     private static final int HANDLER_HISTORY_ERROR = 3;
+    private static final int HANDLER_MESSAGE_SEND = 4;
 
-    private final static String TAG = "ChatActivity";
+
+    private final static String TAG = MyChatActivity.class.getSimpleName();
     private ListView chatListView;
     private MyChatAdapter mRecyclerViewAdapter;
 
@@ -77,8 +79,8 @@ public class MyChatActivity extends MyAppCompatActivity {
     private int userId;
     private int friendId=0;
     private String chatgroupId;
-    private int oldestSeq=0;
-    private int newestSeq=0;
+    private long oldestId=0;
+    private long newestId=0;
 
     private List<ChatMessage> messageList;
     private ChatGroup chatGroup;
@@ -94,7 +96,10 @@ public class MyChatActivity extends MyAppCompatActivity {
                     mRecyclerView.scrollToPosition(mRecyclerViewAdapter.getItemCount()-1);
                     Log.e(TAG, "current chat insert callback");
                     //通知friendActivity更新
-
+                    break;
+                case HANDLER_MESSAGE_SEND:
+                    mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
+                    mRecyclerView.smoothScrollToPosition(mRecyclerViewAdapter.getItemCount());
                     break;
                 case HANDLER_MESSAGE_RESP:
                     //根据消息响应的状态改变界面
@@ -132,6 +137,35 @@ public class MyChatActivity extends MyAppCompatActivity {
     };
 
 
+    private DbInsertListener chatrecordInsertListener = new DbInsertListener() {
+        @Override
+        public void callback(Object obj) {
+            //这个回调方法 发送跟接收到都会调用
+            ChatMessage message = (ChatMessage) obj;
+            if(message.getChatgroupId().equals(chatgroupId)){
+                if (message.getUserid()!=globalInfos.getUserId()) {
+                    //接受信息
+                    newestId=message.getId();
+                    mRecyclerViewAdapter.append(message);
+                    Message msg = new Message();
+                    msg.what = HANDLER_MESSAGE_RECEIVE;
+                    handler.sendMessage(msg);
+                }else {
+                    //发送信息
+                    //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
+                    Log.e(TAG, "emit gson:" + gson.toJson(message));
+                    chat.emit("message", gson.toJson(message));
+                    //先写数据库，再呈现是为了获得自增id
+                    newestId=message.getId();
+                    mRecyclerViewAdapter.append(message);
+                    Message msg = new Message();
+                    msg.what = HANDLER_MESSAGE_SEND;
+                    handler.sendMessage(msg);
+
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,8 +174,6 @@ public class MyChatActivity extends MyAppCompatActivity {
         //获取传递的数据
         final Intent intent = getIntent();
         userId = globalInfos.getUserId();
-        ChatMessage j = (ChatMessage )intent.getParcelableExtra("test");
-        ArrayList l = intent.getParcelableArrayListExtra("list");
         chatGroup = intent.getParcelableExtra("chatGroup");
         chatgroupId = chatGroup.getChatgroupId();
         if(chatgroupId.contains("_")){
@@ -154,8 +186,11 @@ public class MyChatActivity extends MyAppCompatActivity {
         }
 
 
+
+
         //初始化控件
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle(chatGroup.getName());
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,11 +198,7 @@ public class MyChatActivity extends MyAppCompatActivity {
                 finish();
             }
         });
-        mToolbar.setTitle(chatGroup.getName());
 
-        BadgeView badge = new BadgeView(this, mToolbar);
-        badge.setText("23");
-        badge.show();
         //swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
         //键盘弹起时，信息滚动到最后一条
         final View activityRootView = findViewById(R.id.root);
@@ -196,8 +227,8 @@ public class MyChatActivity extends MyAppCompatActivity {
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
         List<ChatMessage> messageList = chatGroup.getMessageList();
         if(messageList.size()!=0){
-            oldestSeq = messageList.get(0).getSeq();
-            newestSeq = messageList.get(messageList.size()-1).getSeq();
+            oldestId = messageList.get(0).getId();
+            newestId = messageList.get(messageList.size()-1).getId();
         }
         mRecyclerViewAdapter.appendToList(messageList);
         mRecyclerView.scrollToPosition(mRecyclerViewAdapter.getItemCount()-1);
@@ -205,15 +236,21 @@ public class MyChatActivity extends MyAppCompatActivity {
 
         mSwipeRefreshLayout.setColorSchemeResources(R.color.line_color_run_speed_13);
 
+
+        //第一次聊天，没有聊天历史记录
+        if(intent.getBooleanExtra("notInContacts", false)) {
+            mSwipeRefreshLayout.setEnabled(false);
+        }
+
         //下拉刷新监听
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
              @Override
              public void onRefresh() {
                  mSwipeRefreshLayout.setRefreshing(true);
                  SQLiteDatabase db = globalInfos.getDb(getBaseContext());
-                 int expectSeq = oldestSeq-15;
-                 Log.e(TAG, "load history:"+expectSeq+","+oldestSeq);
-                 Cursor cursor = db.rawQuery("select * from t_chatrecord where chatgroup_id=? and seq>? and seq<? order by seq desc", new String[]{chatgroupId, ""+expectSeq,""+oldestSeq});
+                 long expectId = oldestId-15;
+                 Log.e(TAG, "load history:"+expectId+","+oldestId);
+                 Cursor cursor = db.rawQuery("select * from t_chatrecord where chatgroup_id=? and id>? and id<? order by id desc", new String[]{chatgroupId, ""+expectId,""+oldestId});
                  Log.e(TAG, "load history size:"+cursor.getCount());
                  while (cursor.moveToNext()){
                      int id = cursor.getInt(0);
@@ -224,43 +261,20 @@ public class MyChatActivity extends MyAppCompatActivity {
                      String content = cursor.getString(5);
                      Date time = TimeHelper.dateParse(cursor.getString(6));
                      int status = cursor.getInt(7);
-                     Log.e(TAG, "load userid:"+userid);
-                     Log.e(TAG, "seq:"+seq);
-                     oldestSeq = seq;
+                     oldestId = id;
                      mRecyclerViewAdapter.appendToTop(new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status));
                  }
-                 Log.e(TAG, "oldestSeq:"+oldestSeq);
+                 Log.e(TAG, "oldestId:"+oldestId);
                  cursor.close();
                  mRecyclerViewAdapter.notifyItemRangeInserted(0,cursor.getCount());
                  mSwipeRefreshLayout.setRefreshing(false);
-                 if(oldestSeq==1)
+                 if(cursor.getCount()<15)
                      mSwipeRefreshLayout.setEnabled(false);
              }
          });
 
         //监听聊天信息
-        DbHelper.getInstance(getBaseContext()).appendInsertListener("t_chatrecord", new DbInsertListener() {
-            @Override
-            public void callback(Object obj) {
-                //这个回调方法 发送跟接收到都会调用
-                ChatMessage message = (ChatMessage) obj;
-                if(message.getChatgroupId().equals(chatgroupId)){
-                    if (message.getUserid()!=globalInfos.getUserId()) {
-                        //接受信息
-                        newestSeq++;
-                        mRecyclerViewAdapter.append(message);
-                        Message msg = new Message();
-                        msg.what = HANDLER_MESSAGE_RECEIVE;
-                        handler.sendMessage(msg);
-                    }else {
-                        //发送信息
-                        //to do对发送的消息进行转圈圈, 由messageResponse取消圈圈
-                        Log.e(TAG, "gson:" + gson.toJson(obj));
-                        chat.emit("message", gson.toJson(obj));
-                    }
-                }
-            }
-        });
+        DbHelper.getInstance(getBaseContext()).appendInsertListener("t_chatrecord", chatrecordInsertListener);
 
         chat.setOnMessageResponseListener(new Chat.OnMessageResponseListener() {
             @Override
@@ -269,7 +283,7 @@ public class MyChatActivity extends MyAppCompatActivity {
                 String[] whereValues = new String[]{response.getId()+"", response.getChatgroupId()};
                 ContentValues values = new ContentValues();
                 values.put("seq", response.getSeq());
-                DbHelper.getInstance(MyChatActivity.this).getDb().update("t_chatrecord",values,"where id=? and chatgroup_id=?",whereValues);
+                DbHelper.getInstance(MyChatActivity.this).getDb().update("t_chatrecord",values,"id=? and chatgroup_id=?",whereValues);
                 // todo 更新界面
             }
         });
@@ -284,9 +298,7 @@ public class MyChatActivity extends MyAppCompatActivity {
         int screenWidth = ScreenUtil.getScreenWidth(getBaseContext());
 
         ViewGroup.LayoutParams params = etContent.getLayoutParams();
-        Log.e(TAG, "width:"+params.width);
         params.width = screenWidth-ivMore.getLayoutParams().width-ivContentType.getLayoutParams().width;
-        Log.e(TAG, "width:"+params.width);
         etContent.setLayoutParams(params);
 
         etContent.addTextChangedListener(new TextWatcher() {
@@ -324,14 +336,8 @@ public class MyChatActivity extends MyAppCompatActivity {
                     return;
                 }
 
-                newestSeq++;
-                ChatMessage msg = new ChatMessage(userId,friendId,chatgroupId, ChatMessage.MSG_TYPE_TEXT,content,new Date(),newestSeq,friendId);
-                mRecyclerViewAdapter.append(msg);
-                mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount());
-                mRecyclerView.smoothScrollToPosition(mRecyclerViewAdapter.getItemCount());
-
+                ChatMessage msg = new ChatMessage(userId,chatgroupId,ChatMessage.MSG_TYPE_TEXT,content,new Date(),ChatMessage.MSG_SENDING,friendId);
                 etContent.setText("");
-
 
                 //该聊天记录不在聊天列表里
                 if(intent.getBooleanExtra("notInContacts", false)) {
@@ -412,5 +418,12 @@ public class MyChatActivity extends MyAppCompatActivity {
             }
         });
         */
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        DbHelper.getInstance(getBaseContext()).removeInsertListener("t_chatrecord", chatrecordInsertListener);
     }
 }

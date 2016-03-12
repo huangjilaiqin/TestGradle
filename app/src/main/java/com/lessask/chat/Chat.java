@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
+import com.lessask.model.ArrayListResponse;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.HistoryResponse;
@@ -29,8 +30,10 @@ import com.lessask.net.LASocketIO;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TooManyListenersException;
 
 /**
@@ -58,8 +61,6 @@ public class Chat {
     //to do Chat.getInstance 传入上下文,
     private static Context context;
 
-
-
     private Chat(){
         mSocket = LASocketIO.getSocket();
         //注册回调函数
@@ -68,6 +69,7 @@ public class Chat {
         mSocket.on("loadInitData", onLoadInitData);
         mSocket.on("register", onRegister);
         mSocket.on("message", onMessage);
+        mSocket.on("offlinemessage", onOfflineMessage);
         mSocket.on("messageResp", onMessageResp);
         mSocket.on("friendsInfo", onFriends);
         mSocket.on("changeUserInfo", onChangeUserInfo);
@@ -98,7 +100,8 @@ public class Chat {
                 return;
             }
 
-
+            //时间本地化, 最简单的方法, 接收到消息就用你手机自己的时间
+            message.setTime(new Date());
             int userid = message.getUserid();
             int friendId = message.getFriendid();
             String chatGroupId = message.getChatgroupId();
@@ -136,6 +139,7 @@ public class Chat {
             values.put("seq", message.getSeq());
             values.put("status", message.getStatus());
             values.put("time", TimeHelper.dateFormat(message.getTime()));
+            values.put("friendid",friendId);
             DbHelper.getInstance(context).insert("t_chatrecord", null, values);
 
             //通知当前聊天activity
@@ -143,6 +147,45 @@ public class Chat {
             //通知消息列表更新
         }
     };
+
+
+    private Emitter.Listener onOfflineMessage = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.e(TAG, "onOfflineMessage:" + args[0].toString());
+            Type type = new TypeToken<ArrayListResponse<ChatMessage>>() {}.getType();
+            //ArrayListResponse response = TimeHelper.gsonWithNodeDate().fromJson(args[0].toString(), type);
+            ArrayListResponse response = TimeHelper.gsonWithNodeDate().fromJson(args[0].toString(), type);
+            if(response.getErrno()!=0 || response.getError()!=null){
+                Log.e(TAG, "error:"+response.getError());
+                return;
+            }else {
+                List<ChatMessage> list = response.getDatas();
+                if(list.size()>0) {
+                    for (int i = 0; i < list.size(); i++) {
+                        ChatMessage message = list.get(i);
+                        ContentValues values = new ContentValues();
+                        values.put("chatgroup_id", message.getChatgroupId());
+                        values.put("userid", "" + message.getUserid());
+                        values.put("type", "" + message.getType());
+                        values.put("content", message.getContent());
+                        values.put("seq", message.getSeq());
+                        values.put("status", ChatMessage.MSG_RECEIVC);
+                        Log.e(TAG, "time:" + message.getTime());
+                        Log.e(TAG, "time:" + TimeHelper.dateFormat(message.getTime()));
+                        values.put("time", TimeHelper.dateFormat(message.getTime()));
+                        values.put("friendid", "-1");
+                        DbHelper.getInstance(context).insert("t_chatrecord", null, values);
+                    }
+                    ContentValues values = new ContentValues();
+                    values.put("unread_count", list.size());
+                    String[] whereValues = new String[]{list.get(0).getChatgroupId()};
+                    DbHelper.getInstance(context).getDb().update("t_chatgroup", values, "chatgroup_id=?", whereValues);
+                }
+            }
+        }
+    };
+
     private Emitter.Listener onMessageResp = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -155,9 +198,6 @@ public class Chat {
                 if(onMessageResponseListener!=null)
                     onMessageResponseListener.messageResponse(response);
             }
-
-
-
         }
     };
     private Emitter.Listener onLogin = new Emitter.Listener(){

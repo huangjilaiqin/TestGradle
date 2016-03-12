@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="64dp"
     android:orientation="horizontal"
     >
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="56dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="16dp"
@@ -14,9 +14,28 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="4dp"
             android:src="@drawable/man"
             android:id="@+id/head_img"/>
-    </LinearLayout>
+
+        <com.lessask.custom.CircleTextView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:id="@+id/notify"
+            android:layout_alignTop="@id/head_img"
+            android:layout_alignRight="@id/head_img"
+            android:layout_marginRight="-4dp"
+            android:layout_marginTop="-4dp"
+            android:visibility="invisible"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:padding="1dp"
+            android:textSize="12sp"
+            />
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="0dp"

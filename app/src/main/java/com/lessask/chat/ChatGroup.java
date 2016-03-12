@@ -2,6 +2,7 @@ package com.lessask.chat;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.lessask.model.ChatMessage;
 
@@ -20,6 +21,7 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
     private String img;
     private int unreadCout;     //未读消息条数
     private ArrayList<ChatMessage> messageList;
+    private String TAG = ChatGroup.class.getSimpleName();
     //to do 一个高效的缓存结构
 
 
@@ -32,6 +34,7 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
     @Override
     public int compareTo(ChatGroup another) {
         //排序字段 消息时间,name
+        //a>b 正序返回1,逆序返回-1
         ArrayList<ChatMessage> anotherMsg = (ArrayList<ChatMessage>)another.getMessageList();
         Date chatTime;
         if(messageList.size()!=0)
@@ -50,9 +53,13 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
             return 1;
         }else {
             //比较时间
-            if (chatTime.getTime() > anotherChatTime.getTime()) {
+            Log.e(TAG, name+" time:"+chatTime+", "+another.getName()+" time:"+anotherChatTime);
+            long delta = chatTime.getTime() - anotherChatTime.getTime();
+            if (delta>0) {
+                Log.e(TAG, "-1");
                 return -1;
-            } else if (anotherChatTime.getTime() < chatTime.getTime()) {
+            } else if (delta<0) {
+                Log.e(TAG, "1");
                 return 1;
             } else {
                 //比较名字
@@ -117,6 +124,11 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
         messageList.add(msg);
     }
 
+    public void appendList(List<ChatMessage> list){
+        if(messageList==null)
+            messageList = new ArrayList<>();
+        messageList.addAll(list);
+    }
     @Override
     public int describeContents() {
         return 0;
@@ -147,6 +159,10 @@ public class ChatGroup implements Parcelable,Comparable<ChatGroup> {
              return new ChatGroup[size];
          }
     };
+
+    public void setMessageList(ArrayList<ChatMessage> messageList) {
+        this.messageList = messageList;
+    }
 
     public int getUnreadCout() {
         return unreadCout;

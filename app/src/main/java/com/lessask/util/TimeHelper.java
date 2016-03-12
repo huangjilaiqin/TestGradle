@@ -1,5 +1,6 @@
 package com.lessask.util;
 
+import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 import android.util.Log;
 
@@ -149,9 +150,9 @@ public class TimeHelper {
 
             if (nowYear == dateYear) {
                 if (nowDay == dateDay) {
-                    if (dateHour < 6) {
+                    if (dateHour < 5) {
                         buffer.append("凌晨 ");
-                    } else if (dateHour < 10) {
+                    } else if (dateHour < 11) {
                         buffer.append("上午 ");
                     } else if (dateHour < 14) {
                         buffer.append("中午 ");
@@ -176,12 +177,38 @@ public class TimeHelper {
 
         return buffer.toString();
     }
+
+    @NonNull
     public static Gson gsonWithDate() {
         final GsonBuilder builder = new GsonBuilder();
 
         builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
 
             final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+            @Override
+            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                try {
+                    return df.parse(json.getAsString());
+                } catch (final java.text.ParseException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        });
+        return builder.create();
+    }
+    //node 服务器返回的时间, JSON 序列化时间 将时间变成标准时间了
+    @NonNull
+    public static Gson gsonWithNodeDate() {
+        final GsonBuilder builder = new GsonBuilder();
+
+        final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        //按照伦敦时区格式化时间, 返回的时本地时间
+        TimeZone timeZon = TimeZone.getTimeZone("GMT+0");
+        df.setTimeZone(timeZon);
+        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
 
             @Override
             public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
