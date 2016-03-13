@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lessask.chat.Chat;
+import com.lessask.chat.ChatResponseListener;
 import com.lessask.dialog.StringPickerDialog;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.Login;
@@ -63,6 +64,36 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         }
         baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
 
+        chat.appendVerifyTokenListener(new ChatResponseListener() {
+            @Override
+            public void response(String obj) {
+                Log.e(TAG, "verify");
+                VerifyToken verifyToken = gson.fromJson(obj,VerifyToken.class);
+                if (verifyToken.getErrno() != 0 || verifyToken.getError()!=null && verifyToken.getError().length() != 0) {
+                    //token 无效
+                    Message msg = new Message();
+                    msg.what =VERIFY_TOKEN_ERROR ;
+                    msg.obj = verifyToken;
+                    handler.sendMessage(msg);
+                    return;
+                }else {
+                    //token有效
+                    int userid = verifyToken.getUserid();
+                    globalInfos.setUserId(userid);
+                    globalInfos.setToken(verifyToken.getToken());
+                    //移除这个监听器
+                    chat.removeVerifyTokenListener(this);
+                    Intent intent = new Intent(StartupActivity.this, MainActivity.class);
+                    //清除 activity栈中的内容
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+
+        /*
         chat.setVerifyTokenListener(new Chat.VerifyTokenListener(){
             @Override
             public void verify(String data) {
@@ -90,6 +121,7 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
                 }
             }
         });
+        */
 
 
         login = (Button) findViewById(R.id.login);

@@ -64,6 +64,7 @@ public class Chat {
     //to do Chat.getInstance 传入上下文,
     private static Context context;
     private Map<String, Set<Long>> sendingMsgs;
+    private ArrayList<ChatResponseListener> verifyTokenListeners;
 
     private Chat(){
         mSocket = LASocketIO.getSocket();
@@ -86,6 +87,7 @@ public class Chat {
 
         friendsMap = globalInfos.getFriendsinMap();
         sendingMsgs = new HashMap<>();
+        verifyTokenListeners = new ArrayList<>();
     }
 
     public static final Chat getInstance(Context context){
@@ -167,6 +169,9 @@ public class Chat {
         @Override
         public void call(Object... args) {
             Log.e(TAG, "onReconnect");
+            int userid = globalInfos.getUserId();
+            String token = globalInfos.getToken();
+            emit("verifyToken",gson.toJson(new VerifyToken(userid,token)));
         }
     };
 
@@ -318,7 +323,9 @@ public class Chat {
     private Emitter.Listener onVerifyToken= new Emitter.Listener(){
         @Override
         public void call(Object... args) {
-            verifyTokenListener.verify(args[0].toString());
+            for(int i=0;i<verifyTokenListeners.size();i++){
+                verifyTokenListeners.get(i).response(args[0].toString());
+            }
         }
     };
     private Emitter.Listener onRegister = new Emitter.Listener(){
@@ -463,6 +470,13 @@ public class Chat {
     }
     public void setVerifyTokenListener(VerifyTokenListener listener){
         verifyTokenListener = listener;
+    }
+
+    public void appendVerifyTokenListener(ChatResponseListener listener){
+        verifyTokenListeners.add(listener);
+    }
+    public void removeVerifyTokenListener(ChatResponseListener listener){
+        verifyTokenListeners.remove(listener);
     }
 
     public interface RegisterListener{
