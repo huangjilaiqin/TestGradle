@@ -39,6 +39,7 @@ import com.lessask.model.ChatMessage;
 import com.lessask.model.ChatMessageResponse;
 import com.lessask.model.ResponseError;
 import com.lessask.recyclerview.ImprovedSwipeLayout;
+import com.lessask.recyclerview.OnItemMenuClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.show.ShowListAdapter;
 import com.lessask.util.ScreenUtil;
@@ -58,6 +59,7 @@ public class MyChatActivity extends MyAppCompatActivity {
     private static final int HANDLER_HISTORY_SUCCESS = 2;
     private static final int HANDLER_HISTORY_ERROR = 3;
     private static final int HANDLER_MESSAGE_SEND = 4;
+    private static final int HANDLER_MESSAGE_RESEND = 5;
 
 
     private final static String TAG = MyChatActivity.class.getSimpleName();
@@ -89,7 +91,8 @@ public class MyChatActivity extends MyAppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-
+            ChatMessageResponse response;
+            ChatMessage chatMessage;
             switch (msg.what){
                 case HANDLER_MESSAGE_RECEIVE:
                     mRecyclerViewAdapter.notifyItemInserted(mRecyclerViewAdapter.getItemCount()-1);
@@ -103,8 +106,12 @@ public class MyChatActivity extends MyAppCompatActivity {
                     break;
                 case HANDLER_MESSAGE_RESP:
                     //根据消息响应的状态改变界面
-                    ChatMessageResponse response = (ChatMessageResponse)msg.obj;
-
+                    response = (ChatMessageResponse)msg.obj;
+                    mRecyclerViewAdapter.updateItemStatusById(response.getId(),response.getStatus());
+                    break;
+                case HANDLER_MESSAGE_RESEND:
+                    chatMessage = (ChatMessage)msg.obj;
+                    mRecyclerViewAdapter.updateItemStatusById(chatMessage.getId(),chatMessage.getStatus());
                     break;
                 case HANDLER_HISTORY_SUCCESS:
                     int msgSize = msg.arg1;
@@ -166,6 +173,8 @@ public class MyChatActivity extends MyAppCompatActivity {
             }
         }
     };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -280,11 +289,11 @@ public class MyChatActivity extends MyAppCompatActivity {
             @Override
             public void messageResponse(ChatMessageResponse response) {
                 //todo 显示信息状态
-                String[] whereValues = new String[]{response.getId()+"", response.getChatgroupId()};
-                ContentValues values = new ContentValues();
-                values.put("seq", response.getSeq());
-                DbHelper.getInstance(MyChatActivity.this).getDb().update("t_chatrecord",values,"id=? and chatgroup_id=?",whereValues);
                 // todo 更新界面
+                Message msg = new Message();
+                msg.obj = response;
+                msg.what = HANDLER_MESSAGE_RESP;
+                handler.sendMessage(msg);
             }
         });
 
@@ -393,6 +402,26 @@ public class MyChatActivity extends MyAppCompatActivity {
                         imm.showSoftInput(getWindow().getDecorView(), InputMethodManager.SHOW_IMPLICIT);
                     }
                 }
+            }
+        });
+
+        mRecyclerViewAdapter.setOnItemMenuClickListener(new OnItemMenuClickListener() {
+            @Override
+            public void onItemMenuClick(View view, int position) {
+
+            }
+
+            @Override
+            public void onItemMenuClick(View view, Object obj) {
+                ChatMessage message = (ChatMessage)obj;
+                Log.e(TAG, "resend emit gson:" + gson.toJson(message));
+                chat.emit("message", gson.toJson(message));
+                //先写数据库，再呈现是为了获得自增id
+                Message msg = new Message();
+                msg.obj = message;
+                msg.what = HANDLER_MESSAGE_RESEND;
+                handler.sendMessage(msg);
+
             }
         });
         /*

@@ -32,8 +32,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TooManyListenersException;
 
 /**
@@ -60,6 +63,7 @@ public class Chat {
     private UploadRunListener uploadRunListener;
     //to do Chat.getInstance 传入上下文,
     private static Context context;
+    private Map<String, Set<Long>> sendingMsgs;
 
     private Chat(){
         mSocket = LASocketIO.getSocket();
@@ -75,8 +79,13 @@ public class Chat {
         mSocket.on("changeUserInfo", onChangeUserInfo);
         mSocket.on("history", onHistory);
         mSocket.on("uploadrun", onUploadRun);
+        mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
+        mSocket.on(Socket.EVENT_ERROR, onError);
+        mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
+        mSocket.on(Socket.EVENT_RECONNECT, onReconnect);
 
         friendsMap = globalInfos.getFriendsinMap();
+        sendingMsgs = new HashMap<>();
     }
 
     public static final Chat getInstance(Context context){
@@ -86,6 +95,80 @@ public class Chat {
     private static class LazyHolder {
         private static final Chat INSTANCE = new Chat();
     }
+
+    private Emitter.Listener onDisconnect = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.e(TAG, "onDisconnect");
+            for (Map.Entry<String, Set<Long>> entry : sendingMsgs.entrySet()) {
+                String chatgroupId = entry.getKey();
+                for(Long id:entry.getValue()){
+                    //update db
+                    String[] whereValues = new String[]{id+"", chatgroupId};
+                    ContentValues values = new ContentValues();
+                    values.put("status", ChatMessage.MSG_SEND_FAILED);
+                    DbHelper.getInstance(context).getDb().update("t_chatrecord",values,"id=? and chatgroup_id=?",whereValues);
+                    //更新界面
+                    ChatMessageResponse response = new ChatMessageResponse(id, chatgroupId, ChatMessage.MSG_SEND_FAILED);
+                    if(onMessageResponseListener!=null)
+                        onMessageResponseListener.messageResponse(response);
+                }
+                //清除掉没有发送成功,但已通知客户端的信息
+                entry.getValue().clear();
+            }
+        }
+    };
+    private Emitter.Listener onError = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.e(TAG, "onError");
+            for (Map.Entry<String, Set<Long>> entry : sendingMsgs.entrySet()) {
+                String chatgroupId = entry.getKey();
+                for(Long id:entry.getValue()){
+                    //update db
+                    String[] whereValues = new String[]{id+"", chatgroupId};
+                    ContentValues values = new ContentValues();
+                    values.put("status", ChatMessage.MSG_SEND_FAILED);
+                    DbHelper.getInstance(context).getDb().update("t_chatrecord",values,"id=? and chatgroup_id=?",whereValues);
+                    //更新界面
+                    ChatMessageResponse response = new ChatMessageResponse(id, chatgroupId, ChatMessage.MSG_SEND_FAILED);
+                    if(onMessageResponseListener!=null)
+                        onMessageResponseListener.messageResponse(response);
+                }
+                //清除掉没有发送成功,但已通知客户端的信息
+                entry.getValue().clear();
+            }
+        }
+    };
+
+    private Emitter.Listener onConnectError = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.e(TAG, "onConnectError");
+            for (Map.Entry<String, Set<Long>> entry : sendingMsgs.entrySet()) {
+                String chatgroupId = entry.getKey();
+                for(Long id:entry.getValue()){
+                    //update db
+                    String[] whereValues = new String[]{id+"", chatgroupId};
+                    ContentValues values = new ContentValues();
+                    values.put("status", ChatMessage.MSG_SEND_FAILED);
+                    DbHelper.getInstance(context).getDb().update("t_chatrecord",values,"id=? and chatgroup_id=?",whereValues);
+                    //更新界面
+                    ChatMessageResponse response = new ChatMessageResponse(id, chatgroupId, ChatMessage.MSG_SEND_FAILED);
+                    if(onMessageResponseListener!=null)
+                        onMessageResponseListener.messageResponse(response);
+                }
+                //清除掉没有发送成功,但已通知客户端的信息
+                entry.getValue().clear();
+            }
+        }
+    };
+    private Emitter.Listener onReconnect = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            Log.e(TAG, "onReconnect");
+        }
+    };
 
     //收到信息,发送消息也会调用这里
     private Emitter.Listener onMessage = new Emitter.Listener(){
@@ -195,11 +278,30 @@ public class Chat {
                 Log.e(TAG, "error:"+response.getError());
                 return;
             }else {
+                long id = response.getId();
+                String chatgroupId = response.getChatgroupId();
+                //已发送成功
+                response.setStatus(ChatMessage.MSG_SEND);
+
+                Set idSet = sendingMsgs.get(chatgroupId);
+                if(idSet!=null){
+                    idSet.remove(id);
+                    Log.e(TAG, "remove response id:"+id);
+                }else {
+                    Log.e(TAG, "response id not record, id:"+id);
+                }
+
+                String[] whereValues = new String[]{id+"", chatgroupId};
+                ContentValues values = new ContentValues();
+                values.put("seq", response.getSeq());
+                values.put("status", ChatMessage.MSG_SEND);
+                DbHelper.getInstance(context).getDb().update("t_chatrecord",values,"id=? and chatgroup_id=?",whereValues);
                 if(onMessageResponseListener!=null)
                     onMessageResponseListener.messageResponse(response);
             }
         }
     };
+    //todo 判断发送失败通过调用 onMessageResponseListener 更新界面显示发送失败
     private Emitter.Listener onLogin = new Emitter.Listener(){
         @Override
         public void call(Object... args) {
@@ -315,8 +417,20 @@ public class Chat {
     };
 
 
+    //本地向服务器发送的必经之路
     public void emit(String event, Object... args){
         Log.e(TAG, "emit "+event + ":" + args[0].toString());
+        if(event.equals("message")){
+            ChatMessage msg = gson.fromJson(args[0].toString(), ChatMessage.class);
+            String chatgroupId = msg.getChatgroupId();
+            Set idSet = sendingMsgs.get(chatgroupId);
+            if(idSet==null){
+                idSet = new HashSet<Integer>();
+                sendingMsgs.put(chatgroupId, idSet);
+            }
+            idSet.add(msg.getId());
+            Log.e(TAG, "sending id:"+msg.getId());
+        }
         mSocket.emit(event, args);
     }
     public void emit(String event, Object[] args, Ack ask){

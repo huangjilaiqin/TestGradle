@@ -1,16 +1,14 @@
 package com.lessask.chat;
 
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,27 +16,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
 import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
 import com.lessask.global.DbInsertListener;
 import com.lessask.global.GlobalInfos;
-import com.lessask.model.ArrayListResponse;
 import com.lessask.model.ChatMessage;
 import com.lessask.model.OfflineMsgRequest;
-import com.lessask.net.GsonRequest;
-import com.lessask.net.VolleyHelper;
 import com.lessask.recyclerview.OnItemClickListener;
 import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import com.lessask.util.TimeHelper;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -201,7 +191,6 @@ public class FragmentMessage extends Fragment{
             Date time = TimeHelper.dateParse(cursor.getString(6));
             int status = cursor.getInt(7);
             ChatGroup chatGroup;
-            Log.e(TAG, "load record id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", content:"+content+", time:"+time);
             if(!chatGroupMap.containsKey(chatgroupId)){
                 chatGroup = new ChatGroup(chatgroupId);
                 chatGroupMap.put(chatgroupId, chatGroup);
@@ -209,7 +198,10 @@ public class FragmentMessage extends Fragment{
                 chatGroup = chatGroupMap.get(chatgroupId);
             }
 
+            Log.e(TAG, "load record id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", content:"+content+", time:"+time);
+
             ChatMessage chatMessage = new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status);
+            Log.e(TAG, "load record:"+chatMessage);
             chatGroup.appendMsg(chatMessage);
         }
 

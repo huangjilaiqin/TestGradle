@@ -4,18 +4,32 @@ package com.lessask.model;
  * Created by JHuang on 2015/8/12.
  */
 public class ChatMessageResponse extends ResponseError{
-    private int id;
+    private long id;
     private String chatgroupId;
     private int seq;
+    private int status;
 
-    public ChatMessageResponse(int errno, String error,int id, String chatgroupId, int seq) {
+    public ChatMessageResponse(int errno, String error,long id, String chatgroupId, int seq) {
         super(errno, error);
         this.id=id;
         this.chatgroupId = chatgroupId;
         this.seq = seq;
     }
+    public ChatMessageResponse(long id, String chatgroupId, int status) {
+        this.id=id;
+        this.chatgroupId = chatgroupId;
+        this.status= status;
+    }
 
-    public int getId() {
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public long getId() {
         return id;
     }
 

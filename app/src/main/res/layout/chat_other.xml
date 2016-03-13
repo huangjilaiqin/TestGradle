@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:id="@+id/layout_other_msg"
     android:padding="8dp"
     >
@@ -20,5 +20,23 @@
         android:background="@drawable/sk"
         android:layout_toRightOf="@id/head_img"
         android:layout_marginLeft="4dp"
+        />
+    <ProgressBar
+        android:id="@+id/flower"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_toRightOf="@id/content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="6dp"
+        />
+    <ImageView
+        android:id="@+id/resend"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_toRightOf="@id/content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="8dp"
+        android:src="@drawable/resend"
+        android:visibility="invisible"
         />
 </RelativeLayout>

@@ -163,6 +163,11 @@ public class FragmentWorkoutPlan extends Fragment implements CRUDExtend<Workout>
                             break;
                     }
                 }
+
+                @Override
+                public void onItemMenuClick(View view, Object obj) {
+
+                }
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 

@@ -7,4 +7,5 @@ import android.view.View;
  */
 public interface OnItemMenuClickListener {
     public void onItemMenuClick(View view, int position);
+    public void onItemMenuClick(View view, Object obj);
 }

@@ -159,6 +159,11 @@ public class FragmentAction extends Fragment implements View.OnClickListener{
                             break;
                     }
                 }
+
+                @Override
+                public void onItemMenuClick(View view, Object obj) {
+
+                }
             });
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
