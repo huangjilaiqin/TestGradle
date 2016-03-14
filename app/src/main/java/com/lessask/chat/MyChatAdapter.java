@@ -79,7 +79,8 @@ public class MyChatAdapter extends BaseRecyclerAdapter<ChatMessage, RecyclerView
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final ChatMessage itemData = getItem(position);
         ImageView resend = null;
-        final ProgressBar flower = null;
+        ProgressBar flower = null;
+        int status=0;
         if(holder instanceof OtherViewHolder){
             OtherViewHolder otherViewHolder = (OtherViewHolder)holder;
             otherViewHolder.content.setText(itemData.getContent());
@@ -90,15 +91,8 @@ public class MyChatAdapter extends BaseRecyclerAdapter<ChatMessage, RecyclerView
             ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(otherViewHolder.headImg, 0, 0);
             VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
             //otherViewHolder.headImg.setImageResource(R.mipmap.ic_launcher);
-            int status=itemData.getStatus();
-            if(status==ChatMessage.MSG_SENDING){
-                otherViewHolder.flower.setVisibility(View.VISIBLE);
-            }else if(status==ChatMessage.MSG_SEND){
-                otherViewHolder.flower.setVisibility(View.INVISIBLE);
-            }else if(status==ChatMessage.MSG_SEND_FAILED){
-                otherViewHolder.flower.setVisibility(View.INVISIBLE);
-                otherViewHolder.resend.setVisibility(View.VISIBLE);
-            }
+            status=itemData.getStatus();
+            flower = otherViewHolder.flower;
             resend = otherViewHolder.resend;
         }else if(holder instanceof MeViewHolder){
             MeViewHolder meViewHolder = (MeViewHolder) holder;
@@ -110,16 +104,22 @@ public class MyChatAdapter extends BaseRecyclerAdapter<ChatMessage, RecyclerView
             Log.e(TAG, "me:"+headImgUrl);
             ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(meViewHolder.headImg, 0, 0);
             VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
-            int status=itemData.getStatus();
-            if(status==ChatMessage.MSG_SENDING){
-                meViewHolder.flower.setVisibility(View.VISIBLE);
-            }else if(status==ChatMessage.MSG_SEND){
-                meViewHolder.flower.setVisibility(View.INVISIBLE);
-            }else if(status==ChatMessage.MSG_SEND_FAILED){
-                meViewHolder.flower.setVisibility(View.INVISIBLE);
-                meViewHolder.resend.setVisibility(View.VISIBLE);
-            }
+            status=itemData.getStatus();
+            flower = meViewHolder.flower;
             resend = meViewHolder.resend;
+        }
+        if(status==ChatMessage.MSG_SENDING){
+            flower.setVisibility(View.VISIBLE);
+        }else if(status==ChatMessage.MSG_SEND){
+            flower.setVisibility(View.INVISIBLE);
+        }else if(status==ChatMessage.MSG_SEND_FAILED){
+            flower.setVisibility(View.INVISIBLE);
+            resend.setVisibility(View.VISIBLE);
+        }else if(status==ChatMessage.MSG_RECEIVC){
+            flower.setVisibility(View.INVISIBLE);
+            resend.setVisibility(View.INVISIBLE);
+        }else {
+            Log.e(TAG, "error status:"+status);
         }
         resend.setOnClickListener(new View.OnClickListener() {
             @Override

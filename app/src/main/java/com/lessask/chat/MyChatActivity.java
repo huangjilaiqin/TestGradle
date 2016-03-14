@@ -258,8 +258,10 @@ public class MyChatActivity extends MyAppCompatActivity {
                  mSwipeRefreshLayout.setRefreshing(true);
                  SQLiteDatabase db = globalInfos.getDb(getBaseContext());
                  long expectId = oldestId-15;
+                 int loadSize = 15;
                  Log.e(TAG, "load history:"+expectId+","+oldestId);
-                 Cursor cursor = db.rawQuery("select * from t_chatrecord where chatgroup_id=? and id>? and id<? order by id desc", new String[]{chatgroupId, ""+expectId,""+oldestId});
+
+                 Cursor cursor = db.rawQuery("select * from t_chatrecord where chatgroup_id=? and id<? order by id desc limit ?", new String[]{chatgroupId,""+oldestId,""+loadSize});
                  Log.e(TAG, "load history size:"+cursor.getCount());
                  while (cursor.moveToNext()){
                      int id = cursor.getInt(0);
@@ -271,13 +273,14 @@ public class MyChatActivity extends MyAppCompatActivity {
                      Date time = TimeHelper.dateParse(cursor.getString(6));
                      int status = cursor.getInt(7);
                      oldestId = id;
+                     Log.e(TAG, "id:"+id+", status:"+status+", userid:"+userid+", content:"+content);
                      mRecyclerViewAdapter.appendToTop(new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status));
                  }
                  Log.e(TAG, "oldestId:"+oldestId);
                  cursor.close();
                  mRecyclerViewAdapter.notifyItemRangeInserted(0,cursor.getCount());
                  mSwipeRefreshLayout.setRefreshing(false);
-                 if(cursor.getCount()<15)
+                 if(cursor.getCount()<loadSize)
                      mSwipeRefreshLayout.setEnabled(false);
              }
          });
@@ -424,35 +427,11 @@ public class MyChatActivity extends MyAppCompatActivity {
 
             }
         });
-        /*
-        etContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus){
-                     chatAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-        */
-        /*
-        swipeView.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
-        swipeView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                swipeView.setRefreshing(true);
-                //请求历史数据
-                History history = new History(userId, friendId, globalInfos.getHistoryIds(friendId));
-                Log.e(TAG, "history:"+gson.toJson(history));
-                chat.emit("history", gson.toJson(history));
-            }
-        });
-        */
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         DbHelper.getInstance(getBaseContext()).removeInsertListener("t_chatrecord", chatrecordInsertListener);
     }
 }

@@ -179,7 +179,6 @@ public class FragmentMessage extends Fragment{
         //每个聊天列表只查10条记录
         String sql = "select a.* from t_chatrecord a where 10>(select count(*) from t_chatrecord where chatgroup_id=a.chatgroup_id and id>a.id) order by a.id";
         Cursor cursor = db.rawQuery(sql, null);
-        int count = cursor.getCount();
         Map<String,ChatGroup> chatGroupMap = new HashMap<>();
         while (cursor.moveToNext()){
             int id = cursor.getInt(0);
@@ -198,12 +197,13 @@ public class FragmentMessage extends Fragment{
                 chatGroup = chatGroupMap.get(chatgroupId);
             }
 
-            Log.e(TAG, "load record id:"+id+", chatgroupid:"+chatgroupId+", userid:"+userid+", content:"+content+", time:"+time);
+            Log.e(TAG, "load record id:"+id+", chatgroupid:"+chatgroupId+", status:"+status+", userid:"+userid+", content:"+content+", time:"+time);
 
             ChatMessage chatMessage = new ChatMessage(id,seq,userid,chatgroupId,type,content,time,status);
-            Log.e(TAG, "load record:"+chatMessage);
+            //Log.e(TAG, "load record:"+chatMessage);
             chatGroup.appendMsg(chatMessage);
         }
+        cursor.close();
 
 
         //设置每个聊天列表的名字,包括没有聊天记录的项
@@ -219,6 +219,7 @@ public class FragmentMessage extends Fragment{
                 chatGroupMap.put(chatgroupId, new ChatGroup(chatgroupId,name,status));
             }
         }
+        cursor.close();
 
         for(Map.Entry entry:chatGroupMap.entrySet()){
             ChatGroup chatGroup = (ChatGroup) entry.getValue();
@@ -226,17 +227,8 @@ public class FragmentMessage extends Fragment{
             mRecyclerViewAdapter.append(chatGroup);
         }
         mRecyclerViewAdapter.sort();
-        mRecyclerViewAdapter.getList();
-        for(int i=0;i<mRecyclerViewAdapter.getItemCount();i++) {
-            ChatGroup chatGroup = mRecyclerViewAdapter.getItem(i);
-            ChatMessage msg =chatGroup.getLastMessage();
-            if(msg!=null)
-                Log.e(TAG, "sort:" + msg.getTime());
-            else
-                Log.e(TAG, "none");
-        }
-        Log.e(TAG, "query db, chatgroup size:"+count);
-        if(count==0){
+
+        if(mRecyclerViewAdapter.getItemCount()==0){
             mRecyclerView.showEmptyView();
         }else {
             mRecyclerViewAdapter.notifyDataSetChanged();
@@ -245,14 +237,17 @@ public class FragmentMessage extends Fragment{
 
     private void loadOfflineMessage(){
         List<ChatGroup> list = mRecyclerViewAdapter.getList();
+        String sql = "select chatgroup_id,max(seq) from t_chatrecord group by chatgroup_id order by seq desc";
         OfflineMsgRequest request = new OfflineMsgRequest();
         Map<String, Integer> args = new HashMap<>();
-        for(int i=0;i<list.size();i++){
-            ChatGroup chatGroup = list.get(i);
-            String chatgroupId = chatGroup.getChatgroupId();
-            int seq = chatGroup.getLastMessage().getSeq();
-            args.put(chatgroupId,seq);
+
+        Cursor cursor = DbHelper.getInstance(getContext()).getDb().rawQuery(sql, null);
+        while (cursor.moveToNext()){
+            String chatgroupId= cursor.getString(0);
+            int seq = cursor.getInt(1);
+            args.put(chatgroupId, seq);
         }
+        cursor.close();
         request.setUserid(globalInfos.getUserId());
         request.setArgs(args);
         Log.e(TAG, "offlinemessage:"+gson.toJson(request));

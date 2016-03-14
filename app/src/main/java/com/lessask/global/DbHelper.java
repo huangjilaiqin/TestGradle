@@ -75,7 +75,7 @@ public class DbHelper {
                 obj = new ChatGroup(values.getAsString("chatgroup_id"),values.getAsString("name"));
                 break;
             case "t_chatrecord":
-                Log.e(TAG, values.toString());
+                Log.e(TAG, "t_chatrecord insert:"+values.toString());
                 int status=ChatMessage.MSG_RECEIVC;
                 if(values.get("status")!=null){
                     status = values.getAsInteger("status");
