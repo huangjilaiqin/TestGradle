@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity">
+    <item android:id="@+id/menu"
+        android:title="菜单"
+        android:orderInCategory="80"
+        android:icon="@drawable/add"
+        app:showAsAction="always"
+        >
+        <menu>
+            <item android:id="@+id/add_friend"
+                android:title="添加朋友"
+                android:orderInCategory="80"
+                android:icon="@drawable/women"
+                app:showAsAction="always"
+                />
+            <item android:id="@+id/test"
+                android:title="即时运动"
+                android:orderInCategory="80"
+                android:icon="@drawable/man"
+                app:showAsAction="always"
+                />
+        </menu>
+    </item>
+</menu>

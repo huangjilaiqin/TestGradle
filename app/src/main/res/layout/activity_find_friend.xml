@@ -12,22 +12,13 @@
         >
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:theme="@style/ThemeOverlay.AppCompat.Light"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:title="查找朋友"
-            android:navigationIcon="@drawable/ic_menu_white"
+            app:navigationIcon="?attr/homeAsUpIndicator"
             />
     </android.support.design.widget.AppBarLayout>
-    <EditText
-        android:id="@+id/search_content"
-        android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:layout_below="@id/appbar_layout"
-        android:layout_marginTop="8dp"
-        android:hint="用户名/用户id"
-        android:text="用户名/用户id"
-        />
     <RelativeLayout
         android:id="@+id/result"
         android:layout_width="match_parent"

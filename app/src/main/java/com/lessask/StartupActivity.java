@@ -83,7 +83,8 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
                     globalInfos.setToken(verifyToken.getToken());
                     //移除这个监听器
                     chat.removeVerifyTokenListener(this);
-                    Intent intent = new Intent(StartupActivity.this, MainActivity.class);
+                    //Intent intent = new Intent(StartupActivity.this, MainActivity.class);
+                    Intent intent = new Intent(StartupActivity.this, NewMainActivity.class);
                     //清除 activity栈中的内容
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
