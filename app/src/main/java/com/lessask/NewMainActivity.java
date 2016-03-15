@@ -81,6 +81,7 @@ public class NewMainActivity extends AppCompatActivity {
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle("少问");
+        mToolbar.setTitleTextColor(getResources().getColor(R.color.white));
         setSupportActionBar(mToolbar);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);

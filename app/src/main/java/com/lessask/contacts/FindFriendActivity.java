@@ -1,6 +1,8 @@
 package com.lessask.contacts;
 
 import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,10 +15,14 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lessask.DividerItemDecoration;
 import com.lessask.R;
+import com.lessask.chat.Chat;
+import com.lessask.chat.ChatResponseListener;
 import com.lessask.global.Config;
+import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.ArrayListResponse;
 import com.lessask.model.User;
@@ -28,7 +34,10 @@ import com.lessask.recyclerview.RecyclerViewStatusSupport;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FindFriendActivity extends AppCompatActivity {
     private RecyclerViewStatusSupport mRecyclerView;
@@ -36,6 +45,7 @@ public class FindFriendActivity extends AppCompatActivity {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private String TAG = FindFriendActivity.class.getSimpleName();
+    private Gson gson = new Gson();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +54,7 @@ public class FindFriendActivity extends AppCompatActivity {
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle("添加朋友");
+        mToolbar.setTitleTextColor(getResources().getColor(R.color.main_color));
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,13 +79,38 @@ public class FindFriendActivity extends AppCompatActivity {
             }
         });
 
+        //Chat.getInstance(this).appendChatResponseListener("addfriend", addFriendListener);
         mRecyclerView.showLoadingView();
+
         loadFriends();
     }
 
+
+    private ChatResponseListener addFriendListener = new ChatResponseListener() {
+        @Override
+        public void response(String obj) {
+            Log.e(TAG, "addFriendListener:"+obj);
+            AddFriend addFriend = gson.fromJson(obj, AddFriend.class);
+            if(addFriend.getError()!="" || addFriend.getErrno()!=0){
+
+            }else {
+                //本地入库
+                /*
+                ContentValues values = new ContentValues();
+                values.put("userid", user.getUserid());
+                values.put("nickname", user.getNickname());
+                values.put("headImg", user.getHeadImg());
+                db.insert("t_contact", "", values);
+                */
+            }
+            mRecyclerViewAdapter.updateItem(addFriend);
+        }
+    };
+
+
     private void loadFriends(){
         Type type = new TypeToken<ArrayListResponse<User>>() {}.getType();
-        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getFriendsUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
+        GsonRequest gsonRequest = new GsonRequest<>(Request.Method.POST, config.getRecommendFriendsUrl(), type, new GsonRequest.PostGsonRequest<ArrayListResponse>() {
             @Override
             public void onStart() {}
             @Override

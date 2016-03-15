@@ -65,12 +65,14 @@ public class Chat {
     private static Context context;
     private Map<String, Set<Long>> sendingMsgs;
     private ArrayList<ChatResponseListener> verifyTokenListeners;
+    private Map<String, ArrayList<ChatResponseListener>> chatResponseListeners = new HashMap<>();
 
     private Chat(){
         mSocket = LASocketIO.getSocket();
         //注册回调函数
         mSocket.on("login", onLogin);
         mSocket.on("verifyToken", onVerifyToken);
+        mSocket.on("addfriend", onAddFriend);
         mSocket.on("loadInitData", onLoadInitData);
         mSocket.on("register", onRegister);
         mSocket.on("message", onMessage);
@@ -323,8 +325,30 @@ public class Chat {
     private Emitter.Listener onVerifyToken= new Emitter.Listener(){
         @Override
         public void call(Object... args) {
+            ArrayList<ChatResponseListener> listeners = chatResponseListeners.get("verifyToken");
+            if(listeners!=null){
+                String responseStr = args[0].toString();
+                for(int i=0;i<listeners.size();i++){
+                    listeners.get(i).response(responseStr);
+                }
+            }
+            /*
             for(int i=0;i<verifyTokenListeners.size();i++){
                 verifyTokenListeners.get(i).response(args[0].toString());
+            }
+            */
+        }
+    };
+
+    private Emitter.Listener onAddFriend = new Emitter.Listener(){
+        @Override
+        public void call(Object... args) {
+            ArrayList<ChatResponseListener> listeners = chatResponseListeners.get("addfriend");
+            if(listeners!=null){
+                String responseStr = args[0].toString();
+                for(int i=0;i<listeners.size();i++){
+                    listeners.get(i).response(responseStr);
+                }
             }
         }
     };
@@ -478,6 +502,23 @@ public class Chat {
     public void removeVerifyTokenListener(ChatResponseListener listener){
         verifyTokenListeners.remove(listener);
     }
+
+    public void appendChatResponseListener(String protocol,ChatResponseListener listener){
+        ArrayList<ChatResponseListener> listeners = chatResponseListeners.get(protocol);
+        if(listeners==null){
+            listeners = new ArrayList<>();
+            chatResponseListeners.put(protocol, listeners);
+        }
+        listeners.add(listener);
+    }
+    public void removeChatResponseListener(String protocol,ChatResponseListener listener){
+        ArrayList<ChatResponseListener> listeners = chatResponseListeners.get(protocol);
+        if(listeners!=null){
+            listeners.remove(listener);
+        }
+    }
+
+
 
     public interface RegisterListener{
         void register(String data);

@@ -4,31 +4,21 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.lessask.contacts.FindFriendActivity">
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar_layout"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        app:theme="@style/ThemeOverlay.AppCompat.Light"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        >
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            app:theme="@style/ThemeOverlay.AppCompat.Light"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:title="查找朋友"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            />
-    </android.support.design.widget.AppBarLayout>
-    <RelativeLayout
-        android:id="@+id/result"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/search_content"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/main_color"
+        android:title="查找朋友"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        />
+
     <TextView
         android:id="@+id/recomment_tip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/result"
+        android:layout_below="@id/toolbar"
         android:layout_centerVertical="true"
         android:layout_marginTop="8dp"
         android:paddingLeft="16dp"
@@ -102,5 +92,4 @@
                 />
         </RelativeLayout>
     </RelativeLayout>
-
 </RelativeLayout>

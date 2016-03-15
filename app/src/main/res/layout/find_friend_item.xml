@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/friend_item">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:src="@mipmap/ic_launcher"
+        android:id="@+id/head_img"/>
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/head_img"
+        android:layout_marginLeft="16dp"
+        android:layout_centerVertical="true"
+        android:textSize="18sp"
+        android:textColor="@color/black_40"
+        android:text="唐三炮"
+        />
+    <Button
+        android:id="@+id/add"
+        android:layout_width="54dp"
+        android:layout_height="36dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/button_main_color_bg"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:text="添加"
+        />
+    <ProgressBar
+        android:id="@+id/adding"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="32dp"
+        android:visibility="invisible"
+        />
+
+</RelativeLayout>

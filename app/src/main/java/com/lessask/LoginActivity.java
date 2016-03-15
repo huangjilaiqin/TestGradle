@@ -58,7 +58,7 @@ public class LoginActivity extends MyAppCompatActivity{
                     loginDialog.cancel();
                     //跳转到首页
 
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, NewMainActivity.class);
                     //清除 activity栈中的内容
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                     //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

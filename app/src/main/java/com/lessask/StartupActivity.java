@@ -64,7 +64,7 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
         }
         baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
 
-        chat.appendVerifyTokenListener(new ChatResponseListener() {
+        chat.appendChatResponseListener("verifyToken", new ChatResponseListener() {
             @Override
             public void response(String obj) {
                 Log.e(TAG, "verify");
@@ -93,37 +93,6 @@ public class StartupActivity extends MyAppCompatActivity implements View.OnClick
                 }
             }
         });
-
-        /*
-        chat.setVerifyTokenListener(new Chat.VerifyTokenListener(){
-            @Override
-            public void verify(String data) {
-                Log.e(TAG, "verify");
-                VerifyToken verifyToken = gson.fromJson(data,VerifyToken.class);
-                if (verifyToken.getErrno() != 0 || verifyToken.getError()!=null && verifyToken.getError().length() != 0) {
-                    //token 无效
-                    Message msg = new Message();
-                    msg.what =VERIFY_TOKEN_ERROR ;
-                    msg.obj = verifyToken;
-                    handler.sendMessage(msg);
-                    return;
-                }else {
-                    //token有效
-                    int userid = verifyToken.getUserid();
-                    globalInfos.setUserId(userid);
-                    globalInfos.setToken(verifyToken.getToken());
-
-                    Intent intent = new Intent(StartupActivity.this, MainActivity.class);
-                    //清除 activity栈中的内容
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        });
-        */
-
 
         login = (Button) findViewById(R.id.login);
         login.setOnClickListener(this);

@@ -9,11 +9,12 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:theme="@style/ThemeOverlay.AppCompat.Light"
         android:layout_width="match_parent"
         android:background="@color/main_color"
         android:layout_height="56dp"
         app:layout_scrollFlags="scroll|enterAlways"
+        android:titleTextColor="@color/white"
         android:title="少问"
         />
     <android.support.v4.view.ViewPager
