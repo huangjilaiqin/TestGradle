@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.Gson;
@@ -64,8 +65,13 @@ public class FindFriendAdapter extends BaseRecyclerAdapter<User,FindFriendAdapte
             super.handleMessage(msg);
             switch (msg.what){
                 case HANDLER_ADD_FRIEND:
+                    AddFriend addFriend = (AddFriend)msg.obj;
                     notifyItemChanged(msg.arg1);
                     //通知friendActivity更新
+                    if(addFriend.getErrno()!=0 || addFriend.getError()!=null){
+                        Log.e(TAG, "error:"+addFriend.getError());
+                        Toast.makeText(context, "添加朋友失败",Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 default:
                     break;
@@ -82,13 +88,13 @@ public class FindFriendAdapter extends BaseRecyclerAdapter<User,FindFriendAdapte
 
             }else {
                 //本地入库
-                /*
+                User user = getItemById(addFriend.getFriendid());
                 ContentValues values = new ContentValues();
                 values.put("userid", user.getUserid());
                 values.put("nickname", user.getNickname());
                 values.put("headImg", user.getHeadImg());
-                db.insert("t_contact", "", values);
-                */
+                DbHelper.getInstance(context).getDb().insert("t_contact", "", values);
+                friendids.add(addFriend.getFriendid());
             }
             updateItem(addFriend);
         }
@@ -138,8 +144,8 @@ public class FindFriendAdapter extends BaseRecyclerAdapter<User,FindFriendAdapte
                 public void onClick(View v) {
                     AddFriend addFriend = new AddFriend(globalInfos.getUserId(), user.getUserid());
                     Chat.getInstance(context).emit("addfriend", gson.toJson(addFriend));
-                    holder.adding.setVisibility(View.VISIBLE);
-                    holder.add.setVisibility(View.INVISIBLE);
+                    holder.add.setVisibility(View.VISIBLE);
+                    holder.adding.setVisibility(View.INVISIBLE);
                 }
             });
         }
@@ -157,13 +163,24 @@ public class FindFriendAdapter extends BaseRecyclerAdapter<User,FindFriendAdapte
         }
         Log.e(TAG, "updateItem positoin:"+positon);
         if(positon!=-1){
-            friendids.add(addFriend.getFriendid());
             Log.e(TAG, "addfriend position:"+positon);
             Message msg = new Message();
+            msg.obj = addFriend;
             msg.arg1 = positon;
             msg.what = HANDLER_ADD_FRIEND;
             handler.sendMessage(msg);
         }
+    }
+
+    private User getItemById(int userid){
+        List list = getList();
+        for(int i=0;i<list.size();i--){
+            User user= (User) list.get(i);
+            if(user.getUserid()==userid){
+                return user;
+            }
+        }
+        return null;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{

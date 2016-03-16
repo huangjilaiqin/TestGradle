@@ -166,9 +166,6 @@
             android:name=".action.SelectActionActivity"
             android:label="@string/title_activity_select_action" />
         <activity
-            android:name=".me.ChangePersonInfoActivity"
-            android:label="@string/title_activity_change_person_info" />
-        <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" />
         <activity
@@ -219,11 +216,13 @@
         <activity android:name=".lesson.ShowLessonActivity" />
         <activity
             android:name=".contacts.FindFriendActivity"
-            android:label="@string/title_activity_find_friend"></activity>
+            android:label="@string/title_activity_find_friend" />
         <activity
             android:name=".UserActivity"
-            android:label="@string/title_activity_user"></activity>
-        <activity android:name=".NewMainActivity"></activity>
+            android:label="@string/title_activity_user" />
+        <activity android:name=".NewMainActivity" />
+        <activity android:name=".me.PersonInfoActivity" />
+        <activity android:name=".me.ChangeNameActivity"></activity>
     </application>
 
 </manifest>

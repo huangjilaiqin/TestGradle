@@ -44,7 +44,7 @@ public class FragmentNewMe extends Fragment{
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_new_me, container,false);
             CircleImageView head = (CircleImageView) rootView.findViewById(R.id.head);
@@ -53,6 +53,15 @@ public class FragmentNewMe extends Fragment{
             VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
             TextView name = (TextView) rootView.findViewById(R.id.name);
             name.setText(globalInfos.getUser().getNickname());
+
+            rootView.findViewById(R.id.head_layout).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getContext(), PersonInfoActivity.class);
+                    intent.putExtra("user", globalInfos.getUser());
+                    startActivity(intent);
+                }
+            });
         }
         return rootView;
     }

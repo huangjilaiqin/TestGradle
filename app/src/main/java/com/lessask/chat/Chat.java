@@ -73,6 +73,7 @@ public class Chat {
         mSocket.on("login", onLogin);
         mSocket.on("verifyToken", onVerifyToken);
         mSocket.on("addfriend", onAddFriend);
+        mSocket.on("changename", onChangeName);
         mSocket.on("loadInitData", onLoadInitData);
         mSocket.on("register", onRegister);
         mSocket.on("message", onMessage);
@@ -344,6 +345,19 @@ public class Chat {
         @Override
         public void call(Object... args) {
             ArrayList<ChatResponseListener> listeners = chatResponseListeners.get("addfriend");
+            if(listeners!=null){
+                String responseStr = args[0].toString();
+                for(int i=0;i<listeners.size();i++){
+                    listeners.get(i).response(responseStr);
+                }
+            }
+        }
+    };
+
+    private Emitter.Listener onChangeName = new Emitter.Listener(){
+        @Override
+        public void call(Object... args) {
+            ArrayList<ChatResponseListener> listeners = chatResponseListeners.get("changename");
             if(listeners!=null){
                 String responseStr = args[0].toString();
                 for(int i=0;i<listeners.size();i++){
