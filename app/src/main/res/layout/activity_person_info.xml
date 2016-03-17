@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/background_grey"
     tools:context="com.lessask.me.PersonInfoActivity">
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -19,8 +20,9 @@
     <RelativeLayout
         android:id="@+id/head_layout"
         android:layout_width="match_parent"
+        android:background="#f6f6f6"
         android:layout_height="64dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
         >
         <TextView
             android:layout_width="wrap_content"
@@ -49,6 +51,7 @@
     <RelativeLayout
         android:id="@+id/name_layout"
         android:layout_width="match_parent"
+        android:background="#f6f6f6"
         android:layout_height="64dp">
         <TextView
             android:layout_width="wrap_content"

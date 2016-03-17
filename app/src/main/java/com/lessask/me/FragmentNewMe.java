@@ -39,19 +39,20 @@ public class FragmentNewMe extends Fragment{
     private Config config = globalInfos.getConfig();
     private  String imageUrlPrefix = config.getImgUrl();
     private View rootView;
-    public final static int WORKOUT_ADD=1;
-    public final static int WORKOUT_CHANGE=2;
+    public final static int INFO_CHANGE=1;
+    private TextView name;
+    private CircleImageView head;
 
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_new_me, container,false);
-            CircleImageView head = (CircleImageView) rootView.findViewById(R.id.head);
+            head = (CircleImageView) rootView.findViewById(R.id.head);
             ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(head,0,0);
             String headImgUrl = imageUrlPrefix+globalInfos.getUserId()+".jpg";
             VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
-            TextView name = (TextView) rootView.findViewById(R.id.name);
+            name = (TextView) rootView.findViewById(R.id.name);
             name.setText(globalInfos.getUser().getNickname());
 
             rootView.findViewById(R.id.head_layout).setOnClickListener(new View.OnClickListener() {
@@ -59,7 +60,7 @@ public class FragmentNewMe extends Fragment{
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), PersonInfoActivity.class);
                     intent.putExtra("user", globalInfos.getUser());
-                    startActivity(intent);
+                    startActivityForResult(intent,INFO_CHANGE);
                 }
             });
         }
@@ -76,8 +77,11 @@ public class FragmentNewMe extends Fragment{
         Log.e(TAG, "onActivityResult");
         if(resultCode== Activity.RESULT_OK){
             switch (requestCode){
-                case WORKOUT_ADD:
-                case WORKOUT_CHANGE:
+                case INFO_CHANGE:
+                    ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(head,0,0);
+                    String headImgUrl = imageUrlPrefix+globalInfos.getUserId()+".jpg";
+                    VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
+                    name.setText(globalInfos.getUser().getNickname());
                     break;
             }
         }

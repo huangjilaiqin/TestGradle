@@ -41,13 +41,16 @@ public class PersonInfoActivity extends AppCompatActivity {
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle("个人信息");
         mToolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        setSupportActionBar(mToolbar);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent();
+                setResult(RESULT_OK,intent);
                 finish();
             }
         });
-        setSupportActionBar(mToolbar);
+
 
         User user = globalInfos.getUser();
         headImg = (CircleImageView) findViewById(R.id.head);
@@ -58,7 +61,6 @@ public class PersonInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 PhotoPickerIntent intent = new PhotoPickerIntent(PersonInfoActivity.this);
-                //不包括最后一个加号的图片
                 intent.setPhotoCount(1);
                 intent.setShowCamera(true);
                 startActivityForResult(intent, REQUEST_HEAD_IMAGE);
@@ -72,6 +74,15 @@ public class PersonInfoActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        Intent intent = new Intent();
+        setResult(RESULT_OK,intent);
+        finish();
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -83,8 +94,9 @@ public class PersonInfoActivity extends AppCompatActivity {
                     if (data != null) {
                         ArrayList<String> selectedPhotos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
                         //把最后一个加号的图片去掉
-                        if(selectedPhotos.size()>0)
+                        if(selectedPhotos.size()>0) {
                             headImg.setImageBitmap(ImageUtil.getOptimizeBitmapFromFile(selectedPhotos.get(0)));
+                        }
                     }
                     break;
                 case SAVE_NAME:
