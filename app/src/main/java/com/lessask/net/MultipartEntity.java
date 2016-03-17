@@ -170,7 +170,8 @@ public class MultipartEntity {
 
     public void addOptimizeImagePart(final String key, final File file) throws IOException{
         //压缩图片
-        Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(file);
+        //Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(file);
+        Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(ImageUtil.getBitmapFromFile(file));
         BufferedInputStream fin = Utils.bitmat2BufferedInputStream(bitmap);
         writeFirstBoundary();
         //Content-Type
@@ -218,6 +219,7 @@ public class MultipartEntity {
         Log.e(TAG, "close");
         // 定义BufferedReader输入流来读取URL的响应
         int resCode = con.getResponseCode();
+        Log.e(TAG, "resCode:"+resCode);
         if(resCode==200){
             Log.e(TAG, "resCode"+resCode);
             BufferedReader reader = new BufferedReader(new InputStreamReader(

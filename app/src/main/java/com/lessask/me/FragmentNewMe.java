@@ -81,6 +81,7 @@ public class FragmentNewMe extends Fragment{
                     ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(head,0,0);
                     String headImgUrl = imageUrlPrefix+globalInfos.getUserId()+".jpg";
                     VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
+
                     name.setText(globalInfos.getUser().getNickname());
                     break;
             }

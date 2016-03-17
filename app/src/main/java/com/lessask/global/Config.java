@@ -40,6 +40,11 @@ public class Config {
     private String friendsUrl = "http://123.59.40.113/httproute/friends/";
     private String userUrl = "http://123.59.40.113/httproute/user/";
     private String chatGroupUrl = "http://123.59.40.113/httproute/chatgroup";
+    private String updateHeadImg = "http://123.59.40.113/httproute/headimg/update";
+
+    public String getUpdateHeadImg() {
+        return updateHeadImg;
+    }
 
     public String getUserUrl() {
         return userUrl;

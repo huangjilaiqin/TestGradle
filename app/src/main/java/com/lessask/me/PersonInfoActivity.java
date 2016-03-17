@@ -11,15 +11,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.lessask.R;
+import com.lessask.dialog.LoadingDialog;
 import com.lessask.dialog.StringPickerDialog;
+import com.lessask.global.Config;
 import com.lessask.global.DbHelper;
 import com.lessask.global.GlobalInfos;
 import com.lessask.model.User;
+import com.lessask.net.NetworkFileHelper;
+import com.lessask.net.VolleyHelper;
 import com.lessask.util.ImageUtil;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.iwf.photopicker.PhotoPickerActivity;
@@ -31,8 +39,11 @@ public class PersonInfoActivity extends AppCompatActivity {
     public final int SAVE_NAME = 2;
     private String TAG= PersonInfoActivity.class.getSimpleName();
     private GlobalInfos globalInfos= GlobalInfos.getInstance();
+    private Config config = globalInfos.getConfig();
+    private  String imageUrlPrefix = config.getImgUrl();
     private CircleImageView headImg;
     private TextView nameView;
+    private LoadingDialog loadingDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +65,9 @@ public class PersonInfoActivity extends AppCompatActivity {
 
         User user = globalInfos.getUser();
         headImg = (CircleImageView) findViewById(R.id.head);
+        ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(headImg,0,0);
+        String headImgUrl = imageUrlPrefix+globalInfos.getUserId()+".jpg";
+        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
         nameView = (TextView) findViewById(R.id.name);
         nameView.setText(user.getNickname());
 
@@ -95,7 +109,54 @@ public class PersonInfoActivity extends AppCompatActivity {
                         ArrayList<String> selectedPhotos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
                         //把最后一个加号的图片去掉
                         if(selectedPhotos.size()>0) {
-                            headImg.setImageBitmap(ImageUtil.getOptimizeBitmapFromFile(selectedPhotos.get(0)));
+
+                            loadingDialog = new LoadingDialog(PersonInfoActivity.this);
+                            final File picFile = new File(selectedPhotos.get(0));
+                            final String picname = picFile.getName();
+                            NetworkFileHelper.getInstance().startPost(config.getUpdateHeadImg(), User.class, new NetworkFileHelper.PostFileRequest() {
+                                @Override
+                                public void onStart() {
+                                    loadingDialog.show();
+                                }
+
+                                @Override
+                                public void onResponse(Object response) {
+                                    loadingDialog.cancel();
+
+                                    User user = (User) response;
+                                    if(user.getError()!=null || user.getErrno()!=0){
+                                        Toast.makeText(PersonInfoActivity.this, user.getError(),Toast.LENGTH_LONG).show();
+                                    }else {
+                                        headImg.setImageBitmap(ImageUtil.getOptimizeBitmapFromFile(picFile));
+                                    }
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    loadingDialog.cancel();
+                                    Toast.makeText(PersonInfoActivity.this, "上传头像失败,"+error, Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public HashMap<String, String> getHeaders() {
+                                    HashMap<String, String> headers = new HashMap<>();
+                                    headers.put("userid", globalInfos.getUserId()+"");
+                                    headers.put("picname" ,picname);
+                                    return headers;
+                                }
+
+                                @Override
+                                public HashMap<String, String> getFiles() {
+                                    return null;
+                                }
+
+                                @Override
+                                public HashMap<String, String> getImages() {
+                                    HashMap<String,String> images = new HashMap<>();
+                                    images.put(picname, picFile.getPath());
+                                    return images;
+                                }
+                            });
                         }
                     }
                     break;
