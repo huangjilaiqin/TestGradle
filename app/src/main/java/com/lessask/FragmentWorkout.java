@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
+import com.lessask.test.CoordinatorLayoutActivity;
 
 /**
  * Created by JHuang on 2015/10/22.
@@ -31,6 +32,13 @@ public class FragmentWorkout extends Fragment {
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_workout, null);
             Log.e(TAG, "FragmentWorkout");
+            rootView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getContext(), CoordinatorLayoutActivity.class);
+                    startActivity(intent);
+                }
+            });
         }
         return rootView;
     }

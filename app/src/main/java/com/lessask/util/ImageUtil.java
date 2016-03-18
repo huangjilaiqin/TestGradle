@@ -80,6 +80,7 @@ public class ImageUtil {
             throw new Resources.NotFoundException();
         }
         Log.e(TAG, "w:" + maxWidth + ", h:" + maxHeight);
+        scal(pathName);
 		Bitmap result = null;
 		try {
             // 图片配置对象，该对象可以配置图片加载的像素获取个数
@@ -114,6 +115,48 @@ public class ImageUtil {
             e.printStackTrace();
         }
 		return result;
+	}
+
+    public static Bitmap scal(String path){
+		File outputFile = new File(path);
+		long fileSize = outputFile.length();
+        Log.e(TAG, "compress before:"+fileSize);
+		final long fileMaxSize = 100 * 1024;
+        Bitmap bitmap=null;
+		 if (fileSize >= fileMaxSize) {
+             BitmapFactory.Options options = new BitmapFactory.Options();
+             options.inJustDecodeBounds = true;
+             BitmapFactory.decodeFile(path, options);
+             int height = options.outHeight;
+             int width = options.outWidth;
+
+             double scale = Math.sqrt((float) fileSize / fileMaxSize);
+             options.outHeight = (int) (height / scale);
+             options.outWidth = (int) (width / scale);
+             options.inSampleSize = (int) (scale + 0.5);
+             options.inJustDecodeBounds = false;
+
+             bitmap = BitmapFactory.decodeFile(path, options);
+             outputFile = new File(outputFile.getAbsolutePath(), "2.jpg");
+             FileOutputStream fos = null;
+             try {
+                 fos = new FileOutputStream(outputFile);
+                 bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fos);
+                 fos.close();
+             } catch (IOException e) {
+                 // TODO Auto-generated catch block
+                 e.printStackTrace();
+             }
+             Log.d(TAG, "compress after: " + outputFile.length());
+             if (!bitmap.isRecycled()) {
+                 bitmap.recycle();
+             } else {
+                 File tempFile = outputFile;
+             }
+
+         }
+		 return bitmap;
+
 	}
 
     private static Bitmap compressImageBySize(Bitmap image) {
