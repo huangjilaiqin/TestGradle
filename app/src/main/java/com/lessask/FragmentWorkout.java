@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lessask.custom.RoundProgressBar;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
 import com.lessask.test.CoordinatorLayoutActivity;
@@ -39,6 +40,10 @@ public class FragmentWorkout extends Fragment {
                     startActivity(intent);
                 }
             });
+            RoundProgressBar personalCircle = (RoundProgressBar)rootView.findViewById(R.id.personal_circle);
+            personalCircle.setProgress(65);
+            RoundProgressBar joinCircle = (RoundProgressBar)rootView.findViewById(R.id.join_circle);
+            joinCircle.setProgress(65);
         }
         return rootView;
     }

@@ -19,4 +19,6 @@
     <color name="red_fab">#F44336</color>
     <color name="purple_fab">#673AB7</color>
     <color name="line_color_run_speed_13">#ff2942</color>
+    <color name="personal_progress">#ffcc00</color>
+    <color name="today_join">#00b7ee</color>
 </resources>
