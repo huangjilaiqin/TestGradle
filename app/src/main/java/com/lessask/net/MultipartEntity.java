@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -171,8 +172,10 @@ public class MultipartEntity {
     public void addOptimizeImagePart(final String key, final File file) throws IOException{
         //压缩图片
         //Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(file);
-        Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(ImageUtil.getBitmapFromFile(file));
-        BufferedInputStream fin = Utils.bitmat2BufferedInputStream(bitmap);
+        //Bitmap bitmap = ImageUtil.getOptimizeBitmapFromFile(ImageUtil.getBitmapFromFile(file));
+        //InputStream fin = Utils.bitmat2BufferedInputStream(bitmap);
+        InputStream fin = ImageUtil.getOptimizeBitmapInputStream(file);
+
         writeFirstBoundary();
         //Content-Type
         netOutput.write((CONTENT_TYPE + TYPE_OCTET_STREAM + NEW_LINE_STR).getBytes());

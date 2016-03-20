@@ -2,6 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
+    <item android:id="@+id/contact"
+        android:title="通讯录"
+        android:orderInCategory="80"
+        android:icon="@drawable/contact"
+        android:visible="false"
+        app:showAsAction="always"/>
+
     <item android:id="@+id/menu"
         android:title="菜单"
         android:orderInCategory="80"

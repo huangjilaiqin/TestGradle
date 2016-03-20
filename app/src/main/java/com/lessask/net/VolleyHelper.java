@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
+import com.android.volley.Cache;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -18,27 +19,14 @@ public class VolleyHelper {
     private ImageLoader mImageLoader;
     private static Context mCtx;
     private String TAG = VolleyHelper.class.getSimpleName();
+    private MyImageCache myImageCache;
 
     private VolleyHelper() {
         if(mCtx==null)
             throw new NullPointerException();
         mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
-        mImageLoader = new ImageLoader(mRequestQueue,
-                new ImageLoader.ImageCache() {
-                    private final LruCache<String, Bitmap>
-                            cache = new LruCache<String, Bitmap>(20);
-
-                    @Override
-                    public Bitmap getBitmap(String url) {
-                        return cache.get(url);
-                    }
-
-                    @Override
-                    public void putBitmap(String url, Bitmap bitmap) {
-                        Log.e(TAG, "bitmap size:"+bitmap.getByteCount()/1024);
-                        cache.put(url, bitmap);
-                    }
-                });
+        myImageCache = new MyImageCache();
+        mImageLoader = new ImageLoader(mRequestQueue, myImageCache);
     }
 
     public static void setmCtx(Context mCtx) {
@@ -58,5 +46,30 @@ public class VolleyHelper {
 
     public ImageLoader getImageLoader() {
         return mImageLoader;
+    }
+    public void removeCache(String url){
+        mRequestQueue.getCache().remove(url);
+        if(mRequestQueue.getCache().get(url)==null)
+            Log.e(TAG, "remove cache:"+url);
+        myImageCache.remove(new StringBuilder(url.length() + 12).append("#W").append(168)
+                .append("#H").append(168).append(url).toString());
+        Log.e(TAG, "remove isCache:"+mImageLoader.isCached(url, 168, 168));
+    }
+
+    class MyImageCache implements ImageLoader.ImageCache{
+        private final LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>(20);
+        @Override
+        public Bitmap getBitmap(String url) {
+            return cache.get(url);
+        }
+
+        @Override
+        public void putBitmap(String url, Bitmap bitmap) {
+            Log.e(TAG, "bitmap size:"+bitmap.getByteCount()/1024);
+            cache.put(url, bitmap);
+        }
+        public Bitmap remove(String url){
+            return cache.remove(url);
+        }
     }
 }

@@ -68,5 +68,6 @@
     <string name="title_activity_select_lesson">SelectLessonActivity</string>
     <string name="title_activity_find_friend">FindFriendActivity</string>
     <string name="title_activity_user">UserActivity</string>
+    <string name="title_activity_contact">ContactActivity</string>
 
 </resources>

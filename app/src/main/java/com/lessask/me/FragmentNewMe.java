@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
@@ -49,9 +50,12 @@ public class FragmentNewMe extends Fragment{
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_new_me, container,false);
             head = (CircleImageView) rootView.findViewById(R.id.head);
-            ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(head,0,0);
+            ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(head, 0, 0);
             String headImgUrl = imageUrlPrefix+globalInfos.getUserId()+".jpg";
-            VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
+
+            int headSize = (int)getResources().getDimension(R.dimen.me_head_size);
+            VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, headSize, headSize);
+            Log.e(TAG, "dimen head size:" + headSize + ", h:" + headSize);
             name = (TextView) rootView.findViewById(R.id.name);
             name.setText(globalInfos.getUser().getNickname());
 
@@ -60,7 +64,7 @@ public class FragmentNewMe extends Fragment{
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), PersonInfoActivity.class);
                     intent.putExtra("user", globalInfos.getUser());
-                    startActivityForResult(intent,INFO_CHANGE);
+                    startActivityForResult(intent, INFO_CHANGE);
                 }
             });
         }
@@ -80,7 +84,16 @@ public class FragmentNewMe extends Fragment{
                 case INFO_CHANGE:
                     ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(head,0,0);
                     String headImgUrl = imageUrlPrefix+globalInfos.getUserId()+".jpg";
-                    VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
+                    //去缓存
+                    VolleyHelper volleyHelper = VolleyHelper.getInstance();
+                    volleyHelper.removeCache(headImgUrl);
+
+                    int headSize = (int)getResources().getDimension(R.dimen.me_head_size);
+                    boolean isCache = volleyHelper.getImageLoader().isCached(headImgUrl,headSize,headSize);
+                    Log.e(TAG, "isCache:"+isCache);
+
+                    volleyHelper.getImageLoader().get(headImgUrl, headImgListener, headSize, headSize);
+                    Log.e(TAG, "update head");
 
                     name.setText(globalInfos.getUser().getNickname());
                     break;

@@ -18,8 +18,8 @@
         >
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/head"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="@dimen/me_head_size"
+            android:layout_height="@dimen/me_head_size"
             android:src="@drawable/man"
             android:layout_centerVertical="true"
             />
@@ -56,7 +56,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/women"
+                android:src="@drawable/plan"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -85,7 +85,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/women"
+                android:src="@drawable/pictures"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -113,7 +113,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/women"
+                android:src="@drawable/collections"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -140,7 +140,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/women"
+            android:src="@drawable/setting"
             />
         <TextView
             android:layout_width="wrap_content"

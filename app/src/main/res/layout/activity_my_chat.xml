@@ -44,13 +44,6 @@
                 android:layout_height="match_parent"
                 android:background="@color/background_white_not_transparent"
                 >
-                <TextView
-                    android:id="@+id/empty"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="数据为空, 下拉刷新"
-                    />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/loading_view"

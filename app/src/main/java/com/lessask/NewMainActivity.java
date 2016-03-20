@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -28,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.lessask.chat.Chat;
 import com.lessask.chat.ChatGroup;
 import com.lessask.chat.FragmentMessage;
+import com.lessask.contacts.ContactActivity;
 import com.lessask.contacts.FindFriendActivity;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -66,6 +68,7 @@ public class NewMainActivity extends AppCompatActivity {
     private Map<Integer,Fragment> fragments=new HashMap<>();
 
     private View addFriend;
+    private Menu menu;
 
     private void replaceFragment(Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -79,7 +82,7 @@ public class NewMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_main);
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle("少问");
         mToolbar.setTitleTextColor(getResources().getColor(R.color.white));
         setSupportActionBar(mToolbar);
@@ -94,11 +97,30 @@ public class NewMainActivity extends AppCompatActivity {
         myFragmentPagerAdapter.addFragment(fragmentMe, "我");
         mViewPager.setAdapter(myFragmentPagerAdapter);
 
-
-        TabLayout tabLayout = (TabLayout)findViewById(R.id.tabs);
+        final TabLayout tabLayout = (TabLayout)findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int position = tab.getPosition();
+                if(position==1){
+                    menu.getItem(0).setVisible(true);
+                }else {
+                    menu.getItem(0).setVisible(false);
+                }
+                mViewPager.setCurrentItem(position);
+            }
 
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
 
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         baseInfo = getSharedPreferences("BaseInfo", MODE_PRIVATE);
         editor = baseInfo.edit();
@@ -133,6 +155,7 @@ public class NewMainActivity extends AppCompatActivity {
         loadData();
 
     }
+
     //加载基础数据
     private void loadBaseData(){
         Log.e(TAG, "loadBaseData");
@@ -352,14 +375,20 @@ public class NewMainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_new_main, menu);
+        this.menu = menu;
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = null;
         switch (item.getItemId()){
+            case R.id.contact:
+                intent = new Intent(NewMainActivity.this, ContactActivity.class);
+                startActivity(intent);
+                break;
             case R.id.add_friend:
-                Intent intent = new Intent(NewMainActivity.this, FindFriendActivity.class);
+                intent = new Intent(NewMainActivity.this, FindFriendActivity.class);
                 startActivity(intent);
                 break;
         }

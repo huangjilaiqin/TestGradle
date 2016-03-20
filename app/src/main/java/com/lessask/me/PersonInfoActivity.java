@@ -67,7 +67,8 @@ public class PersonInfoActivity extends AppCompatActivity {
         headImg = (CircleImageView) findViewById(R.id.head);
         ImageLoader.ImageListener headImgListener = ImageLoader.getImageListener(headImg,0,0);
         String headImgUrl = imageUrlPrefix+globalInfos.getUserId()+".jpg";
-        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener, 100, 100);
+        int headSize = (int)getResources().getDimension(R.dimen.me_head_size);
+        VolleyHelper.getInstance().getImageLoader().get(headImgUrl, headImgListener,headSize,headSize);
         nameView = (TextView) findViewById(R.id.name);
         nameView.setText(user.getNickname());
 
@@ -127,7 +128,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                                     if(user.getError()!=null || user.getErrno()!=0){
                                         Toast.makeText(PersonInfoActivity.this, user.getError(),Toast.LENGTH_LONG).show();
                                     }else {
-                                        headImg.setImageBitmap(ImageUtil.getOptimizeBitmapFromFile(picFile));
+                                        headImg.setImageBitmap(ImageUtil.getOptimizeBitmapFromFile(picFile,120,120));
                                     }
                                 }
 
