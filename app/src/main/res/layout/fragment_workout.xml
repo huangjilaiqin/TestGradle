@@ -83,7 +83,7 @@
                     android:rating="1"
                     android:isIndicator="false"
                     custom:starCount="5"
-                    custom:clickable="true"
+                    custom:clickable="false"
                     custom:starEmpty="@drawable/unstar"
                     custom:starFill="@drawable/star"
                     custom:starImageSize="14dp"
@@ -115,9 +115,9 @@
                     android:layout_marginLeft="8dp"
                     android:layout_gravity="center_vertical"
                     android:rating="1"
-                    android:isIndicator="false"
+                    android:isIndicator="true"
                     custom:starCount="5"
-                    custom:clickable="true"
+                    custom:clickable="false"
                     custom:starEmpty="@drawable/unstar"
                     custom:starFill="@drawable/star"
                     custom:starImageSize="14dp"
@@ -132,6 +132,7 @@
 
     </LinearLayout>
 
+    <!--
     <RelativeLayout
         android:id="@+id/personal_info"
         android:layout_centerHorizontal="true"
@@ -226,4 +227,5 @@
                 />
         </RelativeLayout>
     </RelativeLayout>
+    -->
 </RelativeLayout>

@@ -39,8 +39,8 @@ import java.util.List;
 
 public class MyChatAdapter extends BaseRecyclerAdapter<ChatMessage, RecyclerView.ViewHolder> {
     private static String TAG = "ChatAdapter";
-    private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Context context;
+    private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private  String imageUrlPrefix = config.getImgUrl();
 

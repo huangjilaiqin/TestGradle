@@ -67,6 +67,14 @@ public class FragmentNewMe extends Fragment{
                     startActivityForResult(intent, INFO_CHANGE);
                 }
             });
+            rootView.findViewById(R.id.weekplant).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getContext(), WorkoutPlanActivity.class);
+                    intent.putExtra("userid", globalInfos.getUserId());
+                    startActivityForResult(intent, INFO_CHANGE);
+                }
+            });
         }
         return rootView;
     }

@@ -35,12 +35,17 @@ public class Config {
     private String deleteWorkoutUrl = "http://123.59.40.113/httproute/workout/delete";
     private String updateWorkoutUrl = "http://123.59.40.113/httproute/workout/update";
     private String workoutsUrl = "http://123.59.40.113/httproute/workouts";
+    private String workoutUrl = "http://123.59.40.113/httproute/workout";
 
     private String recommendFriendsUrl = "http://123.59.40.113/httproute/recommendFriends/";
     private String friendsUrl = "http://123.59.40.113/httproute/friends/";
     private String userUrl = "http://123.59.40.113/httproute/user/";
     private String chatGroupUrl = "http://123.59.40.113/httproute/chatgroup";
     private String updateHeadImg = "http://123.59.40.113/httproute/headimg/update";
+
+    public String getWorkoutUrl() {
+        return workoutUrl;
+    }
 
     public String getUpdateHeadImg() {
         return updateHeadImg;

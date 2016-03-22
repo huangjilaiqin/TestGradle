@@ -220,15 +220,16 @@
         <activity
             android:name=".UserActivity"
             android:label="@string/title_activity_user" />
-        <activity android:name=".NewMainActivity"
-            android:screenOrientation="portrait"
-            />
+        <activity
+            android:name=".NewMainActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".me.PersonInfoActivity" />
         <activity android:name=".me.ChangeNameActivity" />
         <activity
             android:name=".contacts.ContactActivity"
             android:label="@string/title_activity_contact"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".me.WorkoutPlanActivity"></activity>
     </application>
 
 </manifest>

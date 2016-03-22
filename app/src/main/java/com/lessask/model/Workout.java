@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by JHuang on 2016/1/10.
  */
-public class Workout implements Parcelable {
+public class Workout extends ResponseError implements Parcelable {
     private int id;
     private int lessonId;
     private int userId;
