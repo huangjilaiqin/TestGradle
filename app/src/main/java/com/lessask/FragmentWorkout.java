@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lessask.custom.RatingBar;
 import com.lessask.custom.RoundProgressBar;
 import com.lessask.global.Config;
 import com.lessask.global.GlobalInfos;
@@ -33,6 +34,7 @@ public class FragmentWorkout extends Fragment {
         if(rootView==null){
             rootView = inflater.inflate(R.layout.fragment_workout, null);
             Log.e(TAG, "FragmentWorkout");
+            /*
             rootView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -40,10 +42,18 @@ public class FragmentWorkout extends Fragment {
                     startActivity(intent);
                 }
             });
+            */
             RoundProgressBar personalCircle = (RoundProgressBar)rootView.findViewById(R.id.personal_circle);
             personalCircle.setProgress(65);
             RoundProgressBar joinCircle = (RoundProgressBar)rootView.findViewById(R.id.join_circle);
             joinCircle.setProgress(65);
+
+            RatingBar mFatBar = (RatingBar)rootView.findViewById(R.id.fat_star);
+            mFatBar.setStar(5);
+
+            RatingBar mMuscleBar = (RatingBar)rootView.findViewById(R.id.muscle_star);
+            mMuscleBar.setStar(3);
+
         }
         return rootView;
     }
