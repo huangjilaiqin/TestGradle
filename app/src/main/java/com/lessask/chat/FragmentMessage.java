@@ -93,7 +93,7 @@ public class FragmentMessage extends Fragment{
                 public void onItemClick(View view, final int position) {
                     Intent intent = new Intent(getActivity(), MyChatActivity.class);
                     ChatGroup chatGroup = mRecyclerViewAdapter.getItem(position);
-                    //清空未读
+                    //清空未读消息
                     chatGroup.setUnreadCout(0);
                     mRecyclerViewAdapter.notifyItemChanged(position);
                     currentChatgroupId = chatGroup.getChatgroupId();

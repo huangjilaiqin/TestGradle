@@ -27,7 +27,8 @@
             android:background="@color/white_bg_border"/>
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            >
 
             <ImageView
                 android:id="@+id/lesson_image"
@@ -38,6 +39,10 @@
                 android:layout_marginLeft="16dp"
                 android:src="@drawable/women"
                 />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_below="@id/lesson_image"/>
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"

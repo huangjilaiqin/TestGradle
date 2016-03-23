@@ -158,7 +158,7 @@ public class MyChatAdapter extends BaseRecyclerAdapter<ChatMessage, RecyclerView
     public void updateItemStatusById(long id,int status){
         int positon=-1;
         List list = getList();
-        for(int i=list.size()-1;i>0;i--){
+        for(int i=list.size()-1;i>=0;i--){
             ChatMessage msg = (ChatMessage) list.get(i);
             if(msg.getId()==id){
                 positon=i;

@@ -1,5 +1,6 @@
 package com.lessask.contacts;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -42,6 +43,8 @@ public class ContactActivity extends AppCompatActivity {
     private GlobalInfos globalInfos = GlobalInfos.getInstance();
     private Config config = globalInfos.getConfig();
     private VolleyHelper volleyHelper = VolleyHelper.getInstance();
+
+    private final int CHAT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +99,7 @@ public class ContactActivity extends AppCompatActivity {
                     chatGroup.appendList(list);
                 }
                 intent.putExtra("chatGroup", chatGroup);
-                startActivity(intent);
+                startActivityForResult(intent, CHAT);
             }
         });
 
@@ -136,5 +139,18 @@ public class ContactActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            Log.e(TAG, "requestCode:" + requestCode);
+            switch (requestCode) {
+                case CHAT:
+                    finish();
+                    break;
+            }
+        }
     }
 }

@@ -86,6 +86,7 @@ public class MyChatActivity extends MyAppCompatActivity {
 
     private List<ChatMessage> messageList;
     private ChatGroup chatGroup;
+    private Intent intent;
 
     private Handler handler = new Handler() {
         @Override
@@ -174,14 +175,18 @@ public class MyChatActivity extends MyAppCompatActivity {
         }
     };
 
-
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK,intent);
+        finish();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_chat);
         //获取传递的数据
-        final Intent intent = getIntent();
+        intent = getIntent();
         userId = globalInfos.getUserId();
         chatGroup = intent.getParcelableExtra("chatGroup");
         chatgroupId = chatGroup.getChatgroupId();
@@ -194,9 +199,6 @@ public class MyChatActivity extends MyAppCompatActivity {
                 friendId = id1;
         }
 
-
-
-
         //初始化控件
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle(chatGroup.getName());
@@ -204,9 +206,11 @@ public class MyChatActivity extends MyAppCompatActivity {
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setResult(RESULT_OK,intent);
                 finish();
             }
         });
+
 
         //swipeView = (SwipeRefreshLayout) findViewById(R.id.swipe);
         //键盘弹起时，信息滚动到最后一条
