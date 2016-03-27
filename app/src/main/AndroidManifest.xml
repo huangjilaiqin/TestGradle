@@ -200,6 +200,7 @@
             android:theme="@style/AppTheme" />
         <activity android:name=".test.NestedScrollActivity" />
         <activity android:name=".test.CoordinatorLayoutActivity" />
+        <activity android:name=".test.CoordinatorLayout2Activity" />
         <activity android:name=".lesson.EditLessonActivity" />
         <activity
             android:name=".test.ReplaceChildActivity"

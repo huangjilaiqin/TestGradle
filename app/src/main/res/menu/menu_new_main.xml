@@ -23,7 +23,7 @@
                 app:showAsAction="always"
                 />
             <item android:id="@+id/test"
-                android:title="即时运动"
+                android:title="测试"
                 android:orderInCategory="80"
                 android:icon="@drawable/man"
                 app:showAsAction="always"

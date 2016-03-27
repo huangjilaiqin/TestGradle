@@ -44,6 +44,8 @@ import com.lessask.tag.GetTagsRequest;
 import com.lessask.tag.GetTagsResponse;
 import com.lessask.tag.TagData;
 import com.lessask.tag.TagNet;
+import com.lessask.test.CoordinatorLayout2Activity;
+import com.lessask.test.CoordinatorLayoutActivity;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -389,6 +391,10 @@ public class NewMainActivity extends AppCompatActivity {
                 break;
             case R.id.add_friend:
                 intent = new Intent(NewMainActivity.this, FindFriendActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.test:
+                intent = new Intent(NewMainActivity.this, CoordinatorLayout2Activity.class);
                 startActivity(intent);
                 break;
         }
